@@ -1,0 +1,10 @@
+{
+  "name": "uxp-template-default-starter",
+  "version": "1.0.0",
+  "description": "Default template for creating Adobe UXP based photoshop plugin.",
+  "author": "Adobe Inc",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "fastify": "^4.10.2"
+  }
+}

@@ -1,0 +1,13 @@
+**/__pycache__
+/server_env
+/tmp
+/outputs
+/log
+/.idea
+/.vscode
+test.bat
+server/python_server/output/*
+server/python_server/init_images/*
+node_modules/
+server/python_server/prompt_shortcut.json
+experimental/

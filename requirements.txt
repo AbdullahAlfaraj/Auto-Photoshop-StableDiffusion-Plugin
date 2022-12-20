@@ -1,0 +1,4 @@
+requests
+Pillow
+fastapi
+uvicorn[standard]

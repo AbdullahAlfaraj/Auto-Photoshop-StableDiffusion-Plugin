@@ -1,0 +1,141 @@
+{
+  "id": "auto.photoshop.stable.diffusion.plugin",
+  "name": "Auto Photoshop Stable Diffusion Plugin",
+  "version": "1.0.0",
+  "host": [
+    {
+      "app": "PS",
+      "minVersion": "24.0.0"
+    }
+  ],
+  "main": "index.html",
+  "manifestVersion": 4,
+  "requiredPermissions": {
+    "network": {
+      "domains": [
+        "https://source.unsplash.com",
+        "https://api.github.com/",
+        "http://127.0.0.1:3000",
+        "http://localhost:3000",
+        "http://127.0.0.1:7860",
+        "http://127.0.0.1",
+        "http://localhost"
+      ]
+    },
+    "launchProcess": {
+      "schemes": ["http", "https", "mailto"],
+		  "extensions": [".png", ".jpg", ".pdf"]
+    },
+    
+    "clipboard": "readAndWrite",
+    "localFileSystem": "request",
+    "ipc": {
+      "enablePluginCommunication": true
+    }
+  },
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "vanilla",
+      "label": {
+        "default": "Starter Panel",
+        "en-US": "Starter Panel",
+        "es-ES": "Starter Panel"
+      },
+      "minimumSize": {
+        "width": 400,
+        "height": 450
+      },
+      "maximumSize": {
+        "width": 1200,
+        "height": 10000
+      },
+      "preferredDockedSize": {
+        "width": 150,
+        "height": 200
+      },
+      "preferredFloatingSize": {
+        "width": 300,
+        "height": 200
+      },
+      "commands": [
+        {
+          "id": "show_alert",
+          "label": {
+            "default": "Show Alert",
+            "en-US": "Show Alert (US)",
+            "es-ES": "Show Alert (ES)"
+          }
+        }
+      ],
+      "icons": [
+        {
+          "width": 32,
+          "height": 32,
+          "path": "icons/icon_D.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "dark",
+            "darkest"
+          ],
+          "species": [
+            "generic"
+          ]
+        },
+        {
+          "width": 32,
+          "height": 32,
+          "path": "icons/icon_N.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "lightest",
+            "light"
+          ],
+          "species": [
+            "generic"
+          ]
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "width": 32,
+      "height": 32,
+      "path": "icons/icon_D.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "dark",
+        "darkest"
+      ],
+      "species": [
+        "generic"
+      ]
+    },
+    {
+      "width": 32,
+      "height": 32,
+      "path": "icons/icon_N.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "lightest",
+        "light"
+      ],
+      "species": [
+        "generic"
+      ]
+    }
+  ]
+}
