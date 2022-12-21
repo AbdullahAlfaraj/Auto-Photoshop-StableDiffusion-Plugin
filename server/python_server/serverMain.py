@@ -9,9 +9,9 @@ import os
 import time
 import serverHelper
 import prompt_shortcut
-def txt2ImgRequest(payload):
-    url = "http://127.0.0.1:7860"
 
+sd_url = os.environ.get('SD_URL', 'http://127.0.0.1:7860')
+def txt2ImgRequest(payload):
     # payload = { 
     #     "prompt": "cute cat, kitten",
     #     "steps": 10
@@ -29,7 +29,7 @@ def txt2ImgRequest(payload):
     request_path = "/sdapi/v1/txt2img"
     
     
-    response = requests.post(url=f'{url}{request_path}', json=payload)
+    response = requests.post(url=f'{sd_url}{request_path}', json=payload)
 
     r = response.json()
 
@@ -45,7 +45,7 @@ def txt2ImgRequest(payload):
         png_payload = {
             "image": "data:image/png;base64," + i
         }
-        response2 = requests.post(url=f'{url}/sdapi/v1/png-info', json=png_payload)
+        response2 = requests.post(url=f'{sd_url}/sdapi/v1/png-info', json=png_payload)
         pnginfo = PngImagePlugin.PngInfo()
         pnginfo.add_text("parameters", response2.json().get("info"))
         image_name = f'output- {time.time()}.png'
@@ -95,7 +95,7 @@ def read_root():
 #     return {"prompt":payload.prompt,"images": ""}
 
 
-from fastapi import Request
+from fastapi import Request, Response
 import img2imgapi
 @app.post("/txt2img/")
 async def txt2ImgHandle(request:Request):
@@ -148,11 +148,24 @@ async def getInitImageHandle(request:Request):
     
     return {"payload": payload,"init_image_str":init_img_str}
 
+@app.get('/sdapi/v1/{path:path}')
+async def sdapi(path: str, request: Request, response: Response):
+    resp = requests.get(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params)
+    response.status_code = resp.status_code
+    response.body = resp.content
+    return response
+
+@app.post('/sdapi/v1/{path:path}')
+async def sdapi(path: str, request: Request, response: Response):
+    resp = requests.post(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params, json=await request.json())
+    response.status_code = resp.status_code
+    response.body = resp.content
+    return response
+
 
 
 @app.post("/swapModel")
 async def swapModel(request:Request):
-    url = "http://127.0.0.1:7860"
     print("swapModel: \n")
     payload = await request.json()
     print("payload:",payload)
@@ -162,4 +175,4 @@ async def swapModel(request:Request):
         "sd_model_checkpoint": model_title
 
     }
-    response = requests.post(url=f'{url}/sdapi/v1/options', json=option_payload)
+    response = requests.post(url=f'{sd_url}/sdapi/v1/options', json=option_payload)

@@ -118,7 +118,7 @@ async function requestProgress () {
   console.log('requestProgress: ')
 
   const full_url =
-    'http://127.0.0.1:7860/sdapi/v1/progress?skip_current_image=false'
+    'http://127.0.0.1:8000/sdapi/v1/progress?skip_current_image=false'
   let request = await fetch(full_url)
   let json = await request.json()
   console.log('progress json:')
@@ -130,7 +130,7 @@ async function requestProgress () {
 async function requestGetModels () {
   console.log('requestGetModels: ')
 
-  const full_url = 'http://127.0.0.1:7860/sdapi/v1/sd-models'
+  const full_url = 'http://127.0.0.1:8000/sdapi/v1/sd-models'
   let request = await fetch(full_url)
   let json = await request.json()
   console.log('models json:')
@@ -142,7 +142,7 @@ async function requestGetModels () {
 async function requestGetSamplers () {
   console.log('requestGetSamplers: ')
 
-  const full_url = 'http://127.0.0.1:7860/sdapi/v1/samplers'
+  const full_url = 'http://127.0.0.1:8000/sdapi/v1/samplers'
   let request = await fetch(full_url)
   let json = await request.json()
   console.log('samplers json:')
@@ -155,7 +155,7 @@ async function requestSwapModel (model_title) {
   console.log('requestSwapModel: ')
   // const full_url = 'http://127.0.0.1:8000/swapModel'
 
-  const full_url = 'http://127.0.0.1:7860/sdapi/v1/options'
+  const full_url = 'http://127.0.0.1:8000/sdapi/v1/options'
   payload = {
     sd_model_checkpoint: model_title
   }
@@ -181,7 +181,7 @@ async function requestInterrupt (model_title) {
   console.log('requestSwapModel: ')
   // const full_url = 'http://127.0.0.1:8000/swapModel'
 
-  const full_url = 'http://127.0.0.1:7860/sdapi/v1/interrupt'
+  const full_url = 'http://127.0.0.1:8000/sdapi/v1/interrupt'
   payload = {
     sd_model_checkpoint: model_title
   }
