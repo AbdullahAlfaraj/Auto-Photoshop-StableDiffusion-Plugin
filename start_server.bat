@@ -25,7 +25,7 @@ echo my_path: %~dp0
 @REM set current_dir=
 set VENV_DIR=%~dp0server_env
 @REM cd ./server_env/Scripts/
-set PYTHON=%VENV_DIR%\Scripts\Python.exe
+set PYTHON="%VENV_DIR%\Scripts\Python.exe"
 %PYTHON% -m pip install -r requirements.txt
 
 cd ./server/python_server
