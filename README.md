@@ -2,8 +2,8 @@
 
 With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilities of Automatic1111 Stable Diffusion in Photoshop without switching between programs. This allow you to easily use Stable Diffusion AI in a familiar environment. You can edit your stable diffusion image with all your favorite tools and save it right in Photoshop. 
 
-
-
+### Click the picture to watch the demo:
+[![Click Here to Watch Demo](https://i3.ytimg.com/vi/VL_gbQai79E/maxresdefault.jpg)](https://youtu.be/VL_gbQai79E "Stable diffusion AI Photoshop Plugin Free and Open Source")
 
 # how to install:
 ## First time runing the plugin:
@@ -12,7 +12,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 git clone https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin.git
 ```
 2) run "start_server.bat" inside "Auto-Photoshop-StableDiffusion-Plugin" directory
-3) go to where you have automatic1111 installed.
+3) go to where you have [automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) installed. 
 Edit the "webui-user.bat" in automatic1111 
  change this line 
 ```
