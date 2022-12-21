@@ -92,3 +92,4 @@ If you have an issue even after reading the following section. Please consider s
 	* Select the "group_init_image" in the layers panel and click on "set init image" button.
 * After selecting a model, you may need to wait for it to be loaded in Stable Diffusion before you should hit Generate. 
 * Check the progress bar if it's stuck at 0% or 1%: You could always cancel/interrupt the request if you think it's taking too long and regenerated again.
+* Don't open multiple photoshop documents. For now, this will break the plugin. Only work on one project at a time.
