@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Set the desired remote host where the "<>" is
+export SD_URL=http://<>:7860
+
 # Check if the desired environment exists
 if [ ! -d "server_env" ]; then
   # Create the environment if it doesn't exist
