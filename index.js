@@ -12,6 +12,10 @@ const app = window.require('photoshop').app
 const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
 
+// just a number that shouldn't unique enough that we will use when save files.
+// each session will get a number from 1 to 1000000
+const random_session_id = Math.floor((Math.random() * 1000000) + 1);
+
 //duplicate the active layer
 async function duplication () {
   try {
@@ -343,13 +347,13 @@ document
 document
   .getElementById('btnInitOutpaint')
   .addEventListener('click', async () => {
-    await outpaint.outpaintFasterExe()
+    await outpaint.outpaintFasterExe(random_session_id)
   })
 
 document
   .getElementById('btnInitInpaint')
   .addEventListener('click', async () => {
-    await outpaint.inpaintFasterExe()
+    await outpaint.inpaintFasterExe(random_session_id)
   })
 
 function toggleGenerateInterruptButton (defaultVal) {
@@ -480,7 +484,7 @@ document
 async function setInitImage () {
   // await exportHelper.exportPng()
   try {
-    await psapi.exportPng()
+    await psapi.exportPng(random_session_id)
     image_name = await app.activeDocument.activeLayers[0].name
     image_name = `${image_name}.png`
     g_init_image_name = image_name
@@ -497,7 +501,7 @@ document.getElementById('bSetInitImage').addEventListener('click', setInitImage)
 async function setInitImageMask () {
   try {
     // await exportHelper.exportPng()
-    await psapi.exportPng()
+    await psapi.exportPng(random_session_id)
 
     //get the active layer name
     image_name = await app.activeDocument.activeLayers[0].name
