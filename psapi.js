@@ -493,12 +493,9 @@ async function fastSnapshot(){
 
 
 
-function layerToFileName(layer,session_id){
-  file_name = `${layer.name}_${layer.id}_${session_id}`
-  return file_name
-}
 
-async function exportPngCommand (session_id) {
+
+async function exportPngCommand () {
   
   // const result = await batchPlay { _obj: “exportSelectionAsFileTypePressed”}
 
@@ -509,12 +506,7 @@ async function exportPngCommand (session_id) {
         let pluginFolder = await fs.getPluginFolder()
         // await fs.getFolder("./init_images")
         let init_images_dir = await pluginFolder.getEntry("./server/python_server/init_images")
-        const layer =  await app.activeDocument.activeLayers[0]
-        const old_name = layer.name
-        //change the name of layer to unique name 
-        const file_name = layerToFileName(layer,session_id)
-        layer.name = file_name
-        const id = await app.activeDocument.activeLayers[0].id     
+  const id = app.activeDocument.activeLayers[0].id     
   const exportCommand = {
     _obj: 'exportSelectionAsFileTypePressed',
     // _target: { _ref: 'layer', _enum: 'ordinal', _value: 'targetEnum' },
@@ -529,24 +521,17 @@ async function exportPngCommand (session_id) {
     _options: { dialogOptions: 'dontDisplay' }
   }
   const result = await batchPlay([exportCommand], {
-    synchronousExecution: true,
+    synchronousExecution: false,
     modalBehavior: 'execute'
   })
-  
+
   return result
 }
 
-async function exportPng (session_id) {
+async function exportPng () {
   
-  console.log("exportPng() -> session_id:", session_id)
   try {
-    const old_name = await app.activeDocument.activeLayers[0].name 
-    await executeAsModal(async () => {
-  await exportPngCommand(session_id)
-})
-
-    app.activeDocument.activeLayers[0].name = old_name 
-    //after export rename the layer to it's original name by remove the "_${id}" from the name 
+    await executeAsModal(exportPngCommand)
   } catch (e) {
     console.log('exportPng error:', e)
   }
@@ -558,9 +543,9 @@ async function exportPng (session_id) {
 
 
 // await runModalFunction();
-async function setInitImage (layer,session_id) {
+async function setInitImage (layer) {
   const sdapi = require("./sdapi")
-  await exportPng(session_id)
+  await exportPng()
   // image_name = await app.activeDocument.activeLayers[0].name
   image_name = layer.name
   image_name = `${image_name}.png`
@@ -570,9 +555,9 @@ async function setInitImage (layer,session_id) {
   let ini_image_element = document.getElementById('init_image')
   ini_image_element.src = image_src
 }
-async function setInitImageMask (layer,session_id) {
+async function setInitImageMask (layer) {
   const sdapi = require("./sdapi")
-  await exportPng(session_id)
+  await exportPng()
   //get the active layer name
   // image_name = await app.activeDocument.activeLayers[0].name
   image_name = layer.name
@@ -604,6 +589,5 @@ module.exports = {
   fastSnapshot,
   setInitImage,
   setInitImageMask,
-  exportPng,
-  layerToFileName
+  exportPng
 }

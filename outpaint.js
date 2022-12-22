@@ -214,7 +214,7 @@ try{
 }
 }
 
-async function outpaintFasterExe(session_id){
+async function outpaintFasterExe(){
   //create a snapshot of canvas
   //select opaque pixel and create black fill layer
   //create a snapshot of mask
@@ -258,10 +258,10 @@ async function outpaintFasterExe(session_id){
           solid_black_layer.delete()
 
           await psapi.selectLayers([snapshotGroup])
-          await psapi.setInitImage(snapshotGroup,session_id)
+          await psapi.setInitImage(snapshotGroup)
 
           await psapi.selectLayers([snapshotMaskGroup])
-          await psapi.setInitImageMask(snapshotMaskGroup,session_id)
+          await psapi.setInitImageMask(snapshotMaskGroup)
           //set initial image
           //set mask image
           
@@ -272,7 +272,7 @@ async function outpaintFasterExe(session_id){
   }
   }
 
-  async function inpaintFasterExe(session_id){
+  async function inpaintFasterExe(){
     //
     //create a snapshot of canvas
     //select opaque pixel and create black fill layer
@@ -325,10 +325,10 @@ async function outpaintFasterExe(session_id){
             // solid_black_layer.delete()
   
             await psapi.selectLayers([maskGroup])
-            await psapi.setInitImageMask(maskGroup,session_id)
+            await psapi.setInitImageMask(maskGroup)
             
             await psapi.selectLayers([snapshotLayer])
-            await psapi.setInitImage(snapshotLayer,session_id)
+            await psapi.setInitImage(snapshotLayer)
   
             // await psapi.selectLayers([snapshotMaskGroup])
             // await psapi.setInitImageMask(snapshotMaskGroup)
