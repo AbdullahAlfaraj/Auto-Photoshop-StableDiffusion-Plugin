@@ -3,6 +3,9 @@ import requests
 import io
 import base64
 from PIL import Image, PngImagePlugin
+from serverMain import sd_url
+import asyncio
+import httpx
 
 
 from io import BytesIO
@@ -18,8 +21,7 @@ def img_2_b64(image):
 
 import time
 import serverHelper
-def img2ImgRequest(payload):
-    url = "http://127.0.0.1:7860"
+async def img2ImgRequest(payload):
     # init_img = Image.open(r"C:/Users/abdul/Desktop/photoshop_plugins/my_plugin_1/server/python_server/output- 1670544300.95411.png") 
     print("payload debug:",payload)
     
@@ -56,31 +58,32 @@ def img2ImgRequest(payload):
     # print("payload:",payload)
     print(type(init_img_str))
     #request the images to be generated
-    response = requests.post(url=f'{url}/sdapi/v1/img2img', json=payload)
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url=f'{sd_url}/sdapi/v1/img2img', json=payload, timeout=None)
 
-    r = response.json()
+        r = response.json()
 
-    #create a directory to store the images at
-    # dirName = f'{time.time()}'
-    dir_fullpath,dirName = serverHelper.makeDirPathName()
-    serverHelper.createFolder(dir_fullpath)
-    image_paths = []
-    #for each image store the prompt and settings in the meta data
-    for i in r['images']:
-        image = Image.open(io.BytesIO(base64.b64decode(i.split(",",1)[0])))
+        #create a directory to store the images at
+        # dirName = f'{time.time()}'
+        dir_fullpath,dirName = serverHelper.makeDirPathName()
+        serverHelper.createFolder(dir_fullpath)
+        image_paths = []
+        #for each image store the prompt and settings in the meta data
+        for i in r['images']:
+            image = Image.open(io.BytesIO(base64.b64decode(i.split(",",1)[0])))
 
-        png_payload = {
-            "image": "data:image/png;base64," + i
-        }
-        response2 = requests.post(url=f'{url}/sdapi/v1/png-info', json=png_payload)
-        pnginfo = PngImagePlugin.PngInfo()
-        pnginfo.add_text("parameters", response2.json().get("info"))
-        image_name = f'output- {time.time()}.png'
-        image_path = f'output/{dirName}/{image_name}'
-        image_paths.append(image_path)
-        image.save(f'./{image_path}', pnginfo=pnginfo)   
-    
-    return dirName,image_paths
+            png_payload = {
+                "image": "data:image/png;base64," + i
+            }
+            response2 = await client.post(url=f'{sd_url}/sdapi/v1/png-info', json=png_payload, timeout=None)
+            pnginfo = PngImagePlugin.PngInfo()
+            pnginfo.add_text("parameters", response2.json().get("info"))
+            image_name = f'output- {time.time()}.png'
+            image_path = f'output/{dirName}/{image_name}'
+            image_paths.append(image_path)
+            image.save(f'./{image_path}', pnginfo=pnginfo)   
+        
+        return dirName,image_paths
 
 if __name__=="__main__":
     img2ImgRequest()
