@@ -484,8 +484,14 @@ document
 async function setInitImage () {
   // await exportHelper.exportPng()
   try {
+    const layer = await app.activeDocument.activeLayers[0]
+    old_name = layer.name 
     await psapi.exportPng(random_session_id)
-    image_name = await app.activeDocument.activeLayers[0].name
+    
+    image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
+    
+    // image_name = psapi.layerToFileName(layer,random_session_id)
+
     image_name = `${image_name}.png`
     g_init_image_name = image_name
     console.log(image_name)
@@ -500,19 +506,25 @@ document.getElementById('bSetInitImage').addEventListener('click', setInitImage)
 
 async function setInitImageMask () {
   try {
-    // await exportHelper.exportPng()
+    const layer = await app.activeDocument.activeLayers[0]
+    old_name = layer.name 
     await psapi.exportPng(random_session_id)
-
+    image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
+    
     //get the active layer name
-    image_name = await app.activeDocument.activeLayers[0].name
+    // const layer = await app.activeDocument.activeLayers[0]
+    // image_name = psapi.layerToFileName(layer,random_session_id)
     image_name = `${image_name}.png`
+    
     g_init_image_mask_name = image_name
     console.log(image_name)
+    
     const image_src = await sdapi.getInitImage(g_init_image_mask_name)
     const ini_image_mask_element = document.getElementById('init_image_mask')
     ini_image_mask_element.src = image_src
   } catch (e) {
-    console.log('setInitImageMask error:', e)
+    
+    console.error(`setInitImageMask error: ${e}`)
   }
 }
 document
