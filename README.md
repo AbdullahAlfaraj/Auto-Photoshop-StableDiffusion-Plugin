@@ -93,3 +93,19 @@ If you have an issue even after reading the following section. Please consider s
 * After selecting a model, you may need to wait for it to be loaded in Stable Diffusion before you should hit Generate. 
 * Check the progress bar if it's stuck at 0% or 1%: You could always cancel/interrupt the request if you think it's taking too long and regenerated again.
 * Don't open multiple photoshop documents. For now, this will break the plugin. Only work on one project at a time.
+
+### Issues with img2img, inpaint or outpaint:
+img2img, inpaint and outpaint use photoshop "quick export as png" feature under the hood.
+
+At random quick export as png will break, this is a known photoshop bug.
+
+To test if the feature is broken and is the cause of your issue, do the following:
+
+select a layer and right click on it, then select quick export as png. if you get prompted with a windows, then the quick export works fine.
+However if nothing happen then you will need to restart photoshop and try the export feature again, until it works.
+
+if it work then you could procced to use the plugin.
+
+until you get it to work the img2img, inpaint and outpaint will not function correctly. 
+
+
