@@ -1,4 +1,5 @@
 @REM @echo off
+set SD_URL=http://127.0.0.1:7860
 
 echo does server_env\ exist
 if exist server_env\ (

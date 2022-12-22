@@ -3,15 +3,18 @@ import requests
 import io
 import base64
 from PIL import Image, PngImagePlugin
+import asyncio
+import httpx
 
 
 import os
 import time
 import serverHelper
 import prompt_shortcut
-def txt2ImgRequest(payload):
-    url = "http://127.0.0.1:7860"
 
+sd_url = os.environ.get('SD_URL', 'http://127.0.0.1:7860')
+
+async def txt2ImgRequest(payload):
     # payload = { 
     #     "prompt": "cute cat, kitten",
     #     "steps": 10
@@ -28,33 +31,32 @@ def txt2ImgRequest(payload):
     #request the images to be generated
     request_path = "/sdapi/v1/txt2img"
     
-    
-    response = requests.post(url=f'{url}{request_path}', json=payload)
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url=f'{sd_url}/sdapi/v1/txt2img', json=payload, timeout=None)
+        r = response.json()
 
-    r = response.json()
+        #create a directory to store the images at
+        # dirName = f'{time.time()}'
+        dir_fullpath,dirName = serverHelper.makeDirPathName()
+        serverHelper.createFolder(dir_fullpath)
+        image_paths = []
+        #for each image store the prompt and settings in the meta data
+        for i in r['images']:
+            image = Image.open(io.BytesIO(base64.b64decode(i.split(",",1)[0])))
 
-    #create a directory to store the images at
-    # dirName = f'{time.time()}'
-    dir_fullpath,dirName = serverHelper.makeDirPathName()
-    serverHelper.createFolder(dir_fullpath)
-    image_paths = []
-    #for each image store the prompt and settings in the meta data
-    for i in r['images']:
-        image = Image.open(io.BytesIO(base64.b64decode(i.split(",",1)[0])))
-
-        png_payload = {
-            "image": "data:image/png;base64," + i
-        }
-        response2 = requests.post(url=f'{url}/sdapi/v1/png-info', json=png_payload)
-        pnginfo = PngImagePlugin.PngInfo()
-        pnginfo.add_text("parameters", response2.json().get("info"))
-        image_name = f'output- {time.time()}.png'
-        
-        image_path = f'output/{dirName}/{image_name}'
-        image_paths.append(image_path)
-        image.save(f'./{image_path}', pnginfo=pnginfo)   
-        
-    return dirName,image_paths
+            png_payload = {
+                "image": "data:image/png;base64," + i
+            }
+            response2 = await client.post(url=f'{sd_url}/sdapi/v1/png-info', json=png_payload)
+            pnginfo = PngImagePlugin.PngInfo()
+            pnginfo.add_text("parameters", response2.json().get("info"))
+            image_name = f'output- {time.time()}.png'
+            
+            image_path = f'output/{dirName}/{image_name}'
+            image_paths.append(image_path)
+            image.save(f'./{image_path}', pnginfo=pnginfo)
+            
+        return dirName,image_paths
 
 import base64
 from io import BytesIO
@@ -95,13 +97,13 @@ def read_root():
 #     return {"prompt":payload.prompt,"images": ""}
 
 
-from fastapi import Request
+from fastapi import Request, Response
 import img2imgapi
 @app.post("/txt2img/")
 async def txt2ImgHandle(request:Request):
     print("txt2ImgHandle: \n")
     payload = await request.json() 
-    dir_name,image_paths = txt2ImgRequest(payload)
+    dir_name,image_paths = await txt2ImgRequest(payload)
     # return {"prompt":payload.prompt,"images": ""}
     return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths}
 
@@ -109,7 +111,7 @@ async def txt2ImgHandle(request:Request):
 async def img2ImgHandle(request:Request):
     print("img2ImgHandle: \n")
     payload = await request.json() 
-    dir_name,image_paths = img2imgapi.img2ImgRequest(payload)
+    dir_name,image_paths = await img2imgapi.img2ImgRequest(payload)
     # return {"prompt":payload.prompt,"images": ""}
     return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths}
 
@@ -148,11 +150,24 @@ async def getInitImageHandle(request:Request):
     
     return {"payload": payload,"init_image_str":init_img_str}
 
+@app.get('/sdapi/v1/{path:path}')
+async def sdapi(path: str, request: Request, response: Response):
+    resp = requests.get(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params)
+    response.status_code = resp.status_code
+    response.body = resp.content
+    return response
+
+@app.post('/sdapi/v1/{path:path}')
+async def sdapi(path: str, request: Request, response: Response):
+    resp = requests.post(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params, json=await request.json())
+    response.status_code = resp.status_code
+    response.body = resp.content
+    return response
+
 
 
 @app.post("/swapModel")
 async def swapModel(request:Request):
-    url = "http://127.0.0.1:7860"
     print("swapModel: \n")
     payload = await request.json()
     print("payload:",payload)
@@ -162,4 +177,4 @@ async def swapModel(request:Request):
         "sd_model_checkpoint": model_title
 
     }
-    response = requests.post(url=f'{url}/sdapi/v1/options', json=option_payload)
+    response = requests.post(url=f'{sd_url}/sdapi/v1/options', json=option_payload)
