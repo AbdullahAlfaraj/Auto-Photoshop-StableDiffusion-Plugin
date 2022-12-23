@@ -348,6 +348,9 @@ document
 document
   .getElementById('btnInitOutpaint')
   .addEventListener('click', async () => {
+    // clear the layers related to the last mask operation.
+    g_last_outpaint_layers = await psapi.cleanLayersOutpaint(g_last_outpaint_layers)
+    // create new layers related to the current mask operation.
     g_last_outpaint_layers = await outpaint.outpaintFasterExe(random_session_id)
     console.log ("outpaint.outpaintFasterExe(random_session_id):, g_last_outpaint_layers: ",g_last_outpaint_layers)
   })
@@ -355,6 +358,9 @@ document
 document
   .getElementById('btnInitInpaint')
   .addEventListener('click', async () => {
+    // delete the layers of the previous mask operation
+    g_last_inpaint_layers = await psapi.cleanLayersInpaint(g_last_inpaint_layers)
+    // store the layer of the current mask operation
     g_last_inpaint_layers =  await outpaint.inpaintFasterExe(random_session_id)
     
     console.log ("outpaint.inpaintFasterExe(random_session_id):, g_last_inpaint_layers: ",g_last_inpaint_layers)
