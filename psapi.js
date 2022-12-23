@@ -619,6 +619,34 @@ async function setInitImageMask (layer, session_id) {
   const ini_image_mask_element = document.getElementById('init_image_mask')
   ini_image_mask_element.src = image_src
 }
+
+// remove the generated mask related layers from the canvas and "layers" panel
+
+async function cleanLayersOutpaint(layers){
+  //delete group mask layer
+  //delete mask layer 
+  //delete group init image layer 
+  //delete init image layer (snapshot layer)
+  //delete fill layer 
+
+  for (layer of layers){
+    await executeAsModal(async ()=>{await layer.delete()})
+  }
+  
+return []
+}
+async function cleanLayersInpaint(layers){
+  //delete group mask layer
+  //delete white mask layer
+  //delete the black fill layer  
+  //delete init image layer (snapshot layer)
+
+  for (layer of layers){
+    await executeAsModal(async ()=>{await layer.delete()})
+  }
+  
+return []
+}
 module.exports = {
   createSolidLayer,
   createEmptyGroup,
@@ -642,5 +670,7 @@ module.exports = {
   setInitImageMask,
   exportPng,
   layerToFileName,
-  layerNameToFileName
+  layerNameToFileName,
+  cleanLayersOutpaint,
+  cleanLayersInpaint
 }
