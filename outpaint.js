@@ -266,7 +266,9 @@ async function outpaintFasterExe(session_id){
           //set initial image
           //set mask image
         outpaintLayers = [snapshotMaskGroup,snapshotMaskLayer,snapshotLayer,snapshotGroup,whiteSolidLayer]
-        console.log("outpaintLayers 1: ", outpaintLayers)
+        for (layer of outpaintLayers){
+          layer.visible = false 
+        }
       })
       console.log("outpaintLayers 2: ", outpaintLayers)
       return outpaintLayers
