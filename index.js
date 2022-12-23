@@ -96,7 +96,8 @@ let g_model_title = ''
 let gWidth = 512
 let gHeight = 512
 let g_inpainting_fill = 0
-
+let g_last_outpaint_layers = []
+let g_last_inpaint_layers = []
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -347,13 +348,16 @@ document
 document
   .getElementById('btnInitOutpaint')
   .addEventListener('click', async () => {
-    await outpaint.outpaintFasterExe(random_session_id)
+    g_last_outpaint_layers = await outpaint.outpaintFasterExe(random_session_id)
+    console.log ("outpaint.outpaintFasterExe(random_session_id):, g_last_outpaint_layers: ",g_last_outpaint_layers)
   })
 
 document
   .getElementById('btnInitInpaint')
   .addEventListener('click', async () => {
-    await outpaint.inpaintFasterExe(random_session_id)
+    g_last_inpaint_layers =  await outpaint.inpaintFasterExe(random_session_id)
+    
+    console.log ("outpaint.inpaintFasterExe(random_session_id):, g_last_inpaint_layers: ",g_last_inpaint_layers)
   })
 
 function toggleGenerateInterruptButton (defaultVal) {
@@ -372,6 +376,24 @@ document.getElementById('btnRandomSeed').addEventListener('click', async () => {
   document.querySelector('#tiSeed').value = '-1'
 })
 
+document.getElementById('btnCleanLayers').addEventListener('click', async () => {
+  console.log("click on btnCleanLayers,  g_last_outpaint_layers:",g_last_outpaint_layers)
+  console.log("click on btnCleanLayers,  g_last_inpaint_layers:",g_last_inpaint_layers)
+  if (g_last_outpaint_layers.length == 5){
+    console.log("g_last_outpaint_layers has 5 layers")
+    g_last_outpaint_layers = await psapi.cleanLayersOutpaint(g_last_outpaint_layers)
+
+  }else{
+    console.log("g_last_outpaint_layers.length =! 5 layers")
+    g_last_outpaint_layers = []
+  }
+  if (g_last_inpaint_layers.length == 4){
+    g_last_inpaint_layers = await psapi.cleanLayersInpaint(g_last_inpaint_layers)
+
+  }else{
+    g_last_inpaint_layers = []
+  }
+})
 document.getElementById('btnInterrupt').addEventListener('click', async () => {
   json = await sdapi.requestInterrupt()
   toggleGenerateInterruptButton(false)

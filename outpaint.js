@@ -222,7 +222,8 @@ async function outpaintFasterExe(session_id){
   //set mask image
   
   try{
-      executeAsModal(async ()=>{
+    let outpaintLayers = []
+      await executeAsModal(async ()=>{
   
           const selectionInfo = await psapi.getSelectionInfoExe()
           // await psapi.unSelectMarqueeExe()
@@ -264,12 +265,17 @@ async function outpaintFasterExe(session_id){
           await psapi.setInitImageMask(snapshotMaskGroup,session_id)
           //set initial image
           //set mask image
-          
+        outpaintLayers = [snapshotMaskGroup,snapshotMaskLayer,snapshotLayer,snapshotGroup,whiteSolidLayer]
+        console.log("outpaintLayers 1: ", outpaintLayers)
       })
-      
+      console.log("outpaintLayers 2: ", outpaintLayers)
+      return outpaintLayers
   }catch(e){
-  console.log("outpaintFasterExe error:", e)
+  console.error(`outpaintFasterExe error: ${e}`)
+
+  // console.log("outpaintFasterExe error:", e)
   }
+
   }
 
   async function inpaintFasterExe(session_id){
@@ -279,9 +285,9 @@ async function outpaintFasterExe(session_id){
     //create a snapshot of mask
     //set initial image
     //set mask image
-    
     try{
-        executeAsModal(async ()=>{
+      let inpaintLayers = []
+        await executeAsModal(async ()=>{
     
             const selectionInfo = await psapi.getSelectionInfoExe()
             
@@ -335,8 +341,13 @@ async function outpaintFasterExe(session_id){
             // //set initial image
             // //set mask image
             
+            psapi.selectLayers([maskGroup])
+            inpaintLayers = [maskGroup,white_mark_layer,snapshotLayer,blackSolidLayer]
+            for (layer of inpaintLayers){
+              layer.visible = false 
+            }
         })
-        
+        return inpaintLayers
     }catch(e){
     console.log("inpaintFasterExe error:", e)
     }
