@@ -589,7 +589,10 @@ async function progressRecursive () {
   let json = await sdapi.requestProgress()
   document.querySelector('#pProgressBar').value = json.progress * 100
   if (json.progress > 0) {
-    await progressRecursive()
+    setTimeout(async ()=>{
+      await progressRecursive()
+    },500)
+    
   }
 }
 
