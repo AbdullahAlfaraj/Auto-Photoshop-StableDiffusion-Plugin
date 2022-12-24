@@ -98,6 +98,7 @@ let gHeight = 512
 let g_inpainting_fill = 0
 let g_last_outpaint_layers = []
 let g_last_inpaint_layers = []
+let g_last_snap_and_fill_layers = []
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -150,6 +151,8 @@ function displayUpdate () {
     document.getElementById('init_image_container').style.display = 'none' // hide init image
     document.getElementById('init_image_mask_container').style.display = 'none' // hide init mask
     document.getElementById('slInpainting_fill').style.display = 'none' // hide inpainting fill mode
+    
+    document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
   }
 
   if (g_sd_mode == 'img2img') {
@@ -159,6 +162,7 @@ function displayUpdate () {
 
     document.getElementById('init_image_mask_container').style.display = 'none' // hide mask
     document.getElementById('slInpainting_fill').style.display = 'none' // hide inpainting fill mode
+    document.getElementById('btnSnapAndFill').style.display = 'inline-flex' // hide snap and fill button mode
   }
   if (g_sd_mode == 'inpaint') {
     document.getElementById('slDenoisingStrength').style.display = 'block'
@@ -166,11 +170,12 @@ function displayUpdate () {
     document.getElementById('slInpainting_fill').style.display = 'block'
     document.getElementById('init_image_container').style.display = 'block' // hide init image
 
-    document.getElementById('btnInitOutpaint').style.display = 'inline-block'
-    document.getElementById('btnInitInpaint').style.display = 'inline-block'
+    document.getElementById('btnInitOutpaint').style.display = 'inline-flex'
+    document.getElementById('btnInitInpaint').style.display = 'inline-flex'
+    document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
     // document.getElementById('btnInitOutpaint').style.display = 'none'
     // document.getElementById('btnInitInpaint').style.display = 'none'
-  } else {
+  } else {//txt2img or img2img
     document.getElementById('btnInitOutpaint').style.display = 'none'
     document.getElementById('btnInitInpaint').style.display = 'none'
   }
@@ -345,6 +350,20 @@ document
   })
 
 // document.getElementById('btnPopulate').addEventListener('click', showLayerNames)
+
+document
+  .getElementById('btnSnapAndFill')
+  .addEventListener('click', async () => {
+
+      // clear the layers related to the last mask operation.
+      g_last_snap_and_fill_layers = await psapi.cleanSnapAndFill(g_last_snap_and_fill_layers)
+      // create new layers related to the current mask operation.
+      g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
+      console.log ("outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ",g_last_snap_and_fill_layers)
+  })
+
+
+
 document
   .getElementById('btnInitOutpaint')
   .addEventListener('click', async () => {
@@ -385,6 +404,13 @@ document.getElementById('btnRandomSeed').addEventListener('click', async () => {
 document.getElementById('btnCleanLayers').addEventListener('click', async () => {
   console.log("click on btnCleanLayers,  g_last_outpaint_layers:",g_last_outpaint_layers)
   console.log("click on btnCleanLayers,  g_last_inpaint_layers:",g_last_inpaint_layers)
+  
+  console.log("click on btnCleanLayers,  g_last_snap_and_fill_layers:",g_last_snap_and_fill_layers)
+
+  
+  console.log("g_last_snap_and_fill_layers")
+  g_last_snap_and_fill_layers = await psapi.cleanSnapAndFill(g_last_snap_and_fill_layers)
+
   if (g_last_outpaint_layers.length == 5){
     console.log("g_last_outpaint_layers has 5 layers")
     g_last_outpaint_layers = await psapi.cleanLayersOutpaint(g_last_outpaint_layers)

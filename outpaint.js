@@ -214,6 +214,63 @@ try{
 }
 }
 
+async function snapAndFillExe(session_id){
+  //create a snapshot of canvas
+  //select opaque pixel and create black fill layer
+  //create a snapshot of mask
+  //set initial image
+  //set mask image
+  
+  try{
+    let snapAndFillLayers = []
+      await executeAsModal(async ()=>{
+  
+          const selectionInfo = await psapi.getSelectionInfoExe()
+          // await psapi.unSelectMarqueeExe()
+  
+          //create a snapshot of canvas
+          // let [snapshotLayer,snapshotGroup] =  await createSnapshot()
+          await psapi.snapshot_layer()
+          const snapshotLayer = await app.activeDocument.activeLayers[0]
+          const snapshotGroup = await psapi.createEmptyGroup()
+          
+
+          snapshotGroup.name = `${snapshotGroup.name}_init_image`
+          await psapi.createSolidLayer(255, 255, 255)
+          const whiteSolidLayer = await app.activeDocument.activeLayers[0]
+          snapshotLayer.moveAbove(whiteSolidLayer)
+          console.log("[snapshotLayer,snapshotGroup]:",[snapshotLayer,snapshotGroup])
+          
+          
+          //create a snapshot of mask
+          await psapi.reSelectMarqueeExe(selectionInfo)
+          // let [snapshotMaskLayer,snapshotMaskGroup] = await createSnapshot()
+          
+          await psapi.selectLayers([snapshotGroup])
+          await psapi.setInitImage(snapshotGroup,session_id)
+
+          // await psapi.selectLayers([snapshotMaskGroup])
+          // await psapi.setInitImageMask(snapshotMaskGroup,session_id)
+          //set initial image
+          //set mask image
+        snapAndFillLayers = [snapshotLayer,snapshotGroup,whiteSolidLayer]
+
+        for (layer of snapAndFillLayers){
+          layer.visible = false 
+        }
+      })
+      console.log("snapAndFillLayers: ", snapAndFillLayers)
+      return snapAndFillLayers
+  }catch(e){
+  console.error(`snapAndFill error: ${e}`)
+
+  // console.log("outpaintFasterExe error:", e)
+  }
+
+  }
+
+
+  
 async function outpaintFasterExe(session_id){
   //create a snapshot of canvas
   //select opaque pixel and create black fill layer
@@ -361,6 +418,7 @@ module.exports = {
   executeCommand,
   outpaintExe,
   outpaintFasterExe,
-  inpaintFasterExe
+  inpaintFasterExe,
+  snapAndFillExe
 }
 
