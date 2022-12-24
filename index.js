@@ -30,7 +30,10 @@ async function duplication () {
     console.log('duplication error:', e)
   }
 }
-
+async function refreshUI(){
+  await initSamplers()
+  await refreshModels()
+}
 async function refreshModels () {
   g_models = await sdapi.requestGetModels()
   // const models_menu_element = document.getElementById('mModelsMenu')
@@ -509,7 +512,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
 
 document
   .getElementById('btnRefreshModels')
-  .addEventListener('click', refreshModels)
+  .addEventListener('click', refreshUI)
 
 document.querySelector('#mModelsMenu').addEventListener('change', evt => {
   const model_index = evt.target.selectedIndex
