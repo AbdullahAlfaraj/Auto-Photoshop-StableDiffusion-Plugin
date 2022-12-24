@@ -30,6 +30,20 @@ async function duplication () {
     console.log('duplication error:', e)
   }
 }
+
+function tempDisableElement(element,time){
+
+  element.disabled = true;
+  element.style.opacity = "0.65"; 
+  element.style.cursor =  "not-allowed";
+  setTimeout(function() {
+    element.disabled = false;
+    element.style.opacity = "1.0"; 
+  element.style.cursor =  "default";
+  }, time);
+}
+
+
 async function refreshUI(){
   await initSamplers()
   await refreshModels()
@@ -512,7 +526,11 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
 
 document
   .getElementById('btnRefreshModels')
-  .addEventListener('click', refreshUI)
+  .addEventListener('click', (e)=>{
+    refreshUI()
+    tempDisableElement(e.target,3000)
+  }
+    )
 
 document.querySelector('#mModelsMenu').addEventListener('change', evt => {
   const model_index = evt.target.selectedIndex
