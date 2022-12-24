@@ -676,6 +676,44 @@ async function cleanLayers(layers){
   
 // return []
 // }
+async function createClippingMaskExe () {
+  const batchPlay = require('photoshop').action.batchPlay
+
+  async function createClippingMaskCommand(){
+
+    const result = await batchPlay(
+      [
+      {
+        _obj: 'make',
+        new: {
+          _class: 'channel'
+        },
+        at: {
+          _ref: 'channel',
+          _enum: 'channel',
+          _value: 'mask'
+        },
+        using: {
+          _enum: 'userMaskEnabled',
+          _value: 'revealSelection'
+        },
+        _options: {
+          dialogOptions: 'dontDisplay'
+        }
+      }
+    ],
+    {
+      synchronousExecution: true,
+      modalBehavior: 'execute'
+    }
+    )
+  }
+
+  await executeAsModal(async () => {
+    createClippingMaskCommand()
+  })
+}
+
 
 module.exports = {
   createSolidLayer,
@@ -704,5 +742,6 @@ module.exports = {
   // cleanLayersOutpaint,
   // cleanLayersInpaint,
   cleanSnapAndFill,
-  cleanLayers
+  cleanLayers,
+  createClippingMaskExe
 }
