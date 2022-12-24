@@ -5,16 +5,12 @@
   <script src="index.js"></script>
 </head>
 <style>
-  /* [...] */
+
   sp-textarea {
 
     width: 100%;
     height: 100px;
-    /* padding-left: 5%;
-     padding-right: 5%; */
-    /* width: 500px;
-    height: 100px;
-    overflow: auto; */
+
   }
 
   .container {
@@ -64,8 +60,7 @@
   .grid-container {
     display: inline-flex;
     grid-template-columns: auto auto auto;
-    /* background-color: #2196F3; */
-    /* padding: 10px; */
+  
   }
 
   .column-item-image {
@@ -83,7 +78,7 @@
     background-color: #777;
     color: white;
     cursor: pointer;
-    /* padding: 5px; */
+  
     width: 100%;
     border: none;
     text-align: left;
@@ -97,8 +92,7 @@
     background-color: #777;
     color: white;
     cursor: pointer;
-    /* padding: 5px; */
-    /* width: 100%; */
+  
     border: none;
 
     text-align: left;
@@ -111,8 +105,7 @@
     background-color: #777;
     color: white;
     cursor: pointer;
-    /* padding: 5px; */
-    /* width: 100%; */
+  
     border: 1px;
 
     text-align: left;
@@ -120,6 +113,7 @@
     outline: solid;
     font-size: 15px;
     margin: 10px;
+  
   }
 
   .wrapper {
@@ -129,8 +123,9 @@
     right: 0;
     bottom: 0;
     overflow: auto;
-    /* or scroll */
+    
   }
+
   #progressContainer{
     
     display: flex;
@@ -212,10 +207,14 @@
 
       <div id="image_viewer">
         <div class="imgButton">
+          <!-- <button class="button-style2" id="btnSnapAndFill">Snap And Fill</button> -->
+          <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+          
           <button class="button-style2" id="btnInitInpaint">Init inpaint
             Mask</button>
           <button class="button-style2" id="btnInitOutpaint">Init Outpaint
             Mask</button>
+
         </div>
 
         <!-- <sp-detail>Image from Web:</sp-detail> -->
@@ -229,7 +228,15 @@
           <tr>
             <td>
               <div id="init_image_container" class="imgContainer">
+                <!-- <div class="imgButton" id="container_btnSnapAndFill">
+                  
+                </div> -->
+                <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button>
+
+                <!-- <button class="column-item button-style" id="btnSnapFill">Snap and Fill</button> -->
+                <!-- <div class="imgButton" id="containter_snapAndfill" >  <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button></div> -->
                 <div>
+                  <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
                   <!-- <div class="imgButton"><button class="btnSquare column-item button-style" id="btnInitInpaint">Init inpaint Mask</button></div> -->
                   <!-- <div class="imgButton"><button class="btnSquare column-item button-style" id="btnInitOutpaint">Init Outpaint Mask</button></div> -->
                   <img id="init_image" class="column-item-image" src='https://source.unsplash.com/random' width="300px"
