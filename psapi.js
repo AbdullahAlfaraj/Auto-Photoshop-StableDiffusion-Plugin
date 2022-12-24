@@ -634,31 +634,48 @@ async function cleanSnapAndFill(layers){
 return []
 }
 
-async function cleanLayersOutpaint(layers){
-  //delete group mask layer
-  //delete mask layer 
-  //delete group init image layer 
-  //delete init image layer (snapshot layer)
-  //delete fill layer 
-
+async function cleanLayers(layers){
+  console.log("cleanLayers() -> layers:",layers)
   for (layer of layers){
-    await executeAsModal(async ()=>{await layer.delete()})
+    try {
+      await executeAsModal(async ()=>{await layer.delete()})}
+      catch(e){
+        console.warn("warning attempting to a delete layer: ",e)  
+        continue;
+      }
   }
-  
-return []
+  return []
 }
-async function cleanLayersInpaint(layers){
-  //delete group mask layer
-  //delete white mask layer
-  //delete the black fill layer  
-  //delete init image layer (snapshot layer)
 
-  for (layer of layers){
-    await executeAsModal(async ()=>{await layer.delete()})
-  }
+// async function cleanLayersOutpaint(layers){
+//   //delete group mask layer
+//   //delete mask layer 
+//   //delete group init image layer 
+//   //delete init image layer (snapshot layer)
+//   //delete fill layer 
+
+//   for (layer of layers){
+//     try {
+//       await executeAsModal(async ()=>{await layer.delete()})}
+//       catch(e){
+//         console.warn("warning attempting to a delete layer: ",e)
+//       }
+//   }
   
-return []
-}
+// return []
+// }
+// async function cleanLayersInpaint(layers){
+//   //delete group mask layer
+//   //delete white mask layer
+//   //delete the black fill layer  
+//   //delete init image layer (snapshot layer)
+
+//   for (layer of layers){
+//     await executeAsModal(async ()=>{await layer.delete()})
+//   }
+  
+// return []
+// }
 
 module.exports = {
   createSolidLayer,
@@ -684,7 +701,8 @@ module.exports = {
   exportPng,
   layerToFileName,
   layerNameToFileName,
-  cleanLayersOutpaint,
-  cleanLayersInpaint,
-  cleanSnapAndFill
+  // cleanLayersOutpaint,
+  // cleanLayersInpaint,
+  cleanSnapAndFill,
+  cleanLayers
 }
