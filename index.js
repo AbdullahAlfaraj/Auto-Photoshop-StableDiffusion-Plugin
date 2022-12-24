@@ -182,6 +182,14 @@ function displayUpdate () {
     document.getElementById('btnSnapAndFill').style.display = 'inline-flex' // hide snap and fill button mode
   }
   if (g_sd_mode == 'inpaint') {
+    ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring   
+    document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
+    document.getElementById('tableInitImageContainer').style.display = 'none' // hide the table 
+    setTimeout(() => {
+      document.getElementById('tableInitImageContainer').style.display = 'table' // show the table after some time so it gets rendered. 
+    }, 100);
+    
+
     document.getElementById('slDenoisingStrength').style.display = 'block'
     document.getElementById('init_image_mask_container').style.display = 'block'
     document.getElementById('slInpainting_fill').style.display = 'block'
@@ -189,7 +197,6 @@ function displayUpdate () {
 
     document.getElementById('btnInitOutpaint').style.display = 'inline-flex'
     document.getElementById('btnInitInpaint').style.display = 'inline-flex'
-    document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
     // document.getElementById('btnInitOutpaint').style.display = 'none'
     // document.getElementById('btnInitInpaint').style.display = 'none'
   } else {//txt2img or img2img
