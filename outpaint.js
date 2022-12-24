@@ -321,7 +321,8 @@ async function outpaintFasterExe(session_id){
           await psapi.createClippingMaskExe()
           await psapi.selectLayers([snapshotGroup])
           await psapi.setInitImage(snapshotGroup,session_id)
-
+          await psapi.reSelectMarqueeExe(selectionInfo)
+          
           await psapi.selectLayers([snapshotMaskGroup])
           await psapi.setInitImageMask(snapshotMaskGroup,session_id)
           //set initial image
