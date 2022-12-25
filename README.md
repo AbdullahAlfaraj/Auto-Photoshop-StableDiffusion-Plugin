@@ -5,6 +5,9 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 ### Click the picture to watch the demo:
 [![Click Here to Watch Demo](https://i3.ytimg.com/vi/VL_gbQai79E/maxresdefault.jpg)](https://youtu.be/VL_gbQai79E "Stable diffusion AI Photoshop Plugin Free and Open Source")
 
+### Click the picture to learn how to use (outpaint, inpaint, img2img and txt2img):
+[![Click Here to Watch Tutorial](http://i3.ytimg.com/vi/evjSIfYIQq0/hqdefault.jpg)](https://www.youtube.com/watch?v=evjSIfYIQq0&ab_channel=Abdsart "Tutorial - Auto Photoshop Stable Diffusion Plugin")
+
 # How to install:
 ## First time runing the plugin:
 1) download the plugin:
