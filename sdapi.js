@@ -214,6 +214,27 @@ async function requestInterrupt (model_title) {
   }
 }
 
+async function getVersionRequest(){
+  // version = "v0.0.0"
+    console.log('requestGetSamplers: ')
+  try {
+
+    const full_url = 'http://127.0.0.1:8000/version'
+    let request = await fetch(full_url)
+    let json = await request.json()
+    console.log('version json:',json)
+    version = json['version']
+    
+    return version
+  }catch(e){
+    console.warn(e)
+    version = "v0.0.0"
+
+    return version
+  }
+  
+
+}
 
 module.exports = {
   requestTxt2Img,
@@ -223,5 +244,6 @@ module.exports = {
   requestGetModels,
   requestSwapModel,
   requestInterrupt,
-  requestGetSamplers
+  requestGetSamplers,
+  getVersionRequest
 }

@@ -131,20 +131,29 @@
     display: flex;
      justify-content: space-between;
   }
+  #lVersionNumber{
+    display:flex;
+    margin-left: auto;
+  }
+#menu-bar-container{
+ 
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
 
-
+}
 </style>
 
 <body>
   <div class="container wrapper">
-    <div>
+    <div id="menu-bar-container">
       <sp-picker size="m" label="Selection type">
         <sp-menu id="mModelsMenu" slot="options">
           <!-- <sp-menu-item> item </sp-menu-item> -->
         </sp-menu>
       </sp-picker>
 
-      <button class="" id="btnRefreshModels">Refresh</button>
+      <button class="" id="btnRefreshModels">Refresh</button><sp-label slot="label" id="lVersionNumber">v0.0.0</sp-label>
     </div>
 
 

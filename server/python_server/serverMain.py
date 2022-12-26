@@ -88,6 +88,22 @@ def read_root():
     return {"Hello": "World"}
 
 
+@app.get("/version")
+def getVersion():
+    manifest_dir = "..\..\manifest.json"
+    
+    manifest = {'version': '0.0.0'}
+    version = "0.0.0"
+    try:
+
+        with open(manifest_dir, 'r') as f:
+            manifest = json.load(f)
+            version = manifest['version']
+    except:
+        print("couldn't read the manifest.json")
+    return {"version": f"v{version}"}
+
+
 # @app.get("/items/{item_id}")
 # def read_item(item_id: int, q: Union[str, None] = None):
 #     return {"item_id": item_id, "q": q}
