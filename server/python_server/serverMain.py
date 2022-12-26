@@ -11,7 +11,7 @@ import os
 import time
 import serverHelper
 import prompt_shortcut
-
+import metadata_to_json
 sd_url = os.environ.get('SD_URL', 'http://127.0.0.1:7860')
 
 async def txt2ImgRequest(payload):
@@ -56,8 +56,12 @@ async def txt2ImgRequest(payload):
             image_path = f'output/{dirName}/{image_name}'
             image_paths.append(image_path)
             image.save(f'./{image_path}', pnginfo=pnginfo)
-            metadata.append(response2.json().get("info"))
-            print("metadata: ", metadata)
+            
+            metadata_info = response2.json().get("info")
+            metadata_json = metadata_to_json.convertMetadataToJson(metadata_info)
+            metadata.append(metadata_json)
+            print("metadata_json: ", metadata_json)
+
         return dirName,image_paths,metadata
 
 import base64

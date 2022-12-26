@@ -66,6 +66,20 @@ async function requestTxt2Img (payload) {
   let json = await request.json()
   console.log('json:')
   console.dir(json)
+
+
+  
+  for (metadata of json.metadata){
+    
+    metadata_json = JSON.parse(metadata)
+    console.log("metadata_json:",metadata_json)
+
+  }
+  
+
+
+
+
   // base64data = json.images[0]
   // let img = document.getElementById('img1')
   // img.src = `data:image/png;base64, ${base64data}`
