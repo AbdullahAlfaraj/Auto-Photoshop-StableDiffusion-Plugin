@@ -97,7 +97,28 @@ If you have an issue even after reading the following section. Please consider s
 * Check the progress bar if it's stuck at 0% or 1%: You could always cancel/interrupt the request if you think it's taking too long and regenerated again.
 * Don't open multiple photoshop documents. For now, this will break the plugin. Only work on one project at a time.
 
-### Issues with img2img, inpaint or outpaint:
+# FAQ and Known Issues
+
+## Plugin Load Failed
+There are a few issues that can result in this error, please follow the instructions for the corresponding error message in the UDT logs
+### No application are connected to the service
+This error occurs when Photoshop is not started before the plugin is attempted to be loaded. Simply start photoshop then restart UXP and load the plugin
+### Load command failed in App with ID PS and Version X.X.X
+This error occurs when the version of Photoshop is mistmatched with the expected version of the plugin. This may be solved by editing the [manifest.json](manifest.json) file on line 8 to match your version of Photoshop. 
+```
+"host": [
+    {
+      "app": "PS",
+      "minVersion": "24.0.0"
+    }
+  ],
+```
+## Exception in ASGI application / Expectinv value: line 1 column 1
+This error occurs due to mismatched expectations between the plugin and the Automatic1111 backend. 
+It can be solved by both updating the version of the Automatic111 backend to the latest verion, and making sure "Save text information about generation parameters as chunks to png files" setting is enabled within the UI.
+## No Generations and Plugin Server doesn't send messages. (Remote setup)
+This error occurs when the remote server does not have the api enabled. You can verify this by attempting to go to the URL you access the webui at and appending "/docs#" to the end of the url. If you have permissions, make relaunch the remote instance with the "--api" flag. 
+## Issues with img2img, inpaint or outpaint:
 img2img, inpaint and outpaint use photoshop "quick export as png" feature under the hood.
 
 At random quick export as png will break, this is a known photoshop bug.
@@ -110,5 +131,3 @@ However if nothing happen then you will need to restart photoshop and try the ex
 if it work then you could procced to use the plugin.
 
 until you get it to work the img2img, inpaint and outpaint will not function correctly. 
-
-
