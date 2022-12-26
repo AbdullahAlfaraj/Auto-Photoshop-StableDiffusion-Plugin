@@ -5,8 +5,8 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 # Table of Contents
 - [Auto-Photoshop-StableDiffusion-Plugin](#auto-photoshop-stablediffusion-plugin)
 - [Table of Contents](#table-of-contents)
-- [Click the picture to watch the demo:](#click-the-picture-to-watch-the-demo)
-- [Click the picture to learn how to use (outpaint, inpaint, img2img and txt2img):](#click-the-picture-to-learn-how-to-use-outpaint-inpaint-img2img-and-txt2img)
+- [Demo:](#demo)
+- [Instructional Tutorial (outpaint, inpaint, img2img and txt2img):](#instructional-tutorial-outpaint-inpaint-img2img-and-txt2img)
 - [How to install:](#how-to-install)
 	- [First time runing the plugin (local Automatic1111):](#first-time-runing-the-plugin-local-automatic1111)
 	- [First time runing the plugin (remote Automatic1111):](#first-time-runing-the-plugin-remote-automatic1111)
@@ -26,10 +26,10 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 	- [No Generations and Plugin Server doesn't send messages. (Remote setup)](#no-generations-and-plugin-server-doesnt-send-messages-remote-setup)
 	- [Issues with img2img, inpaint or outpaint:](#issues-with-img2img-inpaint-or-outpaint)
 
-# Click the picture to watch the demo:
+# Demo:
 [![Click Here to Watch Demo](https://i3.ytimg.com/vi/VL_gbQai79E/maxresdefault.jpg)](https://youtu.be/VL_gbQai79E "Stable diffusion AI Photoshop Plugin Free and Open Source")
 
-# Click the picture to learn how to use (outpaint, inpaint, img2img and txt2img):
+# Instructional Tutorial (outpaint, inpaint, img2img and txt2img):
 [![Click Here to Watch Tutorial](http://i3.ytimg.com/vi/evjSIfYIQq0/hqdefault.jpg)](https://www.youtube.com/watch?v=evjSIfYIQq0&ab_channel=Abdsart "Tutorial - Auto Photoshop Stable Diffusion Plugin")
 
 # How to install:
