@@ -470,8 +470,15 @@ document.getElementById('btnCleanLayers').addEventListener('click', async () => 
   }
 })
 document.getElementById('btnInterrupt').addEventListener('click', async () => {
-  json = await sdapi.requestInterrupt()
-  toggleGenerateInterruptButton(false)
+  try{
+
+    json = await sdapi.requestInterrupt()
+    toggleGenerateInterruptButton(false)
+  }catch(e)
+  {
+    toggleGenerateInterruptButton(false)
+    console.warn(e)
+  }
 })
 document.getElementById('btnGenerate').addEventListener('click', async () => {
   toggleGenerateInterruptButton(true)

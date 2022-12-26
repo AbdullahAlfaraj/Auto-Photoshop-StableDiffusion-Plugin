@@ -183,30 +183,36 @@ async function requestSwapModel (model_title) {
 }
 
 async function requestInterrupt (model_title) {
-  console.log('requestSwapModel: ')
-  // const full_url = 'http://127.0.0.1:8000/swapModel'
+  try {
+    console.log('requestInterrupt: ')
+    // const full_url = 'http://127.0.0.1:8000/swapModel'
 
-  const full_url = 'http://127.0.0.1:8000/sdapi/v1/interrupt'
-  payload = {
-    sd_model_checkpoint: model_title
-  }
-  let request = await fetch(full_url, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
+    const full_url = 'http://127.0.0.1:8000/sdapi/v1/interrupt'
+    payload = {
+      // sd_model_checkpoint: model_title
     }
-    // body: JSON.stringify(payload)
-    // "body": payload
-  })
+    let request = await fetch(full_url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+      // "body": payload
+    })
 
-  let json = await request.json()
+    console.log("interrupt request:", request)
+    let json = await request.json()
 
-  console.log('interrupt json:')
-  console.dir(json)
+    console.log('interrupt json:')
+    console.dir(json)
 
-  return json
+    return json
+  } catch (e) {
+    console.warn(e)
+  }
 }
+
 
 module.exports = {
   requestTxt2Img,
