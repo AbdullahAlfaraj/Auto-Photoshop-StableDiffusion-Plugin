@@ -45,26 +45,49 @@ function tempDisableElement(element,time){
 
 
 async function refreshUI(){
+  
   await initSamplers()
   await refreshModels()
+  await updateVersionUI()
 }
 async function refreshModels () {
-  g_models = await sdapi.requestGetModels()
-  // const models_menu_element = document.getElementById('mModelsMenu')
+  try{
+
+    g_models = await sdapi.requestGetModels()
+    // const models_menu_element = document.getElementById('mModelsMenu')
   // models_menu_element.value = ""
   document.getElementById('mModelsMenu').innerHTML = ''
-
+  
   for (let model of g_models) {
     console.log(model.title)
     const menu_item_element = document.createElement('sp-menu-item')
     menu_item_element.innerHTML = model.title
     document.getElementById('mModelsMenu').appendChild(menu_item_element)
   }
+}catch(e){
+  console.warn(e)
+}
+}
+
+
+async function updateVersionUI(){
+  
+    try{
+      version = await sdapi.getVersionRequest()
+    document.getElementById('lVersionNumber').textContent = version
+    }
+    catch (e){
+      console.warn(e)
+      document.getElementById('lVersionNumber').textContent = "v0.0.0"
+    }
+  
 }
 
 async function initSamplers () {
-  let sampler_group = document.getElementById('sampler_group')
-  sampler_group.innerHTML = ''
+ try{
+
+   let sampler_group = document.getElementById('sampler_group')
+   sampler_group.innerHTML = ''
 
   samplers = await sdapi.requestGetSamplers()
   for (sampler of samplers) {
@@ -72,20 +95,23 @@ async function initSamplers () {
     // sampler.name
     // <sp-radio class="rbSampler" value="Euler">Euler</sp-radio>
     const rbSampler = document.createElement('sp-radio')
-
+    
     rbSampler.innerHTML = sampler.name
     rbSampler.setAttribute('class', 'rbSampler')
     rbSampler.setAttribute('value', sampler.name)
 
     sampler_group.appendChild(rbSampler)
     //add click event on radio button for Sampler radio button, so that when a button is clicked it change g_sd_sampler globally
-
+    
     rbSampler.addEventListener('click', evt => {
       g_sd_sampler = evt.target.value
       console.log(`You clicked: ${g_sd_sampler}`)
     })
   }
   document.getElementsByClassName('rbSampler')[0].setAttribute('checked', '')
+}catch(e){
+  console.warn(e)
+}
 }
 
 //steps to load init_image:
@@ -127,6 +153,7 @@ let g_can_request_progress = true
 refreshModels() // get the models when the plugin loads
 displayUpdate()
 initSamplers()
+updateVersionUI()
 //***********End: init function calls */
 
 //add click event on radio button mode, so that when a button is clicked it change g_sd_mode globally
