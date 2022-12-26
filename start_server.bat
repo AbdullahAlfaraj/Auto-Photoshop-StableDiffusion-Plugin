@@ -1,4 +1,6 @@
 @REM @echo off
+git pull
+
 set SD_URL=http://127.0.0.1:7860
 
 echo does server_env\ exist
