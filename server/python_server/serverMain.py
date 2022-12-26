@@ -11,7 +11,7 @@ import os
 import time
 import serverHelper
 import prompt_shortcut
-
+import metadata_to_json
 sd_url = os.environ.get('SD_URL', 'http://127.0.0.1:7860')
 
 async def txt2ImgRequest(payload):
@@ -41,6 +41,7 @@ async def txt2ImgRequest(payload):
         serverHelper.createFolder(dir_fullpath)
         image_paths = []
         #for each image store the prompt and settings in the meta data
+        metadata = []
         for i in r['images']:
             image = Image.open(io.BytesIO(base64.b64decode(i.split(",",1)[0])))
 
@@ -56,7 +57,12 @@ async def txt2ImgRequest(payload):
             image_paths.append(image_path)
             image.save(f'./{image_path}', pnginfo=pnginfo)
             
-        return dirName,image_paths
+            metadata_info = response2.json().get("info")
+            metadata_json = metadata_to_json.convertMetadataToJson(metadata_info)
+            metadata.append(metadata_json)
+            print("metadata_json: ", metadata_json)
+
+        return dirName,image_paths,metadata
 
 import base64
 from io import BytesIO
@@ -103,17 +109,17 @@ import img2imgapi
 async def txt2ImgHandle(request:Request):
     print("txt2ImgHandle: \n")
     payload = await request.json() 
-    dir_name,image_paths = await txt2ImgRequest(payload)
+    dir_name,image_paths,metadata = await txt2ImgRequest(payload)
     # return {"prompt":payload.prompt,"images": ""}
-    return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths}
+    return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths,"metadata":metadata}
 
 @app.post("/img2img/")
 async def img2ImgHandle(request:Request):
     print("img2ImgHandle: \n")
     payload = await request.json() 
-    dir_name,image_paths = await img2imgapi.img2ImgRequest(payload)
+    dir_name,image_paths,metadata = await img2imgapi.img2ImgRequest(payload)
     # return {"prompt":payload.prompt,"images": ""}
-    return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths}
+    return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths,"metadata":metadata}
 
 
 

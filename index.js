@@ -116,6 +116,9 @@ let g_inpainting_fill = 0
 let g_last_outpaint_layers = []
 let g_last_inpaint_layers = []
 let g_last_snap_and_fill_layers = []
+
+let g_metadatas = []
+
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -424,6 +427,22 @@ function toggleGenerateInterruptButton (defaultVal) {
 document.getElementById('btnRandomSeed').addEventListener('click', async () => {
   document.querySelector('#tiSeed').value = '-1'
 })
+document.getElementById('btnLastSeed').addEventListener('click', async () => {
+  try{
+    console.log("click on Last seed")
+    let seed = '-1'
+
+    console.log("g_metadatas.length: ",g_metadatas.length)
+    if (g_metadatas.length > 0){
+      seed = g_metadatas[0].Seed
+    } 
+    console.log("seed:",seed)
+    document.querySelector('#tiSeed').value = seed
+  }
+  catch(e){
+    console.warn(e)
+  }
+})
 
 document.getElementById('btnCleanLayers').addEventListener('click', async () => {
   console.log("click on btnCleanLayers,  g_last_outpaint_layers:",g_last_outpaint_layers)
@@ -495,6 +514,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   }, 2000)
   if (g_sd_mode == 'txt2img') {
     json = await sdapi.requestTxt2Img(payload)
+  
   } else if (g_sd_mode == 'img2img' || g_sd_mode == 'inpaint') {
     // g_denoising_strength = document.querySelector("#tiDenoisingStrength").value
     if (g_sd_mode == 'inpaint') {
@@ -526,6 +546,19 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     }
     json = await sdapi.requestImg2Img(payload)
   }
+  try {
+  g_metadatas = []
+
+  for (metadata of json.metadata) {
+    metadata_json = JSON.parse(metadata)
+    g_metadatas.push(metadata_json)
+    console.log('metadata_json:', metadata_json)
+  }
+} catch (e) {
+  console.warn(e)
+}
+
+  
   toggleGenerateInterruptButton(false)
   gImage_paths = json.image_paths
   await ImagesToLayersExe()
