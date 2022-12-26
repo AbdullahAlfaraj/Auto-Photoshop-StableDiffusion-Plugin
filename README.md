@@ -1,4 +1,10 @@
+
+
 # Auto-Photoshop-StableDiffusion-Plugin
+[![discord badge]][discord link]
+
+[discord badge]: https://flat.badgen.net/discord/members/3mVEtrddXJ
+[discord link]: https://discord.gg/3mVEtrddXJ
 
 With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilities of Automatic1111 Stable Diffusion in Photoshop without switching between programs. This allows you to easily use Stable Diffusion AI in a familiar environment. You can edit your Stable Diffusion image with all your favorite tools and save it right in Photoshop.
 
