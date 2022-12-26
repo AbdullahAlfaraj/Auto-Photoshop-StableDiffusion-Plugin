@@ -117,9 +117,9 @@ async def txt2ImgHandle(request:Request):
 async def img2ImgHandle(request:Request):
     print("img2ImgHandle: \n")
     payload = await request.json() 
-    dir_name,image_paths = await img2imgapi.img2ImgRequest(payload)
+    dir_name,image_paths,metadata = await img2imgapi.img2ImgRequest(payload)
     # return {"prompt":payload.prompt,"images": ""}
-    return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths}
+    return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths,"metadata":metadata}
 
 
 

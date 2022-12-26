@@ -21,6 +21,8 @@ def img_2_b64(image):
 
 import time
 import serverHelper
+import metadata_to_json
+
 async def img2ImgRequest(payload):
     # init_img = Image.open(r"C:/Users/abdul/Desktop/photoshop_plugins/my_plugin_1/server/python_server/output- 1670544300.95411.png") 
     print("payload debug:",payload)
@@ -68,6 +70,7 @@ async def img2ImgRequest(payload):
         dir_fullpath,dirName = serverHelper.makeDirPathName()
         serverHelper.createFolder(dir_fullpath)
         image_paths = []
+        metadata = []
         #for each image store the prompt and settings in the meta data
         for i in r['images']:
             image = Image.open(io.BytesIO(base64.b64decode(i.split(",",1)[0])))
@@ -81,9 +84,14 @@ async def img2ImgRequest(payload):
             image_name = f'output- {time.time()}.png'
             image_path = f'output/{dirName}/{image_name}'
             image_paths.append(image_path)
-            image.save(f'./{image_path}', pnginfo=pnginfo)   
+            image.save(f'./{image_path}', pnginfo=pnginfo)
+
+            metadata_info = response2.json().get("info")
+            metadata_json = metadata_to_json.convertMetadataToJson(metadata_info)
+            metadata.append(metadata_json)
+            print("metadata_json: ", metadata_json)   
         
-        return dirName,image_paths
+        return dirName,image_paths,metadata
 
 if __name__=="__main__":
     img2ImgRequest()
