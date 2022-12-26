@@ -118,6 +118,7 @@ let g_last_inpaint_layers = []
 let g_last_snap_and_fill_layers = []
 
 let g_metadatas = []
+let g_can_request_progress = true
 
 //********** End: global variables */
 
@@ -414,11 +415,14 @@ document
 
 function toggleGenerateInterruptButton (defaultVal) {
   if (defaultVal) {
+
     document.querySelector('#btnGenerate').style.display = 'none' // hide generate button
     document.querySelector('#btnInterrupt').style.display = 'inline-block' // show interrupt button
+    g_can_request_progress = true
   } else {
     document.querySelector('#btnGenerate').style.display = 'inline-block' // hide generate button
     document.querySelector('#btnInterrupt').style.display = 'none' // show interrupt button
+    g_can_request_progress = false
   }
 }
 
@@ -472,7 +476,9 @@ document.getElementById('btnCleanLayers').addEventListener('click', async () => 
 document.getElementById('btnInterrupt').addEventListener('click', async () => {
   try{
 
+    // g_can_request_progress = false
     json = await sdapi.requestInterrupt()
+    
     toggleGenerateInterruptButton(false)
   }catch(e)
   {
@@ -481,6 +487,7 @@ document.getElementById('btnInterrupt').addEventListener('click', async () => {
   }
 })
 document.getElementById('btnGenerate').addEventListener('click', async () => {
+  
   toggleGenerateInterruptButton(true)
   numberOfImages = document.querySelector('#tiNumberOfImages').value
   numberOfSteps = document.querySelector('#tiNumberOfSteps').value
@@ -518,6 +525,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   // setInterval(function(){progressRecursive()},2000);
   setTimeout(function () {
     progressRecursive()
+
   }, 2000)
   if (g_sd_mode == 'txt2img') {
     json = await sdapi.requestTxt2Img(payload)
@@ -656,7 +664,7 @@ document
 async function progressRecursive () {
   let json = await sdapi.requestProgress()
   document.querySelector('#pProgressBar').value = json.progress * 100
-  if (json.progress > 0) {
+  if (json.progress > 0 && g_can_request_progress == true) {
     setTimeout(async ()=>{
       await progressRecursive()
     },500)
