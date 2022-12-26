@@ -165,9 +165,24 @@ async def sdapi(path: str, request: Request, response: Response):
 
 @app.post('/sdapi/v1/{path:path}')
 async def sdapi(path: str, request: Request, response: Response):
-    resp = requests.post(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params, json=await request.json())
-    response.status_code = resp.status_code
-    response.body = resp.content
+    try:
+        json = await request.json()
+    except: 
+        json = {}
+
+    try:
+        # if(path =="interrupt"):
+        #     resp = requests.post(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params)
+
+        # else:
+        #     resp = requests.post(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params, json=await request.json())
+        resp = requests.post(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params, json=json)
+
+        response.status_code = resp.status_code
+        response.body = resp.content
+    except:
+        print(f'exception: fail to send request to {sd_url}/sdapi/v1/{path}')
+        print(f'{request}')
     return response
 
 
