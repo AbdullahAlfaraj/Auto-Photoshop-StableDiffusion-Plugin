@@ -142,6 +142,12 @@
     justify-content: space-between;
 
 }
+.labelNumber{
+  color: aliceblue;
+}
+#lNameInpaintPdding{
+margin-right: 10px;
+}
 </style>
 
 <body>
@@ -285,11 +291,11 @@
       <div>
         <sp-slider show-value="false" id="slWidth" min="1" max="32" value="8">
           <sp-label slot="label">Width:</sp-label>
-          <sp-label slot="label" id="lWidth">512</sp-label>
+          <sp-label class="labelNumber" slot="label" id="lWidth">512</sp-label>
         </sp-slider>
         <sp-slider show-value="false" id="slHeight" min="1" max="32" value="8">
           <sp-label slot="label">Height:</sp-label>
-          <sp-label slot="label" id="lHeight">512</sp-label>
+          <sp-label class="labelNumber" slot="label" id="lHeight">512</sp-label>
         </sp-slider>
       </div>
       <sp-slider show-value="true" id="slCfgScale" min="1" max="30" value="7">
@@ -303,7 +309,7 @@
       </sp-slider>
 
       <sp-slider show-value="true" id="slMaskBlur" min="0" max="64" value="0">
-        <sp-label slot="label">Mask Blur:</sp-label>
+        <sp-label  slot="label">Mask Blur:</sp-label>
         <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
       </sp-slider>
 
@@ -317,10 +323,9 @@
         </sp-radio-group>
       </div>
       <sp-checkbox id="chInpaintFullRes">Inpaint at full resolution</sp-checkbox>
-      <sp-slider show-value="true" id="slInpaintPadding" min="0" max="64" value="0">
-        <sp-label slot="label">Inpaint Padding:</sp-label>
-        
-        <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
+      <sp-slider show-value="false" id="slInpaintPadding" min="0" max="64" value="0">
+        <sp-label  slot="label" id="lNameInpaintPdding">Inpaint Padding:</sp-label>
+        <sp-label class="labelNumber" slot="label" id="lInpaintPadding">0</sp-label>
       </sp-slider>
       <!-- <sp-slider id="slInpainting_fill" min="0" max="3" value="1">
         <sp-label slot="label">Inpainting fill:</sp-label>

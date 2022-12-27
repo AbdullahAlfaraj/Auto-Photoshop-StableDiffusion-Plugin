@@ -382,6 +382,7 @@ function pastImage2Layer () {
 function sliderToResolution (sliderValue) {
   return sliderValue * 64
 }
+
 document.querySelector('#slHeight').addEventListener('input', evt => {
   gHeight = sliderToResolution(evt.target.value)
   document.querySelector('#lHeight').textContent = gHeight
@@ -389,6 +390,10 @@ document.querySelector('#slHeight').addEventListener('input', evt => {
 document.querySelector('#slWidth').addEventListener('input', evt => {
   gWidth = sliderToResolution(evt.target.value)
   document.querySelector('#lWidth').textContent = gWidth
+})
+document.querySelector('#slInpaintPadding').addEventListener('input', evt => {
+  padding = evt.target.value * 4
+  document.querySelector('#lInpaintPadding').textContent = padding
 })
 
 document
