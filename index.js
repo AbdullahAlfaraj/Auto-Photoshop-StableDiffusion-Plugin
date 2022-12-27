@@ -560,6 +560,8 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   //  const model_index = document.querySelector("#")
   const seed = document.querySelector('#tiSeed').value
   const mask_blur = document.querySelector('#slMaskBlur').value
+  const inpaint_full_res_padding = document.querySelector('#slInpaintPadding').value
+
   console.dir(numberOfImages)
   const bUsePromptShortcut = document.getElementById('chUsePromptShortcut').checked
   payload = {
@@ -595,9 +597,11 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
       g_use_mask_image = true
       payload['inpaint_full_res'] =
         document.getElementById('chInpaintFullRes').checked
+        payload['inpaint_full_res_padding'] = inpaint_full_res_padding *4
     } else {
       g_use_mask_image = false
       delete payload['inpaint_full_res'] //  inpaint full res is not available in img2img mode
+      delete paylaod['inpaint_full_res_padding']
     }
     console.log(`g_use_mask_image:? ${g_use_mask_image}`)
 
