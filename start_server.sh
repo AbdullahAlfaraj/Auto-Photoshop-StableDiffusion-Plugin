@@ -1,5 +1,5 @@
 #!/bin/bash
-
+git pull
 # Set the desired remote host where the "<>" is
 export SD_URL=http://127.0.0.1:7860
 
