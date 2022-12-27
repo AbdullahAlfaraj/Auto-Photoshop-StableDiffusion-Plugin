@@ -596,7 +596,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     } else {
       g_use_mask_image = false
       delete payload['inpaint_full_res'] //  inpaint full res is not available in img2img mode
-      delete paylaod['inpaint_full_res_padding']
+      delete payload['inpaint_full_res_padding']
     }
     console.log(`g_use_mask_image:? ${g_use_mask_image}`)
 
