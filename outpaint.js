@@ -364,13 +364,27 @@ async function outpaintFasterExe(session_id){
             // let [snapshotLayer,snapshotGroup] =  await createSnapshot()
             await psapi.snapshot_layer()
             const snapshotLayer = await app.activeDocument.activeLayers[0]
+            
+            const snapshotGroup = await psapi.createEmptyGroup()
+            await psapi.createSolidLayer(255, 255, 255)
+            const whiteSolidLayer = await app.activeDocument.activeLayers[0]
+            snapshotLayer.moveAbove(whiteSolidLayer)
+            
+            await psapi.reSelectMarqueeExe(selectionInfo)
+            await psapi.selectLayers([snapshotGroup])
+            await psapi.createClippingMaskExe()
+            await psapi.reSelectMarqueeExe(selectionInfo)
+             
+
+
+
             const maskGroup = await psapi.createEmptyGroup()
             maskGroup.name = `${maskGroup.name}_mask`
+
             await psapi.createSolidLayer(0, 0, 0)
             const blackSolidLayer = await app.activeDocument.activeLayers[0]
             // snapshotLayer.moveAbove(blackSolidLayer)
             white_mark_layer.moveAbove(blackSolidLayer)
-            // snapshotLayer.moveAbove(blackSolidLayer)
             white_mark_layer.visible = true
             await psapi.reSelectMarqueeExe(selectionInfo)
 
@@ -394,19 +408,27 @@ async function outpaintFasterExe(session_id){
             // await snapshotMaskGroup.moveAbove(snapshotGroup)
             // solid_black_layer.delete()
   
+
+            await psapi.selectLayers([maskGroup])
+            await psapi.reSelectMarqueeExe(selectionInfo)
+            await psapi.createClippingMaskExe()
+            await psapi.reSelectMarqueeExe(selectionInfo)
+
+            // await psapi.selectLayers([snapshotGroup])
+
             await psapi.selectLayers([maskGroup])
             await psapi.setInitImageMask(maskGroup,session_id)
             
-            await psapi.selectLayers([snapshotLayer])
-            await psapi.setInitImage(snapshotLayer,session_id)
-  
+            await psapi.selectLayers([snapshotGroup])
+            await psapi.setInitImage(snapshotGroup,session_id)
+
             // await psapi.selectLayers([snapshotMaskGroup])
             // await psapi.setInitImageMask(snapshotMaskGroup)
             // //set initial image
             // //set mask image
             
             psapi.selectLayers([maskGroup])
-            inpaintLayers = [maskGroup,white_mark_layer,snapshotLayer,blackSolidLayer]
+            inpaintLayers = [maskGroup,white_mark_layer,blackSolidLayer,snapshotGroup,snapshotLayer,whiteSolidLayer]
             for (layer of inpaintLayers){
               layer.visible = false 
             }
