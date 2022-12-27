@@ -382,6 +382,7 @@ function pastImage2Layer () {
 function sliderToResolution (sliderValue) {
   return sliderValue * 64
 }
+
 document.querySelector('#slHeight').addEventListener('input', evt => {
   gHeight = sliderToResolution(evt.target.value)
   document.querySelector('#lHeight').textContent = gHeight
@@ -389,6 +390,10 @@ document.querySelector('#slHeight').addEventListener('input', evt => {
 document.querySelector('#slWidth').addEventListener('input', evt => {
   gWidth = sliderToResolution(evt.target.value)
   document.querySelector('#lWidth').textContent = gWidth
+})
+document.querySelector('#slInpaintPadding').addEventListener('input', evt => {
+  padding = evt.target.value * 4
+  document.querySelector('#lInpaintPadding').textContent = padding
 })
 
 document
@@ -517,19 +522,14 @@ document.getElementById('btnCleanLayers').addEventListener('click', async () => 
   console.log("g_last_snap_and_fill_layers")
   g_last_snap_and_fill_layers = await psapi.cleanSnapAndFill(g_last_snap_and_fill_layers)
 
-  if (g_last_outpaint_layers.length == 5){
-    console.log("g_last_outpaint_layers has 5 layers")
+  if (g_last_outpaint_layers.length > 0){
     g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
+    console.log("g_last_outpaint_layers has 1 layers")
 
-  }else{
-    console.log("g_last_outpaint_layers.length =! 5 layers")
-    g_last_outpaint_layers = []
   }
-  if (g_last_inpaint_layers.length == 4){
+  if (g_last_inpaint_layers.length> 0 ){
     g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
 
-  }else{
-    g_last_inpaint_layers = []
   }
 })
 document.getElementById('btnInterrupt').addEventListener('click', async () => {
@@ -560,6 +560,8 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   //  const model_index = document.querySelector("#")
   const seed = document.querySelector('#tiSeed').value
   const mask_blur = document.querySelector('#slMaskBlur').value
+  const inpaint_full_res_padding = document.querySelector('#slInpaintPadding').value
+
   console.dir(numberOfImages)
   const bUsePromptShortcut = document.getElementById('chUsePromptShortcut').checked
   payload = {
@@ -595,9 +597,11 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
       g_use_mask_image = true
       payload['inpaint_full_res'] =
         document.getElementById('chInpaintFullRes').checked
+        payload['inpaint_full_res_padding'] = inpaint_full_res_padding *4
     } else {
       g_use_mask_image = false
       delete payload['inpaint_full_res'] //  inpaint full res is not available in img2img mode
+      delete payload['inpaint_full_res_padding']
     }
     console.log(`g_use_mask_image:? ${g_use_mask_image}`)
 
