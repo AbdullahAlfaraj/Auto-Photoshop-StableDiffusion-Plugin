@@ -517,19 +517,14 @@ document.getElementById('btnCleanLayers').addEventListener('click', async () => 
   console.log("g_last_snap_and_fill_layers")
   g_last_snap_and_fill_layers = await psapi.cleanSnapAndFill(g_last_snap_and_fill_layers)
 
-  if (g_last_outpaint_layers.length == 5){
-    console.log("g_last_outpaint_layers has 5 layers")
+  if (g_last_outpaint_layers.length > 0){
     g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
+    console.log("g_last_outpaint_layers has 1 layers")
 
-  }else{
-    console.log("g_last_outpaint_layers.length =! 5 layers")
-    g_last_outpaint_layers = []
   }
-  if (g_last_inpaint_layers.length == 4){
+  if (g_last_inpaint_layers.length> 0 ){
     g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
 
-  }else{
-    g_last_inpaint_layers = []
   }
 })
 document.getElementById('btnInterrupt').addEventListener('click', async () => {
