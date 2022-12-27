@@ -254,12 +254,59 @@ async function unSelectMarqueeExe () {
   await executeAsModal(unSelectMarqueeCommand)
 }
 ////selection:
+async function selectMarqueeRectangularToolExe () {
+  
+  async function selectMarqueeRectangularToolCommand(){
 
-async function selectLayerChannelCommand () {
-  //   const result = await batchPlay(
-  //     [
-  //       {
-  //         _obj: 'set',
+    const result = await batchPlay(
+      [
+      {
+        _obj: 'select',
+        _target: [
+          {
+            _ref: 'marqueeRectTool'
+          }
+        ],
+        _options: {
+          dialogOptions: 'dontDisplay'
+        }
+      }
+    ],
+    {
+      synchronousExecution: true,
+      modalBehavior: 'execute'
+    }
+    )
+    return result 
+  }
+  await executeAsModal(async ()=>{
+    await selectMarqueeRectangularToolCommand()
+  })
+}
+ 
+async function promptForMarqueeTool(){
+  ;(async () => {
+    const r1 = await dialog_box.prompt(
+      'Please Select a Rectangular Area',
+      'You Forgot to select a Rectangular Area',
+      ['Cancel', 'Rectangular Marquee']
+    )
+    if ((r1 || 'Rectangular Marquee') !== 'Rectangular Marquee') {
+      /* cancelled or No */
+      console.log("cancel")
+    } else {
+      /* Yes */
+      console.log("Rectangular Marquee")
+      selectMarqueeRectangularToolExe()
+    }
+  })()
+}
+
+    async function selectLayerChannelCommand () {
+      //   const result = await batchPlay(
+        //     [
+          //       {
+            //         _obj: 'set',
   //         _target: [
   //           {
   //             _ref: 'channel',
@@ -749,5 +796,7 @@ module.exports = {
   cleanSnapAndFill,
   cleanLayers,
   createClippingMaskExe,
-  checkIfSelectionAreaIsActive
+  checkIfSelectionAreaIsActive,
+  selectMarqueeRectangularToolExe,
+  promptForMarqueeTool
 }

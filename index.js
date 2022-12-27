@@ -11,6 +11,7 @@ const app = window.require('photoshop').app
 
 const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
+const dialog_box = require('./dialog_box')
 
 // just a number that shouldn't unique enough that we will use when save files.
 // each session will get a number from 1 to 1000000
@@ -410,11 +411,19 @@ document
   .getElementById('btnSnapAndFill')
   .addEventListener('click', async () => {
 
+    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+    if(isSelectionAreaValid){
+      
+      
       // clear the layers related to the last mask operation.
       g_last_snap_and_fill_layers = await psapi.cleanSnapAndFill(g_last_snap_and_fill_layers)
       // create new layers related to the current mask operation.
       g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
       console.log ("outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ",g_last_snap_and_fill_layers)
+    }else{
+      psapi.promptForMarqueeTool()
+
+    }
   })
 
 
@@ -435,6 +444,8 @@ document
         console.log ("outpaint.outpaintFasterExe(random_session_id):, g_last_outpaint_layers: ",g_last_outpaint_layers)
       }
       else{
+        psapi.promptForMarqueeTool()        
+
         console.log("please use the rectangular marquee tool and select an area")
       }
     }
@@ -446,12 +457,19 @@ document
 document
   .getElementById('btnInitInpaint')
   .addEventListener('click', async () => {
+    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+    if(isSelectionAreaValid){
+
     // delete the layers of the previous mask operation
     g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
     // store the layer of the current mask operation
     g_last_inpaint_layers =  await outpaint.inpaintFasterExe(random_session_id)
     
     console.log ("outpaint.inpaintFasterExe(random_session_id):, g_last_inpaint_layers: ",g_last_inpaint_layers)
+  }
+  else{
+    psapi.promptForMarqueeTool()
+  }
   })
 
 function toggleGenerateInterruptButton (defaultVal) {
@@ -983,3 +1001,4 @@ document.getElementById('collapsible').addEventListener('click', function () {
 })
 
 // outpaint.selectAllLayers()
+
