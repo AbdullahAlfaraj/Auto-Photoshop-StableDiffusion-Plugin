@@ -422,11 +422,25 @@ document
 document
   .getElementById('btnInitOutpaint')
   .addEventListener('click', async () => {
-    // clear the layers related to the last mask operation.
-    g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
-    // create new layers related to the current mask operation.
-    g_last_outpaint_layers = await outpaint.outpaintFasterExe(random_session_id)
-    console.log ("outpaint.outpaintFasterExe(random_session_id):, g_last_outpaint_layers: ",g_last_outpaint_layers)
+    try{
+
+      const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+      
+      if (isSelectionAreaValid){
+        // clear the layers related to the last mask operation.
+        g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
+        // create new layers related to the current mask operation.
+        
+        g_last_outpaint_layers = await outpaint.outpaintFasterExe(random_session_id)
+        console.log ("outpaint.outpaintFasterExe(random_session_id):, g_last_outpaint_layers: ",g_last_outpaint_layers)
+      }
+      else{
+        console.log("please use the rectangular marquee tool and select an area")
+      }
+    }
+    catch(e){
+      console.warn("selection area is not valid, please use the rectangular marquee tool",e)
+    }
   })
 
 document

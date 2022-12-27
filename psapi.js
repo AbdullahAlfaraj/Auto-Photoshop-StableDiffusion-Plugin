@@ -714,6 +714,11 @@ async function createClippingMaskExe () {
   })
 }
 
+async function checkIfSelectionAreaIsActive()
+{
+  let isSelectionAreaValid = getSelectionInfoExe()
+return isSelectionAreaValid
+}
 
 module.exports = {
   createSolidLayer,
@@ -743,5 +748,6 @@ module.exports = {
   // cleanLayersInpaint,
   cleanSnapAndFill,
   cleanLayers,
-  createClippingMaskExe
+  createClippingMaskExe,
+  checkIfSelectionAreaIsActive
 }
