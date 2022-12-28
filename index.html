@@ -5,7 +5,6 @@
   <script src="index.js"></script>
 </head>
 <style>
-
   sp-textarea {
 
     width: 100%;
@@ -60,7 +59,7 @@
   .grid-container {
     display: inline-flex;
     grid-template-columns: auto auto auto;
-  
+
   }
 
   .column-item-image {
@@ -78,7 +77,7 @@
     background-color: #777;
     color: white;
     cursor: pointer;
-  
+
     width: 100%;
     border: none;
     text-align: left;
@@ -92,7 +91,7 @@
     background-color: #777;
     color: white;
     cursor: pointer;
-  
+
     border: none;
 
     text-align: left;
@@ -105,7 +104,7 @@
     background-color: #777;
     color: white;
     cursor: pointer;
-  
+
     border: 1px;
 
     text-align: left;
@@ -113,7 +112,7 @@
     outline: solid;
     font-size: 15px;
     margin: 10px;
-  
+
   }
 
   .wrapper {
@@ -123,247 +122,320 @@
     right: 0;
     bottom: 0;
     overflow: auto;
-    
+
   }
 
-  #progressContainer{
-    
-    display: flex;
-     justify-content: space-between;
-  }
-  #lVersionNumber{
-    display:flex;
-    margin-left: auto;
-  }
-#menu-bar-container{
- 
-    width: 100%;
+  #progressContainer {
+
     display: flex;
     justify-content: space-between;
+  }
 
-}
-.labelNumber{
-  color: aliceblue;
-}
-#lNameInpaintPdding{
-margin-right: 10px;
-}
+  #lVersionNumber {
+    display: flex;
+    margin-left: auto;
+  }
+
+  #menu-bar-container {
+
+    width: 100%;
+    display: flex;
+    /* justify-content: space-between; */
+    margin: 3px auto;
+
+  }
+
+  .labelNumber {
+    color: aliceblue;
+  }
+
+  #lNameInpaintPdding {
+    margin-right: 10px;
+  }
+
+  /* tabs */
+  .sp-tabs {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: row;
+    border-bottom: 2px solid #3E3E3E;
+  }
+
+  .sp-tab {
+    margin-right: 12px;
+  }
+
+  .sp-tab sp-label {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .sp-tab:hover sp-label {
+    color: white;
+  }
+
+  .sp-tab.selected {
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+
+  .sp-tab.selected sp-label {
+    color: white;
+  }
+
+  @media (prefers-color-scheme: light),
+  (prefers-color-scheme: lightest) {
+    .sp-tabs {
+      border-bottom: 2px solid #B8B8B8;
+    }
+
+    .sp-tab sp-label {
+      color: rgba(0, 0, 0, 0.66);
+    }
+
+    .sp-tab:hover sp-label {
+      color: black;
+    }
+
+    .sp-tab.selected {
+      border-bottom: 2px solid black;
+    }
+
+    .sp-tab.selected sp-label {
+      color: black;
+    }
+  }
+
+  .sp-tab-page {
+    display: none;
+    flex: 1 1 auto;
+    overflow: scroll;
+    padding: 12px 0;
+    flex-direction: column;
+  }
+
+  .sp-tab-page.visible {
+    display: flex;
+  }
+
+  .sp-tab-page>* {
+    flex: 0 0 auto;
+  }
 </style>
 
 <body>
-  <div class="container wrapper">
-    <div id="menu-bar-container">
-      <sp-picker size="m" label="Selection type">
-        <sp-menu id="mModelsMenu" slot="options">
-          <!-- <sp-menu-item> item </sp-menu-item> -->
-        </sp-menu>
-      </sp-picker>
 
-      <button class="" id="btnRefreshModels">Refresh</button><sp-label slot="label" id="lVersionNumber">v0.0.0</sp-label>
+  <div class="container wrapper">
+    <div class="sp-tabs">
+      <div class="sp-tab selected" id="sp-stable-diffusion-ui-tab"><sp-label>Stable Diffusion UI</sp-label></div>
+      <div class="sp-tab" id="sp-prompts-library-tab"><sp-label>Prompts library</sp-label></div>
+      <div class="sp-tab" id="sp-settings-tab"><sp-label>Settings</sp-label></div>
+      <sp-label slot="label" id="lVersionNumber">v0.0.0</sp-label>
+    </div>
+    <div class="sp-tab-page" id="sp-prompts-library-tab-page">
+      prompts library tab page
     </div>
 
+    <div class="sp-tab-page" id="sp-settings-tab-page">
+      settings tab page
+    </div>
 
+    <div class="sp-tab-page visible" id="sp-stable-diffusion-ui-tab-page">
+      <div id="menu-bar-container">
+        <sp-picker size="m" label="Selection type">
+          <sp-menu id="mModelsMenu" slot="options">
+            <!-- <sp-menu-item> item </sp-menu-item> -->
+          </sp-menu>
+        </sp-picker>
 
-    <!-- <sp-button id="btnPopulate">Populate Layers</sp-button> -->
-    <!-- <sp-button id="btnNewLayer">Add New Layer</sp-button>  -->
-    <!-- <sp-button id="btnSelectTool">Select Tool</sp-button> -->
-    <!-- <sp-button id="btnGetActiveLayer">Get Active Layer</sp-button> -->
-    <!-- <sp-button id="btnScaleDown">Scale Down</sp-button> 
-        <sp-button id="btnScaleUp">Scale Up</sp-button>  -->
-    <!-- <sp-button id="btnSelectionInfo">Selection Info</sp-button> -->
-    <button class="btnSquare" id="btnLayerToSelection">Layer To Selection</button>
-    <!-- <sp-button id="btnChangeImage">Change Image</sp-button>
-      <sp-button id="bGetInitImage">Get Init Image</sp-button> -->
-
-    <!-- <sp-button id="bGetProgress">Get Progress</sp-button> -->
-
-
-    <!-- <sp-button id="btnImageFileToLayer">image file to layer </sp-button> -->
-    <!-- <sp-button id="btnImagesToLayers">Generated images to layers</sp-button> -->
-    <!-- <sp-button id="btnLoadImages">load images to layers</sp-button> -->
-
-
-
-    <button class="btnSquare" id="btnGenerate">Generate</button>
-    <button class="btnSquare" id="btnInterrupt" style="display:none;">Interrupt</button>
-    <button class="btnSquare" id="btnCleanLayers">Clean Layers</button>
-    <!-- <button class="btnSquare" id="btnToggleLayers">Toggle Layers</button> -->
-    <!-- <button class="btnSquare" id="btnGenerate">Generate</button> -->
-    <div>
-      <div id="progressContainer" class="">
-
-        <sp-progressbar id="pProgressBar" max=100 value=0>
-          <sp-label slot="label">Progress...</sp-label>
-        </sp-progressbar>
-        <sp-checkbox id="chUsePromptShortcut" checked>prompt shortcut</sp-checkbox>
-      </div>
-      <div class="prompts">
-        <!-- <sp-label slot="label">Prompt</sp-label> -->
-        <div class="">
-          <sp-textarea id="taPrompt" placeholder="Prompt" value="cute cat"></sp-textarea>
-        </div>
-
-        <div class="">
-          <sp-textarea id="taNegativePrompt" placeholder="Negative Prompt" id="taNegativePrompt" multiline
-            grows></sp-textarea>
-        </div>
+        <button class="" id="btnRefreshModels">Refresh</button>
+        <!-- <sp-label slot="label"
+          id="lVersionNumber">v0.0.0</sp-label> -->
       </div>
 
-      <sp-radio-group>
+      <!-- stable diffusion tab page -->
 
-        <sp-label slot="label">Select a Mode:</sp-label>
-        <sp-radio class="rbMode" checked value="txt2img">txt2img</sp-radio>
-        <sp-radio class="rbMode" value="img2img">img2img</sp-radio>
-        <sp-radio class="rbMode" value="inpaint">inpaint</sp-radio>
-        <!-- <sp-radio class="rbMode" value="outpaint">outpaint</sp-radio> -->
-        <!-- <button class="btnSquare" id="btnCleanLayers">Clean Layers</button> -->
-      </sp-radio-group>
-      
+      <div>
 
-      <div id="image_viewer">
-        <div class="imgButton">
-          <!-- <button class="button-style2" id="btnSnapAndFill">Snap And Fill</button> -->
-          <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
-          
-          <button class="button-style2" id="btnInitInpaint">Init inpaint
-            Mask</button>
-          <button  button class="button-style2" id="btnInitOutpaint">Init Outpaint
-            Mask</button>
+        <button class="btnSquare" id="btnLayerToSelection">Layer To Selection</button>
+        <button class="btnSquare" id="btnGenerate">Generate</button>
+        <button class="btnSquare" id="btnInterrupt" style="display:none;">Interrupt</button>
+        <button class="btnSquare" id="btnCleanLayers">Clean Layers</button>
+      </div>
+      <div>
+        <div id="progressContainer" class="">
 
+          <sp-progressbar id="pProgressBar" max=100 value=0>
+            <sp-label slot="label">Progress...</sp-label>
+          </sp-progressbar>
+          <sp-checkbox id="chUsePromptShortcut" checked>prompt shortcut</sp-checkbox>
+        </div>
+        <div class="prompts">
+          <!-- <sp-label slot="label">Prompt</sp-label> -->
+          <div class="">
+            <sp-textarea id="taPrompt" placeholder="Prompt" value="cute cat"></sp-textarea>
+          </div>
+
+          <div class="">
+            <sp-textarea id="taNegativePrompt" placeholder="Negative Prompt" id="taNegativePrompt" multiline
+              grows></sp-textarea>
+          </div>
         </div>
 
-        <!-- <sp-detail>Image from Web:</sp-detail> -->
+        <sp-radio-group>
+
+          <sp-label slot="label">Select a Mode:</sp-label>
+          <sp-radio class="rbMode" checked value="txt2img">txt2img</sp-radio>
+          <sp-radio class="rbMode" value="img2img">img2img</sp-radio>
+          <sp-radio class="rbMode" value="inpaint">inpaint</sp-radio>
+          <!-- <sp-radio class="rbMode" value="outpaint">outpaint</sp-radio> -->
+          <!-- <button class="btnSquare" id="btnCleanLayers">Clean Layers</button> -->
+        </sp-radio-group>
 
 
-        <!--       
+        <div id="image_viewer">
+          <div class="imgButton">
+            <!-- <button class="button-style2" id="btnSnapAndFill">Snap And Fill</button> -->
+            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+
+            <button class="button-style2" id="btnInitInpaint">Init inpaint
+              Mask</button>
+            <button button class="button-style2" id="btnInitOutpaint">Init Outpaint
+              Mask</button>
+
+          </div>
+
+          <!-- <sp-detail>Image from Web:</sp-detail> -->
+
+
+          <!--       
           <img id="init_image" src='' width="100" height="100">
           <img id="init_image_mask" src='' width="100" height="100"> -->
-        <!-- <sp-checkbox id="chUseMaskImage">use mask image</sp-checkbox> -->
-        <table id="tableInitImageContainer">
-          <tr>
-            <td id="initImageColumn">
-              <div id="init_image_container" class="imgContainer">
-                <!-- <div class="imgButton" id="container_btnSnapAndFill">
+          <!-- <sp-checkbox id="chUseMaskImage">use mask image</sp-checkbox> -->
+          <table id="tableInitImageContainer">
+            <tr>
+              <td id="initImageColumn">
+                <div id="init_image_container" class="imgContainer">
+                  <!-- <div class="imgButton" id="container_btnSnapAndFill">
                   
                 </div> -->
-                <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button>
+                  <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button>
 
-                <!-- <button class="column-item button-style" id="btnSnapFill">Snap and Fill</button> -->
-                <!-- <div class="imgButton" id="containter_snapAndfill" >  <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button></div> -->
-                <div>
-                  <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
-                  <!-- <div class="imgButton"><button class="btnSquare column-item button-style" id="btnInitInpaint">Init inpaint Mask</button></div> -->
-                  <!-- <div class="imgButton"><button class="btnSquare column-item button-style" id="btnInitOutpaint">Init Outpaint Mask</button></div> -->
-                  <img id="init_image" class="column-item-image" src='https://source.unsplash.com/random' width="300px"
-                    height="100px" />
+                  <!-- <button class="column-item button-style" id="btnSnapFill">Snap and Fill</button> -->
+                  <!-- <div class="imgButton" id="containter_snapAndfill" >  <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button></div> -->
+                  <div>
+                    <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+                    <!-- <div class="imgButton"><button class="btnSquare column-item button-style" id="btnInitInpaint">Init inpaint Mask</button></div> -->
+                    <!-- <div class="imgButton"><button class="btnSquare column-item button-style" id="btnInitOutpaint">Init Outpaint Mask</button></div> -->
+                    <img id="init_image" class="column-item-image" src='https://source.unsplash.com/random'
+                      width="300px" height="100px" />
+                  </div>
+                  <div class="imgButton">
+                    <button class="column-item button-style" id="bSetInitImage">Set Init Image</button>
+                  </div>
                 </div>
-                <div class="imgButton">
-                  <button class="column-item button-style" id="bSetInitImage">Set Init Image</button>
+              </td>
+              <td>
+                <div id="init_image_mask_container" class="imgContainer">
+                  <div>
+                    <!-- <div class="imgButton"><button class="btnSquare column-item button-style" id="btnInitInpaint">Init inpaint Mask</button></div> -->
+                    <!-- <div class="imgButton"><button class="btnSquare column-item button-style" id="btnInitOutpaint">Init Outpaint Mask</button></div> -->
+                    <img id="init_image_mask" class="column-item-image" src='https://source.unsplash.com/random'
+                      width="100px" height="100px" />
+                  </div>
+                  <div class="imgButton">
+                    <button class="column-item button-style" id="bSetInitImageMask">Set Mask</button>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td>
-              <div id="init_image_mask_container" class="imgContainer">
-                <div>
-                  <!-- <div class="imgButton"><button class="btnSquare column-item button-style" id="btnInitInpaint">Init inpaint Mask</button></div> -->
-                  <!-- <div class="imgButton"><button class="btnSquare column-item button-style" id="btnInitOutpaint">Init Outpaint Mask</button></div> -->
-                  <img id="init_image_mask" class="column-item-image" src='https://source.unsplash.com/random'
-                    width="100px" height="100px" />
-                </div>
-                <div class="imgButton">
-                  <button class="column-item button-style" id="bSetInitImageMask">Set Mask</button>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </table>
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
-    </div>
-    <div class="">
-      <div>
-        <sp-label>Images:</sp-label><sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
-          value="1"></sp-textfield>
-      </div>
-      <div>
-        <sp-label>Steps:</sp-label><sp-textfield id="tiNumberOfSteps" type="number" placeholder="20"
-          value="20"></sp-textfield>
-      </div>
-      <div>
-        <sp-slider show-value="false" id="slWidth" min="1" max="32" value="8">
-          <sp-label slot="label">Width:</sp-label>
-          <sp-label class="labelNumber" slot="label" id="lWidth">512</sp-label>
+      <div class="">
+        <div>
+          <sp-label>Images:</sp-label><sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
+            value="1"></sp-textfield>
+        </div>
+        <div>
+          <sp-label>Steps:</sp-label><sp-textfield id="tiNumberOfSteps" type="number" placeholder="20"
+            value="20"></sp-textfield>
+        </div>
+        <div>
+          <sp-slider show-value="false" id="slWidth" min="1" max="32" value="8">
+            <sp-label slot="label">Width:</sp-label>
+            <sp-label class="labelNumber" slot="label" id="lWidth">512</sp-label>
+          </sp-slider>
+          <sp-slider show-value="false" id="slHeight" min="1" max="32" value="8">
+            <sp-label slot="label">Height:</sp-label>
+            <sp-label class="labelNumber" slot="label" id="lHeight">512</sp-label>
+          </sp-slider>
+        </div>
+        <sp-slider show-value="true" id="slCfgScale" min="1" max="30" value="7">
+          <sp-label slot="label">CFG Scale:</sp-label>
+          <!-- <sp-label slot="label" id="lCfgScale">7</sp-label> -->
         </sp-slider>
-        <sp-slider show-value="false" id="slHeight" min="1" max="32" value="8">
-          <sp-label slot="label">Height:</sp-label>
-          <sp-label class="labelNumber" slot="label" id="lHeight">512</sp-label>
+
+        <sp-slider show-value="false" id="slDenoisingStrength" min="0" max="100" value="70">
+          <sp-label slot="label">Denoising Strength:</sp-label>
+          <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label>
         </sp-slider>
-      </div>
-      <sp-slider show-value="true" id="slCfgScale" min="1" max="30" value="7">
-        <sp-label slot="label">CFG Scale:</sp-label>
-        <!-- <sp-label slot="label" id="lCfgScale">7</sp-label> -->
-      </sp-slider>
 
-      <sp-slider show-value="false" id="slDenoisingStrength" min="0" max="100" value="70">
-        <sp-label slot="label">Denoising Strength:</sp-label>
-        <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label>
-      </sp-slider>
+        <sp-slider show-value="true" id="slMaskBlur" min="0" max="64" value="0">
+          <sp-label slot="label">Mask Blur:</sp-label>
+          <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
+        </sp-slider>
 
-      <sp-slider show-value="true" id="slMaskBlur" min="0" max="64" value="0">
-        <sp-label  slot="label">Mask Blur:</sp-label>
-        <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
-      </sp-slider>
-
-      <div id="slInpainting_fill">
-        <sp-radio-group id="Inpainting_fill_group" class="">
-          <sp-label slot="label">Mask Content:</sp-label>
-          <sp-radio class="rbMaskContent" checked value="0">fill</sp-radio>
-          <sp-radio class="rbMaskContent" value="1">original</sp-radio>
-          <sp-radio class="rbMaskContent" value="2">latent noise</sp-radio>
-          <sp-radio class="rbMaskContent" value="3">latent nothing</sp-radio>
-        </sp-radio-group>
-      </div>
-      <sp-checkbox id="chInpaintFullRes">Inpaint at full resolution</sp-checkbox>
-      <sp-slider show-value="false" id="slInpaintPadding" min="0" max="64" value="0">
-        <sp-label  slot="label" id="lNameInpaintPdding">Inpaint Padding:</sp-label>
-        <sp-label class="labelNumber" slot="label" id="lInpaintPadding">0</sp-label>
-      </sp-slider>
-      <!-- <sp-slider id="slInpainting_fill" min="0" max="3" value="1">
+        <div id="slInpainting_fill">
+          <sp-radio-group id="Inpainting_fill_group" class="">
+            <sp-label slot="label">Mask Content:</sp-label>
+            <sp-radio class="rbMaskContent" checked value="0">fill</sp-radio>
+            <sp-radio class="rbMaskContent" value="1">original</sp-radio>
+            <sp-radio class="rbMaskContent" value="2">latent noise</sp-radio>
+            <sp-radio class="rbMaskContent" value="3">latent nothing</sp-radio>
+          </sp-radio-group>
+        </div>
+        <sp-checkbox id="chInpaintFullRes">Inpaint at full resolution</sp-checkbox>
+        <sp-slider show-value="false" id="slInpaintPadding" min="0" max="64" value="0">
+          <sp-label slot="label" id="lNameInpaintPdding">Inpaint Padding:</sp-label>
+          <sp-label class="labelNumber" slot="label" id="lInpaintPadding">0</sp-label>
+        </sp-slider>
+        <!-- <sp-slider id="slInpainting_fill" min="0" max="3" value="1">
         <sp-label slot="label">Inpainting fill:</sp-label>
       </sp-slider> -->
 
-    </div>
-    <div>
-      <div>
-        <sp-label>Seed:</sp-label><sp-textfield id="tiSeed" placeholder="Seed" value="-1"></sp-textfield>
-        <button class="btnSquare" id="btnRandomSeed">Random</button>
-        <button class="btnSquare" id="btnLastSeed">Last</button>
       </div>
-      <button type="button" id="collapsible">Show Samplers</button>
-      <sp-radio-group id="sampler_group" class="content">
+      <div>
+        <div>
+          <sp-label>Seed:</sp-label><sp-textfield id="tiSeed" placeholder="Seed" value="-1"></sp-textfield>
+          <button class="btnSquare" id="btnRandomSeed">Random</button>
+          <button class="btnSquare" id="btnLastSeed">Last</button>
+        </div>
+        <button type="button" id="collapsible">Show Samplers</button>
+        <sp-radio-group id="sampler_group" class="content">
 
-        <sp-label slot="label">Select Sampler:</sp-label>
-        <sp-radio class="rbSampler" checked value="Euler a">Euler a</sp-radio>
-        <sp-radio class="rbSampler" value="Euler">Euler</sp-radio>
-        <sp-radio class="rbSampler" value="LMS">LMS</sp-radio>
-        <sp-radio class="rbSampler" value="Heun">Heun</sp-radio>
-        <sp-radio class="rbSampler" value="DPM2">DPM2</sp-radio>
-        <sp-radio class="rbSampler" value="DPM2 a">DPM2 a</sp-radio>
-        <sp-radio class="rbSampler" value="DPM++ 2S a">DPM++ 2S a</sp-radio>
-        <sp-radio class="rbSampler" value="DPM++ 2M">DPM++ 2M</sp-radio>
-        <sp-radio class="rbSampler" value="DPM++ SDE">DPM++ SDE</sp-radio>
-        <sp-radio class="rbSampler" value="DPM fast">DPM fast</sp-radio>
-        <sp-radio class="rbSampler" value="DPM adaptive">DPM adaptive</sp-radio>
-        <sp-radio class="rbSampler" value="LMS Karras">LMS Karras</sp-radio>
-        <sp-radio class="rbSampler" value="DPM2 Karras">DPM2 Karras</sp-radio>
-        <sp-radio class="rbSampler" value="DPM2 a Karras">DPM2 a Karras</sp-radio>
-        <sp-radio class="rbSampler" value="DPM++ 2S a Karras">DPM++ 2S a Karras</sp-radio>
-        <sp-radio class="rbSampler" value="DPM++ 2M Karras">DPM++ 2M Karras</sp-radio>
-        <sp-radio class="rbSampler" value="DPM++ SDE Karras">DPM++ SDE Karras</sp-radio>
+          <sp-label slot="label">Select Sampler:</sp-label>
+          <sp-radio class="rbSampler" checked value="Euler a">Euler a</sp-radio>
+          <sp-radio class="rbSampler" value="Euler">Euler</sp-radio>
+          <sp-radio class="rbSampler" value="LMS">LMS</sp-radio>
+          <sp-radio class="rbSampler" value="Heun">Heun</sp-radio>
+          <sp-radio class="rbSampler" value="DPM2">DPM2</sp-radio>
+          <sp-radio class="rbSampler" value="DPM2 a">DPM2 a</sp-radio>
+          <sp-radio class="rbSampler" value="DPM++ 2S a">DPM++ 2S a</sp-radio>
+          <sp-radio class="rbSampler" value="DPM++ 2M">DPM++ 2M</sp-radio>
+          <sp-radio class="rbSampler" value="DPM++ SDE">DPM++ SDE</sp-radio>
+          <sp-radio class="rbSampler" value="DPM fast">DPM fast</sp-radio>
+          <sp-radio class="rbSampler" value="DPM adaptive">DPM adaptive</sp-radio>
+          <sp-radio class="rbSampler" value="LMS Karras">LMS Karras</sp-radio>
+          <sp-radio class="rbSampler" value="DPM2 Karras">DPM2 Karras</sp-radio>
+          <sp-radio class="rbSampler" value="DPM2 a Karras">DPM2 a Karras</sp-radio>
+          <sp-radio class="rbSampler" value="DPM++ 2S a Karras">DPM++ 2S a Karras</sp-radio>
+          <sp-radio class="rbSampler" value="DPM++ 2M Karras">DPM++ 2M Karras</sp-radio>
+          <sp-radio class="rbSampler" value="DPM++ SDE Karras">DPM++ SDE Karras</sp-radio>
 
 
-      </sp-radio-group>
+        </sp-radio-group>
+      </div>
     </div>
-
   </div>
 </body>
 

@@ -12,7 +12,43 @@ const app = window.require('photoshop').app
 const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
 const dialog_box = require('./dialog_box')
+const {entrypoints} = require('uxp')
 
+// attach event listeners for tabs
+Array.from(document.querySelectorAll(".sp-tab")).forEach(theTab => {
+  theTab.onclick = () => {
+    // localStorage.setItem("currentTab", theTab.getAttribute("id"));
+    Array.from(document.querySelectorAll(".sp-tab")).forEach(aTab => {
+      if (aTab.getAttribute("id") === theTab.getAttribute("id")) {
+        aTab.classList.add("selected");
+      } else {
+        aTab.classList.remove("selected");
+      }
+    });
+    Array.from(document.querySelectorAll(".sp-tab-page")).forEach(tabPage => {
+      if (tabPage.getAttribute("id").startsWith(theTab.getAttribute("id"))) {
+        tabPage.classList.add("visible");
+      } else {
+        tabPage.classList.remove("visible");
+      }
+    });
+  }
+});
+
+
+// entrypoints.setup({
+
+//   panels:{
+//     vanilla: ()=>{
+//       console.log("you are in the vanilla panel")
+//     },
+//     experimental_1: ()=>{
+//       console.log("you are in the experimental_1 panel")
+      
+//     } 
+//   }
+// }
+//   )
 // just a number that shouldn't unique enough that we will use when save files.
 // each session will get a number from 1 to 1000000
 const random_session_id = Math.floor((Math.random() * 1000000) + 1);
