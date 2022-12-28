@@ -53,6 +53,60 @@ Array.from(document.querySelectorAll(".sp-tab")).forEach(theTab => {
 // each session will get a number from 1 to 1000000
 const random_session_id = Math.floor((Math.random() * 1000000) + 1);
 
+function getSelectedText() // JavaScript
+{
+//     // Obtain the object reference for the <textarea>
+    // const txtarea = document.getElementById("taPrompt");
+    const promptTextarea = document.querySelector('#taPrompt')
+    console.log("promptTextarea: ", promptTextarea.value)
+//     // Obtain the index of the first selected character
+    var start = promptTextarea.selectionStart;
+    console.log("start: ",start)
+//     // Obtain the index of the last selected character
+//     var finish = txtarea.selectionEnd;
+//     console.log("finish: ",finish)
+
+//     // Obtain the selected text
+//     var sel = txtarea.value.substring(start, finish);
+//     console.log("selected textarea: ", sel)
+    
+
+    // Do something with the selected content
+}
+// setInterval(getSelectedText,2000)
+function getCommentedString(){
+  // const text = document.getElementById("taPrompt").value
+  // let text = `Visit /*W3Schools 
+  // cute, girl, painterly   
+  // *\\ any text
+  // and prompt`;
+  // let text = `cute cat /*by greg 
+
+  // and artgerm 
+  
+  //  */ and famous artist`
+  let text = `Visit /*W3Schools 
+  cute, girl, painterly   
+  */ any text
+  and prompt
+
+
+
+
+ cute cat  /*by greg 
+
+  and artgerm 
+  
+   */ and famous artist`
+  console.log("getCommentedString: text: ",text)
+ 
+  // let pattern = /(\/)(\*)(\s|\S)*\*\\/g;
+  let pattern = /(\/)(\*)(\s|\S)*?(\*\/)/g;
+
+  let result = text.match(pattern);
+  console.log("getCommentedString: ",result)
+}
+
 //duplicate the active layer
 async function duplication () {
   try {
@@ -182,7 +236,8 @@ let g_last_snap_and_fill_layers = []
 
 let g_metadatas = []
 let g_can_request_progress = true
-
+let g_saved_active_layers = []
+let g_is_active_layers_stored = false
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -581,6 +636,54 @@ document.getElementById('btnInterrupt').addEventListener('click', async () => {
     console.warn(e)
   }
 })
+//store active layers only if they are not stored.
+async function storeActiveLayers () {
+  if (g_is_active_layers_stored == false) {
+    g_saved_active_layers = await app.activeDocument.activeLayers
+    g_is_active_layers_stored = true
+    await psapi.unselectActiveLayersExe()
+  } else {
+  }
+}
+async function restoreActiveLayers () {
+  if (g_is_active_layers_stored == true) {
+    // g_saved_active_layers = await app.activeDocument.activeLayers
+    await psapi.selectLayersExe(g_saved_active_layers)
+    g_is_active_layers_stored = false
+    g_saved_active_layers = []
+  } 
+}
+
+document.querySelector('#taPrompt').addEventListener('focus', async () => {
+  console.log('we are in prompt textarea')
+  console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
+  await storeActiveLayers()
+  // await psapi.unselectActiveLayersExe()
+})
+document.querySelector('#taPrompt').addEventListener('blur', async () => {
+  console.log('we are out of prompt textarea')
+  // await psapi.unselectActiveLayersExe()
+  console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
+  await restoreActiveLayers()
+})
+
+document
+  .querySelector('#taNegativePrompt')
+  .addEventListener('focus', async () => {
+    console.log('we are in prompt textarea')
+
+    await storeActiveLayers()
+    // await psapi.unselectActiveLayersExe()
+  })
+document
+  .querySelector('#taNegativePrompt')
+  .addEventListener('blur', async () => {
+    console.log('we are out of prompt textarea')
+    // await psapi.unselectActiveLayersExe()
+    await restoreActiveLayers()
+  })
+
+
 document.getElementById('btnGenerate').addEventListener('click', async () => {
   
   toggleGenerateInterruptButton(true)
