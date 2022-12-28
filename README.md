@@ -8,6 +8,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 - [Demo:](#demo)
 - [Instructional Tutorial (outpaint, inpaint, img2img and txt2img):](#instructional-tutorial-outpaint-inpaint-img2img-and-txt2img)
 - [How to install:](#how-to-install)
+	- [For Mac/Linux Users](#for-maclinux-users)
 	- [First time runing the plugin (local Automatic1111):](#first-time-runing-the-plugin-local-automatic1111)
 	- [First time runing the plugin (remote Automatic1111):](#first-time-runing-the-plugin-remote-automatic1111)
 	- [Steps to run the plugin for second time and onward:](#steps-to-run-the-plugin-for-second-time-and-onward)
@@ -33,6 +34,9 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 [![Click Here to Watch Tutorial](http://i3.ytimg.com/vi/evjSIfYIQq0/hqdefault.jpg)](https://www.youtube.com/watch?v=evjSIfYIQq0&ab_channel=Abdsart "Tutorial - Auto Photoshop Stable Diffusion Plugin")
 
 # How to install:
+## For Mac/Linux Users
+In all of the following steps replace `start_server.bat` with `start_server.sh`
+
 ## First time runing the plugin (local Automatic1111):
 1) download the plugin:
 ```
