@@ -636,41 +636,65 @@ document.getElementById('btnInterrupt').addEventListener('click', async () => {
     console.warn(e)
   }
 })
+
+
 //store active layers only if they are not stored.
 async function storeActiveLayers () {
-  if (g_is_active_layers_stored == false) {
-    g_saved_active_layers = await app.activeDocument.activeLayers
-    g_is_active_layers_stored = true
-    await psapi.unselectActiveLayersExe()
-  } else {
-  }
+  setTimeout(async () => {
+    
+    const layers = await app.activeDocument.activeLayers
+    console.log("storeActiveLayers: ", layers.length)
+    
+    if(layers.length > 0){
+      g_saved_active_layers = layers
+      await psapi.unselectActiveLayersExe()
+    }
+  }, 200);
+
+  // if (g_is_active_layers_stored == false) {
+  //   g_saved_active_layers = await app.activeDocument.activeLayers
+  //   g_is_active_layers_stored = true
+  //   await psapi.unselectActiveLayersExe()
+  // } else {
+  // }
 }
 async function restoreActiveLayers () {
-  if (g_is_active_layers_stored == true) {
-    // g_saved_active_layers = await app.activeDocument.activeLayers
+  
+  const layers = await app.activeDocument.activeLayers
+  console.log("restoreActiveLayers: ", layers.length)
+  if(layers.length == 0){
     await psapi.selectLayersExe(g_saved_active_layers)
-    g_is_active_layers_stored = false
     g_saved_active_layers = []
-  } 
+  }
+  // if (g_is_active_layers_stored == true) {
+  //   // g_saved_active_layers = await app.activeDocument.activeLayers
+  //   await psapi.selectLayersExe(g_saved_active_layers)
+  //   g_is_active_layers_stored = false
+  //   g_saved_active_layers = []
+  // } 
 }
 
 document.querySelector('#taPrompt').addEventListener('focus', async () => {
-  console.log('we are in prompt textarea')
-  console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
+  console.log("taPrompt focus")
+  // console.log('we are in prompt textarea')
+  // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
   await storeActiveLayers()
   // await psapi.unselectActiveLayersExe()
+
 })
 document.querySelector('#taPrompt').addEventListener('blur', async () => {
-  console.log('we are out of prompt textarea')
+  console.log("taPrompt blur")
+  // console.log('we are out of prompt textarea')
   // await psapi.unselectActiveLayersExe()
-  console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
+  // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
   await restoreActiveLayers()
 })
 
 document
   .querySelector('#taNegativePrompt')
   .addEventListener('focus', async () => {
-    console.log('we are in prompt textarea')
+    console.log("taNegativePrompt focus")
+    // console.log('we are in prompt textarea')
 
     await storeActiveLayers()
     // await psapi.unselectActiveLayersExe()
@@ -678,7 +702,8 @@ document
 document
   .querySelector('#taNegativePrompt')
   .addEventListener('blur', async () => {
-    console.log('we are out of prompt textarea')
+    console.log("taNegativePrompt blur")
+    // console.log('we are out of prompt textarea')
     // await psapi.unselectActiveLayersExe()
     await restoreActiveLayers()
   })
