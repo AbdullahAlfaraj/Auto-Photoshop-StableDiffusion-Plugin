@@ -3,7 +3,7 @@ import requests
 import io
 import base64
 from PIL import Image, PngImagePlugin
-from serverMain import sd_url
+# from serverMain import sd_url
 import asyncio
 import httpx
 
@@ -23,7 +23,7 @@ import time
 import serverHelper
 import metadata_to_json
 
-async def img2ImgRequest(payload):
+async def img2ImgRequest(sd_url,payload):
     # init_img = Image.open(r"C:/Users/abdul/Desktop/photoshop_plugins/my_plugin_1/server/python_server/output- 1670544300.95411.png") 
     print("payload debug:",payload)
     

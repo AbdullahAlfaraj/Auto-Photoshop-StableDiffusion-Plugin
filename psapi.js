@@ -166,14 +166,22 @@ function unselectActiveLayers () {
     layer.selected = false
   }
 }
-
+async function unselectActiveLayersExe () {
+  await executeAsModal(async ()=>{
+    await unselectActiveLayers()
+  })
+}
 function selectLayers (layers) {
   unselectActiveLayers()
   for (layer of layers) {
     layer.selected = true
   }
 }
-
+async function selectLayersExe(layers){
+  await executeAsModal(async ()=>{
+    await selectLayers(layers)
+  })
+}
 function selectGroup (layer) {
   unselectActiveLayers()
   layer.parent.selected = true
@@ -775,7 +783,9 @@ module.exports = {
   moveToGroupCommand,
   MoveToGroupExe,
   selectLayers,
+  selectLayersExe,
   unselectActiveLayers,
+  unselectActiveLayersExe,
   createMaskExe,
   getSelectionInfoExe,
   unSelectMarqueeCommand,
