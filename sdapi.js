@@ -236,6 +236,43 @@ async function getVersionRequest(){
 
 }
 
+async function changeSdUrl(new_sd_url){
+  // version = "v0.0.0"
+    console.log('changeSdUrl: new_sd_url:', new_sd_url)
+  try {
+
+    payload= {
+      "sd_url": new_sd_url
+    }
+
+    const full_url = 'http://127.0.0.1:8000/sd_url/'
+    console.log("changeSdUrl: payload: ", payload)
+  let request = await fetch(full_url, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+    
+  })
+
+
+    
+    // let json = await request.json()
+    // console.log('changeSdUrl:',json)
+    console.log('changeSdUrl: request: ',request)
+    
+    
+    
+  }catch(e){
+    console.warn(e)
+    
+  }
+  
+
+}
+
 module.exports = {
   requestTxt2Img,
   requestImg2Img,
@@ -245,5 +282,6 @@ module.exports = {
   requestSwapModel,
   requestInterrupt,
   requestGetSamplers,
-  getVersionRequest
+  getVersionRequest,
+  changeSdUrl
 }

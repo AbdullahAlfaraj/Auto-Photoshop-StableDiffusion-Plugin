@@ -104,10 +104,6 @@ def getVersion():
     return {"version": f"v{version}"}
 
 
-# @app.get("/items/{item_id}")
-# def read_item(item_id: int, q: Union[str, None] = None):
-#     return {"item_id": item_id, "q": q}
-
 
 
 
@@ -121,6 +117,35 @@ def getVersion():
 
 from fastapi import Request, Response
 import img2imgapi
+
+
+
+
+
+
+@app.post("/sd_url/")
+async def changeSdUrl(request:Request):
+    global sd_url
+    try:
+
+        payload = await request.json()
+        print("changeSdUrl: payload:",payload)
+        print(f"change sd url from {sd_url} to {payload['sd_url']}: \n")
+        sd_url = payload['sd_url']
+    except:
+        print("error occurred in changeSdUrl()")
+        #  response.body = resp.content
+        # return {}
+    return {"sd_url":sd_url}
+
+
+
+
+
+
+
+
+
 @app.post("/txt2img/")
 async def txt2ImgHandle(request:Request):
     print("txt2ImgHandle: \n")
@@ -133,7 +158,7 @@ async def txt2ImgHandle(request:Request):
 async def img2ImgHandle(request:Request):
     print("img2ImgHandle: \n")
     payload = await request.json() 
-    dir_name,image_paths,metadata = await img2imgapi.img2ImgRequest(payload)
+    dir_name,image_paths,metadata = await img2imgapi.img2ImgRequest(sd_url,payload)
     # return {"prompt":payload.prompt,"images": ""}
     return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths,"metadata":metadata}
 
