@@ -228,6 +228,39 @@ async def sdapi(path: str, request: Request, response: Response):
     return response
 
 
+@app.post('/prompt_shortcut/load')
+async def loadPromptShortcut(request: Request, response: Response):
+    try:
+        json = await request.json()
+    except: 
+        json = {}
+
+    try:
+
+        prompt_shortcut = prompt_shortcut.load()
+        response.body = {"prompt_shortcut":prompt_shortcut}
+    except:
+        # print(f'exception: fail to send request to {sd_url}/sdapi/v1/{path}')
+        print(f'{request}')
+    return response
+@app.post('/prompt_shortcut/save')
+async def loadPromptShortcut(request: Request, response: Response):
+    try:
+        json = await request.json()
+    except: 
+        json = {}
+
+    try:
+        print("json['prompt_shortcut']: ",json['prompt_shortcut'])
+        # save the prompt shortcut to the prompt_shortcut.json
+        prompt_shortcut = json['prompt_shortcut']
+        # response.body = {"prompt_shortcut":prompt_shortcut}
+        response.body = {"prompt_shortcut":prompt_shortcut}
+
+    except:
+        # print(f'exception: fail to send request to {sd_url}/sdapi/v1/{path}')
+        print(f'{request}')
+    return response
 
 @app.post("/swapModel")
 async def swapModel(request:Request):
