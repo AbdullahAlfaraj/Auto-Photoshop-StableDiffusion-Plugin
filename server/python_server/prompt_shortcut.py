@@ -2,6 +2,15 @@ import re
 import json
 prompt_shortcut ={}
 
+
+def readToJson():
+    return load()
+
+def writeToJson(file_name,data_dict):
+    with open(file_name, "w") as outfile:
+        json.dump(data_dict, outfile,indent=4)
+
+
 def load(): 
     global prompt_shortcut
     try:

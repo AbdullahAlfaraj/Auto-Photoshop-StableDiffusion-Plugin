@@ -229,7 +229,8 @@ async def sdapi(path: str, request: Request, response: Response):
 
 
 @app.post('/prompt_shortcut/load')
-async def loadPromptShortcut(request: Request, response: Response):
+async def loadPromptShortcut(request: Request):
+    prompt_shortcut_json = {}
     try:
         json = await request.json()
     except: 
@@ -237,30 +238,36 @@ async def loadPromptShortcut(request: Request, response: Response):
 
     try:
 
-        prompt_shortcut = prompt_shortcut.load()
-        response.body = {"prompt_shortcut":prompt_shortcut}
+        prompt_shortcut_json = prompt_shortcut.load()
+        # response.body = {"prompt_shortcut":prompt_shortcut}
+        # response.status_code = 200
     except:
         # print(f'exception: fail to send request to {sd_url}/sdapi/v1/{path}')
         print(f'{request}')
-    return response
+        
+    # return response
+    return {"prompt_shortcut":prompt_shortcut_json}
 @app.post('/prompt_shortcut/save')
-async def loadPromptShortcut(request: Request, response: Response):
+async def loadPromptShortcut(request: Request):
+    prompt_shortcut_json = {}
     try:
         json = await request.json()
     except: 
         json = {}
 
     try:
+        print("json: ",json)
         print("json['prompt_shortcut']: ",json['prompt_shortcut'])
         # save the prompt shortcut to the prompt_shortcut.json
-        prompt_shortcut = json['prompt_shortcut']
+        prompt_shortcut_json = json['prompt_shortcut']
         # response.body = {"prompt_shortcut":prompt_shortcut}
-        response.body = {"prompt_shortcut":prompt_shortcut}
-
+        # response.body = {"prompt_shortcut":prompt_shortcut}
+        prompt_shortcut.writeToJson("test_prompt_shortcut.json",prompt_shortcut_json)
     except:
         # print(f'exception: fail to send request to {sd_url}/sdapi/v1/{path}')
-        print(f'{request}')
-    return response
+        print(f'error occurred durning reading the request {request}')
+    # return response
+    return {"prompt_shortcut":prompt_shortcut_json}
 
 @app.post("/swapModel")
 async def swapModel(request:Request):
