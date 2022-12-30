@@ -1,13 +1,16 @@
 import re
 import json
 prompt_shortcut ={}
-try:
-    with open('prompt_shortcut.json') as f_obj:
-        data = json.load(f_obj)
-        prompt_shortcut = data
-        print(data)
-except IOError:
-    print("prompt_shortcut.json is not found")
+
+def load(): 
+    global prompt_shortcut
+    try:
+        with open('prompt_shortcut.json') as f_obj:
+            data = json.load(f_obj)
+            prompt_shortcut = data
+            print(data)
+    except IOError:
+        print("prompt_shortcut.json is not found")
     
 def find_words_inside_braces(string):
     result = ""
@@ -22,6 +25,7 @@ def find_words_inside_braces(string):
 # text = "a beautiful girl holding a cute cat {    style_1 } on sunny day"
 text = "a beautiful girl{    }, {char1}, {painterly_style} holding a cute cat {    style_1 } on sunny day"
 # text = "a beautiful girl {char1 } holding a cute cat on sunny day"
+
 
 
 def replaceShortcut(text):

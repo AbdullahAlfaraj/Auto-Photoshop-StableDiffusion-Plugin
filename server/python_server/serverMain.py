@@ -23,6 +23,7 @@ async def txt2ImgRequest(payload):
     
     if(payload['use_prompt_shortcut']): # use edit prompt
         #edit prompt, replaceShortcut(prompt)
+        prompt_shortcut.load()
         payload['prompt'] = prompt_shortcut.replaceShortcut(payload['prompt'])
         # edit negative prompt, replaceShortcut(negative_prompt)
         payload['negative_prompt'] = prompt_shortcut.replaceShortcut(payload['negative_prompt'])
