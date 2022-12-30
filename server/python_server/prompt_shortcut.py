@@ -1,6 +1,6 @@
 import re
 import json
-prompt_shortcut ={}
+prompt_shortcut_dict ={}
 
 
 def readToJson():
@@ -12,15 +12,15 @@ def writeToJson(file_name,data_dict):
 
 
 def load(): 
-    global prompt_shortcut
+    global prompt_shortcut_dict
     try:
         with open('prompt_shortcut.json') as f_obj:
             data = json.load(f_obj)
-            prompt_shortcut = data
+            prompt_shortcut_dict = data
             print(data)
     except IOError:
         print("prompt_shortcut.json is not found")
-    return prompt_shortcut
+    return prompt_shortcut_dict
 def find_words_inside_braces(string):
     result = ""
     pattern ="\{(.*?)\}"
@@ -37,7 +37,7 @@ text = "a beautiful girl{    }, {char1}, {painterly_style} holding a cute cat { 
 
 
 
-def replaceShortcut(text):
+def replaceShortcut(text,prompt_shortcut_dict):
     raw_keywords = find_words_inside_braces(text)
     strip_keywords = list(map(lambda s: s.strip(),raw_keywords))
 
@@ -51,8 +51,8 @@ def replaceShortcut(text):
     for i, word in enumerate(strip_keywords):
         # word = word.strip()
         print("word: ",word)
-        if len(word) > 0 and word in prompt_shortcut:
-            prompt = prompt_shortcut[word]
+        if len(word) > 0 and word in prompt_shortcut_dict:
+            prompt = prompt_shortcut_dict[word]
             print("prompt: ",prompt)
             text = text.replace(original_substrings[i],prompt)
         # else:

@@ -755,6 +755,15 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
 
   console.dir(numberOfImages)
   const bUsePromptShortcut = document.getElementById('chUsePromptShortcut').checked
+  let prompt_shortcut_ui_dict = {}
+  try {
+    let prompt_shortcut_string = document.getElementById('taPromptShortcut').value
+    prompt_shortcut_ui_dict = JSON.parse(prompt_shortcut_string)
+  } catch (e) {
+    console.warn(`warning prompt_shortcut_ui_dict is not valid Json obj: ${e}`)
+    prompt_shortcut_ui_dict = {}
+  }
+
   payload = {
     prompt: prompt,
 
@@ -768,7 +777,8 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     cfg_scale: cfg_scale,
     seed: seed,
     mask_blur: mask_blur,
-    use_prompt_shortcut: bUsePromptShortcut
+    use_prompt_shortcut: bUsePromptShortcut,
+    prompt_shortcut_ui_dict: prompt_shortcut_ui_dict 
   }
 
   console.log({ payload })

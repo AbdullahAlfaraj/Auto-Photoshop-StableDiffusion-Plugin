@@ -29,10 +29,11 @@ async def img2ImgRequest(sd_url,payload):
     
     if(payload['use_prompt_shortcut']): # use edit prompt
         #edit prompt, replaceShortcut(prompt)
-        prompt_shortcut.load()
-        payload['prompt'] = prompt_shortcut.replaceShortcut(payload['prompt'])
+        prompt_shortcut_dict = prompt_shortcut.load()
+        prompt_shortcut_dict.update(payload["prompt_shortcut_ui_dict"])
+        payload['prompt'] = prompt_shortcut.replaceShortcut(payload['prompt'],prompt_shortcut_dict)
         # edit negative prompt, replaceShortcut(negative_prompt)
-        payload['negative_prompt'] = prompt_shortcut.replaceShortcut(payload['negative_prompt'])
+        payload['negative_prompt'] = prompt_shortcut.replaceShortcut(payload['negative_prompt'],prompt_shortcut_dict)
         
     init_img_dir = "./init_images"
     init_img_name = payload['init_image_name']
