@@ -205,6 +205,18 @@ async function initSamplers () {
 }
 }
 
+
+function promptShortcutExample(){
+
+  let prompt_shortcut_example = {
+    "game_like": "Unreal Engine, Octane Render, arcane card game ui, hearthstone art style, epic fantasy style art",
+    "large_building_1": "castle, huge building, large building",
+    "painterly_style_1": "A full portrait of a beautiful post apocalyptic offworld arctic explorer, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration",
+    "ugly": " ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), out of frame, extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck)))"
+  }
+  var JSONInPrettyFormat = JSON.stringify(prompt_shortcut_example, undefined, 7);
+  document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+}
 //steps to load init_image:
 //duplicate the active layer
 // duplication()
@@ -246,15 +258,9 @@ refreshModels() // get the models when the plugin loads
 displayUpdate()
 initSamplers()
 updateVersionUI()
+promptShortcutExample()
 //***********End: init function calls */
 
-
-document.getElementById("taPromptShortcut").value = `{
-  "game_like": "Unreal Engine, Octane Render, arcane card game ui, hearthstone art style, epic fantasy style art",
-  "large_building_1": "castle, huge building, large building",
-  "painterly_style_1": "A full portrait of a beautiful post apocalyptic offworld arctic explorer, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration",
-  "ugly": " ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), out of frame, extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck)))"
-}`
 //add click event on radio button mode, so that when a button is clicked it change g_sd_mode globally
 rbModeElements = document.getElementsByClassName('rbMode')
 for (let rbModeElement of rbModeElements) {
