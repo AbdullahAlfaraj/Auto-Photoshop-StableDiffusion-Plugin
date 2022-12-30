@@ -11,7 +11,7 @@ def load():
             print(data)
     except IOError:
         print("prompt_shortcut.json is not found")
-    
+    return prompt_shortcut
 def find_words_inside_braces(string):
     result = ""
     pattern ="\{(.*?)\}"
