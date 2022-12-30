@@ -1181,6 +1181,55 @@ document.getElementById('collapsible').addEventListener('click', function () {
   }
   // this.textContent = `${g_sd_sampler}: ${this.textContent}`
 })
+document.getElementById('btnLoadPromptShortcut').addEventListener('click',async function(){
+  try{
 
-// outpaint.selectAllLayers()
+    prompt_shortcut = await sdapi.loadPromptShortcut()
+    var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
+    document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+  }catch(e){
+    console.warn(`loadPromptShortcut warning: ${e}`)
+  }
+
+}) 
+
+
+document
+  .getElementById('btnSavePromptShortcut')
+  .addEventListener('click', async function () {
+    try {
+      
+
+      const r1 = await dialog_box.prompt(
+        'Are you sure you want to save prompt shortcut?',
+        "This will override your old prompt shortcut file, you can't undo this operation",
+        ['Cancel', 'Save']
+      )
+      if ((r1 || 'Save') !== 'Save') {
+        /* cancelled or No */
+        console.log("cancel")
+      } else {
+        /* Yes */
+        console.log("Save")
+        
+      
+      
+        prompt_shortcut_string = document.getElementById('taPromptShortcut').value
+        let prompt_shortcut =  JSON.parse(prompt_shortcut_string)
+  
+  
+        prompt_shortcut = await sdapi.savePromptShortcut(prompt_shortcut)
+        // var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
+        console.log('prompt_shortcut was saved: ', prompt_shortcut)
+      
+      }
+    } catch (e) {
+      console.warn(`savePromptShortcut warning: ${e}`)
+    }
+
+
+
+     
+  })
+
 

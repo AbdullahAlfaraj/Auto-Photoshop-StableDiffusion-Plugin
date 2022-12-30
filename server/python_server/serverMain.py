@@ -262,7 +262,7 @@ async def loadPromptShortcut(request: Request):
         prompt_shortcut_json = json['prompt_shortcut']
         # response.body = {"prompt_shortcut":prompt_shortcut}
         # response.body = {"prompt_shortcut":prompt_shortcut}
-        prompt_shortcut.writeToJson("test_prompt_shortcut.json",prompt_shortcut_json)
+        prompt_shortcut.writeToJson("prompt_shortcut.json",prompt_shortcut_json)
     except:
         # print(f'exception: fail to send request to {sd_url}/sdapi/v1/{path}')
         print(f'error occurred durning reading the request {request}')
