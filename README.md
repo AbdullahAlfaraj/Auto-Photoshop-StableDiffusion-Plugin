@@ -23,6 +23,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 	- [img2img:](#img2img)
 	- [inpaint:](#inpaint)
 	- [outpaint:](#outpaint)
+	- [prompt shortcut:](#prompt-shortcut)
 	- [Rule of thumbs:](#rule-of-thumbs)
 - [FAQ and Known Issues](#faq-and-known-issues)
 	- [Plugin Load Failed](#plugin-load-failed)
@@ -132,6 +133,24 @@ If you have an issue even after reading the following section. Please consider s
 	2) create a black and white mask and will use it as the "init mask"
 	3) it will update both the "init image" and the "init mask" in plugin UI
 
+## prompt shortcut:
+you can substitute a whole sequance of words with one word. 
+
+Instead of writing the following as a prompt :
+```
+Unreal Engine, Octane Render, arcane card game ui, hearthstone art style, epic fantasy style art
+```
+you could write: 
+```
+{game_like}
+```
+
+as long as you have defined the relationsip in the prompt library tab
+```
+{
+"game_like": "Unreal Engine, Octane Render, arcane card game ui, hearthstone art style, epic fantasy style art"
+}
+```
 ## Rule of thumbs:
 * To get the best result for inpainting and outpainting you must select the "stable-diffusion inpainting model"
 * An "init image" of img2img must not have transparency in it. 
