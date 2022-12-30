@@ -12,6 +12,11 @@
 
   }
 
+  #taPromptShortcut{
+    height: 300px;
+    margin: 3px auto; 
+  }
+
   #taPrompt{
     
     box-sizing: border-box;
@@ -239,8 +244,16 @@
       <sp-label slot="label" id="lVersionNumber">v0.0.0</sp-label>
     </div>
     <div class="sp-tab-page" id="sp-prompts-library-tab-page">
-      prompts library page,
-      coming soon
+      <sp-label slot="label">Prompt Shortcut: a single word that represent a prompt</sp-label>
+      <div class="">
+        <sp-textarea id="taPromptShortcut" placeholder="prompt shortcut" value=""></sp-textarea>
+        
+
+      </div>
+      <div>
+        <button class="btnSquare" id="btnLoadPromptShortcut">Load</button>
+        <button class="btnSquare" id="btnSavePromptShortcut">Save</button>
+      </div>
     </div>
 
     <div class="sp-tab-page" id="sp-settings-tab-page">
@@ -285,13 +298,13 @@
         <div class="prompts">
           <!-- <sp-label slot="label">Prompt</sp-label> -->
           <div class="">
-            <sp-textarea id="taPrompt" placeholder="Prompt" value="cute cat"></sp-textarea>
+            <sp-textarea id="taPrompt" placeholder="Prompt" value="cute cat, {painterly_style_1}"></sp-textarea>
             <!-- <textarea id="taPrompt" placeholder="Prompt" value="cute cat"></textarea> -->
 
           </div>
 
           <div class="">
-            <sp-textarea id="taNegativePrompt" placeholder="Negative Prompt" id="taNegativePrompt" multiline
+            <sp-textarea id="taNegativePrompt" placeholder="Negative Prompt" id="taNegativePrompt" value="{ugly}" multiline
               grows></sp-textarea>
           </div>
         </div>

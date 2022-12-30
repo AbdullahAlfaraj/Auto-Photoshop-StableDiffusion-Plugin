@@ -205,6 +205,18 @@ async function initSamplers () {
 }
 }
 
+
+function promptShortcutExample(){
+
+  let prompt_shortcut_example = {
+    "game_like": "Unreal Engine, Octane Render, arcane card game ui, hearthstone art style, epic fantasy style art",
+    "large_building_1": "castle, huge building, large building",
+    "painterly_style_1": "A full portrait of a beautiful post apocalyptic offworld arctic explorer, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration",
+    "ugly": " ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), out of frame, extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck)))"
+  }
+  var JSONInPrettyFormat = JSON.stringify(prompt_shortcut_example, undefined, 7);
+  document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+}
 //steps to load init_image:
 //duplicate the active layer
 // duplication()
@@ -246,6 +258,7 @@ refreshModels() // get the models when the plugin loads
 displayUpdate()
 initSamplers()
 updateVersionUI()
+promptShortcutExample()
 //***********End: init function calls */
 
 //add click event on radio button mode, so that when a button is clicked it change g_sd_mode globally
@@ -1181,6 +1194,55 @@ document.getElementById('collapsible').addEventListener('click', function () {
   }
   // this.textContent = `${g_sd_sampler}: ${this.textContent}`
 })
+document.getElementById('btnLoadPromptShortcut').addEventListener('click',async function(){
+  try{
 
-// outpaint.selectAllLayers()
+    prompt_shortcut = await sdapi.loadPromptShortcut()
+    var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
+    document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+  }catch(e){
+    console.warn(`loadPromptShortcut warning: ${e}`)
+  }
+
+}) 
+
+
+document
+  .getElementById('btnSavePromptShortcut')
+  .addEventListener('click', async function () {
+    try {
+      
+
+      const r1 = await dialog_box.prompt(
+        'Are you sure you want to save prompt shortcut?',
+        "This will override your old prompt shortcut file, you can't undo this operation",
+        ['Cancel', 'Save']
+      )
+      if ((r1 || 'Save') !== 'Save') {
+        /* cancelled or No */
+        console.log("cancel")
+      } else {
+        /* Yes */
+        console.log("Save")
+        
+      
+      
+        prompt_shortcut_string = document.getElementById('taPromptShortcut').value
+        let prompt_shortcut =  JSON.parse(prompt_shortcut_string)
+  
+  
+        prompt_shortcut = await sdapi.savePromptShortcut(prompt_shortcut)
+        // var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
+        console.log('prompt_shortcut was saved: ', prompt_shortcut)
+      
+      }
+    } catch (e) {
+      console.warn(`savePromptShortcut warning: ${e}`)
+    }
+
+
+
+     
+  })
+
 

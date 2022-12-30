@@ -273,6 +273,67 @@ async function changeSdUrl(new_sd_url){
 
 }
 
+// function printTheJSONInPrettyFormat(json) {
+//   // var badJSON = document.getElementById('prettyJSONFormat').value;
+//   // var parseJSON = JSON.parse(badJSON);
+//   // var JSONInPrettyFormat = JSON.stringify(json, undefined, 4);
+//   // return 
+// }
+
+async function loadPromptShortcut () {
+  // console.log('loadPromptShortcut:')
+  let json = {}
+  try {
+    payload = {}
+
+    const full_url = 'http://127.0.0.1:8000/prompt_shortcut/load'
+
+    let request = await fetch(full_url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    json = await request.json()
+    console.log('loadPromptShortcut:', json)
+    // console.log('loadPromptShortcut: request: ',request)
+  } catch (e) {
+    console.warn(e)
+  }
+
+  return json['prompt_shortcut']
+}
+
+async function savePromptShortcut (prompt_shortcut) {
+  // console.log('loadPromptShortcut:')
+  let json = {}
+  try {
+    payload = {"prompt_shortcut":prompt_shortcut}
+
+    const full_url = 'http://127.0.0.1:8000/prompt_shortcut/save'
+
+    let request = await fetch(full_url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    json = await request.json()
+    console.log('savePromptShortcut:', json)
+    // console.log('loadPromptShortcut: request: ',request)
+  } catch (e) {
+    console.warn(e)
+  }
+
+  return json['prompt_shortcut']
+}
+
 module.exports = {
   requestTxt2Img,
   requestImg2Img,
@@ -283,5 +344,7 @@ module.exports = {
   requestInterrupt,
   requestGetSamplers,
   getVersionRequest,
-  changeSdUrl
+  changeSdUrl,
+  loadPromptShortcut,
+  savePromptShortcut
 }
