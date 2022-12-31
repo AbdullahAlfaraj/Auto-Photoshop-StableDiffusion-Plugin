@@ -279,7 +279,34 @@ async function changeSdUrl(new_sd_url){
 //   // var JSONInPrettyFormat = JSON.stringify(json, undefined, 4);
 //   // return 
 // }
+async function loadHistory (uniqueDocumentId) {
+  
+  let json = {}
+  try {
+    payload = {
+      "uniqueDocumentId":uniqueDocumentId
+    }
 
+    const full_url = 'http://127.0.0.1:8000/history/load'
+
+    let request = await fetch(full_url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    json = await request.json()
+    console.log('loadHistory:', json)
+    // console.log('loadPromptShortcut: request: ',request)
+  } catch (e) {
+    console.warn(e)
+  }
+
+  return json['image_paths']
+}
 async function loadPromptShortcut () {
   // console.log('loadPromptShortcut:')
   let json = {}
@@ -346,5 +373,6 @@ module.exports = {
   getVersionRequest,
   changeSdUrl,
   loadPromptShortcut,
-  savePromptShortcut
+  savePromptShortcut,
+  loadHistory
 }
