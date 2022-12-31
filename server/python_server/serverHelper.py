@@ -2,6 +2,27 @@ import time
 import os
 import datetime
 import uuid
+import json
+
+# this function should be used whenever we need to write to json file
+def writeJson(file_name,data_dict):
+    with open(file_name, 'w', encoding='utf-8') as outfile:
+        json.dump(data_dict, outfile, ensure_ascii=False, indent=4)
+        
+    
+    
+
+# this function should be used whenever we need to read from json file
+def readJson(file_name): 
+    data_dict = {}
+    try:
+        with open(file_name) as f_obj:
+            data_dict = json.load(f_obj)
+            
+            print("readJson: data_dict: ", data_dict)
+    except IOError:
+        print(f"{file_name} is not found")
+    return data_dict
 
 def createFolder(fullpath):
     print("fullpath:",fullpath)
