@@ -151,7 +151,15 @@
     display: flex;
     margin-left: auto;
   }
-
+  .flexContainer{
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: row;
+  }
+  #historySeedLabelContainer {
+    display: flex;
+    margin-left: auto;
+  }
   #menu-bar-container {
 
     width: 100%;
@@ -249,7 +257,13 @@
       <sp-label slot="label" id="lVersionNumber">v0.0.0</sp-label>
     </div>
     <div class="sp-tab-page" id="sp-history-tab-page">
-      <sp-label slot="label">history of all the images you generated</sp-label>
+      <div class="flexContainer">
+
+        <sp-label slot="label">history of all the images you generated</sp-label>
+        <div id="historySeedLabelContainer">
+          <sp-label slot="label">Seed:</sp-label><sp-label slot="label" id="historySeedLabel">00000000000</sp-label>
+        </div>
+      </div>
       <div>
         
       </div>

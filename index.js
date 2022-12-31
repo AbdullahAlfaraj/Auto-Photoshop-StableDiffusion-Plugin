@@ -1270,6 +1270,8 @@ document.getElementById('btnLoadHistory').addEventListener('click',async functio
       img.addEventListener('click',(e)=>{
         const metadata_json = JSON.parse(e.target.dataset.metadata_json_string)
         console.log("metadata_json: ",metadata_json)
+        document.querySelector('#tiSeed').value = metadata_json.Seed
+        document.querySelector('#historySeedLabel').textContent = metadata_json.Seed
       })
       i++
     }
