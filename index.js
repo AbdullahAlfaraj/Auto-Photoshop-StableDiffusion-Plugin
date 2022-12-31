@@ -14,6 +14,18 @@ const { executeAsModal } = require('photoshop').core
 const dialog_box = require('./dialog_box')
 const {entrypoints} = require('uxp')
 
+
+
+document
+  .getElementById('btnLinkCurrentDocument')
+  .addEventListener('click', async () => {
+    
+    let uuid = self.crypto.randomUUID();
+    console.log(uuid); // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
+
+  })
+
+  
 // attach event listeners for tabs
 Array.from(document.querySelectorAll(".sp-tab")).forEach(theTab => {
   theTab.onclick = () => {
