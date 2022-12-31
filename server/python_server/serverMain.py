@@ -250,15 +250,17 @@ async def loadHistory(request: Request):
         settings_paths = glob.glob(f'./output/{uniqueDocumentId}/*.json')
         print("loadHistory: image_paths:", image_paths)
         history['image_paths'] = image_paths
-        history['metadata_settings'] =[]
-        # response.body = {"prompt_shortcut":prompt_shortcut}
-        # response.status_code = 200
+        history['metadata_jsons'] = []
+        for image_path in image_paths:
+            metadata_dict = metadata_to_json.createMetadataJsonFileIfNotExist(image_path)
+            history['metadata_jsons'].append(metadata_dict)  
+        
     except:
-        # print(f'exception: fail to send request to {sd_url}/sdapi/v1/{path}')
+        
         print(f'{request}')
     
     # return response
-    return {"image_paths":history['image_paths'], "metadata_settings":history['metadata_settings']}
+    return {"image_paths":history['image_paths'], "metadata_jsons":history['metadata_jsons']}
 
 
 @app.post('/prompt_shortcut/load')
