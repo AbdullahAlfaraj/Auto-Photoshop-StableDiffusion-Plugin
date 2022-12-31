@@ -1,6 +1,8 @@
 import time
 import os
 import datetime
+import uuid
+
 def createFolder(fullpath):
     print("fullpath:",fullpath)
     
@@ -16,9 +18,17 @@ def makeDirPathName():
     fullpath = os.path.join(output_path,daily_folder)
     # fullpath = os.path.join(currentDirPath,dirName)
     return fullpath,daily_folder
-if __name__ == "__main__":
-    currentDirPath = os.getcwd()
-    dirName = f'{time.time()}'
-    fullpath = os.path.join(currentDirPath,dirName)
-    createFolder(fullpath)
 
+def makeUniqueID():
+    myuuid = uuid.uuid4()
+    print('Your UUID is: ' + str(myuuid))
+    return myuuid
+
+
+if __name__ == "__main__":
+    # currentDirPath = os.getcwd()
+    # dirName = f'{time.time()}'
+    # fullpath = os.path.join(currentDirPath,dirName)
+    # createFolder(fullpath)
+    id = makeUniqueID()
+    print("id: ",id)
