@@ -231,6 +231,38 @@ async def sdapi(path: str, request: Request, response: Response):
     return response
 
 
+@app.post('/history/load')
+async def loadHistory(request: Request):
+    # {'image_paths','metadata_setting'}
+    history = {}
+    try:
+        json = await request.json()
+    except: 
+        json = {}
+
+    try:
+
+        uniqueDocumentId = json['uniqueDocumentId']
+        
+        import glob
+
+        image_paths = glob.glob(f'./output/{uniqueDocumentId}/*.png')
+        settings_paths = glob.glob(f'./output/{uniqueDocumentId}/*.json')
+        print("loadHistory: image_paths:", image_paths)
+        history['image_paths'] = image_paths
+        history['metadata_jsons'] = []
+        for image_path in image_paths:
+            metadata_dict = metadata_to_json.createMetadataJsonFileIfNotExist(image_path)
+            history['metadata_jsons'].append(metadata_dict)  
+        
+    except:
+        
+        print(f'{request}')
+    
+    # return response
+    return {"image_paths":history['image_paths'], "metadata_jsons":history['metadata_jsons']}
+
+
 @app.post('/prompt_shortcut/load')
 async def loadPromptShortcut(request: Request):
     prompt_shortcut_json = {}

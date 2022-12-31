@@ -79,7 +79,11 @@
     height: 150px;
     margin: 0;
   }
-
+  .history-image{
+    width: 100px;
+    height: 100px;
+    margin: 0;
+  }
   .column-item {
 
     margin: 0;
@@ -147,7 +151,15 @@
     display: flex;
     margin-left: auto;
   }
-
+  .flexContainer{
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: row;
+  }
+  #historySeedLabelContainer {
+    display: flex;
+    margin-left: auto;
+  }
   #menu-bar-container {
 
     width: 100%;
@@ -239,10 +251,30 @@
   <div class="container wrapper">
     <div class="sp-tabs">
       <div class="sp-tab selected" id="sp-stable-diffusion-ui-tab"><sp-label>Stable Diffusion UI</sp-label></div>
+      <div class="sp-tab" id="sp-history-tab"><sp-label>History</sp-label></div>
       <div class="sp-tab" id="sp-prompts-library-tab"><sp-label>Prompts library</sp-label></div>
       <div class="sp-tab" id="sp-settings-tab"><sp-label>Settings</sp-label></div>
       <sp-label slot="label" id="lVersionNumber">v0.0.0</sp-label>
     </div>
+    <div class="sp-tab-page" id="sp-history-tab-page">
+      <div class="flexContainer">
+
+        <sp-label slot="label">history of all the images you generated</sp-label>
+        <div id="historySeedLabelContainer">
+          <sp-label slot="label">Seed:</sp-label><sp-label slot="label" id="historySeedLabel">00000000000</sp-label>
+        </div>
+      </div>
+      <div>
+        
+      </div>
+      <button class="btnSquare" id="btnLoadHistory">Load</button>
+      <div class="" id="divHistoryImagesContainer">
+        <img  class="history-image" id="history_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' />
+        
+
+      </div>
+    </div>
+
     <div class="sp-tab-page" id="sp-prompts-library-tab-page">
       <sp-label slot="label">Prompt Shortcut: a single word that represent a prompt</sp-label>
       <div class="">
