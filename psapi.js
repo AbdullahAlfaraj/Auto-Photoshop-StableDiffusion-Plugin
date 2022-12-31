@@ -774,7 +774,105 @@ async function checkIfSelectionAreaIsActive()
   let isSelectionAreaValid = getSelectionInfoExe()
 return isSelectionAreaValid
 }
+async function saveUniqueDocumentIdExe (new_id) {
+  const batchPlay = require('photoshop').action.batchPlay
 
+  async function saveUniqueDocumentIdCommand () {
+    const batchPlay = require('photoshop').action.batchPlay
+
+    const result = await batchPlay(
+      [
+        {
+          _obj: 'set',
+          _target: [
+            {
+              _ref: 'property',
+              _property: 'fileInfo'
+            },
+            {
+              _ref: 'document',
+              _enum: 'ordinal',
+              _value: 'targetEnum'
+            }
+          ],
+          to: {
+            _obj: 'fileInfo',
+            caption: new_id,
+            keywords: [new_id]
+          },
+          _options: {
+            dialogOptions: 'dontDisplay'
+          }
+        }
+      ],
+      {
+        synchronousExecution: true,
+        modalBehavior: 'execute'
+      }
+    )
+  }
+
+  await executeAsModal(async () => {
+    saveUniqueDocumentIdCommand()
+  })
+}
+
+async function readUniqueDocumentIdExe () {
+  const batchPlay = require('photoshop').action.batchPlay
+
+  async function readUniqueDocumentIdCommand () {
+    const batchPlay = require('photoshop').action.batchPlay
+
+    const result = await batchPlay(
+      [
+        {
+          _obj: 'get',
+          _target: [
+            {
+              _ref: 'property',
+              _property: 'fileInfo'
+            },
+            {
+              _ref: 'document',
+              _enum: 'ordinal',
+              _value: 'targetEnum'
+            }
+          ],
+          // to: {
+          //   _obj: 'fileInfo',
+          //   caption: new_id,
+          //   keywords: [new_id]
+          // },
+          _options: {
+            dialogOptions: 'dontDisplay'
+          }
+        }
+      ],
+      {
+        synchronousExecution: true,
+        modalBehavior: 'execute'
+      }
+    )
+    console.log("readUniqueDocumentIdCommand: result ", result)
+    return result
+  }
+
+  let uniqueDocumentId = "" 
+  try{
+
+    await executeAsModal(async () => {
+      uniqueDocumentId =  (await readUniqueDocumentIdCommand())[0].fileInfo.caption
+      if (typeof uniqueDocumentId === "string"){
+        uniqueDocumentId = uniqueDocumentId.trim()
+      }
+    })
+  }catch(e){
+    console.warn("readUniqueDocumentIdExe: ",e)
+    uniqueDocumentId = ""
+  }
+
+  return uniqueDocumentId
+}
 module.exports = {
   createSolidLayer,
   createEmptyGroup,
@@ -808,5 +906,7 @@ module.exports = {
   createClippingMaskExe,
   checkIfSelectionAreaIsActive,
   selectMarqueeRectangularToolExe,
-  promptForMarqueeTool
+  promptForMarqueeTool,
+  saveUniqueDocumentIdExe,
+  readUniqueDocumentIdExe
 }

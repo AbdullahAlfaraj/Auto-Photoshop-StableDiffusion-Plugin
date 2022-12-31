@@ -69,7 +69,9 @@ async def img2ImgRequest(sd_url,payload):
 
         #create a directory to store the images at
         # dirName = f'{time.time()}'
-        dir_fullpath,dirName = serverHelper.makeDirPathName()
+        # dir_fullpath,dirName = serverHelper.makeDirPathName()
+        uniqueDocumentId = payload['uniqueDocumentId']
+        dir_fullpath,dirName = serverHelper.getUniqueDocumentDirPathName(uniqueDocumentId)
         serverHelper.createFolder(dir_fullpath)
         image_paths = []
         metadata = []

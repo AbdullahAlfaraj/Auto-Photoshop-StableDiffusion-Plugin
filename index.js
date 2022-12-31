@@ -14,6 +14,45 @@ const { executeAsModal } = require('photoshop').core
 const dialog_box = require('./dialog_box')
 const {entrypoints} = require('uxp')
 
+
+
+async function getUniqueDocumentId () {
+  try {
+    uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
+
+    console.log(
+      'btnLinkCurrentDocument.click():  uniqueDocumentId: ',
+      uniqueDocumentId
+    )
+
+    // Regular expression to check if string is a valid UUID
+    const regexExp =
+      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi
+
+    // String with valid UUID separated by dash
+    // const str = 'a24a6ea4-ce75-4665-a070-57453082c256'
+
+    const isValidId = regexExp.test(uniqueDocumentId) // true
+    console.log('isValidId: ', isValidId)
+    if (isValidId == false) {
+      let uuid = self.crypto.randomUUID()
+      console.log(uuid) // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
+      await psapi.saveUniqueDocumentIdExe(uuid)
+      uniqueDocumentId = uuid
+    }
+  } catch (e) {
+    console.warn('warning Document Id may not be valid', e)
+  }
+  return uniqueDocumentId
+}
+
+document
+  .getElementById('btnLinkCurrentDocument')
+  .addEventListener('click', async () => {
+    await getUniqueDocumentId()
+  })
+
+  
 // attach event listeners for tabs
 Array.from(document.querySelectorAll(".sp-tab")).forEach(theTab => {
   theTab.onclick = () => {
@@ -764,6 +803,8 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     prompt_shortcut_ui_dict = {}
   }
 
+
+  const uniqueDocumentId = await getUniqueDocumentId()
   payload = {
     prompt: prompt,
 
@@ -778,7 +819,8 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     seed: seed,
     mask_blur: mask_blur,
     use_prompt_shortcut: bUsePromptShortcut,
-    prompt_shortcut_ui_dict: prompt_shortcut_ui_dict 
+    prompt_shortcut_ui_dict: prompt_shortcut_ui_dict,
+    uniqueDocumentId: uniqueDocumentId
   }
 
   console.log({ payload })
