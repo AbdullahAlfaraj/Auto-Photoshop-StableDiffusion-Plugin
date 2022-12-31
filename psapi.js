@@ -863,7 +863,7 @@ async function readUniqueDocumentIdExe () {
 
   })
 
-  return uniqueDocumentId
+  return uniqueDocumentId.trim()
 }
 module.exports = {
   createSolidLayer,

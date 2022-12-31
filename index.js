@@ -19,14 +19,34 @@ const {entrypoints} = require('uxp')
 document
   .getElementById('btnLinkCurrentDocument')
   .addEventListener('click', async () => {
-    
-    let uuid = self.crypto.randomUUID();
-    console.log(uuid); // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
-    await psapi.saveUniqueDocumentIdExe(uuid)
+    try{
 
-    uniqueDocumentId = await psapi.readUniqueDocumentIdExe(uuid)
-    console.log("btnLinkCurrentDocument.click():  uniqueDocumentId: ",uniqueDocumentId)
-    
+      uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
+      
+      console.log(
+      'btnLinkCurrentDocument.click():  uniqueDocumentId: ',
+      uniqueDocumentId
+    )
+
+    // Regular expression to check if string is a valid UUID
+    const regexExp =
+      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi
+
+    // String with valid UUID separated by dash
+    // const str = 'a24a6ea4-ce75-4665-a070-57453082c256'
+
+
+
+    const isValidId = regexExp.test(uniqueDocumentId) // true
+    console.log('isValidId: ', isValidId)
+    if(isValidId == false){
+      let uuid = self.crypto.randomUUID()
+      console.log(uuid) // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
+      await psapi.saveUniqueDocumentIdExe(uuid)
+    }
+  }catch(e){
+    console.warn("warning Document Id may not be valid",e)
+  }
   })
 
   
