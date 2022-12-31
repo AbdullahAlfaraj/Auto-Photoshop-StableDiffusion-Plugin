@@ -1246,6 +1246,31 @@ document.getElementById('collapsible').addEventListener('click', function () {
   }
   // this.textContent = `${g_sd_sampler}: ${this.textContent}`
 })
+
+document.getElementById('btnLoadHistory').addEventListener('click',async function(){
+  try{
+
+    const output_dir_relative = "./server/python_server/"
+    const container = document.getElementById("divHistoryImagesContainer")
+    const uniqueDocumentId = await getUniqueDocumentId()
+    const image_paths = await sdapi.loadHistory(uniqueDocumentId)
+    
+    while(container.firstChild){
+    container.removeChild(container.firstChild);
+    }
+    for (image_path of image_paths){
+      
+      const img = document.createElement('img')
+      img.src = `${output_dir_relative}/${image_path}`
+      img.className = "history-image"
+      container.appendChild(img)
+    }
+    
+  }catch(e){
+    console.warn(`loadHistory warning: ${e}`)
+  }
+
+}) 
 document.getElementById('btnLoadPromptShortcut').addEventListener('click',async function(){
   try{
 
@@ -1298,3 +1323,4 @@ document
   })
 
 
+  

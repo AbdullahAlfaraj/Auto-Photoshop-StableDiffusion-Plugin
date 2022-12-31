@@ -231,6 +231,36 @@ async def sdapi(path: str, request: Request, response: Response):
     return response
 
 
+@app.post('/history/load')
+async def loadHistory(request: Request):
+    # {'image_paths','metadata_setting'}
+    history = {}
+    try:
+        json = await request.json()
+    except: 
+        json = {}
+
+    try:
+
+        uniqueDocumentId = json['uniqueDocumentId']
+        
+        import glob
+
+        image_paths = glob.glob(f'./output/{uniqueDocumentId}/*.png')
+        settings_paths = glob.glob(f'./output/{uniqueDocumentId}/*.json')
+        print("loadHistory: image_paths:", image_paths)
+        history['image_paths'] = image_paths
+        history['metadata_settings'] =[]
+        # response.body = {"prompt_shortcut":prompt_shortcut}
+        # response.status_code = 200
+    except:
+        # print(f'exception: fail to send request to {sd_url}/sdapi/v1/{path}')
+        print(f'{request}')
+    
+    # return response
+    return {"image_paths":history['image_paths'], "metadata_settings":history['metadata_settings']}
+
+
 @app.post('/prompt_shortcut/load')
 async def loadPromptShortcut(request: Request):
     prompt_shortcut_json = {}
