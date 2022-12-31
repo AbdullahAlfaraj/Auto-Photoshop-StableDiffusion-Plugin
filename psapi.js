@@ -858,12 +858,20 @@ async function readUniqueDocumentIdExe () {
   }
 
   let uniqueDocumentId = "" 
-  await executeAsModal(async () => {
-    uniqueDocumentId =  (await readUniqueDocumentIdCommand())[0].fileInfo.caption
+  try{
 
-  })
+    await executeAsModal(async () => {
+      uniqueDocumentId =  (await readUniqueDocumentIdCommand())[0].fileInfo.caption
+      if (typeof uniqueDocumentId === "string"){
+        uniqueDocumentId = uniqueDocumentId.trim()
+      }
+    })
+  }catch(e){
+    console.warn("readUniqueDocumentIdExe: ",e)
+    uniqueDocumentId = ""
+  }
 
-  return uniqueDocumentId.trim()
+  return uniqueDocumentId
 }
 module.exports = {
   createSolidLayer,

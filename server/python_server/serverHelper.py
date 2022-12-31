@@ -19,6 +19,15 @@ def makeDirPathName():
     # fullpath = os.path.join(currentDirPath,dirName)
     return fullpath,daily_folder
 
+#create string dir path name based on the uniqueDocumentId
+def getUniqueDocumentDirPathName(uniqueDocumentId):
+    
+    currentDirPath = os.getcwd()
+    output_path = os.path.join(currentDirPath,"output")
+    fullpath = os.path.join(output_path,uniqueDocumentId)
+
+    return fullpath,uniqueDocumentId
+
 def makeUniqueID():
     myuuid = uuid.uuid4()
     print('Your UUID is: ' + str(myuuid))
