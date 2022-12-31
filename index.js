@@ -22,7 +22,11 @@ document
     
     let uuid = self.crypto.randomUUID();
     console.log(uuid); // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
+    await psapi.saveUniqueDocumentIdExe(uuid)
 
+    uniqueDocumentId = await psapi.readUniqueDocumentIdExe(uuid)
+    console.log("btnLinkCurrentDocument.click():  uniqueDocumentId: ",uniqueDocumentId)
+    
   })
 
   
