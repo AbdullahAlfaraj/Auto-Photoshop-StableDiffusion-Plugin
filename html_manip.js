@@ -1,7 +1,5 @@
 ////// Start Prompt//////////
 
-
-
 function getPrompt(){
   const prompt = document.getElementById('taPrompt').value
   return prompt
@@ -10,7 +8,21 @@ function getPrompt(){
 function autoFillInPrompt(prompt_value){
   document.getElementById('taPrompt').value = prompt_value
 }
+
 ////// End Prompt//////////
+
+////// Start Negative Prompt//////////
+
+function getNegativePrompt(){
+  const negative_prompt = document.getElementById('taNegativePrompt').value
+  return negative_prompt
+}
+
+function autoFillInNegativePrompt(negative_prompt_value){
+  document.getElementById('taNegativePrompt').value = negative_prompt_value
+}
+
+////// End Negative Prompt//////////
 
 
 
@@ -88,6 +100,8 @@ function autoFillInDenoisingStrength (denoising_strength_value) {
 module.exports = {
   getPrompt,
   autoFillInPrompt,
+  getNegativePrompt,
+  autoFillInNegativePrompt,
   getDenoisingStrength,
   autoFillInDenoisingStrength,
   getWidth,
