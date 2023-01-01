@@ -1,3 +1,19 @@
+////// Start Prompt//////////
+
+
+
+function getPrompt(){
+  const prompt = document.getElementById('taPrompt').value
+  return prompt
+}
+
+function autoFillInPrompt(prompt_value){
+  document.getElementById('taPrompt').value = prompt_value
+}
+////// End Prompt//////////
+
+
+
 ////// Start Width//////////
 
 
@@ -70,10 +86,13 @@ function autoFillInDenoisingStrength (denoising_strength_value) {
 ////// End Denoising Strength//////////
 
 module.exports = {
+  getPrompt,
+  autoFillInPrompt,
   getDenoisingStrength,
   autoFillInDenoisingStrength,
   getWidth,
   autoFillInWidth,
   getHeight,
   autoFillInHeight
+
 }

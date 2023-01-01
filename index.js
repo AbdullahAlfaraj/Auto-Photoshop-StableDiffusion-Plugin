@@ -279,7 +279,8 @@ function autoFillInSettings(metadata_json){
      "Denoising strength": "0",
      "Conditional mask weight": "1.0"
     }
-    document.getElementById("taPrompt").value = metadata_json["prompt"]
+    
+    html_manip.autoFillInPrompt(metadata_json["prompt"])
     document.getElementById('tiNumberOfSteps').value = metadata_json["Steps"]
     selectSamplerHtml(metadata_json["Sampler"])
     document.getElementById('slCfgScale').value = metadata_json["CFG scale"]
@@ -860,7 +861,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   numberOfImages = document.querySelector('#tiNumberOfImages').value
   numberOfSteps = document.querySelector('#tiNumberOfSteps').value
 
-  const prompt = document.querySelector('#taPrompt').value
+  const prompt = html_manip.getPrompt()
   const negative_prompt = document.querySelector('#taNegativePrompt').value
   const hi_res_fix = document.getElementById('chHiResFixs').checked
   // console.log("prompt:",prompt)
