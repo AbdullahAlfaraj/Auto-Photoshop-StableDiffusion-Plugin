@@ -280,7 +280,25 @@ function autoFillInSettings(metadata_json){
      "Conditional mask weight": "1.0"
     }
     
-    html_manip.autoFillInPrompt(metadata_json["prompt"])
+    //sometime the negative prompt is stored within the prompt
+    function extractNegativePrompt(prompt){
+      const splitter = "\nNegative prompt:"
+      const prompts = prompt.split(splitter)
+      console.log("prompts: ",prompts)
+      let negative_prompt = ""
+      if(prompts.length > 1)
+      {
+        negative_prompt = prompts[1].trim()
+      }
+      //propmt = prompt[0]
+      
+      return [prompts[0],negative_prompt]
+    } 
+    let [prompt, negative_prompt] = extractNegativePrompt(metadata_json["prompt"])
+    negative_prompt =  metadata_json["Negative prompt"] || negative_prompt
+    
+    html_manip.autoFillInPrompt(prompt)
+    html_manip.autoFillInNegativePrompt(negative_prompt)
     document.getElementById('tiNumberOfSteps').value = metadata_json["Steps"]
     selectSamplerHtml(metadata_json["Sampler"])
     document.getElementById('slCfgScale').value = metadata_json["CFG scale"]
@@ -862,7 +880,8 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   numberOfSteps = document.querySelector('#tiNumberOfSteps').value
 
   const prompt = html_manip.getPrompt()
-  const negative_prompt = document.querySelector('#taNegativePrompt').value
+  
+  const negative_prompt = html_manip.getNegativePrompt()
   const hi_res_fix = document.getElementById('chHiResFixs').checked
   // console.log("prompt:",prompt)
   // console.log("negative_prompt:",negative_prompt)
