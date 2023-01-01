@@ -299,6 +299,7 @@ function autoFillInSettings(metadata_json){
     
     html_manip.autoFillInPrompt(prompt)
     html_manip.autoFillInNegativePrompt(negative_prompt)
+    
     document.getElementById('tiNumberOfSteps').value = metadata_json["Steps"]
     selectSamplerHtml(metadata_json["Sampler"])
     document.getElementById('slCfgScale').value = metadata_json["CFG scale"]
@@ -313,6 +314,16 @@ function autoFillInSettings(metadata_json){
     html_manip.autoFillInWidth(width)
     html_manip.autoFillInHeight(height)
     
+    if(metadata_json.hasOwnProperty("First pass size"))
+    {
+      // chHiResFixs
+      const [firstphase_width,firstphase_height] =metadata_json["First pass size"].split('x')
+      html_manip.autoFillInHiResFixs(firstphase_width,firstphase_height)
+      html_manip.autoFillInSliderUi(metadata_json['Denoising strength'],'hrDenoisingStrength','hDenoisingStrength',100)
+    }else{//
+     html_manip.setHiResFixs(false)
+    }
+
     // document.getElementById('tiSeed').value = metadata_json["Seed"]
   }
   catch(e){
@@ -638,18 +649,18 @@ document.querySelector('#slInpaintPadding').addEventListener('input', evt => {
 //     ).innerHTML = `${denoising_string_value}`
 //     // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
 //   })
-document
-  .querySelector('#hrDenoisingStrength')
-  .addEventListener('input', evt => {
-    const denoising_string_value = evt.target.value / 100.0
-    h_denoising_strength = denoising_string_value
+// document
+//   .querySelector('#hrDenoisingStrength')
+//   .addEventListener('input', evt => {
+//     const denoising_string_value = evt.target.value / 100.0
+//     h_denoising_strength = denoising_string_value
 
-    document.getElementById(
-      'hDenoisingStrength'
-    ).innerHTML = `${denoising_string_value}`
-    // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
-  })
-// document.getElementById('btnPopulate').addEventListener('click', showLayerNames)
+//     document.getElementById(
+//       'hDenoisingStrength'
+//     ).innerHTML = `${denoising_string_value}`
+//     // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
+//   })
+// // document.getElementById('btnPopulate').addEventListener('click', showLayerNames)
 
 document
   .getElementById('btnSnapAndFill')
@@ -882,7 +893,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   const prompt = html_manip.getPrompt()
   
   const negative_prompt = html_manip.getNegativePrompt()
-  const hi_res_fix = document.getElementById('chHiResFixs').checked
+  const hi_res_fix = html_manip.getHiResFixs()
   // console.log("prompt:",prompt)
   // console.log("negative_prompt:",negative_prompt)
   const model_index = document.querySelector('#mModelsMenu').selectedIndex
@@ -910,7 +921,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   console.log("Check")
 
   const uniqueDocumentId = await getUniqueDocumentId()
-  
+  const h_denoising_strength = html_manip.getSliderSdValue('hrDenoisingStrength',0.01)
   console.log("Check2")
   payload = {
     prompt: prompt,

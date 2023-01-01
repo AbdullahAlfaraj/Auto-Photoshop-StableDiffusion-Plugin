@@ -95,7 +95,71 @@ function autoFillInDenoisingStrength (denoising_strength_value) {
     'lDenoisingStrength'
   ).innerHTML = `${denoising_strength_value}`
 }
+
 ////// End Denoising Strength//////////
+
+
+////// Start Hi Res Fix//////////
+
+
+document.getElementById('chHiResFixs').addEventListener('input', evt => {
+  const label_value = evt.target.value / 100
+  // console.log("label_value: ", label_value)
+  document.getElementById('lDenoisingStrength').innerHTML = `${label_value}`
+
+})
+
+//get the value that is relevant to stable diffusion
+function getHiResFixs() {
+  const isChecked = document.getElementById('chHiResFixs').checked
+  return isChecked
+}
+
+function setHiResFixs(isChecked) {
+  document.getElementById('chHiResFixs').checked = isChecked
+}
+
+
+function sliderAddEventListener(slider_id,label_id,multiplier){
+  document.getElementById(slider_id).addEventListener('input', evt => {
+    const sd_value = evt.target.value * multiplier // convert slider value to SD ready value
+    document.getElementById(label_id).textContent = sd_value
+  })
+}
+
+//get the stable diffusion ready value from the slider with  "slider_id"
+function getSliderSdValue(slider_id,multiplier){
+  const slider_value = document.getElementById(slider_id).value
+  const sd_value = slider_value * multiplier
+  return sd_value 
+}
+function autoFillInSliderUi(sd_value,slider_id,label_id,multiplier){
+  //update the slider
+  document.getElementById(slider_id).value = `${sd_value * multiplier}`
+  //update the label
+  document.getElementById(label_id).innerHTML = `${sd_value}`
+}
+
+//hrWidth is from [1 to 32] * 64 => [64 to 2048]  
+sliderAddEventListener('hrWidth', 'hWidth',64)
+sliderAddEventListener('hrHeight', 'hHeight',64)
+
+//convert hrDenoisingStrength  from  [1, 100] * 0.01 => [0.01 to 1]
+sliderAddEventListener('hrDenoisingStrength','hDenoisingStrength',0.01)
+
+
+
+function autoFillInHiResFixs(firstphase_width,firstphase_height) {
+  setHiResFixs(true)
+  //update the firstphase width slider and label
+  autoFillInSliderUi(firstphase_width,'hrWidth','hWidth',1.0/64)
+  //update the firstphase height slider and label
+  autoFillInSliderUi(firstphase_height,'hrHeight','hHeight',1.0/64)
+}
+////// End Hi Res Fix//////////
+
+
+
 
 module.exports = {
   getPrompt,
@@ -107,6 +171,10 @@ module.exports = {
   getWidth,
   autoFillInWidth,
   getHeight,
-  autoFillInHeight
-
+  autoFillInHeight,
+  getSliderSdValue,
+  autoFillInHiResFixs,
+  getHiResFixs,
+  setHiResFixs,
+  autoFillInSliderUi
 }
