@@ -21,7 +21,7 @@ async function getUniqueDocumentId () {
     uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
 
     console.log(
-      'btnLinkCurrentDocument.click():  uniqueDocumentId: ',
+      'getUniqueDocumentId():  uniqueDocumentId: ',
       uniqueDocumentId
     )
 
@@ -46,11 +46,11 @@ async function getUniqueDocumentId () {
   return uniqueDocumentId
 }
 
-document
-  .getElementById('btnLinkCurrentDocument')
-  .addEventListener('click', async () => {
-    await getUniqueDocumentId()
-  })
+// document
+//   .getElementById('btnLinkCurrentDocument')
+//   .addEventListener('click', async () => {
+//     await getUniqueDocumentId()
+//   })
 
   
 // attach event listeners for tabs
