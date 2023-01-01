@@ -26,7 +26,6 @@
       "schemes": ["http", "https", "mailto"],
 		  "extensions": [".png", ".jpg", ".pdf"]
     },
-    
     "clipboard": "readAndWrite",
     "localFileSystem": "request",
     "ipc": {

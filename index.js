@@ -280,6 +280,9 @@ let g_models = []
 let g_model_title = ''
 let gWidth = 512
 let gHeight = 512
+let hWidth = 512
+let hHeight = 512
+let h_denoising_strength = .7
 let g_inpainting_fill = 0
 let g_last_outpaint_layers = []
 let g_last_inpaint_layers = []
@@ -534,6 +537,15 @@ document.querySelector('#slWidth').addEventListener('input', evt => {
   gWidth = sliderToResolution(evt.target.value)
   document.querySelector('#lWidth').textContent = gWidth
 })
+
+document.querySelector('#hrHeight').addEventListener('input', evt => {
+  hHeight = sliderToResolution(evt.target.value)
+  document.querySelector('#hHeight').textContent = hHeight
+})
+document.querySelector('#hrWidth').addEventListener('input', evt => {
+  hWidth = sliderToResolution(evt.target.value)
+  document.querySelector('#hWidth').textContent = hWidth
+})
 document.querySelector('#slInpaintPadding').addEventListener('input', evt => {
   padding = evt.target.value * 4
   document.querySelector('#lInpaintPadding').textContent = padding
@@ -552,7 +564,19 @@ document
     ).innerHTML = `${denoising_string_value}`
     // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
   })
-
+document
+  .querySelector('#hrDenoisingStrength')
+  .addEventListener('input', evt => {
+    const denoising_string_value = evt.target.value / 100.0
+    h_denoising_strength = denoising_string_value
+    // document.querySelector('#lDenoisingStrength').value= Number(denoising_string_value)
+    document.querySelector('#hDenoisingStrength').textContent =
+      denoising_string_value
+    document.getElementById(
+      'hDenoisingStrength'
+    ).innerHTML = `${denoising_string_value}`
+    // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
+  })
 // document.getElementById('btnPopulate').addEventListener('click', showLayerNames)
 
 document
@@ -783,6 +807,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
 
   const prompt = document.querySelector('#taPrompt').value
   const negative_prompt = document.querySelector('#taNegativePrompt').value
+  const hi_res_fix = document.getElementById('chHiResFixs').checked
   // console.log("prompt:",prompt)
   // console.log("negative_prompt:",negative_prompt)
   const model_index = document.querySelector('#mModelsMenu').selectedIndex
@@ -803,8 +828,10 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     prompt_shortcut_ui_dict = {}
   }
 
+  console.log("Check")
 
   const uniqueDocumentId = await getUniqueDocumentId()
+  console.log("Check2")
   payload = {
     prompt: prompt,
 
@@ -814,13 +841,17 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     sampler_index: g_sd_sampler,
     width: gWidth,
     height: gHeight,
+    enable_hr : hi_res_fix,
+    firstphase_width: hWidth,
+    firstphase_height: hHeight,
+    denoising_strength: h_denoising_strength, // Highres Denoising, overwritten in img2img
     batch_size: numberOfImages,
     cfg_scale: cfg_scale,
     seed: seed,
     mask_blur: mask_blur,
     use_prompt_shortcut: bUsePromptShortcut,
     prompt_shortcut_ui_dict: prompt_shortcut_ui_dict,
-    uniqueDocumentId: uniqueDocumentId
+  uniqueDocumentId: uniqueDocumentId
   }
 
   console.log({ payload })
