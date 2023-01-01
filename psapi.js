@@ -584,6 +584,9 @@ function layerNameToFileName(layer_name,layer_id,session_id)
 
 }
 async function exportPngCommand (session_id) {
+  try{
+
+  
   // const result = await batchPlay { _obj: “exportSelectionAsFileTypePressed”}
 
   // const destFolder = (await storage.localFileSystem.getDataFolder()).nativePath;
@@ -618,8 +621,15 @@ async function exportPngCommand (session_id) {
     synchronousExecution: true,
     modalBehavior: 'execute'
   })
+  
+
 
   return result
+}
+catch (e) {
+  console.error(`exportPngCommand error:, ${e}`)
+}
+
 }
 
 async function exportPng (session_id) {
@@ -637,12 +647,16 @@ async function exportPng (session_id) {
   }, 3000); 
     //after export rename the layer to it's original name by remove the "_${id}" from the name
   } catch (e) {
-    console.log('exportPng error:', e)
+    
+    console.error(`exportPng error:, ${e}`)
   }
 }
 
 // await runModalFunction();
 async function setInitImage (layer, session_id) {
+ try{
+
+ 
   // const layer = await app.activeDocument.activeLayers[0]
   const old_name = layer.name 
   const sdapi = require('./sdapi')
@@ -657,8 +671,14 @@ async function setInitImage (layer, session_id) {
   const image_src = await sdapi.getInitImage(g_init_image_name)
   let ini_image_element = document.getElementById('init_image')
   ini_image_element.src = image_src
+} catch (e) {
+  console.error(`psapi.js setInitImage error:, ${e}`)
+}
 }
 async function setInitImageMask (layer, session_id) {
+  try{
+
+  
   // const layer = await app.activeDocument.activeLayers[0]
   const old_name = layer.name 
   const sdapi = require('./sdapi')
@@ -673,6 +693,9 @@ async function setInitImageMask (layer, session_id) {
   const image_src = await sdapi.getInitImage(g_init_image_mask_name)
   const ini_image_mask_element = document.getElementById('init_image_mask')
   ini_image_mask_element.src = image_src
+} catch (e) {
+  console.error(`psapi.js setInitImageMask error:, ${e}`)
+}
 }
 
 // remove the generated mask related layers from the canvas and "layers" panel
