@@ -192,6 +192,40 @@ function autoFillInSampler(sampler_name){
 }
 ////// End Samplers//////////
 
+////// Start Models//////////
+
+
+function getModelElementByHash(model_hash){
+  try{
+
+    //assume the model_hash is valid
+    //return the first model menu item element with model_hash 
+   const model_element = [...document.getElementsByClassName('mModelMenuItem')].filter(e => e.dataset.model_hash == model_hash)[0]
+  return model_element  
+  }catch(e){
+    console.warn(`Model '${model_hash}' not found ${e}`)
+  }
+}
+function getSelectedModelHash(){
+  //return the hash of the first selected model menu item
+  return  [...document.getElementsByClassName('mModelMenuItem')].filter(e => e.selected == true)[0].dataset.model_hash
+}
+
+function selectModelUi(model_hash){
+  
+  model_element = getModelElementByHash(model_hash)
+  model_element.selected = true
+}
+function autoFillInModel(model_hash){
+  // unCheckAllSamplers()
+  model_element = getModelElementByHash(model_hash)
+  selectModelUi(model_hash)
+  // model_element.
+  const model_title = model_element.dataset.model_title
+  return model_title
+}
+////// End Models//////////
+
 module.exports = {
   getPrompt,
   autoFillInPrompt,
@@ -209,6 +243,7 @@ module.exports = {
   setHiResFixs,
   autoFillInSliderUi,
   getCheckedSamplerName,
-  autoFillInSampler
+  autoFillInSampler,
+  autoFillInModel
 
 }

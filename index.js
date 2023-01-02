@@ -180,6 +180,8 @@ async function refreshUI(){
   await refreshModels()
   await updateVersionUI()
 }
+
+
 async function refreshModels () {
   try{
 
@@ -191,7 +193,10 @@ async function refreshModels () {
   for (let model of g_models) {
     console.log(model.title)
     const menu_item_element = document.createElement('sp-menu-item')
+    menu_item_element.className = "mModelMenuItem"
     menu_item_element.innerHTML = model.title
+    menu_item_element.dataset.model_hash = model.hash
+    menu_item_element.dataset.model_title = model.title
     document.getElementById('mModelsMenu').appendChild(menu_item_element)
   }
 }catch(e){
@@ -308,6 +313,8 @@ function autoFillInSettings(metadata_json){
     // = metadata_json['Denoising strength']
     html_manip.autoFillInDenoisingStrength(metadata_json['Denoising strength'])
     
+    model_title = html_manip.autoFillInModel(metadata_json["Model hash"])
+    sdapi.requestSwapModel(model_title)
     
     const [width,height] =  metadata_json['Size'].split('x')
     console.log("width, height: ",width, height)
