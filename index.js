@@ -13,7 +13,7 @@ const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
 const dialog_box = require('./dialog_box')
 const {entrypoints} = require('uxp')
-
+const html_manip = require('./html_manip')
 
 
 async function getUniqueDocumentId () {
@@ -21,7 +21,7 @@ async function getUniqueDocumentId () {
     uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
 
     console.log(
-      'btnLinkCurrentDocument.click():  uniqueDocumentId: ',
+      'getUniqueDocumentId():  uniqueDocumentId: ',
       uniqueDocumentId
     )
 
@@ -46,11 +46,11 @@ async function getUniqueDocumentId () {
   return uniqueDocumentId
 }
 
-document
-  .getElementById('btnLinkCurrentDocument')
-  .addEventListener('click', async () => {
-    await getUniqueDocumentId()
-  })
+// document
+//   .getElementById('btnLinkCurrentDocument')
+//   .addEventListener('click', async () => {
+//     await getUniqueDocumentId()
+//   })
 
   
 // attach event listeners for tabs
@@ -180,6 +180,8 @@ async function refreshUI(){
   await refreshModels()
   await updateVersionUI()
 }
+
+
 async function refreshModels () {
   try{
 
@@ -191,7 +193,10 @@ async function refreshModels () {
   for (let model of g_models) {
     console.log(model.title)
     const menu_item_element = document.createElement('sp-menu-item')
+    menu_item_element.className = "mModelMenuItem"
     menu_item_element.innerHTML = model.title
+    menu_item_element.dataset.model_hash = model.hash
+    menu_item_element.dataset.model_title = model.title
     document.getElementById('mModelsMenu').appendChild(menu_item_element)
   }
 }catch(e){
@@ -213,6 +218,8 @@ async function updateVersionUI(){
   
 }
 
+
+
 async function initSamplers () {
  try{
 
@@ -229,10 +236,13 @@ async function initSamplers () {
     rbSampler.innerHTML = sampler.name
     rbSampler.setAttribute('class', 'rbSampler')
     rbSampler.setAttribute('value', sampler.name)
+    
 
     sampler_group.appendChild(rbSampler)
     //add click event on radio button for Sampler radio button, so that when a button is clicked it change g_sd_sampler globally
     
+
+    //we could delete the click() event 
     rbSampler.addEventListener('click', evt => {
       g_sd_sampler = evt.target.value
       console.log(`You clicked: ${g_sd_sampler}`)
@@ -256,8 +266,81 @@ function promptShortcutExample(){
   var JSONInPrettyFormat = JSON.stringify(prompt_shortcut_example, undefined, 7);
   document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
 }
-//steps to load init_image:
-//duplicate the active layer
+
+
+
+function autoFillInSettings(metadata_json){
+ try{
+
+   metadata_json1 =  {
+     "prompt": "cute cat, A full portrait of a beautiful post apocalyptic offworld arctic explorer, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration\nNegative prompt:  ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), out of frame, extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck)))",
+     "Steps": "20",
+     "Sampler": "Euler a",
+     "CFG scale": "7.0",
+     "Seed": "2300061620",
+     "Size": "512x512",
+     "Model hash": "3e16efc8",
+     "Seed resize from": "-1x-1",
+     "Denoising strength": "0",
+     "Conditional mask weight": "1.0"
+    }
+    
+    //sometime the negative prompt is stored within the prompt
+    function extractNegativePrompt(prompt){
+      const splitter = "\nNegative prompt:"
+      const prompts = prompt.split(splitter)
+      console.log("prompts: ",prompts)
+      let negative_prompt = ""
+      if(prompts.length > 1)
+      {
+        negative_prompt = prompts[1].trim()
+      }
+      //propmt = prompt[0]
+      
+      return [prompts[0],negative_prompt]
+    } 
+    let [prompt, negative_prompt] = extractNegativePrompt(metadata_json["prompt"])
+    negative_prompt =  metadata_json["Negative prompt"] || negative_prompt
+    
+    html_manip.autoFillInPrompt(prompt)
+    html_manip.autoFillInNegativePrompt(negative_prompt)
+    
+    document.getElementById('tiNumberOfSteps').value = metadata_json["Steps"]
+    
+    document.getElementById('slCfgScale').value = metadata_json["CFG scale"]
+    document.getElementById('tiSeed').value = metadata_json["Seed"]
+
+    // = metadata_json['Denoising strength']
+    html_manip.autoFillInDenoisingStrength(metadata_json['Denoising strength'])
+    
+    model_title = html_manip.autoFillInModel(metadata_json["Model hash"])
+    sdapi.requestSwapModel(model_title)
+    
+    const [width,height] =  metadata_json['Size'].split('x')
+    console.log("width, height: ",width, height)
+    html_manip.autoFillInWidth(width)
+    html_manip.autoFillInHeight(height)
+    html_manip.autoFillInSampler(metadata_json['Sampler'])
+    if(metadata_json.hasOwnProperty("First pass size"))
+    {
+      // chHiResFixs
+      const [firstphase_width,firstphase_height] =metadata_json["First pass size"].split('x')
+      html_manip.autoFillInHiResFixs(firstphase_width,firstphase_height)
+      html_manip.autoFillInSliderUi(metadata_json['Denoising strength'],'hrDenoisingStrength','hDenoisingStrength',100)
+    }else{//
+     html_manip.setHiResFixs(false)
+    }
+
+    // document.getElementById('tiSeed').value = metadata_json["Seed"]
+  }
+  catch(e){
+  console.error(`autoFillInSettings: ${e}`)  
+  }
+    
+    
+  }
+  //steps to load init_image:
+  //duplicate the active layer
 // duplication()
 // create a mask from marquee selection
 
@@ -278,8 +361,8 @@ let g_denoising_strength = 0.7
 let g_use_mask_image = false
 let g_models = []
 let g_model_title = ''
-let gWidth = 512
-let gHeight = 512
+// let gWidth = 512
+// let gHeight = 512
 let hWidth = 512
 let hHeight = 512
 let h_denoising_strength = .7
@@ -324,19 +407,6 @@ for (let rbMaskContentElement of rbMaskContentElements) {
   })
 }
 
-// //add click event on radio button for Sampler radio button, so that when a button is clicked it change g_sd_sampler globally
-// rbSamplerElements = document.getElementsByClassName('rbSampler')
-// for (let rbSamplerElement of rbSamplerElements) {
-//   rbSamplerElement.addEventListener('click', evt => {
-//     g_sd_sampler = evt.target.value
-//     console.log(`You clicked: ${g_sd_sampler}`)
-//   })
-// }
-// document.getElementById('chUseMaskImage').addEventListener("click",evt=>{
-//   g_use_mask_image = evt.target.checked
-//   console.log(`g_use_mask_image:? ${g_use_mask_image}`);
-
-// })
 
 // show the interface that need to be shown and hide the interface that need to be hidden
 function displayUpdate () {
@@ -529,14 +599,23 @@ function sliderToResolution (sliderValue) {
   return sliderValue * 64
 }
 
-document.querySelector('#slHeight').addEventListener('input', evt => {
-  gHeight = sliderToResolution(evt.target.value)
-  document.querySelector('#lHeight').textContent = gHeight
-})
-document.querySelector('#slWidth').addEventListener('input', evt => {
-  gWidth = sliderToResolution(evt.target.value)
-  document.querySelector('#lWidth').textContent = gWidth
-})
+// document.querySelector('#slHeight').addEventListener('input', evt => {
+//   gHeight = sliderToResolution(evt.target.value)
+//   document.querySelector('#lHeight').textContent = gHeight
+// })
+
+
+// function getWidthFromSlider(slider_value){
+//   // slider_width = document.querySelector('#slWidth').value
+//   const width = sliderToResolution(slider_value) 
+//   return width 
+// }
+// //avoid using global width gWidth in "input" incase the slider get changed using autoFillInSettings
+// document.querySelector('#slWidth').addEventListener('input', evt => {
+//   const width = getWidthFromSlider(evt.target.value)
+//   // gWidth = sliderToResolution(evt.target.value)
+//   document.querySelector('#lWidth').textContent = width
+// })
 
 document.querySelector('#hrHeight').addEventListener('input', evt => {
   hHeight = sliderToResolution(evt.target.value)
@@ -551,33 +630,31 @@ document.querySelector('#slInpaintPadding').addEventListener('input', evt => {
   document.querySelector('#lInpaintPadding').textContent = padding
 })
 
-document
-  .querySelector('#slDenoisingStrength')
-  .addEventListener('input', evt => {
-    const denoising_string_value = evt.target.value / 100.0
-    g_denoising_strength = denoising_string_value
-    // document.querySelector('#lDenoisingStrength').value= Number(denoising_string_value)
-    document.querySelector('#lDenoisingStrength').textContent =
-      denoising_string_value
-    document.getElementById(
-      'lDenoisingStrength'
-    ).innerHTML = `${denoising_string_value}`
-    // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
-  })
-document
-  .querySelector('#hrDenoisingStrength')
-  .addEventListener('input', evt => {
-    const denoising_string_value = evt.target.value / 100.0
-    h_denoising_strength = denoising_string_value
-    // document.querySelector('#lDenoisingStrength').value= Number(denoising_string_value)
-    document.querySelector('#hDenoisingStrength').textContent =
-      denoising_string_value
-    document.getElementById(
-      'hDenoisingStrength'
-    ).innerHTML = `${denoising_string_value}`
-    // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
-  })
-// document.getElementById('btnPopulate').addEventListener('click', showLayerNames)
+// document
+//   .querySelector('#slDenoisingStrength')
+//   .addEventListener('input', evt => {
+//     const denoising_string_value = evt.target.value / 100.0
+//     g_denoising_strength = denoising_string_value
+//     // document.querySelector('#lDenoisingStrength').value= Number(denoising_string_value)
+//     document.querySelector('#lDenoisingStrength').textContent =
+//       denoising_string_value
+//     document.getElementById(
+//       'lDenoisingStrength'
+//     ).innerHTML = `${denoising_string_value}`
+//     // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
+//   })
+// document
+//   .querySelector('#hrDenoisingStrength')
+//   .addEventListener('input', evt => {
+//     const denoising_string_value = evt.target.value / 100.0
+//     h_denoising_strength = denoising_string_value
+
+//     document.getElementById(
+//       'hDenoisingStrength'
+//     ).innerHTML = `${denoising_string_value}`
+//     // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
+//   })
+// // document.getElementById('btnPopulate').addEventListener('click', showLayerNames)
 
 document
   .getElementById('btnSnapAndFill')
@@ -800,14 +877,17 @@ document
 
 
 document.getElementById('btnGenerate').addEventListener('click', async () => {
+  try{
+
   
   toggleGenerateInterruptButton(true)
   numberOfImages = document.querySelector('#tiNumberOfImages').value
   numberOfSteps = document.querySelector('#tiNumberOfSteps').value
 
-  const prompt = document.querySelector('#taPrompt').value
-  const negative_prompt = document.querySelector('#taNegativePrompt').value
-  const hi_res_fix = document.getElementById('chHiResFixs').checked
+  const prompt = html_manip.getPrompt()
+  
+  const negative_prompt = html_manip.getNegativePrompt()
+  const hi_res_fix = html_manip.getHiResFixs()
   // console.log("prompt:",prompt)
   // console.log("negative_prompt:",negative_prompt)
   const model_index = document.querySelector('#mModelsMenu').selectedIndex
@@ -827,20 +907,28 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     console.warn(`warning prompt_shortcut_ui_dict is not valid Json obj: ${e}`)
     prompt_shortcut_ui_dict = {}
   }
-
+  
+  // const slider_width = document.getElementById("slWidth").value
+  // gWidth = getWidthFromSlider(slider_width)
+  const width = html_manip.getWidth()
+  const height = html_manip.getHeight()
+  const hWidth = html_manip.getSliderSdValue('hrWidth',64)
+  const hHeight = html_manip.getSliderSdValue('hrHeight',64)
   console.log("Check")
 
   const uniqueDocumentId = await getUniqueDocumentId()
+  const h_denoising_strength = html_manip.getSliderSdValue('hrDenoisingStrength',0.01)
   console.log("Check2")
+  const sampler_name = html_manip.getCheckedSamplerName()
   payload = {
     prompt: prompt,
 
     negative_prompt: negative_prompt,
     steps: numberOfSteps,
     // n_iter: numberOfImages,
-    sampler_index: g_sd_sampler,
-    width: gWidth,
-    height: gHeight,
+    sampler_index: sampler_name,
+    width: width,
+    height: height,
     enable_hr : hi_res_fix,
     firstphase_width: hWidth,
     firstphase_height: hHeight,
@@ -879,7 +967,8 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     }
     console.log(`g_use_mask_image:? ${g_use_mask_image}`)
 
-    payload['denoising_strength'] = g_denoising_strength
+    const denoising_strength = html_manip.getDenoisingStrength()
+    payload['denoising_strength'] = denoising_strength
     payload['init_image_name'] = g_init_image_name
 
     if (g_use_mask_image == true) {
@@ -914,7 +1003,18 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   toggleGenerateInterruptButton(false)
   gImage_paths = json.image_paths
   await ImagesToLayersExe()
+
+}catch(e){
+  console.error(`btnGenerate.click(): ${e}`)
+}
 })
+
+
+
+
+
+
+
 
 document
   .getElementById('btnRefreshModels')
@@ -966,7 +1066,7 @@ async function setInitImage () {
     let ini_image_element = document.getElementById('init_image')
     ini_image_element.src = image_src
   } catch (e) {
-    console.log('setInitImage error:', e)
+    console.error(`setInitImage error:, ${e}`)
   }
 }
 document.getElementById('bSetInitImage').addEventListener('click', setInitImage)
@@ -1275,7 +1375,7 @@ document.getElementById('collapsible').addEventListener('click', function () {
     content.style.display = 'block'
     this.textContent = 'Hide Samplers'
   }
-  // this.textContent = `${g_sd_sampler}: ${this.textContent}`
+  
 })
 
 document.getElementById('btnLoadHistory').addEventListener('click',async function(){
@@ -1301,8 +1401,9 @@ document.getElementById('btnLoadHistory').addEventListener('click',async functio
       img.addEventListener('click',(e)=>{
         const metadata_json = JSON.parse(e.target.dataset.metadata_json_string)
         console.log("metadata_json: ",metadata_json)
-        document.querySelector('#tiSeed').value = metadata_json.Seed
+        // document.querySelector('#tiSeed').value = metadata_json.Seed
         document.querySelector('#historySeedLabel').textContent = metadata_json.Seed
+        autoFillInSettings(metadata_json)
       })
       i++
     }
