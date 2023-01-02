@@ -213,6 +213,8 @@ async function updateVersionUI(){
   
 }
 
+
+
 async function initSamplers () {
  try{
 
@@ -229,10 +231,13 @@ async function initSamplers () {
     rbSampler.innerHTML = sampler.name
     rbSampler.setAttribute('class', 'rbSampler')
     rbSampler.setAttribute('value', sampler.name)
+    
 
     sampler_group.appendChild(rbSampler)
     //add click event on radio button for Sampler radio button, so that when a button is clicked it change g_sd_sampler globally
     
+
+    //we could delete the click() event 
     rbSampler.addEventListener('click', evt => {
       g_sd_sampler = evt.target.value
       console.log(`You clicked: ${g_sd_sampler}`)
@@ -257,12 +262,7 @@ function promptShortcutExample(){
   document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
 }
 
-function selectSamplerHtml(sampler_value){
-  //remove the check from all radio button elements 
-  //select radio button element whose value == sampler_value
-  //update g_sd_sampler value
-  return null
-}
+
 
 function autoFillInSettings(metadata_json){
  try{
@@ -301,7 +301,7 @@ function autoFillInSettings(metadata_json){
     html_manip.autoFillInNegativePrompt(negative_prompt)
     
     document.getElementById('tiNumberOfSteps').value = metadata_json["Steps"]
-    selectSamplerHtml(metadata_json["Sampler"])
+    
     document.getElementById('slCfgScale').value = metadata_json["CFG scale"]
     document.getElementById('tiSeed').value = metadata_json["Seed"]
 
@@ -313,7 +313,7 @@ function autoFillInSettings(metadata_json){
     console.log("width, height: ",width, height)
     html_manip.autoFillInWidth(width)
     html_manip.autoFillInHeight(height)
-    
+    html_manip.autoFillInSampler(metadata_json['Sampler'])
     if(metadata_json.hasOwnProperty("First pass size"))
     {
       // chHiResFixs
@@ -400,19 +400,6 @@ for (let rbMaskContentElement of rbMaskContentElements) {
   })
 }
 
-// //add click event on radio button for Sampler radio button, so that when a button is clicked it change g_sd_sampler globally
-// rbSamplerElements = document.getElementsByClassName('rbSampler')
-// for (let rbSamplerElement of rbSamplerElements) {
-//   rbSamplerElement.addEventListener('click', evt => {
-//     g_sd_sampler = evt.target.value
-//     console.log(`You clicked: ${g_sd_sampler}`)
-//   })
-// }
-// document.getElementById('chUseMaskImage').addEventListener("click",evt=>{
-//   g_use_mask_image = evt.target.checked
-//   console.log(`g_use_mask_image:? ${g_use_mask_image}`);
-
-// })
 
 // show the interface that need to be shown and hide the interface that need to be hidden
 function displayUpdate () {
@@ -918,18 +905,21 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   // gWidth = getWidthFromSlider(slider_width)
   const width = html_manip.getWidth()
   const height = html_manip.getHeight()
+  const hWidth = html_manip.getSliderSdValue('hrWidth',64)
+  const hHeight = html_manip.getSliderSdValue('hrHeight',64)
   console.log("Check")
 
   const uniqueDocumentId = await getUniqueDocumentId()
   const h_denoising_strength = html_manip.getSliderSdValue('hrDenoisingStrength',0.01)
   console.log("Check2")
+  const sampler_name = html_manip.getCheckedSamplerName()
   payload = {
     prompt: prompt,
 
     negative_prompt: negative_prompt,
     steps: numberOfSteps,
     // n_iter: numberOfImages,
-    sampler_index: g_sd_sampler,
+    sampler_index: sampler_name,
     width: width,
     height: height,
     enable_hr : hi_res_fix,
@@ -1378,7 +1368,7 @@ document.getElementById('collapsible').addEventListener('click', function () {
     content.style.display = 'block'
     this.textContent = 'Hide Samplers'
   }
-  // this.textContent = `${g_sd_sampler}: ${this.textContent}`
+  
 })
 
 document.getElementById('btnLoadHistory').addEventListener('click',async function(){

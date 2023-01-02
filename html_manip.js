@@ -159,7 +159,38 @@ function autoFillInHiResFixs(firstphase_width,firstphase_height) {
 ////// End Hi Res Fix//////////
 
 
+////// Start Samplers//////////
+function unCheckAllSamplers () {
+  document.getElementsByClassName('rbSampler').forEach(e => e.removeAttribute('checked'))
+}
 
+function getSamplerElementByName(sampler_name){
+  try{
+
+    //assume the sampler_name is valid
+    //return the first 
+    //convert htmlCollection into an array, then user filter to get the radio button with the value equals to sampler_name
+   const sampler_element = [...document.getElementsByClassName('rbSampler')].filter(e => e.value == sampler_name)[0]
+  return sampler_element  
+  }catch(e){
+    console.warn(`Sampler '${sampler_name}' not found ${e}`)
+  }
+
+}
+function getCheckedSamplerName(){
+  //return the name of the first checked sampler
+  return  [...document.getElementsByClassName('rbSampler')].filter(e => e.checked == true)[0].value
+}
+
+function checkSampler(sampler_name){
+  sampler_element = getSamplerElementByName(sampler_name)
+  sampler_element.checked = true
+}
+function autoFillInSampler(sampler_name){
+  // unCheckAllSamplers()
+  checkSampler(sampler_name)
+}
+////// End Samplers//////////
 
 module.exports = {
   getPrompt,
@@ -176,5 +207,8 @@ module.exports = {
   autoFillInHiResFixs,
   getHiResFixs,
   setHiResFixs,
-  autoFillInSliderUi
+  autoFillInSliderUi,
+  getCheckedSamplerName,
+  autoFillInSampler
+
 }
