@@ -922,6 +922,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   const uniqueDocumentId = await getUniqueDocumentId()
   const h_denoising_strength = html_manip.getSliderSdValue('hrDenoisingStrength',0.01)
   console.log("Check2")
+  
   const sampler_name = html_manip.getCheckedSamplerName()
   payload = {
     prompt: prompt,
@@ -1051,30 +1052,34 @@ document
 //   sdapi.getInitImage(g_init_image_name)
 // })
 
-async function setInitImage () {
-  // await exportHelper.exportPng()
-  try {
-    const layer = await app.activeDocument.activeLayers[0]
-    old_name = layer.name 
-    // await psapi.exportPng(random_session_id)
-    image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
-    image_name = `${image_name}.png`
+// async function setInitImage () {
+//   // await exportHelper.exportPng()
+//   try {
+//     const layer = await app.activeDocument.activeLayers[0]
+//     old_name = layer.name 
+//     // await psapi.exportPng(random_session_id)
+//     image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
+//     image_name = `${image_name}.png`
     
     
-    await psapi.newExportPng(layer,image_name)
+//     await psapi.newExportPng(layer,image_name)
     
-    // image_name = psapi.layerToFileName(layer,random_session_id)
+//     // image_name = psapi.layerToFileName(layer,random_session_id)
 
-    g_init_image_name = image_name
-    console.log(image_name)
-    const image_src = await sdapi.getInitImage(g_init_image_name)
-    let ini_image_element = document.getElementById('init_image')
-    ini_image_element.src = image_src
-  } catch (e) {
-    console.error(`setInitImage error:, ${e}`)
-  }
-}
-document.getElementById('bSetInitImage').addEventListener('click', setInitImage)
+//     g_init_image_name = image_name
+//     console.log(image_name)
+//     const image_src = await sdapi.getInitImage(g_init_image_name)
+//     let ini_image_element = document.getElementById('init_image')
+//     ini_image_element.src = image_src
+//   } catch (e) {
+//     console.error(`setInitImage error:, ${e}`)
+//   }
+// }
+// document.getElementById('bSetInitImage').addEventListener('click', setInitImage)
+document.getElementById('bSetInitImage').addEventListener('click', async ()=>  {
+  const layer = await app.activeDocument.activeLayers[0]
+  psapi.setInitImage(layer, random_session_id)
+})
 
 async function setInitImageMask () {
   try {
