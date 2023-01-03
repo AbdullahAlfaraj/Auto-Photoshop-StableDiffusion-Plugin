@@ -162,6 +162,8 @@ as long as you have defined the relationsip in the prompt library tab
 * Don't open multiple photoshop documents. For now, this will break the plugin. Only work on one project at a time.
 
 # FAQ and Known Issues
+## What Photoshop version do I need to run the plugin?
+The minimum Photoshop version that the plugin supports is Photoshop v24
 
 ## Plugin Load Failed
 There are a few issues that can result in this error, please follow the instructions for the corresponding error message in the UDT logs
@@ -170,7 +172,7 @@ There are a few issues that can result in this error, please follow the instruct
 This error occurs when Photoshop is not started before the plugin is attempted to be loaded. Simply start photoshop then restart UXP and load the plugin
 
 ### Load command failed in App with ID PS and Version X.X.X
-This error occurs when the version of Photoshop is mistmatched with the expected version of the plugin. This may be solved by editing the [manifest.json](manifest.json) file on line 8 to match your version of Photoshop. 
+This error occurs when the version of Photoshop is mistmatched with the expected version of the plugin. This may be solved by editing the [manifest.json](manifest.json) file on line 8 to match your version of Photoshop.
 ```
 "host": [
     {
@@ -179,6 +181,7 @@ This error occurs when the version of Photoshop is mistmatched with the expected
     }
   ],
 ```
+However, if you later upgraded your Photoshop to v24 or higher. you may need to change minVersion back to  ```"minVersion": "24.0.0"``` for the plugin to function correctly.
 
 ## Exception in ASGI application / Expecting value: line 1 column 1
 This error occurs due to mismatched expectations between the plugin and the Automatic1111 backend. 
