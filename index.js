@@ -14,7 +14,7 @@ const { executeAsModal } = require('photoshop').core
 const dialog_box = require('./dialog_box')
 const {entrypoints} = require('uxp')
 const html_manip = require('./html_manip')
-
+const export_png = require('./export_png')
 
 async function getUniqueDocumentId () {
   try {
@@ -157,7 +157,7 @@ async function duplication () {
 
     console.log('new active layer id: ', app.activeDocument.activeLayers[0].id)
   } catch (e) {
-    console.log('duplication error:', e)
+    console.warn('duplication error:', e)
   }
 }
 
@@ -585,7 +585,7 @@ function pastImage2Layer () {
           }
         ],
         {
-          synchronousExecution: false,
+          synchronousExecution: true,
           modalBehavior: 'fail'
         }
       )
@@ -667,7 +667,10 @@ document
       // clear the layers related to the last mask operation.
       g_last_snap_and_fill_layers = await psapi.cleanSnapAndFill(g_last_snap_and_fill_layers)
       // create new layers related to the current mask operation.
-      g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
+      await executeAsModal(async ()=>{
+        
+        g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
+      })
       console.log ("outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ",g_last_snap_and_fill_layers)
     }else{
       psapi.promptForMarqueeTool()
@@ -919,6 +922,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   const uniqueDocumentId = await getUniqueDocumentId()
   const h_denoising_strength = html_manip.getSliderSdValue('hrDenoisingStrength',0.01)
   console.log("Check2")
+  
   const sampler_name = html_manip.getCheckedSamplerName()
   payload = {
     prompt: prompt,
@@ -1048,55 +1052,65 @@ document
 //   sdapi.getInitImage(g_init_image_name)
 // })
 
-async function setInitImage () {
-  // await exportHelper.exportPng()
-  try {
-    const layer = await app.activeDocument.activeLayers[0]
-    old_name = layer.name 
-    await psapi.exportPng(random_session_id)
+// async function setInitImage () {
+//   // await exportHelper.exportPng()
+//   try {
+//     const layer = await app.activeDocument.activeLayers[0]
+//     old_name = layer.name 
+//     // await psapi.exportPng(random_session_id)
+//     image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
+//     image_name = `${image_name}.png`
     
-    image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
     
-    // image_name = psapi.layerToFileName(layer,random_session_id)
+//     await psapi.newExportPng(layer,image_name)
+    
+//     // image_name = psapi.layerToFileName(layer,random_session_id)
 
-    image_name = `${image_name}.png`
-    g_init_image_name = image_name
-    console.log(image_name)
-    const image_src = await sdapi.getInitImage(g_init_image_name)
-    let ini_image_element = document.getElementById('init_image')
-    ini_image_element.src = image_src
-  } catch (e) {
-    console.error(`setInitImage error:, ${e}`)
-  }
-}
-document.getElementById('bSetInitImage').addEventListener('click', setInitImage)
+//     g_init_image_name = image_name
+//     console.log(image_name)
+//     const image_src = await sdapi.getInitImage(g_init_image_name)
+//     let ini_image_element = document.getElementById('init_image')
+//     ini_image_element.src = image_src
+//   } catch (e) {
+//     console.error(`setInitImage error:, ${e}`)
+//   }
+// }
+// document.getElementById('bSetInitImage').addEventListener('click', setInitImage)
+document.getElementById('bSetInitImage').addEventListener('click', async ()=>  {
+  const layer = await app.activeDocument.activeLayers[0]
+  psapi.setInitImage(layer, random_session_id)
+})
 
-async function setInitImageMask () {
-  try {
-    const layer = await app.activeDocument.activeLayers[0]
-    old_name = layer.name 
-    await psapi.exportPng(random_session_id)
-    image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
+// async function setInitImageMask () {
+//   try {
+//     const layer = await app.activeDocument.activeLayers[0]
+//     old_name = layer.name 
+//     await psapi.exportPng(random_session_id)
+//     image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
     
-    //get the active layer name
-    // const layer = await app.activeDocument.activeLayers[0]
-    // image_name = psapi.layerToFileName(layer,random_session_id)
-    image_name = `${image_name}.png`
+//     //get the active layer name
+//     // const layer = await app.activeDocument.activeLayers[0]
+//     // image_name = psapi.layerToFileName(layer,random_session_id)
+//     image_name = `${image_name}.png`
     
-    g_init_image_mask_name = image_name
-    console.log(image_name)
+//     g_init_image_mask_name = image_name
+//     console.log(image_name)
     
-    const image_src = await sdapi.getInitImage(g_init_image_mask_name)
-    const ini_image_mask_element = document.getElementById('init_image_mask')
-    ini_image_mask_element.src = image_src
-  } catch (e) {
+//     const image_src = await sdapi.getInitImage(g_init_image_mask_name)
+//     const ini_image_mask_element = document.getElementById('init_image_mask')
+//     ini_image_mask_element.src = image_src
+//   } catch (e) {
     
-    console.error(`setInitImageMask error: ${e}`)
-  }
-}
-document
-  .getElementById('bSetInitImageMask')
-  .addEventListener('click', setInitImageMask)
+//     console.error(`setInitImageMask error: ${e}`)
+//   }
+// }
+// document
+//   .getElementById('bSetInitImageMask')
+//   .addEventListener('click', setInitImageMask)
+document.getElementById('bSetInitImageMask').addEventListener('click', async ()=>  {
+  const layer = await app.activeDocument.activeLayers[0]
+  psapi.setInitImageMask(layer, random_session_id)
+})
 
 async function progressRecursive () {
   let json = await sdapi.requestProgress()
@@ -1178,7 +1192,7 @@ async function imageToSmartObject () {
             }
           ],
           {
-            synchronousExecution: false,
+            synchronousExecution: true,
             modalBehavior: 'fail'
           }
         )
@@ -1189,7 +1203,7 @@ async function imageToSmartObject () {
     )
   } catch (e) {
     console.log('imageToSmartObject() => error: ')
-    console.log(e)
+    console.warn(e)
   }
 }
 
@@ -1259,13 +1273,13 @@ async function placeEmbedded () {
           }
         ],
         {
-          synchronousExecution: false,
+          synchronousExecution: true,
           modalBehavior: 'fail'
         }
       )
     })
   } catch (e) {
-    console.log(e)
+    console.warn(e)
   }
 }
 
@@ -1287,7 +1301,7 @@ async function openImageAction () {
 
     await app.open(theTemplate)
   } catch (e) {
-    console.log("couldn't open image ", e)
+    console.warn("couldn't open image ", e)
   }
 }
 

@@ -177,7 +177,9 @@ function getSamplerElementByName(sampler_name){
   }
 
 }
+
 function getCheckedSamplerName(){
+  //we assume that the samplers exist and loaded in html
   //return the name of the first checked sampler
   return  [...document.getElementsByClassName('rbSampler')].filter(e => e.checked == true)[0].value
 }

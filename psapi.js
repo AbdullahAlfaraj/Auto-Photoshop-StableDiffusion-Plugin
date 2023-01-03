@@ -1,6 +1,15 @@
 const app = window.require('photoshop').app
 const batchPlay = require('photoshop').action.batchPlay
 const { executeAsModal } = require('photoshop').core
+const export_png = require('./export_png')
+const { layerToSelection } = require('./helper')
+
+const storage = require('uxp').storage
+const fs = storage.localFileSystem
+
+
+
+
 
 async function createSolidLayer (r, g, b) {
   await executeAsModal(async () => {
@@ -31,7 +40,7 @@ async function createSolidLayer (r, g, b) {
         }
       ],
       {
-        synchronousExecution: false,
+        synchronousExecution: true,
         modalBehavior: 'execute'
       }
     )
@@ -57,7 +66,7 @@ async function makeGroupCommand () {
       }
     ],
     {
-      synchronousExecution: false,
+      synchronousExecution: true,
       modalBehavior: 'execute'
     }
   )
@@ -105,7 +114,7 @@ async function moveToGroupCommand (to_index, layerIDs) {
       }
     ],
     {
-      synchronousExecution: false,
+      synchronousExecution: true,
       modalBehavior: 'execute'
     }
   )
@@ -116,7 +125,7 @@ function MoveToGroupExe (toIndex, layerIDs) {
       await moveToGroupCommand(toIndex, layerIDs)
     })
   } catch (e) {
-    console.log('executeCommand error:', e)
+    console.warn('executeCommand error:', e)
   }
 }
 
@@ -156,7 +165,7 @@ async function getLayerIndex (layer_id) {
     })
     return index
   } catch (e) {
-    console.log('getIndex error:', e)
+    console.warn('getIndex error:', e)
   }
 }
 
@@ -216,7 +225,7 @@ async function createMaskCommand () {
       }
     ],
     {
-      synchronousExecution: false,
+      synchronousExecution: true,
       modalBehavior: 'execute'
     }
   )
@@ -251,7 +260,7 @@ async function unSelectMarqueeCommand () {
       }
     ],
     {
-      synchronousExecution: false,
+      synchronousExecution: true,
       modalBehavior: 'execute'
     }
   )
@@ -367,7 +376,7 @@ async function promptForMarqueeTool(){
       }
     ],
     {
-      synchronousExecution: false,
+      synchronousExecution: true,
       modalBehavior: 'execute'
     }
   )
@@ -393,7 +402,7 @@ async function getSelectionInfoCommand () {
       }
     ],
     {
-      synchronousExecution: false,
+      synchronousExecution: true,
       modalBehavior: 'execute'
     }
   )
@@ -419,7 +428,7 @@ async function getSelectionInfoExe () {
     // console.dir({selection_info})
     return selection_info
   } catch (e) {
-    console.log('selection info error', e)
+    console.warn('selection info error', e)
   }
 }
 
@@ -459,7 +468,7 @@ async function reSelectMarqueeCommand (selectionInfo) {
       }
     ],
     {
-      synchronousExecution: false,
+      synchronousExecution: true,
       modalBehavior: 'execute'
     }
   )
@@ -505,7 +514,8 @@ async function snapshot_layer () {
       to: { _enum: 'ordinal', _ref: 'channel', _value: 'targetEnum' }
     }
   ]
-  result = await psAction.batchPlay(command, {})
+  result = await psAction.batchPlay(command, {   "synchronousExecution": true,
+  "modalBehavior": "execute"})
   return result
 }
 
@@ -656,16 +666,20 @@ async function exportPng (session_id) {
 async function setInitImage (layer, session_id) {
  try{
 
- 
+  const html_manip = require('./html_manip') 
   // const layer = await app.activeDocument.activeLayers[0]
   const old_name = layer.name 
   const sdapi = require('./sdapi')
-  await exportPng(session_id)
+  // await exportPng(session_id)
   // image_name = await app.activeDocument.activeLayers[0].name
-
-  image_name = layerNameToFileName(old_name,layer.id,random_session_id)
-  // image_name = layer.name
+  
+  // image_name = layerNameToFileName(old_name,layer.id,random_session_id)
+  image_name = layerNameToFileName(old_name,layer.id,session_id)
   image_name = `${image_name}.png`
+  const width = html_manip.getWidth()
+  const height = html_manip.getHeight()
+  await newExportPng(layer,image_name,width,height)
+
   g_init_image_name = image_name
   console.log(image_name)
   const image_src = await sdapi.getInitImage(g_init_image_name)
@@ -677,17 +691,21 @@ async function setInitImage (layer, session_id) {
 }
 async function setInitImageMask (layer, session_id) {
   try{
+    const html_manip = require('./html_manip')
 
   
   // const layer = await app.activeDocument.activeLayers[0]
   const old_name = layer.name 
   const sdapi = require('./sdapi')
-  await exportPng(session_id)
+  // await exportPng(session_id)
   //get the active layer name
   // image_name = await app.activeDocument.activeLayers[0].name
-  image_name = layerNameToFileName(old_name,layer.id,random_session_id)
-  // image_name = layer.name
+  // image_name = layerNameToFileName(old_name,layer.id,random_session_id)
+  image_name = layerNameToFileName(old_name,layer.id,session_id)
   image_name = `${image_name}.png`
+  const width = html_manip.getWidth()
+  const height = html_manip.getHeight()
+  await newExportPng(layer,image_name,width,height)
   g_init_image_mask_name = image_name
   console.log(image_name)
   const image_src = await sdapi.getInitImage(g_init_image_mask_name)
@@ -700,14 +718,21 @@ async function setInitImageMask (layer, session_id) {
 
 // remove the generated mask related layers from the canvas and "layers" panel
 
+
 async function cleanSnapAndFill(layers){
+  // we can delete this function and use cleanLayers() instead
   //delete init image group
   //delete init image (snapshot layer)
   //delete fill layer 
 
 
   for (layer of layers){
-    await executeAsModal(async ()=>{await layer.delete()})
+    try{
+
+      await executeAsModal(async ()=>{await layer.delete()})
+    }catch(e){
+      console.warn("cleanSnapAndFill, issue deleting a layer",e)
+    }
   }
 return []
 }
@@ -896,6 +921,148 @@ async function readUniqueDocumentIdExe () {
 
   return uniqueDocumentId
 }
+
+
+
+const readPng = async (image_name) => {
+  // image_name = 'test.png'
+  try {
+    await executeAsModal(
+      async (control) => {
+        // const tempFolder = await fs.getTemporaryFolder() ;
+        const pluginFolder = await fs.getPluginFolder()
+        
+        let init_images_dir = await pluginFolder.getEntry("./server/python_server/init_images")
+        // let init_images_dir = await pluginFolder.getEntry(
+        //   './server/python_server/init_images'
+        // )
+        const file = await init_images_dir.createFile(image_name, {overwrite: true}) ;
+
+        const currentDocument = app.activeDocument ;
+        await currentDocument.saveAs.png(
+          file,
+          {
+            compression: 6,
+          },
+          true
+        ) ;
+
+        // const arrayBuffer = await file.read({format: formats.binary}) ;
+        // console.log(arrayBuffer, 'arrayBuffer') ;
+      }, 
+
+      {'commandName': 'readPng'}
+    ) ;
+  } catch(e) {
+    console.warn(e) ;
+  }
+} ;
+
+
+async function selectCanvasCommand(){
+
+
+  // const result = await batchPlay(
+  // [
+  //    {
+  //       _obj: "historyStateChanged",
+  //       documentID: 1044,
+  //       ID: 1058,
+  //       name: "Select Canvas",
+  //       hasEnglish: true,
+  //       itemIndex: 7,
+  //       commandID: 1017,
+  //       _options: {
+  //          dialogOptions: "dontDisplay"
+  //       }
+  //    }
+  // ],{
+  //    synchronousExecution: true,
+  //    modalBehavior: "execute"
+  // });
+  
+const result = await batchPlay(
+  [
+     {
+        _obj: "set",
+        _target: [
+           {
+              _ref: "channel",
+              _property: "selection"
+           }
+        ],
+        to: {
+           _enum: "ordinal",
+           _value: "allEnum"
+        },
+        _options: {
+           dialogOptions: "dontDisplay"
+        }
+     }
+  ],{
+     synchronousExecution: true,
+     modalBehavior: "execute"
+  });
+
+  return result
+}
+async function selectCanvasExe(){
+  await executeAsModal(async ()=>{await selectCanvasCommand()},{'commandName': 'selectCanvasExe'})
+}
+async function newExportPng (layer,image_name,width,height) {
+  //store layers we want to export in variables
+  // let layerToExports =
+  // create new document
+  // duplicate the layers to the new documnet
+  //select the layer channel selectLayerChannelCommand
+  //document.crop
+  //export using readPng()
+
+  try {
+    //get the active layers
+    // const layersToExport = app.activeDocument.activeLayers
+    
+    //create new document
+    // let exportDoc = await executeAsModal(app.documents.add)
+    let exportDoc;  
+    const makeDoc = async ()=>{
+      let exportDoc = await app.documents.add({
+      width: width,
+      height: height,
+      resolution: 300,
+      mode: "RGBColorMode",
+      fill: "transparent"
+      });
+      };
+    await executeAsModal(async ()=>{
+      
+        // await app.documents.add()
+        await makeDoc()
+        exportDoc = app.activeDocument
+    
+        console.log("exportDoc.id: ",exportDoc.id)
+    // for (layer of layersToExport) {
+    
+        console.log(layer.id)
+        const dupLayer = await layer.duplicate(exportDoc)
+        await selectLayers([dupLayer])
+        // await selectLayerChannelCommand()
+        await selectCanvasExe()
+        await layerToSelection()
+        // const selection_info = await getSelectionInfoExe()
+        // await exportDoc.crop(selection_info)
+        // export_image_name = `${layer.name}.png`
+        await readPng(image_name)
+        await exportDoc.closeWithoutSaving()
+      },  {'commandName': 'NewExportPng'})
+    // }
+  } catch (e) {
+    console.error(`newExportPng error: ,${e}`)
+  }
+}
+
+
+
 module.exports = {
   createSolidLayer,
   createEmptyGroup,
@@ -931,5 +1098,6 @@ module.exports = {
   selectMarqueeRectangularToolExe,
   promptForMarqueeTool,
   saveUniqueDocumentIdExe,
-  readUniqueDocumentIdExe
+  readUniqueDocumentIdExe,
+  newExportPng
 }

@@ -247,7 +247,7 @@ async def loadHistory(request: Request):
         import glob
 
         image_paths = glob.glob(f'./output/{uniqueDocumentId}/*.png')
-        settings_paths = glob.glob(f'./output/{uniqueDocumentId}/*.json')
+        settings_paths = glob.glob(f'./output/{uniqueDocumentId}/*.json')#note: why is we are not using settings_paths?
         print("loadHistory: image_paths:", image_paths)
         history['image_paths'] = image_paths
         history['metadata_jsons'] = []
