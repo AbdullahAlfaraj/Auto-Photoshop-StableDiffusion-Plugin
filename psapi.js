@@ -721,7 +721,12 @@ async function cleanSnapAndFill(layers){
 
 
   for (layer of layers){
-    await executeAsModal(async ()=>{await layer.delete()})
+    try{
+
+      await executeAsModal(async ()=>{await layer.delete()})
+    }catch(e){
+      console.warn("cleanSnapAndFill, issue deleting a layer",e)
+    }
   }
 return []
 }
