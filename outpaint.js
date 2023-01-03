@@ -162,7 +162,7 @@ async function createSnapshot () {
     return [snapshotLayer,snapshotGroup]
 
   } catch (e) {
-    console.log('createSnapshot Error:', e)
+    console.warn('createSnapshot Error:', e)
   }
 }
 
@@ -173,7 +173,7 @@ function executeCommand (batchPlayCommandFunc) {
       await batchPlayCommandFunc()
     })
   } catch (e) {
-    console.log('executeCommand error:', e)
+    console.warn('executeCommand error:', e)
   }
 }
 
@@ -210,7 +210,7 @@ try{
     })
     
 }catch(e){
-
+console.warn(e)
 }
 }
 
@@ -241,23 +241,47 @@ async function snapAndFillExe(session_id){
           snapshotLayer.moveAbove(whiteSolidLayer)
           console.log("[snapshotLayer,snapshotGroup]:",[snapshotLayer,snapshotGroup])
           
-          
           //create a snapshot of mask
           await psapi.reSelectMarqueeExe(selectionInfo)
           // let [snapshotMaskLayer,snapshotMaskGroup] = await createSnapshot()
           
           await psapi.selectLayers([snapshotGroup])
+          await psapi.reSelectMarqueeExe(selectionInfo)
+          await psapi.createClippingMaskExe()
+          
+          await psapi.selectLayers([snapshotGroup])
+          
+
+          
+          snapAndFillLayers = [snapshotLayer,snapshotGroup,whiteSolidLayer]
+          // await setTimeout(saveAndHide,1000)
           await psapi.setInitImage(snapshotGroup,session_id)
-
-          // await psapi.selectLayers([snapshotMaskGroup])
-          // await psapi.setInitImageMask(snapshotMaskGroup,session_id)
-          //set initial image
-          //set mask image
-        snapAndFillLayers = [snapshotLayer,snapshotGroup,whiteSolidLayer]
-
-        for (layer of snapAndFillLayers){
-          layer.visible = false 
-        }
+          for (layer of snapAndFillLayers){
+            layer.visible = false 
+          }
+          await psapi.reSelectMarqueeExe(selectionInfo)
+          
+        //   function timeout(ms) {
+        //     return new Promise(resolve => setTimeout(resolve, ms));
+        // }
+        // async function sleep(fn, ...args) {
+        //     await timeout(3000);
+        //     return fn(...args);
+        // }
+        // async function saveAndHide(){
+          
+        //   await psapi.setInitImage(snapshotGroup,session_id)
+          
+        //   // await psapi.selectLayers([snapshotMaskGroup])
+        //   // await psapi.setInitImageMask(snapshotMaskGroup,session_id)
+        //   //set initial image
+        //   //set mask image
+          
+        //   for (layer of snapAndFillLayers){
+        //               layer.visible = false 
+        //             }
+        //           }
+        // sleep(saveAndHide)
       })
       console.log("snapAndFillLayers: ", snapAndFillLayers)
       return snapAndFillLayers
@@ -325,6 +349,7 @@ async function outpaintFasterExe(session_id){
           
           await psapi.selectLayers([snapshotMaskGroup])
           await psapi.setInitImageMask(snapshotMaskGroup,session_id)
+          await psapi.reSelectMarqueeExe(selectionInfo)
           //set initial image
           //set mask image
         outpaintLayers = [snapshotMaskGroup,snapshotMaskLayer,snapshotLayer,snapshotGroup,whiteSolidLayer]
@@ -418,10 +443,10 @@ async function outpaintFasterExe(session_id){
 
             await psapi.selectLayers([maskGroup])
             await psapi.setInitImageMask(maskGroup,session_id)
-            
+            await psapi.reSelectMarqueeExe(selectionInfo)
             await psapi.selectLayers([snapshotGroup])
             await psapi.setInitImage(snapshotGroup,session_id)
-
+            await psapi.reSelectMarqueeExe(selectionInfo)
             // await psapi.selectLayers([snapshotMaskGroup])
             // await psapi.setInitImageMask(snapshotMaskGroup)
             // //set initial image
@@ -435,7 +460,7 @@ async function outpaintFasterExe(session_id){
         })
         return inpaintLayers
     }catch(e){
-    console.log("inpaintFasterExe error:", e)
+    console.warn("inpaintFasterExe error:", e)
     }
     }
 module.exports = {
