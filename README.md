@@ -26,6 +26,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 	- [prompt shortcut:](#prompt-shortcut)
 	- [Rule of thumbs:](#rule-of-thumbs)
 - [FAQ and Known Issues](#faq-and-known-issues)
+	- [What Photoshop version do I need to run the plugin?](#what-photoshop-version-do-i-need-to-run-the-plugin) 
 	- [Plugin Load Failed](#plugin-load-failed)
 		- [No application are connected to the service](#no-application-are-connected-to-the-service)
 		- [Load command failed in App with ID PS and Version X.X.X](#load-command-failed-in-app-with-id-ps-and-version-xxx)
