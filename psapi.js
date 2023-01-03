@@ -666,7 +666,7 @@ async function exportPng (session_id) {
 async function setInitImage (layer, session_id) {
  try{
 
- 
+  const html_manip = require('./html_manip') 
   // const layer = await app.activeDocument.activeLayers[0]
   const old_name = layer.name 
   const sdapi = require('./sdapi')
@@ -676,7 +676,9 @@ async function setInitImage (layer, session_id) {
   // image_name = layerNameToFileName(old_name,layer.id,random_session_id)
   image_name = layerNameToFileName(old_name,layer.id,session_id)
   image_name = `${image_name}.png`
-  await newExportPng(layer,image_name)
+  const width = html_manip.getWidth()
+  const height = html_manip.getHeight()
+  await newExportPng(layer,image_name,width,height)
 
   g_init_image_name = image_name
   console.log(image_name)
@@ -689,6 +691,7 @@ async function setInitImage (layer, session_id) {
 }
 async function setInitImageMask (layer, session_id) {
   try{
+    const html_manip = require('./html_manip')
 
   
   // const layer = await app.activeDocument.activeLayers[0]
@@ -700,8 +703,9 @@ async function setInitImageMask (layer, session_id) {
   // image_name = layerNameToFileName(old_name,layer.id,random_session_id)
   image_name = layerNameToFileName(old_name,layer.id,session_id)
   image_name = `${image_name}.png`
-  
-  await newExportPng(layer,image_name)
+  const width = html_manip.getWidth()
+  const height = html_manip.getHeight()
+  await newExportPng(layer,image_name,width,height)
   g_init_image_mask_name = image_name
   console.log(image_name)
   const image_src = await sdapi.getInitImage(g_init_image_mask_name)
@@ -1005,7 +1009,7 @@ const result = await batchPlay(
 async function selectCanvasExe(){
   await executeAsModal(async ()=>{await selectCanvasCommand()},{'commandName': 'selectCanvasExe'})
 }
-async function newExportPng (layer,image_name) {
+async function newExportPng (layer,image_name,width,height) {
   //store layers we want to export in variables
   // let layerToExports =
   // create new document
@@ -1023,8 +1027,8 @@ async function newExportPng (layer,image_name) {
     let exportDoc;  
     const makeDoc = async ()=>{
       let exportDoc = await app.documents.add({
-      width: 512,
-      height: 512,
+      width: width,
+      height: height,
       resolution: 300,
       mode: "RGBColorMode",
       fill: "transparent"
