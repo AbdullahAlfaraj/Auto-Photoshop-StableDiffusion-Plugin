@@ -714,7 +714,9 @@ async function setInitImageMask (layer, session_id) {
 
 // remove the generated mask related layers from the canvas and "layers" panel
 
+
 async function cleanSnapAndFill(layers){
+  // we can delete this function and use cleanLayers() instead
   //delete init image group
   //delete init image (snapshot layer)
   //delete fill layer 

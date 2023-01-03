@@ -1081,32 +1081,36 @@ document.getElementById('bSetInitImage').addEventListener('click', async ()=>  {
   psapi.setInitImage(layer, random_session_id)
 })
 
-async function setInitImageMask () {
-  try {
-    const layer = await app.activeDocument.activeLayers[0]
-    old_name = layer.name 
-    await psapi.exportPng(random_session_id)
-    image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
+// async function setInitImageMask () {
+//   try {
+//     const layer = await app.activeDocument.activeLayers[0]
+//     old_name = layer.name 
+//     await psapi.exportPng(random_session_id)
+//     image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
     
-    //get the active layer name
-    // const layer = await app.activeDocument.activeLayers[0]
-    // image_name = psapi.layerToFileName(layer,random_session_id)
-    image_name = `${image_name}.png`
+//     //get the active layer name
+//     // const layer = await app.activeDocument.activeLayers[0]
+//     // image_name = psapi.layerToFileName(layer,random_session_id)
+//     image_name = `${image_name}.png`
     
-    g_init_image_mask_name = image_name
-    console.log(image_name)
+//     g_init_image_mask_name = image_name
+//     console.log(image_name)
     
-    const image_src = await sdapi.getInitImage(g_init_image_mask_name)
-    const ini_image_mask_element = document.getElementById('init_image_mask')
-    ini_image_mask_element.src = image_src
-  } catch (e) {
+//     const image_src = await sdapi.getInitImage(g_init_image_mask_name)
+//     const ini_image_mask_element = document.getElementById('init_image_mask')
+//     ini_image_mask_element.src = image_src
+//   } catch (e) {
     
-    console.error(`setInitImageMask error: ${e}`)
-  }
-}
-document
-  .getElementById('bSetInitImageMask')
-  .addEventListener('click', setInitImageMask)
+//     console.error(`setInitImageMask error: ${e}`)
+//   }
+// }
+// document
+//   .getElementById('bSetInitImageMask')
+//   .addEventListener('click', setInitImageMask)
+document.getElementById('bSetInitImageMask').addEventListener('click', async ()=>  {
+  const layer = await app.activeDocument.activeLayers[0]
+  psapi.setInitImageMask(layer, random_session_id)
+})
 
 async function progressRecursive () {
   let json = await sdapi.requestProgress()
