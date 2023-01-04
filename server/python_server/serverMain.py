@@ -134,7 +134,7 @@ async def changeSdUrl(request:Request):
 
         payload = await request.json()
         print("changeSdUrl: payload:",payload)
-        print(f"change sd url from {sd_url} to {payload['sd_url']}: \n")
+        print(f"change sd url from {sd_url} to {payload['sd_url']} \n")
         sd_url = payload['sd_url']
     except:
         print("error occurred in changeSdUrl()")
