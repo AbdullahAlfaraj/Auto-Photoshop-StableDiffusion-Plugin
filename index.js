@@ -879,17 +879,28 @@ document
     await restoreActiveLayers()
   })
 
+function updateMetadata (new_metadata) {
+  const metadatas = []
+  try {
+    for (metadata of new_metadata) {
+      metadata_json = JSON.parse(metadata)
+      console.log('metadata_json:', metadata_json)
+      metadatas.push(metadata_json)
+    }
+  } catch (e) {
+    console.warn(e)
+  }
+  return metadatas
+}
 
-document.getElementById('btnGenerate').addEventListener('click', async () => {
+
+  
+async function getSettings(){
   try{
 
-  
-  toggleGenerateInterruptButton(true)
-  numberOfImages = document.querySelector('#tiNumberOfImages').value
-  numberOfSteps = document.querySelector('#tiNumberOfSteps').value
-
+    numberOfImages = document.querySelector('#tiNumberOfImages').value
+    numberOfSteps = document.querySelector('#tiNumberOfSteps').value
   const prompt = html_manip.getPrompt()
-  
   const negative_prompt = html_manip.getNegativePrompt()
   const hi_res_fix = html_manip.getHiResFixs()
   // console.log("prompt:",prompt)
@@ -919,15 +930,56 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   const hWidth = html_manip.getSliderSdValue('hrWidth',64)
   const hHeight = html_manip.getSliderSdValue('hrHeight',64)
   console.log("Check")
-
+  
   const uniqueDocumentId = await getUniqueDocumentId()
   const h_denoising_strength = html_manip.getSliderSdValue('hrDenoisingStrength',0.01)
   console.log("Check2")
   
   const sampler_name = html_manip.getCheckedSamplerName()
+  const mode = html_manip.getMode()
+  
+  
+  let denoising_strength = h_denoising_strength
+  if (mode == 'inpaint')
+  {
+    var g_use_mask_image = true
+    payload['inpaint_full_res'] =
+    document.getElementById('chInpaintFullRes').checked
+    payload['inpaint_full_res_padding'] = inpaint_full_res_padding *4
+    
+    console.log('g_use_mask_image is ', g_use_mask_image)
+    console.log('g_init_image_mask_name is ', g_init_image_mask_name)
+    payload['init_image_mask_name'] = g_init_image_mask_name
+    payload['inpainting_fill'] = g_inpainting_fill
+  }
+  else if(mode == 'img2img'){
+    var g_use_mask_image = false
+    delete payload['inpaint_full_res'] //  inpaint full res is not available in img2img mode
+    delete payload['inpaint_full_res_padding']
+    delete payload['init_image_mask_name']
+    delete payload['inpainting_fill']
+  }
+
+  if (g_sd_mode == 'img2img' || g_sd_mode == 'inpaint') {
+    
+
+    console.log(`g_use_mask_image:? ${g_use_mask_image}`)
+
+    denoising_strength = html_manip.getDenoisingStrength()
+    payload['denoising_strength'] = denoising_strength
+    payload['init_image_name'] = g_init_image_name
+
+
+    
+  }
+
+
+
+
+
+
   payload = {
     prompt: prompt,
-
     negative_prompt: negative_prompt,
     steps: numberOfSteps,
     // n_iter: numberOfImages,
@@ -937,82 +989,73 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     enable_hr : hi_res_fix,
     firstphase_width: hWidth,
     firstphase_height: hHeight,
-    denoising_strength: h_denoising_strength, // Highres Denoising, overwritten in img2img
+    denoising_strength: denoising_strength,
     batch_size: numberOfImages,
     cfg_scale: cfg_scale,
     seed: seed,
     mask_blur: mask_blur,
     use_prompt_shortcut: bUsePromptShortcut,
     prompt_shortcut_ui_dict: prompt_shortcut_ui_dict,
-  uniqueDocumentId: uniqueDocumentId
+    uniqueDocumentId: uniqueDocumentId,
+    mode:mode
   }
 
-  console.log({ payload })
-
-  //wait 2 seconds till you check for progress
-  // setInterval(function(){progressRecursive()},2000);
-  setTimeout(function () {
-    progressRecursive()
-
-  }, 2000)
-  if (g_sd_mode == 'txt2img') {
-    json = await sdapi.requestTxt2Img(payload)
-  
-  } else if (g_sd_mode == 'img2img' || g_sd_mode == 'inpaint') {
-    // g_denoising_strength = document.querySelector("#tiDenoisingStrength").value
-    if (g_sd_mode == 'inpaint') {
-      g_use_mask_image = true
-      payload['inpaint_full_res'] =
-        document.getElementById('chInpaintFullRes').checked
-        payload['inpaint_full_res_padding'] = inpaint_full_res_padding *4
-    } else {
-      g_use_mask_image = false
-      delete payload['inpaint_full_res'] //  inpaint full res is not available in img2img mode
-      delete payload['inpaint_full_res_padding']
-    }
-    console.log(`g_use_mask_image:? ${g_use_mask_image}`)
-
-    const denoising_strength = html_manip.getDenoisingStrength()
-    payload['denoising_strength'] = denoising_strength
-    payload['init_image_name'] = g_init_image_name
-
-    if (g_use_mask_image == true) {
-      console.log('in true block')
-
-      console.log('g_use_mask_image is ', g_use_mask_image)
-      console.log('g_init_image_mask_name is ', g_init_image_mask_name)
-      payload['init_image_mask_name'] = g_init_image_mask_name
-      payload['inpainting_fill'] = g_inpainting_fill
-      // payload['inpainting_fill'] = document.getElementById('slInpainting_fill').value // original
-    } else {
-      // console.log("g_init_image_mask_name is ",g_init_image_mask_name)
-      // payload['init_image_mask_name'] = ""
-      delete payload['init_image_mask_name']
-      delete payload['inpainting_fill']
-    }
-    json = await sdapi.requestImg2Img(payload)
-  }
-  try {
-  g_metadatas = []
-
-  for (metadata of json.metadata) {
-    metadata_json = JSON.parse(metadata)
-    g_metadatas.push(metadata_json)
-    console.log('metadata_json:', metadata_json)
-  }
-} catch (e) {
-  console.warn(e)
+}
+catch(e){
+  console.error(e)
+}
+  return payload
 }
 
+async function generateTxt2Img(settings){
+  json = await sdapi.requestTxt2Img(payload)
+
+  return json
+}
+async function generate(settings){
+
+  try{
+    //pre generation
+    toggleGenerateInterruptButton(true)
+
+    //wait 2 seconds till you check for progress
+    setTimeout(function () {
+      progressRecursive()
   
+    }, 2000)
+  
+  
+  console.log(settings)
+
+  
+  if (g_sd_mode == 'txt2img') {
+    json = await generateTxt2Img(settings)
+   }
+   else if(g_sd_mode == 'img2img' || g_sd_mode =='inpaint'){
+     json = await sdapi.requestImg2Img(settings)
+ 
+   } 
+
+  //post generation
+  //get the updated metadata from json response
+  g_metadatas = updateMetadata(json.metadata)
+  //set button to generate
   toggleGenerateInterruptButton(false)
   gImage_paths = json.image_paths
+  //open the generated images from disk and load them onto the canvas
   g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
+  //update the viewer
   loadViewerImages()
 
 }catch(e){
-  console.error(`btnGenerate.click(): ${e}`)
+  console.error(`btnGenerate.click(): `,e)
+  // console.error(`btnGenerate.click(): ${e}`)
 }
+}
+
+document.getElementById('btnGenerate').addEventListener('click', async ()=>{
+  const settings = await getSettings()
+  generate(settings)
 })
 
 
