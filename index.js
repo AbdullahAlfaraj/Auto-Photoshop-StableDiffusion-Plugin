@@ -352,6 +352,7 @@ function autoFillInSettings(metadata_json){
 //**********Start: global variables
 let prompt_dir_name = ''
 let gImage_paths = []
+let g_image_path_to_layer_id = {}
 gCurrentImagePath = ''
 let g_init_image_name = ''
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
@@ -1006,7 +1007,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   
   toggleGenerateInterruptButton(false)
   gImage_paths = json.image_paths
-  await ImagesToLayersExe()
+  g_image_path_to_layer_id = await ImagesToLayersExe()
 
 }catch(e){
   console.error(`btnGenerate.click(): ${e}`)
@@ -1331,6 +1332,7 @@ async function convertToSmartObjectExe () {
 }
 
 async function ImagesToLayersExe () {
+  image_path_to_layer_id = {}
   for (image_path of gImage_paths) {
     gCurrentImagePath = image_path
     console.log(gCurrentImagePath)
@@ -1338,8 +1340,11 @@ async function ImagesToLayersExe () {
     await convertToSmartObjectExe() //convert the current image to smart object
     await stackLayers() // move the smart object to the original/old document
     await helper.layerToSelection() //transform the new smart object layer to fit selection area
+    layer_id = await app.activeDocument.activeLayers[0].id
+    image_path_to_layer_id[image_path] = layer_id 
     // await reselect(selectionInfo)
   }
+  return image_path_to_layer_id
 }
 
 // document.getElementById('btnLoadImages').addEventListener('click',ImagesToLayersExe)
@@ -1391,6 +1396,48 @@ document.getElementById('collapsible').addEventListener('click', function () {
   }
   
 })
+
+document.getElementById('btnLoadViewer').addEventListener('click',async function(){
+  try{
+    //get the images path
+    console.log("g_image_path_to_layer_id:", g_image_path_to_layer_id)
+
+    const output_dir_relative = "./server/python_server/"
+    const container = document.getElementById("divViewerImagesContainer")
+    // const uniqueDocumentId = await getUniqueDocumentId()
+    // const [image_paths, metadata_jsons] = await sdapi.loadHistory(uniqueDocumentId)
+    
+    // while(container.firstChild){
+    // container.removeChild(container.firstChild);
+    // }
+    image_paths = gImage_paths
+    let i = 0
+    for (image_path of image_paths){
+      
+      const img = document.createElement('img')
+      img.src = `${output_dir_relative}/${image_path}`
+      img.className = "viewer-image"
+      img.dataset.image_id = g_image_path_to_layer_id[image_path]
+      // img.dataset.metadata_json_string = JSON.stringify(metadata_jsons[i])
+      container.appendChild(img)
+      img.addEventListener('click',(e)=>{
+        // find the layer given an image path
+        // img.dataset.image_id =  g_image_path_to_layer_id[image_path] 
+        
+        // const metadata_json = JSON.parse(e.target.dataset.metadata_json_string)
+    //     console.log("metadata_json: ",metadata_json)
+    //     // document.querySelector('#tiSeed').value = metadata_json.Seed
+    //     document.querySelector('#historySeedLabel').textContent = metadata_json.Seed
+    //     autoFillInSettings(metadata_json)
+      })
+      i++
+    }
+    
+  }catch(e){
+    console.warn(`loadHistory warning: ${e}`)
+  }
+
+}) 
 
 document.getElementById('btnLoadHistory').addEventListener('click',async function(){
   try{
