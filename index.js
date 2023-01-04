@@ -352,6 +352,7 @@ function autoFillInSettings(metadata_json){
 //**********Start: global variables
 let prompt_dir_name = ''
 let gImage_paths = []
+let g_image_path_to_layer = {}
 gCurrentImagePath = ''
 let g_init_image_name = ''
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
@@ -1006,7 +1007,8 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   
   toggleGenerateInterruptButton(false)
   gImage_paths = json.image_paths
-  await ImagesToLayersExe()
+  g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
+  loadViewerImages()
 
 }catch(e){
   console.error(`btnGenerate.click(): ${e}`)
@@ -1295,7 +1297,7 @@ async function openImageAction () {
     //directory where all image's request folders are. one folder for each request
     const relative_dir_path = `./server/python_server/`
 
-    image_path = `${relative_dir_path}/${gCurrentImagePath}`
+    const image_path = `${relative_dir_path}/${gCurrentImagePath}`
     // 'C:/Users/abdul/Desktop/photoshop_plugins/my_plugin_1/server/python_server/output- 1670544300.95411.png'
     let theTemplate = await pluginFolder.getEntry(image_path)
 
@@ -1330,16 +1332,21 @@ async function convertToSmartObjectExe () {
   await require('photoshop').core.executeAsModal(convertToSmartObjectAction)
 }
 
-async function ImagesToLayersExe () {
-  for (image_path of gImage_paths) {
+async function ImagesToLayersExe (images_paths) {
+  image_path_to_layer = {}
+  console.log("ImagesToLayersExe: images_paths: ",images_paths)
+  for (image_path of images_paths) {
     gCurrentImagePath = image_path
     console.log(gCurrentImagePath)
     await openImageExe() //local image to new document
     await convertToSmartObjectExe() //convert the current image to smart object
     await stackLayers() // move the smart object to the original/old document
     await helper.layerToSelection() //transform the new smart object layer to fit selection area
+    layer = await app.activeDocument.activeLayers[0]
+    image_path_to_layer[image_path] = layer 
     // await reselect(selectionInfo)
   }
+  return image_path_to_layer
 }
 
 // document.getElementById('btnLoadImages').addEventListener('click',ImagesToLayersExe)
@@ -1391,6 +1398,64 @@ document.getElementById('collapsible').addEventListener('click', function () {
   }
   
 })
+async function loadViewerImages(){
+  try{
+    //get the images path
+    console.log("g_image_path_to_layer:", g_image_path_to_layer)
+
+    const output_dir_relative = "./server/python_server/"
+    const container = document.getElementById("divViewerImagesContainer")
+    
+    while(container.firstChild){
+    container.removeChild(container.firstChild);
+    }
+    image_paths = gImage_paths
+    console.log("image_paths: ",image_paths)
+    let i = 0
+    const layers = Object.keys(g_image_path_to_layer).map(key => g_image_path_to_layer[key])
+
+    console.log("image_paths: ",image_paths)
+    for (image_path of image_paths){
+      const img = document.createElement('img')
+      img.src = `${output_dir_relative}/${image_path}`
+      img.className = "viewer-image"
+      console.log("image_path: ",image_path)
+      img.dataset.image_id = g_image_path_to_layer[image_path].id
+ 
+      container.appendChild(img)
+      img.addEventListener('click',async (e)=>{
+
+        //turn off all layers
+        //select the layer this image represent and turn it on 
+        await executeAsModal(async ()=>{
+          const img = e.target
+          const layer_id = parseInt(img.dataset.image_id)
+          let visible_layer
+          for(layer of layers){
+              try{
+
+                layer.visible = false
+                if (layer.id == layer_id){
+                  visible_layer = layer
+                }
+              } catch (e){
+                console.warn("cannot hide a layer: ",e)
+              } 
+            }
+
+            visible_layer.visible = true
+        })
+ 
+      })
+      i++
+    }
+    
+  }catch(e){
+    console.warn(`loadViewer images warning: ${e}`)
+  }
+
+}
+document.getElementById('btnLoadViewer').addEventListener('click', loadViewerImages) 
 
 document.getElementById('btnLoadHistory').addEventListener('click',async function(){
   try{
