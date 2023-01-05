@@ -707,6 +707,7 @@ async function setInitImageMask (layer, session_id) {
   const height = html_manip.getHeight()
   await newExportPng(layer,image_name,width,height)
   g_init_image_mask_name = image_name
+  g_init_mask_layer = layer
   console.log(image_name)
   
   const image_src = await sdapi.getInitImage(g_init_image_mask_name)// we should replace this with getInitImagePath which return path to local disk

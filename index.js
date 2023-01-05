@@ -356,6 +356,7 @@ let g_image_path_to_layer = {}
 let g_visible_layer_path
 gCurrentImagePath = ''
 let g_init_image_name = ''
+let g_init_mask_layer;
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
 let g_sd_mode = 'txt2img'
 let g_sd_sampler = 'Euler a'
@@ -1508,7 +1509,8 @@ document.getElementById('collapsible').addEventListener('click', function () {
   }
   
 })
-async function viewerImageClickHandler(img,layers){
+
+async function viewerImageClickHandler(img,layers,visibilityFunc){
 
       
   img.addEventListener('click',async (e)=>{
@@ -1520,9 +1522,12 @@ async function viewerImageClickHandler(img,layers){
       console.log("the layer id = ",layer_id)
       const layer_path =  img.dataset.image_path
       let visible_layer
+      // Array.isArray(layer)
+
+      //turn off all layers linked the viewer tab
       for(layer of layers){
           try{
-
+            
             layer.visible = false
             if (layer.id == layer_id){
               visible_layer = layer
@@ -1532,11 +1537,61 @@ async function viewerImageClickHandler(img,layers){
           } 
         }
 
-        visible_layer.visible = true
-        g_visible_layer_path = layer_path  
+    if (typeof visibilityFunc === 'function') {
+      visibilityFunc()
+      console.log(`using the visibility function:  ${visibilityFunc.name}`)
+    } else {
+      console.log('default visibility func')
+      visible_layer.visible = true
+      g_visible_layer_path = layer_path  
+    }
+
+
     })
 
   })
+}
+function createViewerImgHtml(output_dir_relative,image_path,layer_id){
+
+  const img = document.createElement('img')
+  img.src = `${output_dir_relative}/${image_path}`
+  img.className = "viewer-image"
+  console.log("image_path: ",image_path)
+  img.dataset.image_id = layer_id
+  img.dataset.image_path = image_path // image_path is not the same as src 
+  return img
+}
+
+function toggleLayerVisibility(layer, b_on){
+try{
+   layer.visible = b_on
+}catch(e){
+  console.warn(e)
+}
+}
+async function turnMaskVisible (
+  b_mask_group_on,
+  b_white_mask_on,
+  b_solid_black_mask_on
+) {
+  //will turn a mask group, white layer mask, and the solid black layer on and off
+  try {
+    await executeAsModal(() => {
+      toggleLayerVisibility(g_mask_group, b_mask_group_on)
+      toggleLayerVisibility(g_white_mask, b_white_mask_on)
+      toggleLayerVisibility(g_solid_black_mask, b_solid_black_mask_on)
+    })
+  } catch (e) {
+    console.warn(e)
+  }
+}
+
+async function maskVisibilityFunc(b_toggle){
+if (b_toggle === true){
+  turnMaskVisible(true,true,false)
+}else{//false
+  turnMaskVisible(false,false,false)
+}
 }
 async function loadViewerImages(){
   try{
@@ -1554,23 +1609,30 @@ async function loadViewerImages(){
     let i = 0
     const layers = Object.keys(g_image_path_to_layer).map(key => g_image_path_to_layer[key])
 
+    //add init mask image
+    const img = createViewerImgHtml('./server/python_server/init_images/',g_init_image_mask_name,g_init_mask_layer.id)
+    container.appendChild(img)
+    layers.push(g_init_mask_layer)
+    await viewerImageClickHandler(img,layers,maskVisibilityFunc)
+    
+    
+    
     console.log("image_paths: ",image_paths)
     for (image_path of image_paths){
       
       //create img html element 
-      const img = document.createElement('img')
-      img.src = `${output_dir_relative}/${image_path}`
-      img.className = "viewer-image"
-      console.log("image_path: ",image_path)
-      img.dataset.image_id = g_image_path_to_layer[image_path].id
-      img.dataset.image_path = image_path // image_path is not the same as src 
+      
+      const img = createViewerImgHtml(output_dir_relative,image_path,g_image_path_to_layer[image_path].id)
       container.appendChild(img)
       
       //add on click event to img 
-  
+     
       await viewerImageClickHandler(img,layers)
       i++
     }
+    
+      
+
     
   }catch(e){
     console.warn(`loadViewer images warning: `,e)
