@@ -724,25 +724,28 @@ async function setInitImageMask (layer, session_id) {
 // remove the generated mask related layers from the canvas and "layers" panel
 
 
-async function cleanSnapAndFill(layers){
-  // we can delete this function and use cleanLayers() instead
-  //delete init image group
-  //delete init image (snapshot layer)
-  //delete fill layer 
+// async function cleanSnapAndFill(layers){
+//   // we can delete this function and use cleanLayers() instead
+//   //delete init image group
+//   //delete init image (snapshot layer)
+//   //delete fill layer 
 
 
-  for (layer of layers){
-    try{
+//   for (layer of layers){
+//     try{
 
-      await executeAsModal(async ()=>{await layer.delete()})
-    }catch(e){
-      console.warn("cleanSnapAndFill, issue deleting a layer",e)
-    }
-  }
-return []
-}
+//       await executeAsModal(async ()=>{await layer.delete()})
+//     }catch(e){
+//       console.warn("cleanSnapAndFill, issue deleting a layer",e)
+//     }
+//   }
+// return []
+// }
 
 async function cleanLayers(layers){
+  g_init_image_related_layers = {}
+  g_mask_related_layers = {}
+  await loadViewerImages()// we should move loadViewerImages to a new file viewer.js
   console.log("cleanLayers() -> layers:",layers)
   for (layer of layers){
     try {
@@ -1096,7 +1099,7 @@ module.exports = {
   layerNameToFileName,
   // cleanLayersOutpaint,
   // cleanLayersInpaint,
-  cleanSnapAndFill,
+  // cleanSnapAndFill,
   cleanLayers,
   createClippingMaskExe,
   checkIfSelectionAreaIsActive,
