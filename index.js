@@ -357,6 +357,7 @@ let g_visible_layer_path
 gCurrentImagePath = ''
 let g_init_image_name = ''
 let g_init_mask_layer;
+let g_mask_related_layers = {}
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
 let g_sd_mode = 'txt2img'
 let g_sd_sampler = 'Euler a'
@@ -378,6 +379,7 @@ let g_metadatas = []
 let g_can_request_progress = true
 let g_saved_active_layers = []
 let g_is_active_layers_stored = false
+let g_viewer_layers = []// layer = {"layer":[mask_group,white_stroke,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -1510,7 +1512,7 @@ document.getElementById('collapsible').addEventListener('click', function () {
   
 })
 
-async function viewerImageClickHandler(img,layers,visibilityFunc){
+async function viewerImageClickHandler(img,viewer_layers){
 
       
   img.addEventListener('click',async (e)=>{
@@ -1521,30 +1523,38 @@ async function viewerImageClickHandler(img,layers,visibilityFunc){
       const layer_id = parseInt(img.dataset.image_id)
       console.log("the layer id = ",layer_id)
       const layer_path =  img.dataset.image_path
-      let visible_layer
+      let visible_cont
       // Array.isArray(layer)
-
+      
       //turn off all layers linked the viewer tab
-      for(layer of layers){
+      for(cont_layer of viewer_layers){
           try{
+            let i = 0 
+            //make all layers of that entry invisible
+            for (layer of cont_layer.layer ){
+              layer.visible = cont_layer.visibleOff[i]
+              i++
+            }
             
-            layer.visible = false
-            if (layer.id == layer_id){
-              visible_layer = layer
+            //if the layer id of the first layer in the group container
+            if (cont_layer.layer[0].id == layer_id){
+              visible_cont = cont_layer
             }
           } catch (e){
             console.warn("cannot hide a layer: ",e)
           } 
         }
 
-    if (typeof visibilityFunc === 'function') {
-      visibilityFunc()
-      console.log(`using the visibility function:  ${visibilityFunc.name}`)
-    } else {
-      console.log('default visibility func')
-      visible_layer.visible = true
-      g_visible_layer_path = layer_path  
-    }
+    
+    
+        let i = 0
+      for (layer of visible_cont.layer){
+
+        layer.visible = visible_cont.visibleOn[i]
+        g_visible_layer_path = layer_path  //why do we store the layer_path? 
+        i++
+      }
+        
 
 
     })
@@ -1593,6 +1603,16 @@ if (b_toggle === true){
   turnMaskVisible(false,false,false)
 }
 }
+function makeViewerLayer(layer){
+  // layer = {"layer":[mask_group,white_stroke,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
+  const viewer_layer = {layer:[layer],visibleOn:[true],visibleOff:[false]}
+
+  return viewer_layer 
+}
+function makeViewerMaskLayer(group_mask,white_mark,solid_black){
+   viewer_layer = {layer:[group_mask,white_mark,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
+  return viewer_layer
+}
 async function loadViewerImages(){
   try{
     //get the images path
@@ -1607,13 +1627,16 @@ async function loadViewerImages(){
     image_paths = Object.keys(g_image_path_to_layer);
     console.log("image_paths: ",image_paths)
     let i = 0
-    const layers = Object.keys(g_image_path_to_layer).map(key => g_image_path_to_layer[key])
-
+    const viewer_layers = Object.keys(g_image_path_to_layer).map(key => makeViewerLayer(g_image_path_to_layer[key]))
+    // g_viewer_layers = []// layer = {"layer":[mask_group,white_stroke,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
+    
+    
+    const viewer_mask_layer = makeViewerMaskLayer(g_mask_related_layers['mask_group'],g_mask_related_layers['white_mark'],g_mask_related_layers['solid_black'])//make mask viewer layer 
     //add init mask image
     const img = createViewerImgHtml('./server/python_server/init_images/',g_init_image_mask_name,g_init_mask_layer.id)
     container.appendChild(img)
-    layers.push(g_init_mask_layer)
-    await viewerImageClickHandler(img,layers,maskVisibilityFunc)
+    viewer_layers.push(viewer_mask_layer)
+    await viewerImageClickHandler(img,viewer_layers)// create click handler for each images 
     
     
     
@@ -1627,7 +1650,7 @@ async function loadViewerImages(){
       
       //add on click event to img 
      
-      await viewerImageClickHandler(img,layers)
+      await viewerImageClickHandler(img,viewer_layers)
       i++
     }
     

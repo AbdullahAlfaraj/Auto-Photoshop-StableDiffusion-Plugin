@@ -454,6 +454,9 @@ async function outpaintFasterExe(session_id){
             
             psapi.selectLayers([maskGroup])
             inpaintLayers = [maskGroup,white_mark_layer,blackSolidLayer,snapshotGroup,snapshotLayer,whiteSolidLayer]
+            g_mask_related_layers['mask_group'] = maskGroup
+            g_mask_related_layers['white_mark'] = white_mark_layer
+            g_mask_related_layers['solid_black'] = blackSolidLayer
             for (layer of inpaintLayers){
               layer.visible = false 
             }
