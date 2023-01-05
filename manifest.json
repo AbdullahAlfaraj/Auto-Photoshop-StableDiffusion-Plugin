@@ -1,7 +1,7 @@
 {
   "id": "auto.photoshop.stable.diffusion.plugin",
   "name": "Auto Photoshop Stable Diffusion Plugin",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "host": [
     {
       "app": "PS",
