@@ -706,17 +706,18 @@ async function setInitImageMask (layer, session_id) {
   const width = html_manip.getWidth()
   const height = html_manip.getHeight()
   await newExportPng(layer,image_name,width,height)
-  g_init_image_mask_name = image_name
-  g_init_mask_layer = layer
-  g_mask_related_layers = {} 
+  g_init_image_mask_name = image_name // this is the name we will send to the server
+  // g_init_mask_layer = layer
+  // g_mask_related_layers = {} 
   console.log(image_name)
   
   const image_src = await sdapi.getInitImage(g_init_image_mask_name)// we should replace this with getInitImagePath which return path to local disk
   const ini_image_mask_element = document.getElementById('init_image_mask')
   ini_image_mask_element.src = image_src
-  g_init_image_mask_name.dataset.layer_id = layer.id
+  ini_image_mask_element.dataset.layer_id = layer.id
+
 } catch (e) {
-  console.error(`psapi.js setInitImageMask error:, ${e}`)
+  console.error(`psapi.js setInitImageMask error: `,e)
 }
 }
 

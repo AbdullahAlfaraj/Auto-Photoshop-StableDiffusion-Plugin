@@ -353,6 +353,14 @@ async function outpaintFasterExe(session_id){
           //set initial image
           //set mask image
         outpaintLayers = [snapshotMaskGroup,snapshotMaskLayer,snapshotLayer,snapshotGroup,whiteSolidLayer]
+        g_mask_related_layers['mask_group'] = snapshotMaskGroup
+        g_mask_related_layers['white_mark'] = snapshotMaskLayer
+        // g_mask_related_layers['solid_black'] = blackSolidLayer
+        
+        g_init_image_related_layers['init_image_group'] = snapshotGroup
+        g_init_image_related_layers['init_image_layer'] = snapshotLayer
+        g_init_image_related_layers['solid_white'] = whiteSolidLayer
+        
         for (layer of outpaintLayers){
           layer.visible = false 
         }
@@ -457,6 +465,11 @@ async function outpaintFasterExe(session_id){
             g_mask_related_layers['mask_group'] = maskGroup
             g_mask_related_layers['white_mark'] = white_mark_layer
             g_mask_related_layers['solid_black'] = blackSolidLayer
+            
+            g_init_image_related_layers['init_image_group'] = snapshotGroup
+            g_init_image_related_layers['init_image_layer'] = snapshotLayer
+            g_init_image_related_layers['solid_white'] = whiteSolidLayer
+            
             for (layer of inpaintLayers){
               layer.visible = false 
             }

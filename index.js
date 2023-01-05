@@ -356,8 +356,10 @@ let g_image_path_to_layer = {}
 let g_visible_layer_path
 gCurrentImagePath = ''
 let g_init_image_name = ''
-let g_init_mask_layer;
+// let g_init_mask_layer;
+
 let g_mask_related_layers = {}
+let g_init_image_related_layers = {}
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
 let g_sd_mode = 'txt2img'
 let g_sd_sampler = 'Euler a'
@@ -1613,6 +1615,10 @@ function makeViewerMaskLayer(group_mask,white_mark,solid_black){
    viewer_layer = {layer:[group_mask,white_mark,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
   return viewer_layer
 }
+function makeViewerInitImageLayer(init_image_group,init_image_layer,solid_white){
+  viewer_layer = {layer:[init_image_group,init_image_layer,solid_white],visibleOn:[true,true,true],visibleOff:[false,false,false]}
+ return viewer_layer
+}
 async function loadViewerImages(){
   try{
     //get the images path
@@ -1631,12 +1637,26 @@ async function loadViewerImages(){
     // g_viewer_layers = []// layer = {"layer":[mask_group,white_stroke,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
     
     
+    if(g_init_image_related_layers.hasOwnProperty('init_image_group')){
+
+      const viewer_init_image_layer = makeViewerInitImageLayer(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'])//make init image viewer container layer 
+      const init_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_name,g_init_image_related_layers['init_image_group'].id)
+      container.appendChild(init_img_html)
+      viewer_layers.push(viewer_init_image_layer) 
+      await viewerImageClickHandler(init_img_html,viewer_layers)// create click handler for each images 
+    }
+    
+    if(g_mask_related_layers.hasOwnProperty('mask_group')){
     const viewer_mask_layer = makeViewerMaskLayer(g_mask_related_layers['mask_group'],g_mask_related_layers['white_mark'],g_mask_related_layers['solid_black'])//make mask viewer layer 
+    const mask_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_mask_name,g_mask_related_layers['mask_group'].id)
+    container.appendChild(mask_img_html)
+    
     //add init mask image
-    const img = createViewerImgHtml('./server/python_server/init_images/',g_init_image_mask_name,g_init_mask_layer.id)
-    container.appendChild(img)
     viewer_layers.push(viewer_mask_layer)
-    await viewerImageClickHandler(img,viewer_layers)// create click handler for each images 
+    await viewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images 
+  }
+  
+
     
     
     
