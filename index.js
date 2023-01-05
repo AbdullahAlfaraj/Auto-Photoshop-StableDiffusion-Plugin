@@ -353,6 +353,7 @@ function autoFillInSettings(metadata_json){
 let prompt_dir_name = ''
 let gImage_paths = []
 let g_image_path_to_layer = {}
+let g_visible_layer_path
 gCurrentImagePath = ''
 let g_init_image_name = ''
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
@@ -725,18 +726,33 @@ document
   }
   })
 
-function toggleGenerateInterruptButton (defaultVal) {
-  if (defaultVal) {
 
-    document.querySelector('#btnGenerate').style.display = 'none' // hide generate button
-    document.querySelector('#btnInterrupt').style.display = 'inline-block' // show interrupt button
-    g_can_request_progress = true
-  } else {
-    document.querySelector('#btnGenerate').style.display = 'inline-block' // hide generate button
-    document.querySelector('#btnInterrupt').style.display = 'none' // show interrupt button
-    g_can_request_progress = false
+  function toggleTwoButtons (defaultVal,first_btn_id,second_btn_id) {
+    if (defaultVal) {
+  
+      document.getElementById(first_btn_id).style.display = 'none' // hide generate button
+      document.getElementById(second_btn_id).style.display = 'inline-block' // show interrupt button
+      // g_can_request_progress = true
+    } else {
+      document.getElementById(first_btn_id).style.display = 'inline-block' // hide generate button
+      document.getElementById(second_btn_id).style.display = 'none' // show interrupt button
+      // g_can_request_progress = false
+    }
+    return defaultVal
   }
-}
+
+// function toggleGenerateInterruptButton (defaultVal) {
+//   if (defaultVal) {
+
+//     document.querySelector('#btnGenerate').style.display = 'none' // hide generate button
+//     document.querySelector('#btnInterrupt').style.display = 'inline-block' // show interrupt button
+//     g_can_request_progress = true
+//   } else {
+//     document.querySelector('#btnGenerate').style.display = 'inline-block' // hide generate button
+//     document.querySelector('#btnInterrupt').style.display = 'none' // show interrupt button
+//     g_can_request_progress = false
+//   }
+// }
 
 // document.getElementById('btnSelectTool').addEventListener('click', selectTool)
 
@@ -780,16 +796,36 @@ document.getElementById('btnCleanLayers').addEventListener('click', async () => 
 
   }
 })
+
+document.getElementById('btnInterruptMore').addEventListener('click', async () => {
+  try{
+
+    // g_can_request_progress = false
+    json = await sdapi.requestInterrupt()
+    
+    // toggleGenerateInterruptButton(false)
+    g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
+  }catch(e)
+  {
+    // toggleGenerateInterruptButton(false)
+    g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
+    console.warn(e)
+  }
+})
+
+
 document.getElementById('btnInterrupt').addEventListener('click', async () => {
   try{
 
     // g_can_request_progress = false
     json = await sdapi.requestInterrupt()
     
-    toggleGenerateInterruptButton(false)
+    // toggleGenerateInterruptButton(false)
+    g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
   }catch(e)
   {
-    toggleGenerateInterruptButton(false)
+    // toggleGenerateInterruptButton(false)
+    g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
     console.warn(e)
   }
 })
@@ -896,7 +932,9 @@ function updateMetadata (new_metadata) {
 
   
 async function getSettings(){
+  payload = {}
   try{
+    
 
     numberOfImages = document.querySelector('#tiNumberOfImages').value
     numberOfSteps = document.querySelector('#tiNumberOfSteps').value
@@ -978,7 +1016,7 @@ async function getSettings(){
 
 
 
-  payload = {
+  payload = {...payload,
     prompt: prompt,
     negative_prompt: negative_prompt,
     steps: numberOfSteps,
@@ -1016,7 +1054,8 @@ async function generate(settings){
 
   try{
     //pre generation
-    toggleGenerateInterruptButton(true)
+    // toggleGenerateInterruptButton(true)
+    g_can_request_progress = toggleTwoButtons(true,'btnGenerate','btnInterrupt')
 
     //wait 2 seconds till you check for progress
     setTimeout(function () {
@@ -1040,24 +1079,78 @@ async function generate(settings){
   //get the updated metadata from json response
   g_metadatas = updateMetadata(json.metadata)
   //set button to generate
-  toggleGenerateInterruptButton(false)
+  // toggleGenerateInterruptButton(false)
+  g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
   gImage_paths = json.image_paths
   //open the generated images from disk and load them onto the canvas
   g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
+  
   //update the viewer
   loadViewerImages()
 
 }catch(e){
   console.error(`btnGenerate.click(): `,e)
-  // console.error(`btnGenerate.click(): ${e}`)
+  
 }
 }
+
+async function generateMore(settings){
+
+  try{
+    //pre generation
+    // toggleGenerateInterruptButton(true)
+    g_can_request_progress = toggleTwoButtons(true,'btnGenerateMore','btnInterruptMore')
+
+
+    //wait 2 seconds till you check for progress
+    setTimeout(function () {
+      progressRecursive()
+  
+    }, 2000)
+  
+  
+  console.log(settings)
+
+  
+  if (g_sd_mode == 'txt2img') {
+    json = await generateTxt2Img(settings)
+   }
+   else if(g_sd_mode == 'img2img' || g_sd_mode =='inpaint'){
+     json = await sdapi.requestImg2Img(settings)
+ 
+   } 
+
+  //post generation
+  //get the updated metadata from json response
+  g_metadatas = updateMetadata(json.metadata)
+  //set button to generate
+  // toggleGenerateInterruptButton(false)
+  g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
+
+  gImage_paths = json.image_paths
+  //open the generated images from disk and load them onto the canvas
+  const last_images_paths = await ImagesToLayersExe(gImage_paths)
+  g_image_path_to_layer = {...g_image_path_to_layer, ...last_images_paths}
+  //update the viewer
+  loadViewerImages()
+
+}catch(e){
+  console.error(`btnGenerate.click(): `,e)
+  
+}
+}
+
+
 
 document.getElementById('btnGenerate').addEventListener('click', async ()=>{
   const settings = await getSettings()
   generate(settings)
 })
 
+document.getElementById('btnGenerateMore').addEventListener('click', async ()=>{
+  const settings = await getSettings()
+  generateMore(settings)
+})
 
 
 
@@ -1452,7 +1545,7 @@ async function loadViewerImages(){
     while(container.firstChild){
     container.removeChild(container.firstChild);
     }
-    image_paths = gImage_paths
+    image_paths = Object.keys(g_image_path_to_layer);
     console.log("image_paths: ",image_paths)
     let i = 0
     const layers = Object.keys(g_image_path_to_layer).map(key => g_image_path_to_layer[key])
@@ -1464,15 +1557,16 @@ async function loadViewerImages(){
       img.className = "viewer-image"
       console.log("image_path: ",image_path)
       img.dataset.image_id = g_image_path_to_layer[image_path].id
- 
+      img.dataset.image_path = image_path // image_path is not the same as src 
       container.appendChild(img)
       img.addEventListener('click',async (e)=>{
-
         //turn off all layers
         //select the layer this image represent and turn it on 
         await executeAsModal(async ()=>{
           const img = e.target
           const layer_id = parseInt(img.dataset.image_id)
+          console.log("the layer id = ",layer_id)
+          const layer_path =  img.dataset.image_path
           let visible_layer
           for(layer of layers){
               try{
@@ -1487,6 +1581,7 @@ async function loadViewerImages(){
             }
 
             visible_layer.visible = true
+            g_visible_layer_path = layer_path  
         })
  
       })
@@ -1494,10 +1589,37 @@ async function loadViewerImages(){
     }
     
   }catch(e){
-    console.warn(`loadViewer images warning: ${e}`)
+    console.warn(`loadViewer images warning: `,e)
   }
 
 }
+async function deleteHidden (visible_layer_path, image_paths_to_layers) {
+  // visible layer
+  //delete all hidden layers
+  const visible_layer = image_paths_to_layers[visible_layer_path]
+  delete image_paths_to_layers[visible_layer_path]
+  await executeAsModal(async () => {
+    const layers = Object.keys(image_paths_to_layers).map(
+      key => image_paths_to_layers[key]
+    )
+    await psapi.cleanLayers(layers)
+  })
+  image_paths_to_layers = { [visible_layer_path]: visible_layer }
+  // g_image_path_to_layer = image_paths_to_layers // this is redundant, should delete later.
+  return image_paths_to_layers
+  // await loadViewerImages() // maybe we should pass g_image_path_to_layer instead of it been global
+
+}
+
+
+document.getElementById('btnDeleteHidden').addEventListener('click', async ()=>{
+  
+  g_image_path_to_layer = await deleteHidden(g_visible_layer_path,g_image_path_to_layer)
+  console.log("g_image_path_to_layer: ",g_image_path_to_layer)
+  await loadViewerImages() // maybe we should pass g_image_path_to_layer instead of it been global
+
+}) 
+
 document.getElementById('btnLoadViewer').addEventListener('click', loadViewerImages) 
 
 document.getElementById('btnLoadHistory').addEventListener('click',async function(){

@@ -337,7 +337,7 @@ async function outpaintFasterExe(session_id){
           snapshotMaskGroup.name = `${snapshotMaskGroup.name}_mask` 
           snapshotMaskLayer.moveBelow(solid_black_layer)
           await snapshotMaskGroup.moveAbove(snapshotGroup)
-          solid_black_layer.delete()
+          solid_black_layer.delete()// should we await for the deletion?
 
           
           await psapi.selectLayers([snapshotGroup])
