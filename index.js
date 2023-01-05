@@ -1219,32 +1219,6 @@ document.getElementById('bSetInitImage').addEventListener('click', async ()=>  {
   psapi.setInitImage(layer, random_session_id)
 })
 
-// async function setInitImageMask () {
-//   try {
-//     const layer = await app.activeDocument.activeLayers[0]
-//     old_name = layer.name 
-//     await psapi.exportPng(random_session_id)
-//     image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
-    
-//     //get the active layer name
-//     // const layer = await app.activeDocument.activeLayers[0]
-//     // image_name = psapi.layerToFileName(layer,random_session_id)
-//     image_name = `${image_name}.png`
-    
-//     g_init_image_mask_name = image_name
-//     console.log(image_name)
-    
-//     const image_src = await sdapi.getInitImage(g_init_image_mask_name)
-//     const ini_image_mask_element = document.getElementById('init_image_mask')
-//     ini_image_mask_element.src = image_src
-//   } catch (e) {
-    
-//     console.error(`setInitImageMask error: ${e}`)
-//   }
-// }
-// document
-//   .getElementById('bSetInitImageMask')
-//   .addEventListener('click', setInitImageMask)
 document.getElementById('bSetInitImageMask').addEventListener('click', async ()=>  {
   const layer = await app.activeDocument.activeLayers[0]
   psapi.setInitImageMask(layer, random_session_id)
@@ -1534,6 +1508,36 @@ document.getElementById('collapsible').addEventListener('click', function () {
   }
   
 })
+async function viewerImageClickHandler(img,layers){
+
+      
+  img.addEventListener('click',async (e)=>{
+    //turn off all layers
+    //select the layer this image represent and turn it on 
+    await executeAsModal(async ()=>{
+      const img = e.target
+      const layer_id = parseInt(img.dataset.image_id)
+      console.log("the layer id = ",layer_id)
+      const layer_path =  img.dataset.image_path
+      let visible_layer
+      for(layer of layers){
+          try{
+
+            layer.visible = false
+            if (layer.id == layer_id){
+              visible_layer = layer
+            }
+          } catch (e){
+            console.warn("cannot hide a layer: ",e)
+          } 
+        }
+
+        visible_layer.visible = true
+        g_visible_layer_path = layer_path  
+    })
+
+  })
+}
 async function loadViewerImages(){
   try{
     //get the images path
@@ -1552,6 +1556,8 @@ async function loadViewerImages(){
 
     console.log("image_paths: ",image_paths)
     for (image_path of image_paths){
+      
+      //create img html element 
       const img = document.createElement('img')
       img.src = `${output_dir_relative}/${image_path}`
       img.className = "viewer-image"
@@ -1559,32 +1565,10 @@ async function loadViewerImages(){
       img.dataset.image_id = g_image_path_to_layer[image_path].id
       img.dataset.image_path = image_path // image_path is not the same as src 
       container.appendChild(img)
-      img.addEventListener('click',async (e)=>{
-        //turn off all layers
-        //select the layer this image represent and turn it on 
-        await executeAsModal(async ()=>{
-          const img = e.target
-          const layer_id = parseInt(img.dataset.image_id)
-          console.log("the layer id = ",layer_id)
-          const layer_path =  img.dataset.image_path
-          let visible_layer
-          for(layer of layers){
-              try{
-
-                layer.visible = false
-                if (layer.id == layer_id){
-                  visible_layer = layer
-                }
-              } catch (e){
-                console.warn("cannot hide a layer: ",e)
-              } 
-            }
-
-            visible_layer.visible = true
-            g_visible_layer_path = layer_path  
-        })
- 
-      })
+      
+      //add on click event to img 
+  
+      await viewerImageClickHandler(img,layers)
       i++
     }
     
