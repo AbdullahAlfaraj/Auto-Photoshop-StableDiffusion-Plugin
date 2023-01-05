@@ -672,7 +672,7 @@ document
       
       
       // clear the layers related to the last mask operation.
-      g_last_snap_and_fill_layers = await psapi.cleanSnapAndFill(g_last_snap_and_fill_layers)
+      g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
       // create new layers related to the current mask operation.
       await executeAsModal(async ()=>{
         
@@ -789,8 +789,8 @@ document.getElementById('btnCleanLayers').addEventListener('click', async () => 
 
   
   console.log("g_last_snap_and_fill_layers")
-  g_last_snap_and_fill_layers = await psapi.cleanSnapAndFill(g_last_snap_and_fill_layers)
-
+  g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
+  
   if (g_last_outpaint_layers.length > 0){
     g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
     console.log("g_last_outpaint_layers has 1 layers")
@@ -800,6 +800,8 @@ document.getElementById('btnCleanLayers').addEventListener('click', async () => 
     g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
 
   }
+
+  // await loadViewerImages()
 })
 
 document.getElementById('btnInterruptMore').addEventListener('click', async () => {
@@ -1514,6 +1516,12 @@ document.getElementById('collapsible').addEventListener('click', function () {
   
 })
 
+function removeInitImageFromViewer(){
+
+}
+function removeMaskFromViewer(){
+
+}
 async function viewerImageClickHandler(img,viewer_layers){
 
       
@@ -1534,7 +1542,9 @@ async function viewerImageClickHandler(img,viewer_layers){
             let i = 0 
             //make all layers of that entry invisible
             for (layer of cont_layer.layer ){
-              layer.visible = cont_layer.visibleOff[i]
+              if (typeof layer !== "undefined"){
+                layer.visible = cont_layer.visibleOff[i]
+              }
               i++
             }
             
@@ -1543,7 +1553,7 @@ async function viewerImageClickHandler(img,viewer_layers){
               visible_cont = cont_layer
             }
           } catch (e){
-            console.warn("cannot hide a layer: ",e)
+            console.error("cannot hide a layer: ",e)
           } 
         }
 
@@ -1678,7 +1688,7 @@ async function loadViewerImages(){
 
     
   }catch(e){
-    console.warn(`loadViewer images warning: `,e)
+    console.error(`loadViewer images: `,e)
   }
 
 }
