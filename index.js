@@ -1086,7 +1086,7 @@ async function generate(settings){
   g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
   
   //update the viewer
-  loadViewerImages()
+  await loadViewerImages()
 
 }catch(e){
   console.error(`btnGenerate.click(): `,e)
