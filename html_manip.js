@@ -183,6 +183,9 @@ function getCheckedSamplerName(){
   //return the name of the first checked sampler
   return  [...document.getElementsByClassName('rbSampler')].filter(e => e.checked == true)[0].value
 }
+function getMode(){
+  return [...document.getElementsByClassName('rbMode')].filter(e => e.checked == true)[0].value
+}
 
 function checkSampler(sampler_name){
   sampler_element = getSamplerElementByName(sampler_name)
@@ -246,6 +249,7 @@ module.exports = {
   autoFillInSliderUi,
   getCheckedSamplerName,
   autoFillInSampler,
-  autoFillInModel
+  autoFillInModel,
+  getMode
 
 }

@@ -134,14 +134,19 @@ async function requestProgress () {
 
 async function requestGetModels () {
   console.log('requestGetModels: ')
+  let json = []
+  try{
 
-  const full_url = 'http://127.0.0.1:8000/sdapi/v1/sd-models'
-  let request = await fetch(full_url)
-  let json = await request.json()
-  console.log('models json:')
-  console.dir(json)
-
-  return json
+    const full_url = 'http://127.0.0.1:8000/sdapi/v1/sd-models'
+    let request = await fetch(full_url)
+    json = await request.json()
+    console.log('models json:')
+    console.dir(json)
+    
+  }catch(e){
+    console.warn(`issues requesting from ${full_url}`,e)
+  }
+    return json
 }
 
 async function requestGetSamplers () {
