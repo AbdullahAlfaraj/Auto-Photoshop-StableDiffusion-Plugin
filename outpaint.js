@@ -255,7 +255,17 @@ async function snapAndFillExe(session_id){
           
           snapAndFillLayers = [snapshotLayer,snapshotGroup,whiteSolidLayer]
           // await setTimeout(saveAndHide,1000)
+          // g_mask_related_layers['mask_group'] = snapshotMaskGroup
+          // g_mask_related_layers['white_mark'] = snapshotMaskLayer
+          // // g_mask_related_layers['solid_black'] = blackSolidLayer
+          
+          g_init_image_related_layers['init_image_group'] = snapshotGroup
+          g_init_image_related_layers['init_image_layer'] = snapshotLayer
+          g_init_image_related_layers['solid_white'] = whiteSolidLayer
+
           await psapi.setInitImage(snapshotGroup,session_id)
+          
+          
           for (layer of snapAndFillLayers){
             layer.visible = false 
           }
