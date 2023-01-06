@@ -1231,9 +1231,19 @@ document.getElementById('bSetInitImageMask').addEventListener('click', async ()=
   psapi.setInitImageMask(layer, random_session_id)
 })
 
+function updateProgressBarsHtml(new_value){
+  document.querySelectorAll('.pProgressBars').forEach(el =>{
+    // id = el.getAttribute("id")
+    // console.log("progressbar id:", id)
+    el.setAttribute('value',new_value)
+  })
+  document.querySelector('#pProgressBar').value
+}
 async function progressRecursive () {
   let json = await sdapi.requestProgress()
-  document.querySelector('#pProgressBar').value = json.progress * 100
+  // document.querySelector('#pProgressBar').value = json.progress * 100
+  progress_value = json.progress * 100
+  updateProgressBarsHtml(progress_value)
   if (json.progress > 0 && g_can_request_progress == true) {
     setTimeout(async ()=>{
       await progressRecursive()

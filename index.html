@@ -268,7 +268,9 @@
         
       </div>
       <div>
-
+        <sp-progressbar class="pProgressBars" id="pViewerProgressBar" max=100 value=0>
+          <sp-label slot="label">Progress...</sp-label>
+        </sp-progressbar>
         <button class="btnSquare" id="btnGenerateMore">Generate More</button>
         <button class="btnSquare" id="btnInterruptMore" style="display:none;">Interrupt More</button>
         <button class="btnSquare" id="btnDeleteHidden">Delete Hidden</button>
@@ -350,7 +352,7 @@
       <div>
         <div id="progressContainer" class="">
 
-          <sp-progressbar id="pProgressBar" max=100 value=0>
+          <sp-progressbar class="pProgressBars" id="pProgressBar" max=100 value=0>
             <sp-label slot="label">Progress...</sp-label>
           </sp-progressbar>
           <sp-checkbox id="chUsePromptShortcut" checked>prompt shortcut</sp-checkbox>
