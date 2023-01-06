@@ -15,6 +15,7 @@ const dialog_box = require('./dialog_box')
 const {entrypoints} = require('uxp')
 const html_manip = require('./html_manip')
 const export_png = require('./export_png')
+const viewer = require('./viewer')
 
 async function getUniqueDocumentId () {
   try {
@@ -1545,6 +1546,8 @@ function removeInitImageFromViewer(){
 function removeMaskFromViewer(){
 
 }
+
+
 async function viewerImageClickHandler(img,viewer_layers){
 
       
@@ -1562,6 +1565,7 @@ async function viewerImageClickHandler(img,viewer_layers){
       //turn off all layers linked the viewer tab
       for(cont_layer of viewer_layers){
           try{
+            //viewerImageObj.visible(false)
             let i = 0 
             //make all layers of that entry invisible
             for (layer of cont_layer.layer ){
@@ -1572,6 +1576,7 @@ async function viewerImageClickHandler(img,viewer_layers){
             }
             
             //if the layer id of the first layer in the group container
+            //viewerImageObj.isSameLayer(layer_id)
             if (cont_layer.layer[0].id == layer_id){
               visible_cont = cont_layer
             }
@@ -1586,9 +1591,53 @@ async function viewerImageClickHandler(img,viewer_layers){
       for (layer of visible_cont.layer){
 
         layer.visible = visible_cont.visibleOn[i]
-        g_visible_layer_path = layer_path  //why do we store the layer_path? 
+        g_visible_layer_path = layer_path  //we store the path of the visible layer so we can acess it later in deleteHidden 
         i++
       }
+        
+
+
+    })
+
+  })
+}
+async function NewViewerImageClickHandler(img,viewer_layers){
+
+      
+  img.addEventListener('click',async (e)=>{
+    //turn off all layers
+    //select the layer this image represent and turn it on 
+    await executeAsModal(async ()=>{
+      const img = e.target
+      const layer_id = parseInt(img.dataset.image_id)
+      console.log("the layer id = ",layer_id)
+      const layer_path =  img.dataset.image_path
+      let selectedViewerImageObj
+      // Array.isArray(layer)
+      
+      //turn off all layers linked the viewer tab
+      for(viewerImageObj of viewer_layers){
+          try{
+            //viewerImageObj.visible(false)
+            
+            //make all layers of that entry invisible
+            viewerImageObj.visible(false)
+            
+            //if the layer id of the first layer in the group container
+            //viewerImageObj.isSameLayer(layer_id)
+            if (viewerImageObj.isSameLayer(layer_id)){
+              selectedViewerImageObj = viewerImageObj
+            }
+          } catch (e){
+            console.error("cannot hide a layer: ",e)
+          } 
+        }
+
+    
+    
+        selectedViewerImageObj.visible(true)
+        selectedViewerImageObj.select(true) 
+      g_visible_layer_path = layer_path  //we store the path of the visible layer so we can acess it later in deleteHidden 
         
 
 
@@ -1666,28 +1715,32 @@ async function loadViewerImages(){
     image_paths = Object.keys(g_image_path_to_layer);
     console.log("image_paths: ",image_paths)
     let i = 0
-    const viewer_layers = Object.keys(g_image_path_to_layer).map(key => makeViewerLayer(g_image_path_to_layer[key]))
-    // g_viewer_layers = []// layer = {"layer":[mask_group,white_stroke,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
     
-    
-    if(g_init_image_related_layers.hasOwnProperty('init_image_group')){
+    // const viewer_layers = Object.keys(g_image_path_to_layer).map(path => makeViewerLayer(g_image_path_to_layer[path]))
+   
+    const viewer_layers = Object.keys(g_image_path_to_layer).map(path =>  new viewer.OutputImage(g_image_path_to_layer[path],path))
 
-      const viewer_init_image_layer = makeViewerInitImageLayer(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'])//make init image viewer container layer 
-      const init_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_name,g_init_image_related_layers['init_image_group'].id)
-      container.appendChild(init_img_html)
-      viewer_layers.push(viewer_init_image_layer) 
-      await viewerImageClickHandler(init_img_html,viewer_layers)// create click handler for each images 
-    }
+  
     
-    if(g_mask_related_layers.hasOwnProperty('mask_group')){
-    const viewer_mask_layer = makeViewerMaskLayer(g_mask_related_layers['mask_group'],g_mask_related_layers['white_mark'],g_mask_related_layers['solid_black'])//make mask viewer layer 
-    const mask_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_mask_name,g_mask_related_layers['mask_group'].id)
-    container.appendChild(mask_img_html)
     
-    //add init mask image
-    viewer_layers.push(viewer_mask_layer)
-    await viewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images 
-  }
+  //   if(g_init_image_related_layers.hasOwnProperty('init_image_group')){
+
+  //     const viewer_init_image_layer = makeViewerInitImageLayer(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'])//make init image viewer container layer 
+  //     const init_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_name,g_init_image_related_layers['init_image_group'].id)
+  //     container.appendChild(init_img_html)
+  //     viewer_layers.push(viewer_init_image_layer) 
+  //     await viewerImageClickHandler(init_img_html,viewer_layers)// create click handler for each images 
+  //   }
+    
+  //   if(g_mask_related_layers.hasOwnProperty('mask_group')){
+  //   const viewer_mask_layer = makeViewerMaskLayer(g_mask_related_layers['mask_group'],g_mask_related_layers['white_mark'],g_mask_related_layers['solid_black'])//make mask viewer layer 
+  //   const mask_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_mask_name,g_mask_related_layers['mask_group'].id)
+  //   container.appendChild(mask_img_html)
+    
+  //   //add init mask image
+  //   viewer_layers.push(viewer_mask_layer)
+  //   await viewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images 
+  // }
   
 
     
@@ -1703,7 +1756,7 @@ async function loadViewerImages(){
       
       //add on click event to img 
      
-      await viewerImageClickHandler(img,viewer_layers)
+      await NewViewerImageClickHandler(img,viewer_layers)
       i++
     }
     
