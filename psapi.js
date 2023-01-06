@@ -706,38 +706,46 @@ async function setInitImageMask (layer, session_id) {
   const width = html_manip.getWidth()
   const height = html_manip.getHeight()
   await newExportPng(layer,image_name,width,height)
-  g_init_image_mask_name = image_name
+  g_init_image_mask_name = image_name // this is the name we will send to the server
+  // g_init_mask_layer = layer
+  // g_mask_related_layers = {} 
   console.log(image_name)
-  const image_src = await sdapi.getInitImage(g_init_image_mask_name)
+  
+  const image_src = await sdapi.getInitImage(g_init_image_mask_name)// we should replace this with getInitImagePath which return path to local disk
   const ini_image_mask_element = document.getElementById('init_image_mask')
   ini_image_mask_element.src = image_src
+  ini_image_mask_element.dataset.layer_id = layer.id
+
 } catch (e) {
-  console.error(`psapi.js setInitImageMask error:, ${e}`)
+  console.error(`psapi.js setInitImageMask error: `,e)
 }
 }
 
 // remove the generated mask related layers from the canvas and "layers" panel
 
 
-async function cleanSnapAndFill(layers){
-  // we can delete this function and use cleanLayers() instead
-  //delete init image group
-  //delete init image (snapshot layer)
-  //delete fill layer 
+// async function cleanSnapAndFill(layers){
+//   // we can delete this function and use cleanLayers() instead
+//   //delete init image group
+//   //delete init image (snapshot layer)
+//   //delete fill layer 
 
 
-  for (layer of layers){
-    try{
+//   for (layer of layers){
+//     try{
 
-      await executeAsModal(async ()=>{await layer.delete()})
-    }catch(e){
-      console.warn("cleanSnapAndFill, issue deleting a layer",e)
-    }
-  }
-return []
-}
+//       await executeAsModal(async ()=>{await layer.delete()})
+//     }catch(e){
+//       console.warn("cleanSnapAndFill, issue deleting a layer",e)
+//     }
+//   }
+// return []
+// }
 
 async function cleanLayers(layers){
+  g_init_image_related_layers = {}
+  g_mask_related_layers = {}
+  await loadViewerImages()// we should move loadViewerImages to a new file viewer.js
   console.log("cleanLayers() -> layers:",layers)
   for (layer of layers){
     try {
@@ -1091,7 +1099,7 @@ module.exports = {
   layerNameToFileName,
   // cleanLayersOutpaint,
   // cleanLayersInpaint,
-  cleanSnapAndFill,
+  // cleanSnapAndFill,
   cleanLayers,
   createClippingMaskExe,
   checkIfSelectionAreaIsActive,

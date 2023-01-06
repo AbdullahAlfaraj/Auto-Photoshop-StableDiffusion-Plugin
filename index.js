@@ -356,6 +356,10 @@ let g_image_path_to_layer = {}
 let g_visible_layer_path
 gCurrentImagePath = ''
 let g_init_image_name = ''
+// let g_init_mask_layer;
+
+let g_mask_related_layers = {}
+let g_init_image_related_layers = {}
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
 let g_sd_mode = 'txt2img'
 let g_sd_sampler = 'Euler a'
@@ -377,6 +381,7 @@ let g_metadatas = []
 let g_can_request_progress = true
 let g_saved_active_layers = []
 let g_is_active_layers_stored = false
+let g_viewer_layers = []// layer = {"layer":[mask_group,white_stroke,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -667,7 +672,7 @@ document
       
       
       // clear the layers related to the last mask operation.
-      g_last_snap_and_fill_layers = await psapi.cleanSnapAndFill(g_last_snap_and_fill_layers)
+      g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
       // create new layers related to the current mask operation.
       await executeAsModal(async ()=>{
         
@@ -784,8 +789,8 @@ document.getElementById('btnCleanLayers').addEventListener('click', async () => 
 
   
   console.log("g_last_snap_and_fill_layers")
-  g_last_snap_and_fill_layers = await psapi.cleanSnapAndFill(g_last_snap_and_fill_layers)
-
+  g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
+  
   if (g_last_outpaint_layers.length > 0){
     g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
     console.log("g_last_outpaint_layers has 1 layers")
@@ -795,6 +800,8 @@ document.getElementById('btnCleanLayers').addEventListener('click', async () => 
     g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
 
   }
+
+  // await loadViewerImages()
 })
 
 document.getElementById('btnInterruptMore').addEventListener('click', async () => {
@@ -1086,7 +1093,7 @@ async function generate(settings){
   g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
   
   //update the viewer
-  loadViewerImages()
+  await loadViewerImages()
 
 }catch(e){
   console.error(`btnGenerate.click(): `,e)
@@ -1219,32 +1226,6 @@ document.getElementById('bSetInitImage').addEventListener('click', async ()=>  {
   psapi.setInitImage(layer, random_session_id)
 })
 
-// async function setInitImageMask () {
-//   try {
-//     const layer = await app.activeDocument.activeLayers[0]
-//     old_name = layer.name 
-//     await psapi.exportPng(random_session_id)
-//     image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
-    
-//     //get the active layer name
-//     // const layer = await app.activeDocument.activeLayers[0]
-//     // image_name = psapi.layerToFileName(layer,random_session_id)
-//     image_name = `${image_name}.png`
-    
-//     g_init_image_mask_name = image_name
-//     console.log(image_name)
-    
-//     const image_src = await sdapi.getInitImage(g_init_image_mask_name)
-//     const ini_image_mask_element = document.getElementById('init_image_mask')
-//     ini_image_mask_element.src = image_src
-//   } catch (e) {
-    
-//     console.error(`setInitImageMask error: ${e}`)
-//   }
-// }
-// document
-//   .getElementById('bSetInitImageMask')
-//   .addEventListener('click', setInitImageMask)
 document.getElementById('bSetInitImageMask').addEventListener('click', async ()=>  {
   const layer = await app.activeDocument.activeLayers[0]
   psapi.setInitImageMask(layer, random_session_id)
@@ -1534,6 +1515,120 @@ document.getElementById('collapsible').addEventListener('click', function () {
   }
   
 })
+
+function removeInitImageFromViewer(){
+
+}
+function removeMaskFromViewer(){
+
+}
+async function viewerImageClickHandler(img,viewer_layers){
+
+      
+  img.addEventListener('click',async (e)=>{
+    //turn off all layers
+    //select the layer this image represent and turn it on 
+    await executeAsModal(async ()=>{
+      const img = e.target
+      const layer_id = parseInt(img.dataset.image_id)
+      console.log("the layer id = ",layer_id)
+      const layer_path =  img.dataset.image_path
+      let visible_cont
+      // Array.isArray(layer)
+      
+      //turn off all layers linked the viewer tab
+      for(cont_layer of viewer_layers){
+          try{
+            let i = 0 
+            //make all layers of that entry invisible
+            for (layer of cont_layer.layer ){
+              if (typeof layer !== "undefined"){
+                layer.visible = cont_layer.visibleOff[i]
+              }
+              i++
+            }
+            
+            //if the layer id of the first layer in the group container
+            if (cont_layer.layer[0].id == layer_id){
+              visible_cont = cont_layer
+            }
+          } catch (e){
+            console.error("cannot hide a layer: ",e)
+          } 
+        }
+
+    
+    
+        let i = 0
+      for (layer of visible_cont.layer){
+
+        layer.visible = visible_cont.visibleOn[i]
+        g_visible_layer_path = layer_path  //why do we store the layer_path? 
+        i++
+      }
+        
+
+
+    })
+
+  })
+}
+function createViewerImgHtml(output_dir_relative,image_path,layer_id){
+
+  const img = document.createElement('img')
+  img.src = `${output_dir_relative}/${image_path}`
+  img.className = "viewer-image"
+  console.log("image_path: ",image_path)
+  img.dataset.image_id = layer_id
+  img.dataset.image_path = image_path // image_path is not the same as src 
+  return img
+}
+
+function toggleLayerVisibility(layer, b_on){
+try{
+   layer.visible = b_on
+}catch(e){
+  console.warn(e)
+}
+}
+async function turnMaskVisible (
+  b_mask_group_on,
+  b_white_mask_on,
+  b_solid_black_mask_on
+) {
+  //will turn a mask group, white layer mask, and the solid black layer on and off
+  try {
+    await executeAsModal(() => {
+      toggleLayerVisibility(g_mask_group, b_mask_group_on)
+      toggleLayerVisibility(g_white_mask, b_white_mask_on)
+      toggleLayerVisibility(g_solid_black_mask, b_solid_black_mask_on)
+    })
+  } catch (e) {
+    console.warn(e)
+  }
+}
+
+async function maskVisibilityFunc(b_toggle){
+if (b_toggle === true){
+  turnMaskVisible(true,true,false)
+}else{//false
+  turnMaskVisible(false,false,false)
+}
+}
+function makeViewerLayer(layer){
+  // layer = {"layer":[mask_group,white_stroke,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
+  const viewer_layer = {layer:[layer],visibleOn:[true],visibleOff:[false]}
+
+  return viewer_layer 
+}
+function makeViewerMaskLayer(group_mask,white_mark,solid_black){
+   viewer_layer = {layer:[group_mask,white_mark,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
+  return viewer_layer
+}
+function makeViewerInitImageLayer(init_image_group,init_image_layer,solid_white){
+  viewer_layer = {layer:[init_image_group,init_image_layer,solid_white],visibleOn:[true,true,true],visibleOff:[false,false,false]}
+ return viewer_layer
+}
 async function loadViewerImages(){
   try{
     //get the images path
@@ -1548,48 +1643,52 @@ async function loadViewerImages(){
     image_paths = Object.keys(g_image_path_to_layer);
     console.log("image_paths: ",image_paths)
     let i = 0
-    const layers = Object.keys(g_image_path_to_layer).map(key => g_image_path_to_layer[key])
+    const viewer_layers = Object.keys(g_image_path_to_layer).map(key => makeViewerLayer(g_image_path_to_layer[key]))
+    // g_viewer_layers = []// layer = {"layer":[mask_group,white_stroke,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
+    
+    
+    if(g_init_image_related_layers.hasOwnProperty('init_image_group')){
 
+      const viewer_init_image_layer = makeViewerInitImageLayer(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'])//make init image viewer container layer 
+      const init_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_name,g_init_image_related_layers['init_image_group'].id)
+      container.appendChild(init_img_html)
+      viewer_layers.push(viewer_init_image_layer) 
+      await viewerImageClickHandler(init_img_html,viewer_layers)// create click handler for each images 
+    }
+    
+    if(g_mask_related_layers.hasOwnProperty('mask_group')){
+    const viewer_mask_layer = makeViewerMaskLayer(g_mask_related_layers['mask_group'],g_mask_related_layers['white_mark'],g_mask_related_layers['solid_black'])//make mask viewer layer 
+    const mask_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_mask_name,g_mask_related_layers['mask_group'].id)
+    container.appendChild(mask_img_html)
+    
+    //add init mask image
+    viewer_layers.push(viewer_mask_layer)
+    await viewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images 
+  }
+  
+
+    
+    
+    
     console.log("image_paths: ",image_paths)
     for (image_path of image_paths){
-      const img = document.createElement('img')
-      img.src = `${output_dir_relative}/${image_path}`
-      img.className = "viewer-image"
-      console.log("image_path: ",image_path)
-      img.dataset.image_id = g_image_path_to_layer[image_path].id
-      img.dataset.image_path = image_path // image_path is not the same as src 
+      
+      //create img html element 
+      
+      const img = createViewerImgHtml(output_dir_relative,image_path,g_image_path_to_layer[image_path].id)
       container.appendChild(img)
-      img.addEventListener('click',async (e)=>{
-        //turn off all layers
-        //select the layer this image represent and turn it on 
-        await executeAsModal(async ()=>{
-          const img = e.target
-          const layer_id = parseInt(img.dataset.image_id)
-          console.log("the layer id = ",layer_id)
-          const layer_path =  img.dataset.image_path
-          let visible_layer
-          for(layer of layers){
-              try{
-
-                layer.visible = false
-                if (layer.id == layer_id){
-                  visible_layer = layer
-                }
-              } catch (e){
-                console.warn("cannot hide a layer: ",e)
-              } 
-            }
-
-            visible_layer.visible = true
-            g_visible_layer_path = layer_path  
-        })
- 
-      })
+      
+      //add on click event to img 
+     
+      await viewerImageClickHandler(img,viewer_layers)
       i++
     }
     
+      
+
+    
   }catch(e){
-    console.warn(`loadViewer images warning: `,e)
+    console.error(`loadViewer images: `,e)
   }
 
 }
