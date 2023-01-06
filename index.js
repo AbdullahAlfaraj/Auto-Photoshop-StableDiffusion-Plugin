@@ -74,7 +74,14 @@ Array.from(document.querySelectorAll(".sp-tab")).forEach(theTab => {
   }
 });
 
+document.getElementById("sp-viewer-tab").addEventListener('click',()=>{
+  moveElementToAnotherTab("batchNumberUi","batchNumberViewerTabContainer")
 
+})
+document.getElementById("sp-stable-diffusion-ui-tab").addEventListener('click', ()=>{
+  moveElementToAnotherTab("batchNumberUi","batchNumberSdUiTabContainer")
+
+})
 // entrypoints.setup({
 
 //   panels:{
@@ -1230,7 +1237,13 @@ document.getElementById('bSetInitImageMask').addEventListener('click', async ()=
   const layer = await app.activeDocument.activeLayers[0]
   psapi.setInitImageMask(layer, random_session_id)
 })
+function moveElementToAnotherTab(elementId, newParentId){
+  const element = document.getElementById(elementId)
+  document.getElementById(newParentId).appendChild(element)
+  
+}
 
+// moveElementToAnotherTab("batchNumberUi","batchNumberViewerTabContainer")
 function updateProgressBarsHtml(new_value){
   document.querySelectorAll('.pProgressBars').forEach(el =>{
     // id = el.getAttribute("id")

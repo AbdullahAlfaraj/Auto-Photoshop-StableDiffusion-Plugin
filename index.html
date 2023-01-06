@@ -271,6 +271,11 @@
         <sp-progressbar class="pProgressBars" id="pViewerProgressBar" max=100 value=0>
           <sp-label slot="label">Progress...</sp-label>
         </sp-progressbar>
+        <div id="batchNumberViewerTabContainer">
+          <!-- <sp-label>Images:</sp-label> -->
+          <!-- <sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
+            value="1"></sp-textfield> -->
+        </div>
         <button class="btnSquare" id="btnGenerateMore">Generate More</button>
         <button class="btnSquare" id="btnInterruptMore" style="display:none;">Interrupt More</button>
         <button class="btnSquare" id="btnDeleteHidden">Delete Hidden</button>
@@ -442,9 +447,11 @@
         </div>
       </div>
       <div class="">
-        <div>
-          <sp-label>Images:</sp-label><sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
-            value="1"></sp-textfield>
+        <div id="batchNumberSdUiTabContainer">
+          <div id="batchNumberUi">
+            <sp-label>Images:</sp-label><sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
+              value="1"></sp-textfield>
+          </div>
         </div>
         <div>
           <sp-label>Steps:</sp-label><sp-textfield id="tiNumberOfSteps" type="number" placeholder="20"
