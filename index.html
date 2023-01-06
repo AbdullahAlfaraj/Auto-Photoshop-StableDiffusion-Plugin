@@ -244,6 +244,8 @@
   .sp-tab-page>* {
     flex: 0 0 auto;
   }
+
+  
 </style>
 
 <body>
@@ -268,14 +270,17 @@
         
       </div>
       <div>
-        <sp-progressbar class="pProgressBars" id="pViewerProgressBar" max=100 value=0>
-          <sp-label slot="label">Progress...</sp-label>
-        </sp-progressbar>
-        <div id="batchNumberViewerTabContainer">
-          <!-- <sp-label>Images:</sp-label> -->
-          <!-- <sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
-            value="1"></sp-textfield> -->
-        </div>
+          <div style="display:inline-flex;">
+            <div id="batchNumberViewerTabContainer" >
+              <!-- <sp-label>Images:</sp-label> -->
+              <!-- <sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
+                value="1"></sp-textfield> -->
+              </div>
+            <sp-progressbar class="pProgressBars" id="pViewerProgressBar" max=100 value=0 style="margin-left:10px; width: 100px;">
+              <sp-label slot="label">Progress...</sp-label>
+            </sp-progressbar>
+          </div>
+        
         <button class="btnSquare" id="btnGenerateMore">Generate More</button>
         <button class="btnSquare" id="btnInterruptMore" style="display:none;">Interrupt More</button>
         <button class="btnSquare" id="btnDeleteHidden">Delete Hidden</button>
