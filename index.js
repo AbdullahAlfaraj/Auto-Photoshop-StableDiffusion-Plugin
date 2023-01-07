@@ -444,7 +444,7 @@ function displayUpdate () {
     document.getElementById('slInpainting_fill').style.display = 'none' // hide inpainting fill mode
     document.getElementById('btnSnapAndFill').style.display = 'inline-flex' // hide snap and fill button mode
   }
-  if (g_sd_mode == 'inpaint') {
+  if (g_sd_mode == 'inpaint' || g_sd_mode=='outpaint') {
     ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring   
     document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
     document.getElementById('tableInitImageContainer').style.display = 'none' // hide the table 
@@ -993,7 +993,7 @@ async function getSettings(){
   
   
   let denoising_strength = h_denoising_strength
-  if (mode == 'inpaint')
+  if (mode == 'inpaint' || mode == 'outpaint')
   {
     var g_use_mask_image = true
     payload['inpaint_full_res'] =
@@ -1013,7 +1013,7 @@ async function getSettings(){
     delete payload['inpainting_fill']
   }
 
-  if (g_sd_mode == 'img2img' || g_sd_mode == 'inpaint') {
+  if (g_sd_mode == 'img2img' || g_sd_mode == 'inpaint' || g_sd_mode== 'outpaint') {
     
 
     console.log(`g_use_mask_image:? ${g_use_mask_image}`)
@@ -1085,7 +1085,7 @@ async function generate(settings){
   if (g_sd_mode == 'txt2img') {
     json = await generateTxt2Img(settings)
    }
-   else if(g_sd_mode == 'img2img' || g_sd_mode =='inpaint'){
+   else if(g_sd_mode == 'img2img' || g_sd_mode =='inpaint' || g_sd_mode == 'outpaint'){
      json = await sdapi.requestImg2Img(settings)
  
    } 
@@ -1130,7 +1130,7 @@ async function generateMore(settings){
   if (g_sd_mode == 'txt2img') {
     json = await generateTxt2Img(settings)
    }
-   else if(g_sd_mode == 'img2img' || g_sd_mode =='inpaint'){
+   else if(g_sd_mode == 'img2img' || g_sd_mode =='inpaint' || g_sd_mode =='outpaint'){
      json = await sdapi.requestImg2Img(settings)
  
    } 
