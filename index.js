@@ -762,6 +762,38 @@ document
   }
   })
 
+function toggleTwoButtonsByClass(isVisible,first_class,second_class){
+  const first_class_btns = Array.from(document.getElementsByClassName(first_class))
+  const second_class_btns = Array.from(document.getElementsByClassName(second_class))
+  
+  if (isVisible) {
+    first_class_btns.forEach(element => element.style.display = 'none')
+    second_class_btns.forEach(element => element.style.display = 'inline-block')
+    console.log("first_class_btns: ",first_class_btns)
+
+  } else {
+    first_class_btns.forEach(element => element.style.display = 'inline-block')
+    second_class_btns.forEach(element => element.style.display = 'none')
+
+  }
+  return isVisible
+}
+
+function sessionStartHtml(status){
+// will toggle the buttons needed when a generation session start 
+  const accept_class = "AcceptClass"
+  const discard_class = "DiscardClass"
+  const accept_class_btns = Array.from(document.getElementsByClassName(accept_class))
+  const discard_class_btns = Array.from(document.getElementsByClassName(discard_class))
+if (status){//session started
+  accept_class_btns.forEach(element => element.style.display = 'inline-block')
+  discard_class_btns.forEach(element => element.style.display = 'inline-block')
+
+}else{//session ended
+  accept_class_btns.forEach(element => element.style.display = 'none')
+  discard_class_btns.forEach(element => element.style.display = 'none')
+}
+}
 
   function toggleTwoButtons (defaultVal,first_btn_id,second_btn_id) {
     if (defaultVal) {
@@ -812,6 +844,31 @@ document.getElementById('btnLastSeed').addEventListener('click', async () => {
   }
 })
 
+document.getElementById('btnDeleteLastGen').addEventListener('click', async () => {
+  console.log("click on btnCleanLayers,  g_last_outpaint_layers:",g_last_outpaint_layers)
+  console.log("click on btnCleanLayers,  g_last_inpaint_layers:",g_last_inpaint_layers)
+  
+  console.log("click on btnCleanLayers,  g_last_snap_and_fill_layers:",g_last_snap_and_fill_layers)
+
+  
+  console.log("g_last_snap_and_fill_layers")
+  g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
+  
+  if (g_last_outpaint_layers.length > 0){
+    g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
+    console.log("g_last_outpaint_layers has 1 layers")
+
+  }
+  if (g_last_inpaint_layers.length> 0 ){
+    g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
+
+  }
+  const last_gen_layers = Object.keys(g_image_path_to_layer).map(path =>g_image_path_to_layer[path])
+  
+  psapi.cleanLayers(last_gen_layers)
+
+})
+
 document.getElementById('btnCleanLayers').addEventListener('click', async () => {
   console.log("click on btnCleanLayers,  g_last_outpaint_layers:",g_last_outpaint_layers)
   console.log("click on btnCleanLayers,  g_last_inpaint_layers:",g_last_inpaint_layers)
@@ -842,6 +899,7 @@ document.getElementById('btnInterruptMore').addEventListener('click', async () =
     json = await sdapi.requestInterrupt()
     
     // toggleGenerateInterruptButton(false)
+    
     g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
   }catch(e)
   {
@@ -1094,6 +1152,11 @@ async function easyModeGenerate(){
   // const settings = await getSettings()
   console.log("easyModeGenerate mdoe: ",mode)
   if(mode == "txt2img"){
+    const settings = await getSettings()
+
+    await generate(settings)
+  }
+  if(mode == "inpaint" || mode == "img2img"){
     const settings = await getSettings()
 
     await generate(settings)
