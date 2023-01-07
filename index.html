@@ -282,11 +282,12 @@
             </sp-progressbar>
           </div>
         
-        <button class="btnSquare" id="btnGenerateMore">Generate More</button>
-        <button class="btnSquare" id="btnInterruptMore" style="display:none;">Interrupt More</button>
-        <button class="btnSquare" id="btnDeleteHidden">Delete Hidden</button>
-        
-        <button class="btnSquare" id="btnLoadViewer">Load</button>
+        <button class="btnSquare btnGenerateClass" id="btnGenerateMore">Generate More</button>
+        <button class="btnSquare btnInterruptClass" id="btnInterruptMore" style="display:none;">Interrupt More</button>
+        <button class="btnSquare AcceptClass" id="btnAcceptViewer" style="display:none;">Accept</button>
+        <button class="btnSquare DiscardClass" id="btnDiscardViewer" style="display:none;">Discard</button>
+        <!-- <button class="btnSquare" id="btnDeleteHidden">Delete Hidden</button> -->
+        <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
 
       </div>
       <div class="" id="divViewerImagesContainer">
@@ -355,9 +356,13 @@
       <div>
 
         <button class="btnSquare" id="btnLayerToSelection">Layer To Selection</button>
-        <button class="btnSquare" id="btnGenerate">Generate</button>
-        <button class="btnSquare" id="btnInterrupt" style="display:none;">Interrupt</button>
-        <button class="btnSquare" id="btnCleanLayers">Clean Layers</button>
+        <button class="btnSquare btnGenerateClass" id="btnGenerate">Generate</button>
+        <button class="btnSquare btnGenerateClass" style="display:none;" >Generate More</button>
+        <button class="btnSquare btnInterruptClass" id="btnInterrupt" style="display:none;">Interrupt</button>
+        <!-- <button class="btnSquare btnInterruptClass" style="display:none;">Interrupt More</button> -->
+        <!-- <button class="btnSquare" id="btnCleanLayers">Clean Layers</button> -->
+        <button class="btnSquare AcceptClass" id="btnAccept" style="display:none;">Accept</button>
+        <button class="btnSquare DiscardClass" id="btnDiscard" style="display:none;">Discard</button>
         <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
       </div>
       <div>
@@ -389,8 +394,8 @@
           <sp-radio class="rbMode" value="img2img">img2img</sp-radio>
           <sp-radio class="rbMode" value="inpaint">inpaint</sp-radio>
           <sp-radio class="rbMode" value="outpaint">outpaint</sp-radio>
-          <!-- <sp-radio class="rbMode" value="outpaint">outpaint</sp-radio> -->
-          <!-- <button class="btnSquare" id="btnCleanLayers">Clean Layers</button> -->
+          
+          
         </sp-radio-group>
 
 
