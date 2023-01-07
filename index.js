@@ -1723,24 +1723,28 @@ async function loadViewerImages(){
   
     
     
-  //   if(g_init_image_related_layers.hasOwnProperty('init_image_group')){
-
-  //     const viewer_init_image_layer = makeViewerInitImageLayer(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'])//make init image viewer container layer 
-  //     const init_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_name,g_init_image_related_layers['init_image_group'].id)
-  //     container.appendChild(init_img_html)
-  //     viewer_layers.push(viewer_init_image_layer) 
-  //     await viewerImageClickHandler(init_img_html,viewer_layers)// create click handler for each images 
-  //   }
+    if(g_init_image_related_layers.hasOwnProperty('init_image_group')){
+      const viewerInitImage= new viewer.InitImage(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'],'./server/python_server/init_images/')
+      viewer_layers.push(viewerInitImage)
+      //     const viewer_init_image_layer = makeViewerInitImageLayer(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'])//make init image viewer container layer 
+      const init_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_name,g_init_image_related_layers['init_image_group'].id)
+      container.appendChild(init_img_html)
+      // viewer_layers.push(viewer_init_image_layer) 
+      await NewViewerImageClickHandler(init_img_html,viewer_layers)// create click handler for each images 
+    }
     
-  //   if(g_mask_related_layers.hasOwnProperty('mask_group')){
-  //   const viewer_mask_layer = makeViewerMaskLayer(g_mask_related_layers['mask_group'],g_mask_related_layers['white_mark'],g_mask_related_layers['solid_black'])//make mask viewer layer 
-  //   const mask_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_mask_name,g_mask_related_layers['mask_group'].id)
-  //   container.appendChild(mask_img_html)
+    if(g_mask_related_layers.hasOwnProperty('mask_group')){
+      const viewerInitMaskImage= new viewer.InitMaskImage(g_mask_related_layers['mask_group'],g_mask_related_layers['white_mark'],g_mask_related_layers['solid_black'],'./server/python_server/init_images/')
     
-  //   //add init mask image
-  //   viewer_layers.push(viewer_mask_layer)
-  //   await viewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images 
-  // }
+      // const viewer_mask_layer = makeViewerMaskLayer(g_mask_related_layers['mask_group'],g_mask_related_layers['white_mark'],g_mask_related_layers['solid_black'])//make mask viewer layer 
+    const mask_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_mask_name,g_mask_related_layers['mask_group'].id)
+    container.appendChild(mask_img_html)
+    
+    //add init mask image
+    viewer_layers.push(viewerInitMaskImage)
+    await NewViewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images ,viewer_layers)// create click handler for each images 
+    // await viewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images 
+    }
   
 
     
