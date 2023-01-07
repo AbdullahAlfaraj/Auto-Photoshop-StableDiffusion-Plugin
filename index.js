@@ -12,7 +12,7 @@ const app = window.require('photoshop').app
 const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
 const dialog_box = require('./dialog_box')
-const {entrypoints} = require('uxp')
+// const {entrypoints} = require('uxp')
 const html_manip = require('./html_manip')
 const export_png = require('./export_png')
 const viewer = require('./viewer')
@@ -365,7 +365,7 @@ let g_visible_layer_path
 gCurrentImagePath = ''
 let g_init_image_name = ''
 // let g_init_mask_layer;
-
+let g_init_image_mask_name =''
 let g_mask_related_layers = {}
 let g_init_image_related_layers = {}
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
@@ -444,7 +444,7 @@ function displayUpdate () {
     document.getElementById('slInpainting_fill').style.display = 'none' // hide inpainting fill mode
     document.getElementById('btnSnapAndFill').style.display = 'inline-flex' // hide snap and fill button mode
   }
-  if (g_sd_mode == 'inpaint' || g_sd_mode=='outpaint') {
+  if (g_sd_mode == 'inpaint' || g_sd_mode== 'outpaint') {
     ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring   
     document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
     document.getElementById('tableInitImageContainer').style.display = 'none' // hide the table 
@@ -694,31 +694,54 @@ document
   })
 
 
+async function easyModeOutpaint(){
+  try{
 
+    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+    
+    if (isSelectionAreaValid){
+      // clear the layers related to the last mask operation.
+      g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
+      // create new layers related to the current mask operation.
+      
+      g_last_outpaint_layers = await outpaint.outpaintFasterExe(random_session_id)
+      console.log ("outpaint.outpaintFasterExe(random_session_id):, g_last_outpaint_layers: ",g_last_outpaint_layers)
+    }
+    else{
+      psapi.promptForMarqueeTool()        
+
+      console.log("please use the rectangular marquee tool and select an area")
+    }
+  }
+  catch(e){
+    console.warn("selection area is not valid, please use the rectangular marquee tool",e)
+  }
+}
 document
   .getElementById('btnInitOutpaint')
   .addEventListener('click', async () => {
-    try{
+    await easyModeOutpaint()
+    // try{
 
-      const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+    //   const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
       
-      if (isSelectionAreaValid){
-        // clear the layers related to the last mask operation.
-        g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
-        // create new layers related to the current mask operation.
+    //   if (isSelectionAreaValid){
+    //     // clear the layers related to the last mask operation.
+    //     g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
+    //     // create new layers related to the current mask operation.
         
-        g_last_outpaint_layers = await outpaint.outpaintFasterExe(random_session_id)
-        console.log ("outpaint.outpaintFasterExe(random_session_id):, g_last_outpaint_layers: ",g_last_outpaint_layers)
-      }
-      else{
-        psapi.promptForMarqueeTool()        
+    //     g_last_outpaint_layers = await outpaint.outpaintFasterExe(random_session_id)
+    //     console.log ("outpaint.outpaintFasterExe(random_session_id):, g_last_outpaint_layers: ",g_last_outpaint_layers)
+    //   }
+    //   else{
+    //     psapi.promptForMarqueeTool()        
 
-        console.log("please use the rectangular marquee tool and select an area")
-      }
-    }
-    catch(e){
-      console.warn("selection area is not valid, please use the rectangular marquee tool",e)
-    }
+    //     console.log("please use the rectangular marquee tool and select an area")
+    //   }
+    // }
+    // catch(e){
+    //   console.warn("selection area is not valid, please use the rectangular marquee tool",e)
+    // }
   })
 
 document
@@ -1065,6 +1088,27 @@ async function generateTxt2Img(settings){
 
   return json
 }
+
+async function easyModeGenerate(){
+  const mode = html_manip.getMode()
+  // const settings = await getSettings()
+  console.log("easyModeGenerate mdoe: ",mode)
+  if(mode == "txt2img"){
+    const settings = await getSettings()
+
+    await generate(settings)
+  }
+  if(mode== "outpaint"){
+    
+    await easyModeOutpaint()
+    // setTimeout(()=>{
+      //   generate(settings)
+      // },1)
+      const settings = await getSettings()
+      generate(settings)
+    }
+
+}
 async function generate(settings){
 
   try{
@@ -1085,13 +1129,26 @@ async function generate(settings){
   if (g_sd_mode == 'txt2img') {
     json = await generateTxt2Img(settings)
    }
-   else if(g_sd_mode == 'img2img' || g_sd_mode =='inpaint' || g_sd_mode == 'outpaint'){
+   else if(g_sd_mode == 'img2img' || g_sd_mode =='inpaint'){
      json = await sdapi.requestImg2Img(settings)
  
    } 
 
-  //post generation
-  //get the updated metadata from json response
+   if(g_sd_mode == 'outpaint'){
+    // await easyModeOutpaint()
+    json = await sdapi.requestImg2Img(settings)
+
+    // await setTimeout(async ()=> {
+    //   json = await sdapi.requestImg2Img(settings)
+
+    // },5000)
+
+   }
+
+
+
+    //post generation
+    //get the updated metadata from json response
   g_metadatas = updateMetadata(json.metadata)
   //set button to generate
   // toggleGenerateInterruptButton(false)
@@ -1102,6 +1159,7 @@ async function generate(settings){
   
   //update the viewer
   await loadViewerImages()
+
 
 }catch(e){
   console.error(`btnGenerate.click(): `,e)
@@ -1158,8 +1216,9 @@ async function generateMore(settings){
 
 
 document.getElementById('btnGenerate').addEventListener('click', async ()=>{
-  const settings = await getSettings()
-  generate(settings)
+  // const settings = await getSettings()
+  // generate(settings)
+  easyModeGenerate()
 })
 
 document.getElementById('btnGenerateMore').addEventListener('click', async ()=>{
