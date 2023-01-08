@@ -745,7 +745,7 @@ async function setInitImageMask (layer, session_id) {
 async function cleanLayers(layers){
   g_init_image_related_layers = {}
   g_mask_related_layers = {}
-  await loadViewerImages()// we should move loadViewerImages to a new file viewer.js
+  // await loadViewerImages()// we should move loadViewerImages to a new file viewer.js
   console.log("cleanLayers() -> layers:",layers)
   for (layer of layers){
     try {

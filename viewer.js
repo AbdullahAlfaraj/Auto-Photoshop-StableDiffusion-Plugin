@@ -22,11 +22,36 @@
 const psapi = require('./psapi')
 
 class ViewerImage {
-  constructor () {}
+  constructor () {
+    this.img_html = null
+    this.is_highlighted = false
+  }
   visible (visibleOn) {}
   select () {}
   isLayerValid () {}
   isSameLayer (layer_id) {}
+  setHighlight(is_highlighted){
+    this.is_highlighted = is_highlighted
+  }
+  getHighlight(){
+    return this.is_highlighted
+  }
+  toggleHighlight(){
+    this.is_highlighted = !this.is_highlighted  
+  }
+  setImgHtml(){}
+  delete(){}
+  unlink(){
+    //keep the layer but unlink it from the ui
+    try{
+
+   
+      this.img_html.remove()//delete the img html element
+      
+    }catch(e){
+      console.warn(e)
+    }
+  }
 }
 
 class OutputImage extends ViewerImage {
@@ -34,6 +59,7 @@ class OutputImage extends ViewerImage {
     super()
     this.layer = layer
     this.path = path
+    this.img_html = null;
   }
   visible (visibleOn) {
     super.visible(visibleOn)
@@ -64,6 +90,34 @@ class OutputImage extends ViewerImage {
     const is_same = this.layer.id == layer_id
     return is_same
   }
+
+  setImgHtml(img_html){
+    super.setImgHtml()
+    this.img_html = img_html
+  }
+  async delete(){
+    try{
+
+      super.delete()
+      this.img_html.remove()//delete the img html element
+      
+      await psapi.cleanLayers([this.layer])
+    }catch(e){
+      console.warn(e)
+    }
+
+  }
+  // unlink(){
+  //   //keep the layer but unlink it from the ui
+  //   try{
+
+  //     super.unlink()
+  //     this.img_html.remove()//delete the img html element
+      
+  //   }catch(e){
+  //     console.warn(e)
+  //   }
+  // }
 }
 
 class InitImage extends ViewerImage {
@@ -138,6 +192,19 @@ class InitImage extends ViewerImage {
     }
     return is_same
   }
+  setImgHtml(img_html){
+    super.setImgHtml()
+    this.img_html = img_html
+  }
+  delete(){
+    super.delete()
+    this.img_html.remove()//delete the img html element
+
+    
+
+    psapi.cleanLayers([this.init_group,this.init_snapshot,this.solid_layer])
+
+  }
 }
 
 class InitMaskImage extends ViewerImage {
@@ -211,6 +278,17 @@ class InitMaskImage extends ViewerImage {
   
       }
       return is_same
+    }
+    setImgHtml(img_html){
+      super.setImgHtml()
+      this.img_html = img_html
+    }
+    delete(){
+      super.delete()
+      this.img_html.remove()//delete the img html element
+  
+      psapi.cleanLayers([this.mask_group,this.white_mark, this.solid_black])
+  
     }
   }
   
