@@ -460,12 +460,12 @@ function displayUpdate () {
     document.getElementById('slInpainting_fill').style.display = 'block'
     document.getElementById('init_image_container').style.display = 'block' // hide init image
 
-    document.getElementById('btnInitOutpaint').style.display = 'inline-flex'
+    // document.getElementById('btnInitOutpaint').style.display = 'inline-flex'
     document.getElementById('btnInitInpaint').style.display = 'inline-flex'
     // document.getElementById('btnInitOutpaint').style.display = 'none'
     // document.getElementById('btnInitInpaint').style.display = 'none'
   } else {//txt2img or img2img
-    document.getElementById('btnInitOutpaint').style.display = 'none'
+    // document.getElementById('btnInitOutpaint').style.display = 'none'
     document.getElementById('btnInitInpaint').style.display = 'none'
   }
 }
@@ -714,32 +714,6 @@ async function easyModeOutpaint(){
    concole.warn(e) 
   }
 }
-document
-  .getElementById('btnInitOutpaint')
-  .addEventListener('click', async () => {
-    await easyModeOutpaint()
-    // try{
-
-    //   const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
-      
-    //   if (isSelectionAreaValid){
-    //     // clear the layers related to the last mask operation.
-    //     g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
-    //     // create new layers related to the current mask operation.
-        
-    //     g_last_outpaint_layers = await outpaint.outpaintFasterExe(random_session_id)
-    //     console.log ("outpaint.outpaintFasterExe(random_session_id):, g_last_outpaint_layers: ",g_last_outpaint_layers)
-    //   }
-    //   else{
-    //     psapi.promptForMarqueeTool()        
-
-    //     console.log("please use the rectangular marquee tool and select an area")
-    //   }
-    // }
-    // catch(e){
-    //   console.warn("selection area is not valid, please use the rectangular marquee tool",e)
-    // }
-  })
 
 document
   .getElementById('btnInitInpaint')
