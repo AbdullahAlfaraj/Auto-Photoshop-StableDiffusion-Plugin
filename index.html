@@ -245,7 +245,9 @@
     flex: 0 0 auto;
   }
 
-  
+  .viewerImgSelected{
+    border: 3px solid #6db579;
+  }
 </style>
 
 <body>
@@ -281,12 +283,11 @@
               <sp-label slot="label">Progress...</sp-label>
             </sp-progressbar>
           </div>
+          <button class="btnSquare btnGenerateClass" id="btnGenerate">Generate</button>
+        <button class="btnSquare btnInterruptClass" id="btnInterruptViewer" style="display:none;">Interrupt</button>
+        <button class="btnSquare acceptClass" id="btnAcceptViewer" style="display:none;">Accept</button>
+        <button class="btnSquare discardClass" id="btnDiscardViewer" style="display:none;">Discard</button>
         
-        <button class="btnSquare btnGenerateClass" id="btnGenerateMore">Generate More</button>
-        <button class="btnSquare btnInterruptClass" id="btnInterruptMore" style="display:none;">Interrupt More</button>
-        <button class="btnSquare AcceptClass" id="btnAcceptViewer" style="display:none;">Accept</button>
-        <button class="btnSquare DiscardClass" id="btnDiscardViewer" style="display:none;">Discard</button>
-        <!-- <button class="btnSquare" id="btnDeleteHidden">Delete Hidden</button> -->
         <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
 
       </div>
@@ -356,13 +357,12 @@
       <div>
 
         <button class="btnSquare" id="btnLayerToSelection">Layer To Selection</button>
-        <button class="btnSquare btnGenerateClass" id="btnGenerate">Generate</button>
-        <button class="btnSquare btnGenerateClass" style="display:none;" >Generate More</button>
+        <button class="btnSquare btnGenerateClass">Generate</button>
         <button class="btnSquare btnInterruptClass" id="btnInterrupt" style="display:none;">Interrupt</button>
         <!-- <button class="btnSquare btnInterruptClass" style="display:none;">Interrupt More</button> -->
         <!-- <button class="btnSquare" id="btnCleanLayers">Clean Layers</button> -->
-        <button class="btnSquare AcceptClass" id="btnAccept" style="display:none;">Accept</button>
-        <button class="btnSquare DiscardClass" id="btnDiscard" style="display:none;">Discard</button>
+        <button class="btnSquare acceptClass" id="btnAccept" style="display:none;">Accept</button>
+        <button class="btnSquare discardClass" id="btnDiscard" style="display:none;">Discard</button>
         <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
       </div>
       <div>

@@ -390,6 +390,8 @@ let g_can_request_progress = true
 let g_saved_active_layers = []
 let g_is_active_layers_stored = false
 let g_viewer_layers = []// layer = {"layer":[mask_group,white_stroke,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
+let g_is_generation_session_active = false
+let g_number_generation_per_session = 0
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -766,23 +768,45 @@ function toggleTwoButtonsByClass(isVisible,first_class,second_class){
   const first_class_btns = Array.from(document.getElementsByClassName(first_class))
   const second_class_btns = Array.from(document.getElementsByClassName(second_class))
   
-  if (isVisible) {
+  if (isVisible) {//show interrup button 
     first_class_btns.forEach(element => element.style.display = 'none')
     second_class_btns.forEach(element => element.style.display = 'inline-block')
     console.log("first_class_btns: ",first_class_btns)
 
-  } else {
+  } else {//show generate or generate more button
     first_class_btns.forEach(element => element.style.display = 'inline-block')
+    if(g_is_generation_session_active){//show generate more
+
+      first_class_btns.forEach(element => element.textContent = "Generate More")
+
+    }else{//show generate button
+      first_class_btns.forEach(element => element.textContent = "Generate")
+
+    }
     second_class_btns.forEach(element => element.style.display = 'none')
 
   }
   return isVisible
 }
 
+const accept_class_btns = Array.from(document.getElementsByClassName("acceptClass"))
+accept_class_btns.forEach(element => element.addEventListener('click',()=>{
+
+  g_is_generation_session_active = false
+  sessionStartHtml(g_is_generation_session_active)
+}))
+
+const discard_class_btns = Array.from(document.getElementsByClassName("discardClass"))
+discard_class_btns.forEach(element => element.addEventListener('click',()=>{
+
+  g_is_generation_session_active = false
+  sessionStartHtml(g_is_generation_session_active)
+}))
+
 function sessionStartHtml(status){
 // will toggle the buttons needed when a generation session start 
-  const accept_class = "AcceptClass"
-  const discard_class = "DiscardClass"
+  const accept_class = "acceptClass"
+  const discard_class = "discardClass"
   const accept_class_btns = Array.from(document.getElementsByClassName(accept_class))
   const discard_class_btns = Array.from(document.getElementsByClassName(discard_class))
 if (status){//session started
@@ -800,29 +824,16 @@ if (status){//session started
   
       document.getElementById(first_btn_id).style.display = 'none' // hide generate button
       document.getElementById(second_btn_id).style.display = 'inline-block' // show interrupt button
-      // g_can_request_progress = true
+      
     } else {
       document.getElementById(first_btn_id).style.display = 'inline-block' // hide generate button
       document.getElementById(second_btn_id).style.display = 'none' // show interrupt button
-      // g_can_request_progress = false
+
     }
     return defaultVal
   }
 
-// function toggleGenerateInterruptButton (defaultVal) {
-//   if (defaultVal) {
 
-//     document.querySelector('#btnGenerate').style.display = 'none' // hide generate button
-//     document.querySelector('#btnInterrupt').style.display = 'inline-block' // show interrupt button
-//     g_can_request_progress = true
-//   } else {
-//     document.querySelector('#btnGenerate').style.display = 'inline-block' // hide generate button
-//     document.querySelector('#btnInterrupt').style.display = 'none' // show interrupt button
-//     g_can_request_progress = false
-//   }
-// }
-
-// document.getElementById('btnSelectTool').addEventListener('click', selectTool)
 
 document.getElementById('btnRandomSeed').addEventListener('click', async () => {
   document.querySelector('#tiSeed').value = '-1'
@@ -843,33 +854,49 @@ document.getElementById('btnLastSeed').addEventListener('click', async () => {
     console.warn(e)
   }
 })
+async function discard () {
+  console.log(
+    'click on btnCleanLayers,  g_last_outpaint_layers:',
+    g_last_outpaint_layers
+  )
+  console.log(
+    'click on btnCleanLayers,  g_last_inpaint_layers:',
+    g_last_inpaint_layers
+  )
 
-document.getElementById('btnDeleteLastGen').addEventListener('click', async () => {
-  console.log("click on btnCleanLayers,  g_last_outpaint_layers:",g_last_outpaint_layers)
-  console.log("click on btnCleanLayers,  g_last_inpaint_layers:",g_last_inpaint_layers)
-  
-  console.log("click on btnCleanLayers,  g_last_snap_and_fill_layers:",g_last_snap_and_fill_layers)
+  console.log(
+    'click on btnCleanLayers,  g_last_snap_and_fill_layers:',
+    g_last_snap_and_fill_layers
+  )
 
-  
-  console.log("g_last_snap_and_fill_layers")
-  g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
-  
-  if (g_last_outpaint_layers.length > 0){
+  console.log('g_last_snap_and_fill_layers')
+  g_last_snap_and_fill_layers = await psapi.cleanLayers(
+    g_last_snap_and_fill_layers
+  )
+
+  if (g_last_outpaint_layers.length > 0) {
     g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
-    console.log("g_last_outpaint_layers has 1 layers")
-
+    console.log('g_last_outpaint_layers has 1 layers')
   }
-  if (g_last_inpaint_layers.length> 0 ){
+  if (g_last_inpaint_layers.length > 0) {
     g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
-
   }
-  const last_gen_layers = Object.keys(g_image_path_to_layer).map(path =>g_image_path_to_layer[path])
-  
+  const last_gen_layers = Object.keys(g_image_path_to_layer).map(
+    path => g_image_path_to_layer[path]
+  )
+
   psapi.cleanLayers(last_gen_layers)
-
+}
+Array.from(document.getElementsByClassName('discardClass')).forEach(element => {
+  element.addEventListener('click', async () => {
+    g_is_generation_session_active = false
+    sessionStartHtml(g_is_generation_session_active)
+    await discard()
+  })
 })
 
-document.getElementById('btnCleanLayers').addEventListener('click', async () => {
+
+async function deleteMaskRelatedLayers(){
   console.log("click on btnCleanLayers,  g_last_outpaint_layers:",g_last_outpaint_layers)
   console.log("click on btnCleanLayers,  g_last_inpaint_layers:",g_last_inpaint_layers)
   
@@ -889,39 +916,44 @@ document.getElementById('btnCleanLayers').addEventListener('click', async () => 
 
   }
 
-  // await loadViewerImages()
-})
+}
+// document.getElementById('btnCleanLayers').addEventListener('click', async () => {
+//   await deleteMaskRelatedLayers()
 
-document.getElementById('btnInterruptMore').addEventListener('click', async () => {
-  try{
+// })
 
-    // g_can_request_progress = false
-    json = await sdapi.requestInterrupt()
+// document.getElementById('btnInterruptMore').addEventListener('click', async () => {
+//   try{
+
+//     json = await sdapi.requestInterrupt()
     
-    // toggleGenerateInterruptButton(false)
+ 
     
-    g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
-  }catch(e)
-  {
-    // toggleGenerateInterruptButton(false)
-    g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
-    console.warn(e)
-  }
-})
+//     g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
+//   }catch(e)
+//   {
+
+//     g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
+//     console.warn(e)
+//   }
+// })
 
 
 document.getElementById('btnInterrupt').addEventListener('click', async () => {
   try{
 
-    // g_can_request_progress = false
+
     json = await sdapi.requestInterrupt()
     
-    // toggleGenerateInterruptButton(false)
-    g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+    toggleTwoButtonsByClass(false,'btnGenerateClass','btnInterruptClass')
+    g_can_request_progress = false
+    // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
   }catch(e)
   {
-    // toggleGenerateInterruptButton(false)
-    g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+
+    // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+    toggleTwoButtonsByClass(false,'btnGenerateClass','btnInterruptClass')
+    g_can_request_progress = false
     console.warn(e)
   }
 })
@@ -1177,8 +1209,12 @@ async function generate(settings){
   try{
     //pre generation
     // toggleGenerateInterruptButton(true)
-    g_can_request_progress = toggleTwoButtons(true,'btnGenerate','btnInterrupt')
-
+    const isFistGeneration = !(g_is_generation_session_active) // check if this is the first generation in the session 
+    g_is_generation_session_active = true// active
+    sessionStartHtml(g_is_generation_session_active)
+    // toggleTwoButtons(true,'btnGenerate','btnInterrupt')
+    toggleTwoButtonsByClass(true,'btnGenerateClass','btnInterruptClass')
+    g_can_request_progress = true
     //wait 2 seconds till you check for progress
     setTimeout(function () {
       progressRecursive()
@@ -1213,13 +1249,27 @@ async function generate(settings){
     //post generation
     //get the updated metadata from json response
   g_metadatas = updateMetadata(json.metadata)
-  //set button to generate
-  // toggleGenerateInterruptButton(false)
-  g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+
+  //finished generating, set the button back to generate
+  
+  // toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+  toggleTwoButtonsByClass(false,'btnGenerateClass','btnInterruptClass')
+  g_can_request_progress = false
+
   gImage_paths = json.image_paths
   //open the generated images from disk and load them onto the canvas
-  g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
-  
+  if(isFistGeneration){//this is new generation session
+
+    g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
+    g_number_generation_per_session = 1
+  }
+  else{// generation session is active so we will generate more
+    const last_images_paths = await ImagesToLayersExe(gImage_paths)
+    g_image_path_to_layer = {...g_image_path_to_layer, ...last_images_paths}
+    g_number_generation_per_session++
+    
+
+  }
   //update the viewer
   await loadViewerImages()
 
@@ -1235,8 +1285,9 @@ async function generateMore(settings){
   try{
     //pre generation
     // toggleGenerateInterruptButton(true)
-    g_can_request_progress = toggleTwoButtons(true,'btnGenerateMore','btnInterruptMore')
-
+    // toggleTwoButtons(true,'btnGenerateMore','btnInterruptMore')
+    toggleTwoButtonsByClass(false,'btnGenerateClass','btnInterruptClass')
+    g_can_request_progress = true
 
     //wait 2 seconds till you check for progress
     setTimeout(function () {
@@ -1261,8 +1312,10 @@ async function generateMore(settings){
   g_metadatas = updateMetadata(json.metadata)
   //set button to generate
   // toggleGenerateInterruptButton(false)
-  g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
-
+  // toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
+  toggleTwoButtonsByClass(false,'btnGenerateClass','btnInterruptClass')
+  g_can_request_progress = false
+  
   gImage_paths = json.image_paths
   //open the generated images from disk and load them onto the canvas
   const last_images_paths = await ImagesToLayersExe(gImage_paths)
@@ -1278,19 +1331,14 @@ async function generateMore(settings){
 
 
 
-document.getElementById('btnGenerate').addEventListener('click', async ()=>{
-  // const settings = await getSettings()
-  // generate(settings)
-  easyModeGenerate()
+Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(btn =>{
+  btn.addEventListener('click', async ()=>{
+    // const settings = await getSettings()
+    // generate(settings)
+    easyModeGenerate()
+  })
+  
 })
-
-document.getElementById('btnGenerateMore').addEventListener('click', async ()=>{
-  const settings = await getSettings()
-  generateMore(settings)
-})
-
-
-
 
 
 
@@ -1713,7 +1761,7 @@ async function viewerImageClickHandler(img,viewer_layers){
       for (layer of visible_cont.layer){
 
         layer.visible = visible_cont.visibleOn[i]
-        g_visible_layer_path = layer_path  //we store the path of the visible layer so we can acess it later in deleteHidden 
+        g_visible_layer_path = layer_path  //we store the path of the visible layer so we can acess it later in deleteNoneSelected 
         i++
       }
         
@@ -1723,10 +1771,17 @@ async function viewerImageClickHandler(img,viewer_layers){
 
   })
 }
-async function NewViewerImageClickHandler(img,viewer_layers){
+async function NewViewerImageClickHandler(img,viewer_obj_owner,viewer_layers){
+
+    try{
 
       
   img.addEventListener('click',async (e)=>{
+    // e.target.classList.add("viewerImgSelected")
+    viewer_obj_owner.isAccepted = true
+    console.log("viewer_obj_owner: viewer_obj_owner.layer.name: ",viewer_obj_owner.layer.name)
+    e.target.classList.toggle("viewerImgSelected")
+    //  e.target.style.border="3px solid #6db579"
     //turn off all layers
     //select the layer this image represent and turn it on 
     await executeAsModal(async ()=>{
@@ -1759,13 +1814,17 @@ async function NewViewerImageClickHandler(img,viewer_layers){
     
         selectedViewerImageObj.visible(true)
         selectedViewerImageObj.select(true) 
-      g_visible_layer_path = layer_path  //we store the path of the visible layer so we can acess it later in deleteHidden 
+      g_visible_layer_path = layer_path  //we store the path of the visible layer so we can acess it later in deleteNoneSelected 
         
 
 
     })
 
   })
+
+} catch(e){
+  console.warn(e)
+} 
 }
 function createViewerImgHtml(output_dir_relative,image_path,layer_id){
 
@@ -1840,7 +1899,8 @@ async function loadViewerImages(){
     
     // const viewer_layers = Object.keys(g_image_path_to_layer).map(path => makeViewerLayer(g_image_path_to_layer[path]))
    
-    const viewer_layers = Object.keys(g_image_path_to_layer).map(path =>  new viewer.OutputImage(g_image_path_to_layer[path],path))
+    const viewer_layers = [] 
+    // Object.keys(g_image_path_to_layer).map(path =>  new viewer.OutputImage(g_image_path_to_layer[path],path))
 
   
     
@@ -1852,7 +1912,7 @@ async function loadViewerImages(){
       const init_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_name,g_init_image_related_layers['init_image_group'].id)
       container.appendChild(init_img_html)
       // viewer_layers.push(viewer_init_image_layer) 
-      await NewViewerImageClickHandler(init_img_html,viewer_layers)// create click handler for each images 
+      await NewViewerImageClickHandler(init_img_html,viewerInitImage,viewer_layers)// create click handler for each images 
     }
     
     if(g_mask_related_layers.hasOwnProperty('mask_group')){
@@ -1864,7 +1924,7 @@ async function loadViewerImages(){
     
     //add init mask image
     viewer_layers.push(viewerInitMaskImage)
-    await NewViewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images ,viewer_layers)// create click handler for each images 
+    await NewViewerImageClickHandler(mask_img_html,viewerInitMaskImage,viewer_layers)// create click handler for each images ,viewer_layers)// create click handler for each images 
     // await viewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images 
     }
   
@@ -1876,13 +1936,15 @@ async function loadViewerImages(){
     for (image_path of image_paths){
       
       //create img html element 
-      
+      const viewer_obj =  new viewer.OutputImage(g_image_path_to_layer[image_path],image_path)
+      viewer_layers.push(viewer_obj)  
+
       const img = createViewerImgHtml(output_dir_relative,image_path,g_image_path_to_layer[image_path].id)
       container.appendChild(img)
       
       //add on click event to img 
      
-      await NewViewerImageClickHandler(img,viewer_layers)
+      await NewViewerImageClickHandler(img,viewer_obj,viewer_layers)
       i++
     }
     
@@ -1894,7 +1956,7 @@ async function loadViewerImages(){
   }
 
 }
-async function deleteHidden (visible_layer_path, image_paths_to_layers) {
+async function deleteNoneSelected (visible_layer_path, image_paths_to_layers) {
   // visible layer
   //delete all hidden layers
   const visible_layer = image_paths_to_layers[visible_layer_path]
@@ -1912,16 +1974,15 @@ async function deleteHidden (visible_layer_path, image_paths_to_layers) {
 
 }
 
+async function deleteNoneSelectedAndReloadViewer(){
 
-document.getElementById('btnDeleteHidden').addEventListener('click', async ()=>{
-  
-  g_image_path_to_layer = await deleteHidden(g_visible_layer_path,g_image_path_to_layer)
+  g_image_path_to_layer = await deleteNoneSelected(g_visible_layer_path,g_image_path_to_layer)
   console.log("g_image_path_to_layer: ",g_image_path_to_layer)
   await loadViewerImages() // maybe we should pass g_image_path_to_layer instead of it been global
+}
 
-}) 
 
-document.getElementById('btnLoadViewer').addEventListener('click', loadViewerImages) 
+// document.getElementById('btnLoadViewer').addEventListener('click', loadViewerImages) 
 
 document.getElementById('btnLoadHistory').addEventListener('click',async function(){
   try{
