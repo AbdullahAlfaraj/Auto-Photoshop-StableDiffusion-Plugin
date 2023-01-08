@@ -25,19 +25,33 @@ class ViewerImage {
   constructor () {
     this.img_html = null
     this.is_highlighted = false
+    this.can_highlight = true
   }
   visible (visibleOn) {}
-  select () {}
+  select () {
+    this.img_html.classList.add("viewerImgSelected") 
+  }
   isLayerValid () {}
   isSameLayer (layer_id) {}
   setHighlight(is_highlighted){
-    this.is_highlighted = is_highlighted
+    if(this.can_highlight){
+
+      this.is_highlighted = is_highlighted
+      if(this.is_highlighted)
+      {
+        this.img_html.classList.add("viewerImgSelected")
+        
+      }else{
+        this.img_html.classList.remove("viewerImgSelected")
+      }
+    }
   }
   getHighlight(){
     return this.is_highlighted
   }
   toggleHighlight(){
     this.is_highlighted = !this.is_highlighted  
+    this.img_html.classList.toggle("viewerImgSelected")
   }
   setImgHtml(){}
   delete(){}
@@ -128,6 +142,7 @@ class InitImage extends ViewerImage {
     this.solid_layer = solid_layer
 
     this.path = path
+    this.can_highlight = false
   }
   visible (visibleOn) {
     super.visible(visibleOn)
@@ -215,6 +230,7 @@ class InitMaskImage extends ViewerImage {
       this.solid_black = solid_black
   
       this.path = path
+      this.can_highlight = false
     }
     visible (visibleOn) {
       super.visible(visibleOn)
