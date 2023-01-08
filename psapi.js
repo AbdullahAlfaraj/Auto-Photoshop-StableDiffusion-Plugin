@@ -716,6 +716,8 @@ async function setInitImageMask (layer, session_id) {
   ini_image_mask_element.src = image_src
   ini_image_mask_element.dataset.layer_id = layer.id
 
+  //create viewer init image obj
+  
 } catch (e) {
   console.error(`psapi.js setInitImageMask error: `,e)
 }

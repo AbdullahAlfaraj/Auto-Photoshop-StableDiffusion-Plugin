@@ -699,24 +699,19 @@ document
 async function easyModeOutpaint(){
   try{
 
-    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
     
-    if (isSelectionAreaValid){
       // clear the layers related to the last mask operation.
       g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
       // create new layers related to the current mask operation.
-      
       g_last_outpaint_layers = await outpaint.outpaintFasterExe(random_session_id)
-      console.log ("outpaint.outpaintFasterExe(random_session_id):, g_last_outpaint_layers: ",g_last_outpaint_layers)
-    }
-    else{
-      psapi.promptForMarqueeTool()        
+      
+    
 
-      console.log("please use the rectangular marquee tool and select an area")
-    }
+      
+    
   }
   catch(e){
-    console.warn("selection area is not valid, please use the rectangular marquee tool",e)
+   concole.warn(e) 
   }
 }
 document
@@ -1198,12 +1193,19 @@ async function easyModeGenerate(){
   }
   if(mode== "outpaint"){
     
-    await easyModeOutpaint()
-    // setTimeout(()=>{
-      //   generate(settings)
-      // },1)
+    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+    
+    if (isSelectionAreaValid){
+      await easyModeOutpaint()
       const settings = await getSettings()
       generate(settings)
+
+    }
+    else{
+      psapi.promptForMarqueeTool()        
+
+    }
+
     }
 
 }
@@ -1721,7 +1723,7 @@ function removeMaskFromViewer(){
 }
 
 
-async function NewViewerImageClickHandler(img,viewer_obj_owner,viewer_layers){
+async function NewViewerImageClickHandler(img,viewer_obj_owner,){
 
     try{
 
@@ -1729,7 +1731,7 @@ async function NewViewerImageClickHandler(img,viewer_obj_owner,viewer_layers){
   img.addEventListener('click',async (e)=>{
     // e.target.classList.add("viewerImgSelected")
     // viewer_obj_owner.isAccepted = true
-    console.log("viewer_obj_owner: viewer_obj_owner.layer.name: ",viewer_obj_owner.layer.name)
+    // console.log("viewer_obj_owner: viewer_obj_owner.layer.name: ",viewer_obj_owner.layerName())
     // e.target.classList.toggle("viewerImgSelected")
     //  e.target.style.border="3px solid #6db579"
     //turn off all layers
@@ -1737,9 +1739,9 @@ async function NewViewerImageClickHandler(img,viewer_obj_owner,viewer_layers){
     
 
     await executeAsModal(async ()=>{
-      const img = e.target
-      const layer_id = parseInt(img.dataset.image_id)
-      console.log("the layer id = ",layer_id)
+      // const img = e.target
+      // const layer_id = parseInt(img.dataset.image_id)
+      // console.log("the layer id = ",layer_id)
       
       // let selectedViewerImageObj
       // Array.isArray(layer)
@@ -1779,9 +1781,16 @@ async function NewViewerImageClickHandler(img,viewer_obj_owner,viewer_layers){
         // selectedViewerImageObj.select(true) 
         viewer_obj_owner.visible(true)
         viewer_obj_owner.select(true) 
-        viewer_obj_owner.toggleHighlight(true)
+        if(e.shiftKey)
+        {
+          viewer_obj_owner.setHighlight(true)
+          // e.target.classList.add("viewerImgSelected")
+        }else if(e.altKey){
+          viewer_obj_owner.setHighlight(false)
+          // e.target.classList.remove("viewerImgSelected")
+
+        }
         
-        e.target.classList.toggle("viewerImgSelected")
         
         
 
@@ -1794,14 +1803,14 @@ async function NewViewerImageClickHandler(img,viewer_obj_owner,viewer_layers){
   console.warn(e)
 } 
 }
-function createViewerImgHtml(output_dir_relative,image_path,layer_id){
+function createViewerImgHtml(output_dir_relative,image_path){
 
   const img = document.createElement('img')
   img.src = `${output_dir_relative}/${image_path}`
   img.className = "viewer-image"
   console.log("image_path: ",image_path)
-  img.dataset.image_id = layer_id
-  img.dataset.image_path = image_path // image_path is not the same as src 
+  // img.dataset.image_id = layer_id
+  // img.dataset.image_path = image_path // image_path is not the same as src 
   return img
 }
 
@@ -1852,31 +1861,50 @@ async function loadViewerImages(){
     // Object.keys(g_image_path_to_layer).map(path =>  new viewer.OutputImage(g_image_path_to_layer[path],path))
 
   
+
     
-    
-    if(g_init_image_related_layers.hasOwnProperty('init_image_group')){
-      const viewerInitImage= new viewer.InitImage(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'],'./server/python_server/init_images/')
-      viewer_layers.push(viewerInitImage)
+    if(g_init_image_related_layers.hasOwnProperty('init_image_group') )
+     {
+      const path =  `./server/python_server/init_images/'${g_init_image_name}`
       
-      const init_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_name,g_init_image_related_layers['init_image_group'].id)
-      container.appendChild(init_img_html)
-      viewerInitImage.setImgHtml(init_img_html)
-      await NewViewerImageClickHandler(init_img_html,viewerInitImage,viewer_layers)// create click handler for each images 
+      if (!g_viewer_objects.hasOwnProperty(path)){
+
+        const viewerInitImage= new viewer.InitImage(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'],'./server/python_server/init_images/')
+        
+        
+        const init_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_name)
+        container.appendChild(init_img_html)
+        viewerInitImage.setImgHtml(init_img_html)
+        g_viewer_objects[path] = viewerInitImage
+        await NewViewerImageClickHandler(init_img_html,viewerInitImage)// create click handler for each images 
+      }
     }
+
     
-    if(g_mask_related_layers.hasOwnProperty('mask_group')){
-      const viewerInitMaskImage= new viewer.InitMaskImage(g_mask_related_layers['mask_group'],g_mask_related_layers['white_mark'],g_mask_related_layers['solid_black'],'./server/python_server/init_images/')
-    
-      
-    const mask_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_mask_name,g_mask_related_layers['mask_group'].id)
+  if (g_mask_related_layers.hasOwnProperty('mask_group')) {
+  const path = `./server/python_server/init_images/'${g_init_image_mask_name}`
+  if (!g_viewer_objects.hasOwnProperty(path)) {
+    const viewerInitMaskImage = new viewer.InitMaskImage(
+      g_mask_related_layers['mask_group'],
+      g_mask_related_layers['white_mark'],
+      g_mask_related_layers['solid_black'],
+      './server/python_server/init_images/'
+    )
+
+    const mask_img_html = createViewerImgHtml(
+      './server/python_server/init_images/',
+      g_init_image_mask_name
+    )
+
     container.appendChild(mask_img_html)
-    
-    //add init mask image
-    viewer_layers.push(viewerInitMaskImage)
-    await NewViewerImageClickHandler(mask_img_html,viewerInitMaskImage,viewer_layers)// create click handler for each images ,viewer_layers)// create click handler for each images 
-    // await viewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images 
-    }
-  
+    viewerInitMaskImage.setImgHtml(mask_img_html)
+    g_viewer_objects[path] = viewerInitMaskImage
+    await NewViewerImageClickHandler(mask_img_html, viewerInitMaskImage) // create click handler for each images ,viewer_layers)// create click handler for each images
+    // await viewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images
+  }
+}
+
+
 
     
     
@@ -1884,19 +1912,20 @@ async function loadViewerImages(){
     console.log("image_paths: ",image_paths)
     for (image_path of image_paths){
       
-      //create img html element 
+      //check if viewer obj already exist by using the path on hard drive 
       if(!g_viewer_objects.hasOwnProperty(image_path)){
-
+        //create viewer object if it doesn't exist 
         const viewer_obj =  new viewer.OutputImage(g_image_path_to_layer[image_path],image_path)
-        g_viewer_objects[image_path] = viewer_obj
-        viewer_layers.push(viewer_obj)  
+        g_viewer_objects[image_path] = viewer_obj 
+        
+        //create an html image element and attach it container, and link it to the viewer obj
         const img = createViewerImgHtml(output_dir_relative,image_path,g_image_path_to_layer[image_path].id)
         viewer_obj.setImgHtml(img)
         container.appendChild(img)
         
         
-        //add on click event to img 
-        await NewViewerImageClickHandler(img,viewer_obj,viewer_layers)
+        //add on click event handler to the html img 
+        await NewViewerImageClickHandler(img,viewer_obj)
        
       }
 
