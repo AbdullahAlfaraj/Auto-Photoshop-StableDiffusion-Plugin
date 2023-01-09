@@ -26,10 +26,22 @@ class ViewerImage {
     this.img_html = null
     this.is_highlighted = false
     this.can_highlight = true
+    this.is_active = false
   }
   visible (visibleOn) {}
   select () {
-    this.img_html.classList.add("viewerImgSelected") 
+    
+  }
+  active(isActive){
+    if(isActive){
+      
+      this.img_html.classList.add("viewerImgActive")
+
+    }else{
+      this.img_html.classList.remove("viewerImgActive")
+    }
+    this.is_active = isActive
+    
   }
   isLayerValid () {}
   isSameLayer (layer_id) {}
