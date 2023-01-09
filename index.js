@@ -1969,8 +1969,8 @@ await executeAsModal(async ()=>{
       // if (viewer_object.getHighlight() || viewer_object.is_active){//keep it if it's highlighted
       const path = viewer_object.path
       if(viewer_object.state ===  viewer.ViewerObjState['Unlink']){
-      viewer_object.visible(true)//make them visiable on the canvas
       viewer_object.unlink() // just delete the html image but keep the layer in the layers stack 
+      viewer_object.visible(true)//make them visiable on the canvas
     }else if(viewer_object.state === viewer.ViewerObjState['Delete']){// delete it if it isn't  highlighted
       await viewer_object.delete()//delete the layer from layers stack
       
