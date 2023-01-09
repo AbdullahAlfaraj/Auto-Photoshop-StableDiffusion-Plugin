@@ -1282,8 +1282,14 @@ async function generate(settings){
     return null
    }
 
+   // check if json is empty {}, {} means the proxy server didn't return a valid data
+   if(Object.keys(json).length === 0)
+   {
+    return null
+   }
     //post generation: will execute only if the generate request doesn't get interrupted  
     //get the updated metadata from json response
+
   g_metadatas = updateMetadata(json.metadata)
 
   //finished generating, set the button back to generate
