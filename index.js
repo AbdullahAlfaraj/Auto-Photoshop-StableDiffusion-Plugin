@@ -449,7 +449,7 @@ function displayUpdate () {
     document.getElementById('init_image_mask_container').style.display = 'none' // hide init mask
     document.getElementById('slInpainting_fill').style.display = 'none' // hide inpainting fill mode
     
-    document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
+    // document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
   }
 
   if (g_sd_mode == 'img2img') {
@@ -459,11 +459,11 @@ function displayUpdate () {
 
     document.getElementById('init_image_mask_container').style.display = 'none' // hide mask
     document.getElementById('slInpainting_fill').style.display = 'none' // hide inpainting fill mode
-    document.getElementById('btnSnapAndFill').style.display = 'inline-flex' // hide snap and fill button mode
+    // document.getElementById('btnSnapAndFill').style.display = 'inline-flex' // hide snap and fill button mode
   }
   if (g_sd_mode == 'inpaint' || g_sd_mode== 'outpaint') {
     ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring   
-    document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
+    // document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
     document.getElementById('tableInitImageContainer').style.display = 'none' // hide the table 
     setTimeout(() => {
       document.getElementById('tableInitImageContainer').style.display = 'table' // show the table after some time so it gets rendered. 
@@ -707,14 +707,12 @@ document.querySelector('#slInpaintPadding').addEventListener('input', evt => {
 //   })
 // // document.getElementById('btnPopulate').addEventListener('click', showLayerNames)
 
-document
-  .getElementById('btnSnapAndFill')
-  .addEventListener('click', async () => {
-
-    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+async function snapAndFillHandler(){
+  const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
     if(isSelectionAreaValid){
       
-      
+      if(!g_is_generation_session_active){
+
       // clear the layers related to the last mask operation.
       g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
       // create new layers related to the current mask operation.
@@ -723,11 +721,18 @@ document
         g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
       })
       console.log ("outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ",g_last_snap_and_fill_layers)
+    }
     }else{
       psapi.promptForMarqueeTool()
 
     }
-  })
+}
+// document
+//   .getElementById('btnSnapAndFill')
+//   .addEventListener('click', async () => {
+
+//   await snapAndFillHandler()
+//   })
 
 
 async function easyModeOutpaint(){
@@ -1248,17 +1253,29 @@ async function easyModeGenerate(){
   
   
   
-  if(mode == "txt2img"){
+  if(mode === "txt2img"){
     const settings = await getSettings()
 
     await generate(settings)
   }
-  if(mode == "inpaint" || mode == "img2img"){
+  else if (mode === generationMode['Img2Img']){
+    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+    
+    if (isSelectionAreaValid){    
+    await snapAndFillHandler()
+    const settings = await getSettings()
+    await generate(settings)
+    }else{
+      psapi.promptForMarqueeTool()        
+
+    }
+  }
+  else if(mode === "inpaint" ){
     const settings = await getSettings()
 
     await generate(settings)
   }
-  if(mode== "outpaint"){
+  else if(mode === "outpaint"){
     
     const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
     
