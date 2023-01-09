@@ -476,12 +476,12 @@ function displayUpdate () {
     document.getElementById('init_image_container').style.display = 'block' // hide init image
 
     // document.getElementById('btnInitOutpaint').style.display = 'inline-flex'
-    document.getElementById('btnInitInpaint').style.display = 'inline-flex'
+    // document.getElementById('btnInitInpaint').style.display = 'inline-flex'
     // document.getElementById('btnInitOutpaint').style.display = 'none'
     // document.getElementById('btnInitInpaint').style.display = 'none'
   } else {//txt2img or img2img
     // document.getElementById('btnInitOutpaint').style.display = 'none'
-    document.getElementById('btnInitInpaint').style.display = 'none'
+    // document.getElementById('btnInitInpaint').style.display = 'none'
   }
 
   //if a generation session is active but we changed mode. the generate button will reflect that
@@ -707,26 +707,34 @@ document.querySelector('#slInpaintPadding').addEventListener('input', evt => {
 //   })
 // // document.getElementById('btnPopulate').addEventListener('click', showLayerNames)
 
-async function snapAndFillHandler(){
-  const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
-    if(isSelectionAreaValid){
-      
-      if(!g_is_generation_session_active){
-
-      // clear the layers related to the last mask operation.
-      g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
-      // create new layers related to the current mask operation.
-      await executeAsModal(async ()=>{
-        
-        g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
-      })
-      console.log ("outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ",g_last_snap_and_fill_layers)
-    }
-    }else{
+async function snapAndFillHandler () {
+  try {
+    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+    if (isSelectionAreaValid) {
+      if (!g_is_generation_session_active) {
+        // clear the layers related to the last mask operation.
+        g_last_snap_and_fill_layers = await psapi.cleanLayers(
+          g_last_snap_and_fill_layers
+        )
+        // create new layers related to the current mask operation.
+        await executeAsModal(async () => {
+          g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(
+            random_session_id
+          )
+        })
+        console.log(
+          'outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ',
+          g_last_snap_and_fill_layers
+        )
+      }
+    } else {
       psapi.promptForMarqueeTool()
-
     }
+  } catch (e) {
+    console.warn(e)
+  }
 }
+
 // document
 //   .getElementById('btnSnapAndFill')
 //   .addEventListener('click', async () => {
@@ -756,23 +764,26 @@ async function easyModeOutpaint(){
   }
 }
 
-document
-  .getElementById('btnInitInpaint')
-  .addEventListener('click', async () => {
-    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
-    if(isSelectionAreaValid){
+async function btnInitInpaintHandler(){
+  const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+  if(isSelectionAreaValid){
 
-    // delete the layers of the previous mask operation
-    g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
-    // store the layer of the current mask operation
-    g_last_inpaint_layers =  await outpaint.inpaintFasterExe(random_session_id)
-    
-    console.log ("outpaint.inpaintFasterExe(random_session_id):, g_last_inpaint_layers: ",g_last_inpaint_layers)
-  }
-  else{
-    psapi.promptForMarqueeTool()
-  }
-  })
+  // delete the layers of the previous mask operation
+  g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
+  // store the layer of the current mask operation
+  g_last_inpaint_layers =  await outpaint.inpaintFasterExe(random_session_id)
+  
+  console.log ("outpaint.inpaintFasterExe(random_session_id):, g_last_inpaint_layers: ",g_last_inpaint_layers)
+}
+else{
+  psapi.promptForMarqueeTool()
+}
+}
+// document
+//   .getElementById('btnInitInpaint')
+//   .addEventListener('click', async () => {
+//  await btnInitInpaintHandler()
+//   })
 
 function toggleTwoButtonsByClass(isVisible,first_class,second_class){
   const first_class_btns = Array.from(document.getElementsByClassName(first_class))
@@ -1251,7 +1262,7 @@ async function easyModeGenerate(){
 
   
   
-  
+const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
   
   if(mode === "txt2img"){
     const settings = await getSettings()
@@ -1271,9 +1282,15 @@ async function easyModeGenerate(){
     }
   }
   else if(mode === "inpaint" ){
-    const settings = await getSettings()
+    if(isSelectionAreaValid){
 
-    await generate(settings)
+      await btnInitInpaintHandler()
+      const settings = await getSettings()
+      await generate(settings)
+    }else{
+      psapi.promptForMarqueeTool()        
+      
+    }
   }
   else if(mode === "outpaint"){
     
