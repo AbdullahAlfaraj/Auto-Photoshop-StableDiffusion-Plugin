@@ -62,6 +62,7 @@ class ViewerImage {
       this.is_highlighted = is_highlighted
       if(this.is_highlighted)
       {
+        this.state = ViewerObjState['Unlink']
         this.img_html.classList.add("viewerImgSelected")
         
       }else{

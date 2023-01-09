@@ -400,7 +400,13 @@ const requestState = {
 }
 
 let g_request_status = ""//
-
+const generationMode = {
+  Txt2Img: "txt2img",
+  Img2Img: "img2img",
+  Inpaint: "inpaint",
+  Outpaint: "outpaint"
+}
+let g_generation_session_mode = generationMode['Txt2Img']
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -477,6 +483,25 @@ function displayUpdate () {
     // document.getElementById('btnInitOutpaint').style.display = 'none'
     document.getElementById('btnInitInpaint').style.display = 'none'
   }
+
+  //if a generation session is active but we changed mode. the generate button will reflect that
+  if (g_is_generation_session_active ){
+
+  
+  if(g_generation_session_mode !== g_sd_mode){
+    const generate_btns = Array.from(document.getElementsByClassName('btnGenerateClass'))
+    generate_btns.forEach(element => element.textContent = `Generate ${g_sd_mode}`)
+
+     
+  }
+  else{
+    const generate_btns = Array.from(document.getElementsByClassName('btnGenerateClass'))
+    generate_btns.forEach(element => element.textContent = 'Generate More')
+
+  }
+}
+  
+
 }
 // function showLayerNames () {
 //   const app = window.require('photoshop').app
@@ -1199,6 +1224,30 @@ async function easyModeGenerate(){
   const mode = html_manip.getMode()
   // const settings = await getSettings()
   console.log("easyModeGenerate mdoe: ",mode)
+  
+  
+  if (g_is_generation_session_active)//active session
+    {//
+       if(g_generation_session_mode !== mode){ //active session but it's a new mode
+
+        
+        endGenerationSession()
+        acceptAll()
+        //accept all
+        g_generation_session_mode = mode
+        }else{//active session and it's the same mode
+
+        }
+        
+      }
+      else{ // new session 
+        g_generation_session_mode = mode
+      }
+
+  
+  
+  
+  
   if(mode == "txt2img"){
     const settings = await getSettings()
 
@@ -1232,6 +1281,7 @@ async function generate(settings){
   try{
     //pre generation
     // toggleGenerateInterruptButton(true)
+    
     const isFistGeneration = !(g_is_generation_session_active) // check if this is the first generation in the session 
     g_is_generation_session_active = true// active
     sessionStartHtml(g_is_generation_session_active)
@@ -1248,7 +1298,7 @@ async function generate(settings){
   console.log(settings)
 
   g_request_status = requestState['Generate']
-  
+  let json = {}
   if (g_sd_mode == 'txt2img') {
     json = await generateTxt2Img(settings)
    }
@@ -1285,6 +1335,11 @@ async function generate(settings){
    // check if json is empty {}, {} means the proxy server didn't return a valid data
    if(Object.keys(json).length === 0)
    {
+    if(isFistGeneration){
+      endGenerationSession()
+      //delete all mask related layers
+      await discard()// clean viewer tab and the mask related layers
+    }
     return null
    }
     //post generation: will execute only if the generate request doesn't get interrupted  
