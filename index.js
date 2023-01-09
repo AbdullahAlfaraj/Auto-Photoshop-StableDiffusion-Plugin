@@ -1183,8 +1183,15 @@ catch(e){
 }
 
 async function generateTxt2Img(settings){
-  json = await sdapi.requestTxt2Img(payload)
+  let json = {}
+  try{
 
+    json = await sdapi.requestTxt2Img(payload)
+  }catch(e) {
+    console.warn(e)
+    json = {}
+  }
+  
   return json
 }
 
