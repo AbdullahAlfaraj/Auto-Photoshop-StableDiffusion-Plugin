@@ -1263,6 +1263,10 @@ async function easyModeGenerate(){
   
   
 const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+if (!isSelectionAreaValid){      
+  psapi.promptForMarqueeTool()        
+  return null
+}
   
   if(mode === "txt2img"){
     const settings = await getSettings()
