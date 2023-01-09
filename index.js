@@ -393,6 +393,7 @@ let g_is_active_layers_stored = false
 let g_viewer_objects = {}// {path: viewer_obj}
 let g_is_generation_session_active = false
 let g_number_generation_per_session = 0
+let g_isViewerMenuDisabled = false // disable the viewer menu and viewerImage when we're importing images into the current document
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -1720,12 +1721,16 @@ function removeMaskFromViewer(){
 }
 
 
-async function NewViewerImageClickHandler(img,viewer_obj_owner,){
+async function NewViewerImageClickHandler(img,viewer_obj_owner){
 
     try{
 
       
   img.addEventListener('click',async (e)=>{
+    if(g_isViewerMenuDisabled){
+      return g_isViewerMenuDisabled
+    }
+
     // e.target.classList.add("viewerImgSelected")
     // viewer_obj_owner.isAccepted = true
     // console.log("viewer_obj_owner: viewer_obj_owner.layer.name: ",viewer_obj_owner.layerName())
@@ -1747,10 +1752,19 @@ async function NewViewerImageClickHandler(img,viewer_obj_owner,){
       console.log("the current g_viewer_objects is: ",g_viewer_objects)
       for (const [path, viewer_object] of Object.entries(g_viewer_objects)) {
         try{
-          
+          if(viewer_object.getHighlight()){
+            viewer_object.state = viewer.ViewerObjState["Unlink"]
+          }
+          else{
+            viewer_object.state = viewer.ViewerObjState["Delete"]
+          }
           viewer_object.visible(false)
           viewer_object.active(false)
           
+          console.log("viewer_object.path: ",viewer_object.path)
+          console.log("viewer_object.info(): ")
+          viewer_object.info()
+
         } catch (e){
           console.error("cannot hide a layer: ",e)
         } 
@@ -1777,10 +1791,13 @@ async function NewViewerImageClickHandler(img,viewer_obj_owner,){
     
         // selectedViewerImageObj.visible(true)
         // selectedViewerImageObj.select(true) 
+        viewer_obj_owner.state = viewer.ViewerObjState['Unlink']
         viewer_obj_owner.visible(true)
         viewer_obj_owner.select(true)
         viewer_obj_owner.active(true)
-
+        console.log("viewer_obj_owner.path: ",viewer_obj_owner.path)
+        console.log("viewer_obj_owner.info(): ")
+        viewer_obj_owner.info()
         if(e.shiftKey)
         {
           viewer_obj_owner.setHighlight(true)
@@ -1944,21 +1961,29 @@ async function loadViewerImages(){
 async function deleteNoneSelected (viewer_objects) {
   // visible layer
   //delete all hidden layers
+await executeAsModal(async ()=>{
 
   for (const [path, viewer_object] of Object.entries(viewer_objects)) {
-    if (viewer_object.getHighlight() || viewer_object.is_active){//keep it if it's highlighted
+    try{
+
+      // if (viewer_object.getHighlight() || viewer_object.is_active){//keep it if it's highlighted
+      const path = viewer_object.path
+      if(viewer_object.state ===  viewer.ViewerObjState['Unlink']){
       viewer_object.visible(true)//make them visiable on the canvas
       viewer_object.unlink() // just delete the html image but keep the layer in the layers stack 
-    }else{// delete it if it isn't  highlighted
+    }else if(viewer_object.state === viewer.ViewerObjState['Delete']){// delete it if it isn't  highlighted
       await viewer_object.delete()//delete the layer from layers stack
       
     }
-    const path = viewer_object.path
     delete g_image_path_to_layer[path]
-
+    
+  }catch(e){
+    console.warn(e)
   }
-  g_viewer_objects = {}
-  g_image_path_to_layer = {}
+}
+g_viewer_objects = {}
+g_image_path_to_layer = {}
+})
 
   // const visible_layer = image_paths_to_layers[visible_layer_path]
   // delete image_paths_to_layers[visible_layer_path]

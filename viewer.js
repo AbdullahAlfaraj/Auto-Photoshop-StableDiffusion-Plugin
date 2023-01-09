@@ -21,12 +21,23 @@
 
 const psapi = require('./psapi')
 
+const ViewerObjState = {
+	Delete: "delete",
+	Unlink: "unlink",
+
+}
+
 class ViewerImage {
   constructor () {
     this.img_html = null
     this.is_highlighted = false
     this.can_highlight = true
     this.is_active = false
+    this.state = ViewerObjState["Unlink"]
+    
+  }
+  info(){
+    console.log("state: ",this.state)
   }
   visible (visibleOn) {}
   select () {
@@ -132,6 +143,10 @@ class OutputImage extends ViewerImage {
       console.warn(e)
     }
 
+
+  }
+  info(){
+    super.info()
   }
   // unlink(){
   //   //keep the layer but unlink it from the ui
@@ -325,4 +340,5 @@ module.exports = {
   OutputImage,
   InitImage,
   InitMaskImage,
+  ViewerObjState
 }
