@@ -17,6 +17,7 @@ const html_manip = require('./html_manip')
 const export_png = require('./export_png')
 const viewer = require('./viewer')
 
+
 async function getUniqueDocumentId () {
   try {
     uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
@@ -699,11 +700,13 @@ document
 async function easyModeOutpaint(){
   try{
 
-    
+    if(!g_is_generation_session_active){
       // clear the layers related to the last mask operation.
       g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
+
       // create new layers related to the current mask operation.
       g_last_outpaint_layers = await outpaint.outpaintFasterExe(random_session_id)
+    }
       
     
 
@@ -758,36 +761,56 @@ function toggleTwoButtonsByClass(isVisible,first_class,second_class){
   return isVisible
 }
 
-const accept_class_btns = Array.from(document.getElementsByClassName("acceptClass"))
-accept_class_btns.forEach(element => element.addEventListener('click',()=>{
+async function acceptAll(){
+  for (const [path, viewer_object] of Object.entries(g_viewer_objects)) {
+    try{
+      
 
-  g_is_generation_session_active = false
-  sessionStartHtml(g_is_generation_session_active)
+      viewer_object.setHighlight(true)// mark each layer as accepted 
+
+    } catch (e){
+      console.error(e)
+    } 
+  }
+  await discard()// clean viewer tab
+}
+
+const accept_class_btns = Array.from(document.getElementsByClassName("acceptClass"))
+accept_class_btns.forEach(element => element.addEventListener('click',async ()=>{
+  try{
+
+    g_is_generation_session_active = false
+    sessionStartHtml(g_is_generation_session_active)
+    await acceptAll()
+    
+  }catch(e){
+    console.warn(e)
+  }
 }))
 
-// const discard_class_btns = Array.from(document.getElementsByClassName("discardClass"))
-// discard_class_btns.forEach(element => element.addEventListener('click',()=>{
 
-//   g_is_generation_session_active = false
-//   sessionStartHtml(g_is_generation_session_active)
-//   deleteNoneSelected(g_viewer_objects)
-
-// }))
 
 function sessionStartHtml(status){
 // will toggle the buttons needed when a generation session start 
   const accept_class = "acceptClass"
   const discard_class = "discardClass"
+
   const accept_class_btns = Array.from(document.getElementsByClassName(accept_class))
   const discard_class_btns = Array.from(document.getElementsByClassName(discard_class))
+  const generate_btns = Array.from(document.getElementsByClassName('btnGenerateClass'))
 if (status){//session started
   accept_class_btns.forEach(element => element.style.display = 'inline-block')
   discard_class_btns.forEach(element => element.style.display = 'inline-block')
+  generate_btns.forEach(element => element.textContent = "Generate More")
 
 }else{//session ended
   accept_class_btns.forEach(element => element.style.display = 'none')
   discard_class_btns.forEach(element => element.style.display = 'none')
+  generate_btns.forEach(element => element.textContent = "Generate")
+
 }
+
+
 }
 
   function toggleTwoButtons (defaultVal,first_btn_id,second_btn_id) {
@@ -1442,7 +1465,7 @@ async function imageToSmartObject () {
         const storage = require('uxp').storage
         const fs = storage.localFileSystem
         let pluginFolder = await fs.getPluginFolder()
-        let img = await pluginFolder.getEntry('image1.png')
+        let img = await pluginFolder.getEntry('output- 1672730735.1670313.png')
         const result = await batchPlay(
           [
             {
@@ -1485,7 +1508,7 @@ async function imageToSmartObject () {
           ],
           {
             synchronousExecution: true,
-            modalBehavior: 'fail'
+            modalBehavior: 'execute'
           }
         )
       },
@@ -1726,6 +1749,7 @@ async function NewViewerImageClickHandler(img,viewer_obj_owner,){
         try{
           
           viewer_object.visible(false)
+          viewer_object.active(false)
           
         } catch (e){
           console.error("cannot hide a layer: ",e)
@@ -1754,7 +1778,9 @@ async function NewViewerImageClickHandler(img,viewer_obj_owner,){
         // selectedViewerImageObj.visible(true)
         // selectedViewerImageObj.select(true) 
         viewer_obj_owner.visible(true)
-        viewer_obj_owner.select(true) 
+        viewer_obj_owner.select(true)
+        viewer_obj_owner.active(true)
+
         if(e.shiftKey)
         {
           viewer_obj_owner.setHighlight(true)
@@ -1920,7 +1946,8 @@ async function deleteNoneSelected (viewer_objects) {
   //delete all hidden layers
 
   for (const [path, viewer_object] of Object.entries(viewer_objects)) {
-    if (viewer_object.getHighlight()){//keep it if it's highlighted
+    if (viewer_object.getHighlight() || viewer_object.is_active){//keep it if it's highlighted
+      viewer_object.visible(true)//make them visiable on the canvas
       viewer_object.unlink() // just delete the html image but keep the layer in the layers stack 
     }else{// delete it if it isn't  highlighted
       await viewer_object.delete()//delete the layer from layers stack
@@ -1928,8 +1955,10 @@ async function deleteNoneSelected (viewer_objects) {
     }
     const path = viewer_object.path
     delete g_image_path_to_layer[path]
+
   }
   g_viewer_objects = {}
+  g_image_path_to_layer = {}
 
   // const visible_layer = image_paths_to_layers[visible_layer_path]
   // delete image_paths_to_layers[visible_layer_path]
