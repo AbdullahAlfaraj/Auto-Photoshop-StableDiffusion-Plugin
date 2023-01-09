@@ -33,7 +33,7 @@ class ViewerImage {
     this.is_highlighted = false
     this.can_highlight = true
     this.is_active = false
-    this.state = ViewerObjState["Unlink"]
+    this.state = ViewerObjState["Delete"]
     
   }
   info(){

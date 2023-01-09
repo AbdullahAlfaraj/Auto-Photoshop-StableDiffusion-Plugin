@@ -394,6 +394,13 @@ let g_viewer_objects = {}// {path: viewer_obj}
 let g_is_generation_session_active = false
 let g_number_generation_per_session = 0
 let g_isViewerMenuDisabled = false // disable the viewer menu and viewerImage when we're importing images into the current document
+const requestState = {
+	Generate: "generate",
+	Interrupt: "interrupt",
+}
+
+let g_request_status = ""//
+
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -776,12 +783,17 @@ async function acceptAll(){
   await discard()// clean viewer tab
 }
 
+function endGenerationSession(){
+  g_is_generation_session_active = false
+  sessionStartHtml(g_is_generation_session_active)
+}
+
+
 const accept_class_btns = Array.from(document.getElementsByClassName("acceptClass"))
 accept_class_btns.forEach(element => element.addEventListener('click',async ()=>{
   try{
 
-    g_is_generation_session_active = false
-    sessionStartHtml(g_is_generation_session_active)
+    endGenerationSession()
     await acceptAll()
     
   }catch(e){
@@ -885,8 +897,7 @@ async function discard () {
 }
 Array.from(document.getElementsByClassName('discardClass')).forEach(element => {
   element.addEventListener('click', async () => {
-    g_is_generation_session_active = false
-    sessionStartHtml(g_is_generation_session_active)
+    endGenerationSession()
     await discard()
   })
 })
@@ -943,6 +954,8 @@ document.getElementById('btnInterrupt').addEventListener('click', async () => {
     
     toggleTwoButtonsByClass(false,'btnGenerateClass','btnInterruptClass')
     g_can_request_progress = false
+    g_request_status = requestState['Interrupt']
+    
     // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
   }catch(e)
   {
@@ -1227,6 +1240,7 @@ async function generate(settings){
   
   console.log(settings)
 
+  g_request_status = requestState['Generate']
   
   if (g_sd_mode == 'txt2img') {
     json = await generateTxt2Img(settings)
@@ -1239,6 +1253,7 @@ async function generate(settings){
    if(g_sd_mode == 'outpaint'){
     // await easyModeOutpaint()
     json = await sdapi.requestImg2Img(settings)
+    
 
     // await setTimeout(async ()=> {
     //   json = await sdapi.requestImg2Img(settings)
@@ -1246,10 +1261,21 @@ async function generate(settings){
     // },5000)
 
    }
+   if(g_request_status === requestState['Interrupt'])
+   {
+    //when generate request get interrupted. reset progress bar to 0, discard any meta data and images returned from the proxy server by returning from the function.
+    updateProgressBarsHtml(0)
+    //check whether request was "generate" or "generate more"
+    //if it's generate discard the session 
+    if(isFistGeneration){
+      endGenerationSession()
+      //delete all mask related layers
+      await discard()// clean viewer tab and the mask related layers
+    }
+    return null
+   }
 
-
-
-    //post generation
+    //post generation: will execute only if the generate request doesn't get interrupted  
     //get the updated metadata from json response
   g_metadatas = updateMetadata(json.metadata)
 
