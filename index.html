@@ -251,9 +251,13 @@
   .viewerImgActive{
     border: 3px solid #fb9700;
   }
+ 
+
 </style>
 
 <body>
+  <!-- <sp-textarea id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-textarea> -->
+  <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
 
   <div class="container wrapper">
     <div class="sp-tabs">
@@ -368,6 +372,10 @@
         <button class="btnSquare discardClass" id="btnDiscard" style="display:none;">Discard</button>
         <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
       </div>
+      
+
+      
+      
       <div>
         <div id="progressContainer" class="">
 
@@ -396,8 +404,8 @@
           <sp-radio class="rbMode" checked value="txt2img">txt2img</sp-radio>
           <sp-radio class="rbMode" value="img2img">img2img</sp-radio>
           <sp-radio class="rbMode" value="inpaint">inpaint</sp-radio>
-          <sp-radio class="rbMode" value="outpaint">outpaint</sp-radio>
-          
+          <sp-radio class="rbMode" id="rbOutpaintMode" value="outpaint" title="Use this mode when you want to fill empty areas of the canvas">outpaint</sp-radio>
+          <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
           
         </sp-radio-group>
 

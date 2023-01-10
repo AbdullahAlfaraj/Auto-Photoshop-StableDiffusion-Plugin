@@ -423,7 +423,7 @@ rbModeElements = document.getElementsByClassName('rbMode')
 for (let rbModeElement of rbModeElements) {
   rbModeElement.addEventListener('click', evt => {
     g_sd_mode = evt.target.value
-    console.log(`You clicked: ${g_sd_mode}`)
+    // console.log(`You clicked: ${g_sd_mode}`)
     displayUpdate()
   })
 }
@@ -434,10 +434,65 @@ for (let rbMaskContentElement of rbMaskContentElements) {
   rbMaskContentElement.addEventListener('click', evt => {
     g_inpainting_fill = evt.target.value
 
-    console.log(`You clicked: ${g_inpainting_fill}`)
+    // console.log(`You clicked: ${g_inpainting_fill}`)
     displayUpdate()
   })
 }
+
+////add tips to element when mouse hover on an element 
+// function getToolTipElement(){
+//   const tool_tip = document.getElementById("tool_tip")
+//   return tool_tip
+// }
+// function moveTip(x,y){
+//   var tool_tip = document.getElementById("tool_tip")
+
+//     tool_tip.style.position =  'absolute';
+//     tool_tip.style.left =  x;
+//     tool_tip.style.top =  y;
+// }
+// document.getElementById('rbOutpaintMode').addEventListener("mouseover",(e)=>{
+
+//   console.log("e.shiftKey:",e.shiftKey)
+ 
+
+//   if(e.shiftKey)
+//   {
+//     const rect = e.target.getBoundingClientRect()
+//     const tool_tip = getToolTipElement()
+//     setTimeout(()=>{
+//       tool_tip.style.display = "none"
+//     },5000)
+//     tool_tip.style.display = "inline-block"
+
+//     tool_tip.style["z-index"] =  100;
+//     console.log("Use this mode when you want to fill empty areas of the canvas")
+//     // var x = e.pageX;
+//     // var y = e.pageY;
+//     console.log("(e.pageX,e.pageY): ",(e.pageX,e.pageY))
+//     const tip_x = e.pageX - (tool_tip.offsetWidth/2)
+//     // const tip_y = e.pageY + - tool_tip.offsetHeight
+//     const tip_y = rect.top + - tool_tip.offsetHeight
+    
+//     moveTip(tip_x,tip_y)
+//   }
+//   else{// rlease the shift key
+//     console.log("tip will disappear in 1 second")
+//   }
+
+// });    
+
+// document.getElementById('rbOutpaintMode').addEventListener("mouseout",(e)=>{
+
+//   console.log("e.shiftKey:",e.shiftKey)
+ 
+
+//   console.log("no tip, tip will disappear in 1 second")
+//   // getToolTipElement().style.display = "none"
+
+// });    
+
+
 
 
 // show the interface that need to be shown and hide the interface that need to be hidden
