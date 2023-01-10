@@ -1309,7 +1309,7 @@ async function easyModeGenerate(){
 
         
         endGenerationSession()
-        acceptAll()
+        await acceptAll()
         //accept all
         g_generation_session_mode = mode
         }else{//active session and it's the same mode
