@@ -829,7 +829,7 @@ async function createClippingMaskExe () {
 
 async function checkIfSelectionAreaIsActive()
 {
-  let isSelectionAreaValid = getSelectionInfoExe()
+  let isSelectionAreaValid = await getSelectionInfoExe()
 return isSelectionAreaValid
 }
 async function saveUniqueDocumentIdExe (new_id) {

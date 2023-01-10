@@ -16,6 +16,13 @@ const dialog_box = require('./dialog_box')
 const html_manip = require('./html_manip')
 const export_png = require('./export_png')
 const viewer = require('./viewer')
+const selection = require('./selection')
+
+
+const eventHandler = (event, descriptor) => {
+  console.log("event got triggered!")
+  console.log(event, descriptor)}
+require("photoshop").action.addNotificationListener(['all'], eventHandler);
 
 
 async function getUniqueDocumentId () {
