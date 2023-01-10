@@ -760,24 +760,30 @@ async function easyModeOutpaint(){
     
   }
   catch(e){
-   concole.warn(e) 
+   console.warn(e) 
   }
 }
 
 async function btnInitInpaintHandler(){
-  const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
-  if(isSelectionAreaValid){
+  try{
 
-  // delete the layers of the previous mask operation
-  g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
-  // store the layer of the current mask operation
-  g_last_inpaint_layers =  await outpaint.inpaintFasterExe(random_session_id)
-  
-  console.log ("outpaint.inpaintFasterExe(random_session_id):, g_last_inpaint_layers: ",g_last_inpaint_layers)
-}
-else{
-  psapi.promptForMarqueeTool()
-}
+    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()//Note: this is redundant check, remove later
+    if(isSelectionAreaValid){
+      
+      // delete the layers of the previous mask operation
+      g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
+      // store the layer of the current mask operation
+      g_last_inpaint_layers =  await outpaint.inpaintFasterExe(random_session_id)
+      
+      console.log ("outpaint.inpaintFasterExe(random_session_id):, g_last_inpaint_layers: ",g_last_inpaint_layers)
+    }
+    else{
+      psapi.promptForMarqueeTool()
+    }
+  }
+  catch(e){
+    console.warn(e)
+  }
 }
 // document
 //   .getElementById('btnInitInpaint')
