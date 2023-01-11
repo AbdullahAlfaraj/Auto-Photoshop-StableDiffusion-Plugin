@@ -19,26 +19,26 @@ const viewer = require('./viewer')
 const selection = require('./selection')
 const util_layer = require('./utility/layer') 
 
-const eventHandler = (event, descriptor) => {
-  console.log("event got triggered!")
-  console.log(event, descriptor)}
+// const eventHandler = (event, descriptor) => {
+//   console.log("event got triggered!")
+//   console.log(event, descriptor)}
   // id= descriptor?.ID
 // require("photoshop").action.addNotificationListener(['all'], eventHandler);
 // require("photoshop").action.addNotificationListener(['historyStateChanged'], eventHandler);
 
-const onSelect = (event, descriptor) => {
-  // console.log(`descriptor._target?.[0]._ref === "layer" : `,descriptor._target?.[0]._ref === "layer" )
-  // console.log(`descriptor._target?.[0]._name === "Mask -- Paint White to Mask -- temporary" : `,descriptor._target?.[0]._name === "Mask -- Paint White to Mask -- temporary" )
-  console.log(event,descriptor)
-  if(descriptor._target?.[0]._ref === "layer" && descriptor._target?.[0]._name === "Mask -- Paint White to Mask -- temporary") {
-    // -> The layer with name "Test Layer 1" was selected
-    console.log(" onSelect event got triggered!")
-    console.log("descriptor: ",descriptor)
-    // console.log()
-  }
-}
+// const onSelect = (event, descriptor) => {
+//   // console.log(`descriptor._target?.[0]._ref === "layer" : `,descriptor._target?.[0]._ref === "layer" )
+//   // console.log(`descriptor._target?.[0]._name === "Mask -- Paint White to Mask -- temporary" : `,descriptor._target?.[0]._name === "Mask -- Paint White to Mask -- temporary" )
+//   console.log(event,descriptor)
+//   // if(descriptor._target?.[0]._ref === "layer" && descriptor._target?.[0]._name === "Mask -- Paint White to Mask -- temporary") {
+//   //   // -> The layer with name "Test Layer 1" was selected
+//   //   console.log(" onSelect event got triggered!")
+//   //   console.log("descriptor: ",descriptor)
+//   //   // console.log()
+//   // }
+// }
 
-require("photoshop").action.addNotificationListener(['all'], onSelect);
+// require("photoshop").action.addNotificationListener(['all'], onSelect);
 
  
 
