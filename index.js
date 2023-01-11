@@ -862,14 +862,14 @@ async function btnInitInpaintHandler(){
 
     
     
-      
+    if(!g_is_generation_session_active){
       // delete the layers of the previous mask operation
       g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
       // store the layer of the current mask operation
       g_last_inpaint_layers =  await outpaint.inpaintFasterExe(random_session_id)
       
       console.log ("outpaint.inpaintFasterExe(random_session_id):, g_last_inpaint_layers: ",g_last_inpaint_layers)
-    
+    }
   }
   catch(e){
     console.warn(e)
@@ -1030,6 +1030,7 @@ async function discard () {
   //   path => g_image_path_to_layer[path]
   // )
 
+  
   // psapi.cleanLayers(last_gen_layers)
   await deleteNoneSelected(g_viewer_objects)
 }
