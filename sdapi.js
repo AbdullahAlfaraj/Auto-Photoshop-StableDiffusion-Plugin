@@ -134,14 +134,19 @@ async function requestProgress () {
 
 async function requestGetModels () {
   console.log('requestGetModels: ')
+  let json = []
+  try{
 
-  const full_url = 'http://127.0.0.1:8000/sdapi/v1/sd-models'
-  let request = await fetch(full_url)
-  let json = await request.json()
-  console.log('models json:')
-  console.dir(json)
-
-  return json
+    const full_url = 'http://127.0.0.1:8000/sdapi/v1/sd-models'
+    let request = await fetch(full_url)
+    json = await request.json()
+    console.log('models json:')
+    console.dir(json)
+    
+  }catch(e){
+    console.warn(`issues requesting from ${full_url}`,e)
+  }
+    return json
 }
 
 async function requestGetSamplers () {
@@ -279,7 +284,34 @@ async function changeSdUrl(new_sd_url){
 //   // var JSONInPrettyFormat = JSON.stringify(json, undefined, 4);
 //   // return 
 // }
+async function loadHistory (uniqueDocumentId) {
+  
+  let json = {}
+  try {
+    payload = {
+      "uniqueDocumentId":uniqueDocumentId
+    }
 
+    const full_url = 'http://127.0.0.1:8000/history/load'
+
+    let request = await fetch(full_url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    json = await request.json()
+    console.log('loadHistory:', json)
+    // console.log('loadPromptShortcut: request: ',request)
+  } catch (e) {
+    console.warn(e)
+  }
+
+  return [json['image_paths'],json['metadata_jsons']]
+}
 async function loadPromptShortcut () {
   // console.log('loadPromptShortcut:')
   let json = {}
@@ -346,5 +378,6 @@ module.exports = {
   getVersionRequest,
   changeSdUrl,
   loadPromptShortcut,
-  savePromptShortcut
+  savePromptShortcut,
+  loadHistory
 }

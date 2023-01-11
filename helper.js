@@ -70,7 +70,7 @@ async function getSelectionInfo () {
         }
       ],
       {
-        synchronousExecution: false,
+        synchronousExecution: true,
         modalBehavior: 'execute'
       }
     )
@@ -92,7 +92,7 @@ async function getSelectionInfo () {
     // console.dir({selection_info})
     return selection_info
   } catch (e) {
-    console.log('selection info error', e)
+    console.warn('selection info error', e)
   }
 }
 
@@ -135,7 +135,7 @@ async function reselectBatchPlay(selectionInfo){
       }
     ],
     {
-      synchronousExecution: false,
+      synchronousExecution: true,
       modalBehavior: 'execute'
     }
   )
@@ -144,7 +144,7 @@ async function reselectBatchPlay(selectionInfo){
 async function reselect(selectionInfo){
 await executeAsModal(async () => {
   reselectBatchPlay(selectionInfo)
-})
+},  {'commandName': 'reselect'})
 
 }
 
@@ -173,7 +173,7 @@ async function unSelect () {
       }
     ],
     {
-      synchronousExecution: false,
+      synchronousExecution: true,
       modalBehavior: 'execute'
     }
   )
@@ -236,7 +236,7 @@ async function layerToSelection () {
 
     console.log('unSelect')
 
-    await executeAsModal(unSelect)
+    await executeAsModal(unSelect,  {'commandName': 'unSelect'})
 
      //scale layer
      async function scaleLayer (executionContext) {
@@ -248,7 +248,7 @@ async function layerToSelection () {
         console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
         activeLayer.scale(scale_x_ratio, scale_y_ratio)
       }
-      await executeAsModal(scaleLayer)
+      await executeAsModal(scaleLayer,  {'commandName': 'scaleLayer'})
 
 
     async function moveLayerExe (layerToMove, selection_info) {
@@ -261,11 +261,11 @@ async function layerToSelection () {
     const activeLayer = await getActiveLayer()
     await executeAsModal(async () => {
       await moveLayerExe(activeLayer, selection_info)
-    })
+    },  {'commandName': 'moveLayerExe'})
 
     reselect(selection_info)
   } catch (e) {
-    console.log(e)
+    console.warn(e)
   }
 
   //   await executeAsModal(layerToSelectionHelper)

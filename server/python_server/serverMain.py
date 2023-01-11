@@ -39,7 +39,9 @@ async def txt2ImgRequest(payload):
 
         #create a directory to store the images at
         # dirName = f'{time.time()}'
-        dir_fullpath,dirName = serverHelper.makeDirPathName()
+        # dir_fullpath,dirName = serverHelper.makeDirPathName()
+        uniqueDocumentId = payload['uniqueDocumentId']
+        dir_fullpath,dirName = serverHelper.getUniqueDocumentDirPathName(uniqueDocumentId)
         serverHelper.createFolder(dir_fullpath)
         image_paths = []
         #for each image store the prompt and settings in the meta data
@@ -132,7 +134,7 @@ async def changeSdUrl(request:Request):
 
         payload = await request.json()
         print("changeSdUrl: payload:",payload)
-        print(f"change sd url from {sd_url} to {payload['sd_url']}: \n")
+        print(f"change sd url from {sd_url} to {payload['sd_url']} \n")
         sd_url = payload['sd_url']
     except:
         print("error occurred in changeSdUrl()")
@@ -227,6 +229,38 @@ async def sdapi(path: str, request: Request, response: Response):
         print(f'exception: fail to send request to {sd_url}/sdapi/v1/{path}')
         print(f'{request}')
     return response
+
+
+@app.post('/history/load')
+async def loadHistory(request: Request):
+    # {'image_paths','metadata_setting'}
+    history = {}
+    try:
+        json = await request.json()
+    except: 
+        json = {}
+
+    try:
+
+        uniqueDocumentId = json['uniqueDocumentId']
+        
+        import glob
+
+        image_paths = glob.glob(f'./output/{uniqueDocumentId}/*.png')
+        settings_paths = glob.glob(f'./output/{uniqueDocumentId}/*.json')#note: why is we are not using settings_paths?
+        print("loadHistory: image_paths:", image_paths)
+        history['image_paths'] = image_paths
+        history['metadata_jsons'] = []
+        for image_path in image_paths:
+            metadata_dict = metadata_to_json.createMetadataJsonFileIfNotExist(image_path)
+            history['metadata_jsons'].append(metadata_dict)  
+        
+    except:
+        
+        print(f'{request}')
+    
+    # return response
+    return {"image_paths":history['image_paths'], "metadata_jsons":history['metadata_jsons']}
 
 
 @app.post('/prompt_shortcut/load')

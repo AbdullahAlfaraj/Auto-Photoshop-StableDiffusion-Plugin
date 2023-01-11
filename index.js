@@ -13,7 +13,47 @@ const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
 const dialog_box = require('./dialog_box')
 const {entrypoints} = require('uxp')
+const html_manip = require('./html_manip')
+const export_png = require('./export_png')
+const viewer = require('./viewer')
 
+async function getUniqueDocumentId () {
+  try {
+    uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
+
+    console.log(
+      'getUniqueDocumentId():  uniqueDocumentId: ',
+      uniqueDocumentId
+    )
+
+    // Regular expression to check if string is a valid UUID
+    const regexExp =
+      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi
+
+    // String with valid UUID separated by dash
+    // const str = 'a24a6ea4-ce75-4665-a070-57453082c256'
+
+    const isValidId = regexExp.test(uniqueDocumentId) // true
+    console.log('isValidId: ', isValidId)
+    if (isValidId == false) {
+      let uuid = self.crypto.randomUUID()
+      console.log(uuid) // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
+      await psapi.saveUniqueDocumentIdExe(uuid)
+      uniqueDocumentId = uuid
+    }
+  } catch (e) {
+    console.warn('warning Document Id may not be valid', e)
+  }
+  return uniqueDocumentId
+}
+
+// document
+//   .getElementById('btnLinkCurrentDocument')
+//   .addEventListener('click', async () => {
+//     await getUniqueDocumentId()
+//   })
+
+  
 // attach event listeners for tabs
 Array.from(document.querySelectorAll(".sp-tab")).forEach(theTab => {
   theTab.onclick = () => {
@@ -35,7 +75,14 @@ Array.from(document.querySelectorAll(".sp-tab")).forEach(theTab => {
   }
 });
 
+document.getElementById("sp-viewer-tab").addEventListener('click',()=>{
+  moveElementToAnotherTab("batchNumberUi","batchNumberViewerTabContainer")
 
+})
+document.getElementById("sp-stable-diffusion-ui-tab").addEventListener('click', ()=>{
+  moveElementToAnotherTab("batchNumberUi","batchNumberSdUiTabContainer")
+
+})
 // entrypoints.setup({
 
 //   panels:{
@@ -118,7 +165,7 @@ async function duplication () {
 
     console.log('new active layer id: ', app.activeDocument.activeLayers[0].id)
   } catch (e) {
-    console.log('duplication error:', e)
+    console.warn('duplication error:', e)
   }
 }
 
@@ -141,6 +188,8 @@ async function refreshUI(){
   await refreshModels()
   await updateVersionUI()
 }
+
+
 async function refreshModels () {
   try{
 
@@ -152,7 +201,10 @@ async function refreshModels () {
   for (let model of g_models) {
     console.log(model.title)
     const menu_item_element = document.createElement('sp-menu-item')
+    menu_item_element.className = "mModelMenuItem"
     menu_item_element.innerHTML = model.title
+    menu_item_element.dataset.model_hash = model.hash
+    menu_item_element.dataset.model_title = model.title
     document.getElementById('mModelsMenu').appendChild(menu_item_element)
   }
 }catch(e){
@@ -174,6 +226,8 @@ async function updateVersionUI(){
   
 }
 
+
+
 async function initSamplers () {
  try{
 
@@ -190,10 +244,13 @@ async function initSamplers () {
     rbSampler.innerHTML = sampler.name
     rbSampler.setAttribute('class', 'rbSampler')
     rbSampler.setAttribute('value', sampler.name)
+    
 
     sampler_group.appendChild(rbSampler)
     //add click event on radio button for Sampler radio button, so that when a button is clicked it change g_sd_sampler globally
     
+
+    //we could delete the click() event 
     rbSampler.addEventListener('click', evt => {
       g_sd_sampler = evt.target.value
       console.log(`You clicked: ${g_sd_sampler}`)
@@ -217,8 +274,81 @@ function promptShortcutExample(){
   var JSONInPrettyFormat = JSON.stringify(prompt_shortcut_example, undefined, 7);
   document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
 }
-//steps to load init_image:
-//duplicate the active layer
+
+
+
+function autoFillInSettings(metadata_json){
+ try{
+
+   metadata_json1 =  {
+     "prompt": "cute cat, A full portrait of a beautiful post apocalyptic offworld arctic explorer, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration\nNegative prompt:  ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), out of frame, extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck)))",
+     "Steps": "20",
+     "Sampler": "Euler a",
+     "CFG scale": "7.0",
+     "Seed": "2300061620",
+     "Size": "512x512",
+     "Model hash": "3e16efc8",
+     "Seed resize from": "-1x-1",
+     "Denoising strength": "0",
+     "Conditional mask weight": "1.0"
+    }
+    
+    //sometime the negative prompt is stored within the prompt
+    function extractNegativePrompt(prompt){
+      const splitter = "\nNegative prompt:"
+      const prompts = prompt.split(splitter)
+      console.log("prompts: ",prompts)
+      let negative_prompt = ""
+      if(prompts.length > 1)
+      {
+        negative_prompt = prompts[1].trim()
+      }
+      //propmt = prompt[0]
+      
+      return [prompts[0],negative_prompt]
+    } 
+    let [prompt, negative_prompt] = extractNegativePrompt(metadata_json["prompt"])
+    negative_prompt =  metadata_json["Negative prompt"] || negative_prompt
+    
+    html_manip.autoFillInPrompt(prompt)
+    html_manip.autoFillInNegativePrompt(negative_prompt)
+    
+    document.getElementById('tiNumberOfSteps').value = metadata_json["Steps"]
+    
+    document.getElementById('slCfgScale').value = metadata_json["CFG scale"]
+    document.getElementById('tiSeed').value = metadata_json["Seed"]
+
+    // = metadata_json['Denoising strength']
+    html_manip.autoFillInDenoisingStrength(metadata_json['Denoising strength'])
+    
+    model_title = html_manip.autoFillInModel(metadata_json["Model hash"])
+    sdapi.requestSwapModel(model_title)
+    
+    const [width,height] =  metadata_json['Size'].split('x')
+    console.log("width, height: ",width, height)
+    html_manip.autoFillInWidth(width)
+    html_manip.autoFillInHeight(height)
+    html_manip.autoFillInSampler(metadata_json['Sampler'])
+    if(metadata_json.hasOwnProperty("First pass size"))
+    {
+      // chHiResFixs
+      const [firstphase_width,firstphase_height] =metadata_json["First pass size"].split('x')
+      html_manip.autoFillInHiResFixs(firstphase_width,firstphase_height)
+      html_manip.autoFillInSliderUi(metadata_json['Denoising strength'],'hrDenoisingStrength','hDenoisingStrength',100)
+    }else{//
+     html_manip.setHiResFixs(false)
+    }
+
+    // document.getElementById('tiSeed').value = metadata_json["Seed"]
+  }
+  catch(e){
+  console.error(`autoFillInSettings: ${e}`)  
+  }
+    
+    
+  }
+  //steps to load init_image:
+  //duplicate the active layer
 // duplication()
 // create a mask from marquee selection
 
@@ -230,8 +360,14 @@ function promptShortcutExample(){
 //**********Start: global variables
 let prompt_dir_name = ''
 let gImage_paths = []
+let g_image_path_to_layer = {}
+let g_visible_layer_path
 gCurrentImagePath = ''
 let g_init_image_name = ''
+// let g_init_mask_layer;
+
+let g_mask_related_layers = {}
+let g_init_image_related_layers = {}
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
 let g_sd_mode = 'txt2img'
 let g_sd_sampler = 'Euler a'
@@ -239,8 +375,11 @@ let g_denoising_strength = 0.7
 let g_use_mask_image = false
 let g_models = []
 let g_model_title = ''
-let gWidth = 512
-let gHeight = 512
+// let gWidth = 512
+// let gHeight = 512
+let hWidth = 512
+let hHeight = 512
+let h_denoising_strength = .7
 let g_inpainting_fill = 0
 let g_last_outpaint_layers = []
 let g_last_inpaint_layers = []
@@ -250,6 +389,7 @@ let g_metadatas = []
 let g_can_request_progress = true
 let g_saved_active_layers = []
 let g_is_active_layers_stored = false
+let g_viewer_layers = []// layer = {"layer":[mask_group,white_stroke,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -282,19 +422,6 @@ for (let rbMaskContentElement of rbMaskContentElements) {
   })
 }
 
-// //add click event on radio button for Sampler radio button, so that when a button is clicked it change g_sd_sampler globally
-// rbSamplerElements = document.getElementsByClassName('rbSampler')
-// for (let rbSamplerElement of rbSamplerElements) {
-//   rbSamplerElement.addEventListener('click', evt => {
-//     g_sd_sampler = evt.target.value
-//     console.log(`You clicked: ${g_sd_sampler}`)
-//   })
-// }
-// document.getElementById('chUseMaskImage').addEventListener("click",evt=>{
-//   g_use_mask_image = evt.target.checked
-//   console.log(`g_use_mask_image:? ${g_use_mask_image}`);
-
-// })
 
 // show the interface that need to be shown and hide the interface that need to be hidden
 function displayUpdate () {
@@ -473,7 +600,7 @@ function pastImage2Layer () {
           }
         ],
         {
-          synchronousExecution: false,
+          synchronousExecution: true,
           modalBehavior: 'fail'
         }
       )
@@ -487,34 +614,62 @@ function sliderToResolution (sliderValue) {
   return sliderValue * 64
 }
 
-document.querySelector('#slHeight').addEventListener('input', evt => {
-  gHeight = sliderToResolution(evt.target.value)
-  document.querySelector('#lHeight').textContent = gHeight
+// document.querySelector('#slHeight').addEventListener('input', evt => {
+//   gHeight = sliderToResolution(evt.target.value)
+//   document.querySelector('#lHeight').textContent = gHeight
+// })
+
+
+// function getWidthFromSlider(slider_value){
+//   // slider_width = document.querySelector('#slWidth').value
+//   const width = sliderToResolution(slider_value) 
+//   return width 
+// }
+// //avoid using global width gWidth in "input" incase the slider get changed using autoFillInSettings
+// document.querySelector('#slWidth').addEventListener('input', evt => {
+//   const width = getWidthFromSlider(evt.target.value)
+//   // gWidth = sliderToResolution(evt.target.value)
+//   document.querySelector('#lWidth').textContent = width
+// })
+
+document.querySelector('#hrHeight').addEventListener('input', evt => {
+  hHeight = sliderToResolution(evt.target.value)
+  document.querySelector('#hHeight').textContent = hHeight
 })
-document.querySelector('#slWidth').addEventListener('input', evt => {
-  gWidth = sliderToResolution(evt.target.value)
-  document.querySelector('#lWidth').textContent = gWidth
+document.querySelector('#hrWidth').addEventListener('input', evt => {
+  hWidth = sliderToResolution(evt.target.value)
+  document.querySelector('#hWidth').textContent = hWidth
 })
 document.querySelector('#slInpaintPadding').addEventListener('input', evt => {
   padding = evt.target.value * 4
   document.querySelector('#lInpaintPadding').textContent = padding
 })
 
-document
-  .querySelector('#slDenoisingStrength')
-  .addEventListener('input', evt => {
-    const denoising_string_value = evt.target.value / 100.0
-    g_denoising_strength = denoising_string_value
-    // document.querySelector('#lDenoisingStrength').value= Number(denoising_string_value)
-    document.querySelector('#lDenoisingStrength').textContent =
-      denoising_string_value
-    document.getElementById(
-      'lDenoisingStrength'
-    ).innerHTML = `${denoising_string_value}`
-    // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
-  })
+// document
+//   .querySelector('#slDenoisingStrength')
+//   .addEventListener('input', evt => {
+//     const denoising_string_value = evt.target.value / 100.0
+//     g_denoising_strength = denoising_string_value
+//     // document.querySelector('#lDenoisingStrength').value= Number(denoising_string_value)
+//     document.querySelector('#lDenoisingStrength').textContent =
+//       denoising_string_value
+//     document.getElementById(
+//       'lDenoisingStrength'
+//     ).innerHTML = `${denoising_string_value}`
+//     // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
+//   })
+// document
+//   .querySelector('#hrDenoisingStrength')
+//   .addEventListener('input', evt => {
+//     const denoising_string_value = evt.target.value / 100.0
+//     h_denoising_strength = denoising_string_value
 
-// document.getElementById('btnPopulate').addEventListener('click', showLayerNames)
+//     document.getElementById(
+//       'hDenoisingStrength'
+//     ).innerHTML = `${denoising_string_value}`
+//     // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
+//   })
+// // document.getElementById('btnPopulate').addEventListener('click', showLayerNames)
 
 document
   .getElementById('btnSnapAndFill')
@@ -525,9 +680,12 @@ document
       
       
       // clear the layers related to the last mask operation.
-      g_last_snap_and_fill_layers = await psapi.cleanSnapAndFill(g_last_snap_and_fill_layers)
+      g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
       // create new layers related to the current mask operation.
-      g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
+      await executeAsModal(async ()=>{
+        
+        g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
+      })
       console.log ("outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ",g_last_snap_and_fill_layers)
     }else{
       psapi.promptForMarqueeTool()
@@ -581,18 +739,33 @@ document
   }
   })
 
-function toggleGenerateInterruptButton (defaultVal) {
-  if (defaultVal) {
 
-    document.querySelector('#btnGenerate').style.display = 'none' // hide generate button
-    document.querySelector('#btnInterrupt').style.display = 'inline-block' // show interrupt button
-    g_can_request_progress = true
-  } else {
-    document.querySelector('#btnGenerate').style.display = 'inline-block' // hide generate button
-    document.querySelector('#btnInterrupt').style.display = 'none' // show interrupt button
-    g_can_request_progress = false
+  function toggleTwoButtons (defaultVal,first_btn_id,second_btn_id) {
+    if (defaultVal) {
+  
+      document.getElementById(first_btn_id).style.display = 'none' // hide generate button
+      document.getElementById(second_btn_id).style.display = 'inline-block' // show interrupt button
+      // g_can_request_progress = true
+    } else {
+      document.getElementById(first_btn_id).style.display = 'inline-block' // hide generate button
+      document.getElementById(second_btn_id).style.display = 'none' // show interrupt button
+      // g_can_request_progress = false
+    }
+    return defaultVal
   }
-}
+
+// function toggleGenerateInterruptButton (defaultVal) {
+//   if (defaultVal) {
+
+//     document.querySelector('#btnGenerate').style.display = 'none' // hide generate button
+//     document.querySelector('#btnInterrupt').style.display = 'inline-block' // show interrupt button
+//     g_can_request_progress = true
+//   } else {
+//     document.querySelector('#btnGenerate').style.display = 'inline-block' // hide generate button
+//     document.querySelector('#btnInterrupt').style.display = 'none' // show interrupt button
+//     g_can_request_progress = false
+//   }
+// }
 
 // document.getElementById('btnSelectTool').addEventListener('click', selectTool)
 
@@ -624,8 +797,8 @@ document.getElementById('btnCleanLayers').addEventListener('click', async () => 
 
   
   console.log("g_last_snap_and_fill_layers")
-  g_last_snap_and_fill_layers = await psapi.cleanSnapAndFill(g_last_snap_and_fill_layers)
-
+  g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
+  
   if (g_last_outpaint_layers.length > 0){
     g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
     console.log("g_last_outpaint_layers has 1 layers")
@@ -635,17 +808,39 @@ document.getElementById('btnCleanLayers').addEventListener('click', async () => 
     g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
 
   }
+
+  // await loadViewerImages()
 })
+
+document.getElementById('btnInterruptMore').addEventListener('click', async () => {
+  try{
+
+    // g_can_request_progress = false
+    json = await sdapi.requestInterrupt()
+    
+    // toggleGenerateInterruptButton(false)
+    g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
+  }catch(e)
+  {
+    // toggleGenerateInterruptButton(false)
+    g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
+    console.warn(e)
+  }
+})
+
+
 document.getElementById('btnInterrupt').addEventListener('click', async () => {
   try{
 
     // g_can_request_progress = false
     json = await sdapi.requestInterrupt()
     
-    toggleGenerateInterruptButton(false)
+    // toggleGenerateInterruptButton(false)
+    g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
   }catch(e)
   {
-    toggleGenerateInterruptButton(false)
+    // toggleGenerateInterruptButton(false)
+    g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
     console.warn(e)
   }
 })
@@ -735,15 +930,32 @@ document
     await restoreActiveLayers()
   })
 
+function updateMetadata (new_metadata) {
+  const metadatas = []
+  try {
+    for (metadata of new_metadata) {
+      metadata_json = JSON.parse(metadata)
+      console.log('metadata_json:', metadata_json)
+      metadatas.push(metadata_json)
+    }
+  } catch (e) {
+    console.warn(e)
+  }
+  return metadatas
+}
 
-document.getElementById('btnGenerate').addEventListener('click', async () => {
+
   
-  toggleGenerateInterruptButton(true)
-  numberOfImages = document.querySelector('#tiNumberOfImages').value
-  numberOfSteps = document.querySelector('#tiNumberOfSteps').value
+async function getSettings(){
+  payload = {}
+  try{
+    
 
-  const prompt = document.querySelector('#taPrompt').value
-  const negative_prompt = document.querySelector('#taNegativePrompt').value
+    numberOfImages = document.querySelector('#tiNumberOfImages').value
+    numberOfSteps = document.querySelector('#tiNumberOfSteps').value
+  const prompt = html_manip.getPrompt()
+  const negative_prompt = html_manip.getNegativePrompt()
+  const hi_res_fix = html_manip.getHiResFixs()
   // console.log("prompt:",prompt)
   // console.log("negative_prompt:",negative_prompt)
   const model_index = document.querySelector('#mModelsMenu').selectedIndex
@@ -763,85 +975,203 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     console.warn(`warning prompt_shortcut_ui_dict is not valid Json obj: ${e}`)
     prompt_shortcut_ui_dict = {}
   }
+  
+  // const slider_width = document.getElementById("slWidth").value
+  // gWidth = getWidthFromSlider(slider_width)
+  const width = html_manip.getWidth()
+  const height = html_manip.getHeight()
+  const hWidth = html_manip.getSliderSdValue('hrWidth',64)
+  const hHeight = html_manip.getSliderSdValue('hrHeight',64)
+  console.log("Check")
+  
+  const uniqueDocumentId = await getUniqueDocumentId()
+  const h_denoising_strength = html_manip.getSliderSdValue('hrDenoisingStrength',0.01)
+  console.log("Check2")
+  
+  const sampler_name = html_manip.getCheckedSamplerName()
+  const mode = html_manip.getMode()
+  
+  
+  let denoising_strength = h_denoising_strength
+  if (mode == 'inpaint')
+  {
+    var g_use_mask_image = true
+    payload['inpaint_full_res'] =
+    document.getElementById('chInpaintFullRes').checked
+    payload['inpaint_full_res_padding'] = inpaint_full_res_padding *4
+    
+    console.log('g_use_mask_image is ', g_use_mask_image)
+    console.log('g_init_image_mask_name is ', g_init_image_mask_name)
+    payload['init_image_mask_name'] = g_init_image_mask_name
+    payload['inpainting_fill'] = g_inpainting_fill
+  }
+  else if(mode == 'img2img'){
+    var g_use_mask_image = false
+    delete payload['inpaint_full_res'] //  inpaint full res is not available in img2img mode
+    delete payload['inpaint_full_res_padding']
+    delete payload['init_image_mask_name']
+    delete payload['inpainting_fill']
+  }
 
-  payload = {
+  if (g_sd_mode == 'img2img' || g_sd_mode == 'inpaint') {
+    
+
+    console.log(`g_use_mask_image:? ${g_use_mask_image}`)
+
+    denoising_strength = html_manip.getDenoisingStrength()
+    payload['denoising_strength'] = denoising_strength
+    payload['init_image_name'] = g_init_image_name
+
+
+    
+  }
+
+
+
+
+
+
+  payload = {...payload,
     prompt: prompt,
-
     negative_prompt: negative_prompt,
     steps: numberOfSteps,
     // n_iter: numberOfImages,
-    sampler_index: g_sd_sampler,
-    width: gWidth,
-    height: gHeight,
+    sampler_index: sampler_name,
+    width: width,
+    height: height,
+    enable_hr : hi_res_fix,
+    firstphase_width: hWidth,
+    firstphase_height: hHeight,
+    denoising_strength: denoising_strength,
     batch_size: numberOfImages,
     cfg_scale: cfg_scale,
     seed: seed,
     mask_blur: mask_blur,
     use_prompt_shortcut: bUsePromptShortcut,
-    prompt_shortcut_ui_dict: prompt_shortcut_ui_dict 
+    prompt_shortcut_ui_dict: prompt_shortcut_ui_dict,
+    uniqueDocumentId: uniqueDocumentId,
+    mode:mode
   }
 
-  console.log({ payload })
-
-  //wait 2 seconds till you check for progress
-  // setInterval(function(){progressRecursive()},2000);
-  setTimeout(function () {
-    progressRecursive()
-
-  }, 2000)
-  if (g_sd_mode == 'txt2img') {
-    json = await sdapi.requestTxt2Img(payload)
-  
-  } else if (g_sd_mode == 'img2img' || g_sd_mode == 'inpaint') {
-    // g_denoising_strength = document.querySelector("#tiDenoisingStrength").value
-    if (g_sd_mode == 'inpaint') {
-      g_use_mask_image = true
-      payload['inpaint_full_res'] =
-        document.getElementById('chInpaintFullRes').checked
-        payload['inpaint_full_res_padding'] = inpaint_full_res_padding *4
-    } else {
-      g_use_mask_image = false
-      delete payload['inpaint_full_res'] //  inpaint full res is not available in img2img mode
-      delete payload['inpaint_full_res_padding']
-    }
-    console.log(`g_use_mask_image:? ${g_use_mask_image}`)
-
-    payload['denoising_strength'] = g_denoising_strength
-    payload['init_image_name'] = g_init_image_name
-
-    if (g_use_mask_image == true) {
-      console.log('in true block')
-
-      console.log('g_use_mask_image is ', g_use_mask_image)
-      console.log('g_init_image_mask_name is ', g_init_image_mask_name)
-      payload['init_image_mask_name'] = g_init_image_mask_name
-      payload['inpainting_fill'] = g_inpainting_fill
-      // payload['inpainting_fill'] = document.getElementById('slInpainting_fill').value // original
-    } else {
-      // console.log("g_init_image_mask_name is ",g_init_image_mask_name)
-      // payload['init_image_mask_name'] = ""
-      delete payload['init_image_mask_name']
-      delete payload['inpainting_fill']
-    }
-    json = await sdapi.requestImg2Img(payload)
-  }
-  try {
-  g_metadatas = []
-
-  for (metadata of json.metadata) {
-    metadata_json = JSON.parse(metadata)
-    g_metadatas.push(metadata_json)
-    console.log('metadata_json:', metadata_json)
-  }
-} catch (e) {
-  console.warn(e)
+}
+catch(e){
+  console.error(e)
+}
+  return payload
 }
 
+async function generateTxt2Img(settings){
+  json = await sdapi.requestTxt2Img(payload)
+
+  return json
+}
+async function generate(settings){
+
+  try{
+    //pre generation
+    // toggleGenerateInterruptButton(true)
+    g_can_request_progress = toggleTwoButtons(true,'btnGenerate','btnInterrupt')
+
+    //wait 2 seconds till you check for progress
+    setTimeout(function () {
+      progressRecursive()
   
-  toggleGenerateInterruptButton(false)
+    }, 2000)
+  
+  
+  console.log(settings)
+
+  
+  if (g_sd_mode == 'txt2img') {
+    json = await generateTxt2Img(settings)
+   }
+   else if(g_sd_mode == 'img2img' || g_sd_mode =='inpaint'){
+     json = await sdapi.requestImg2Img(settings)
+ 
+   } 
+
+  //post generation
+  //get the updated metadata from json response
+  g_metadatas = updateMetadata(json.metadata)
+  //set button to generate
+  // toggleGenerateInterruptButton(false)
+  g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
   gImage_paths = json.image_paths
-  await ImagesToLayersExe()
+  //open the generated images from disk and load them onto the canvas
+  g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
+  
+  //update the viewer
+  await loadViewerImages()
+
+}catch(e){
+  console.error(`btnGenerate.click(): `,e)
+  
+}
+}
+
+async function generateMore(settings){
+
+  try{
+    //pre generation
+    // toggleGenerateInterruptButton(true)
+    g_can_request_progress = toggleTwoButtons(true,'btnGenerateMore','btnInterruptMore')
+
+
+    //wait 2 seconds till you check for progress
+    setTimeout(function () {
+      progressRecursive()
+  
+    }, 2000)
+  
+  
+  console.log(settings)
+
+  
+  if (g_sd_mode == 'txt2img') {
+    json = await generateTxt2Img(settings)
+   }
+   else if(g_sd_mode == 'img2img' || g_sd_mode =='inpaint'){
+     json = await sdapi.requestImg2Img(settings)
+ 
+   } 
+
+  //post generation
+  //get the updated metadata from json response
+  g_metadatas = updateMetadata(json.metadata)
+  //set button to generate
+  // toggleGenerateInterruptButton(false)
+  g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
+
+  gImage_paths = json.image_paths
+  //open the generated images from disk and load them onto the canvas
+  const last_images_paths = await ImagesToLayersExe(gImage_paths)
+  g_image_path_to_layer = {...g_image_path_to_layer, ...last_images_paths}
+  //update the viewer
+  loadViewerImages()
+
+}catch(e){
+  console.error(`btnGenerate.click(): `,e)
+  
+}
+}
+
+
+
+document.getElementById('btnGenerate').addEventListener('click', async ()=>{
+  const settings = await getSettings()
+  generate(settings)
 })
+
+document.getElementById('btnGenerateMore').addEventListener('click', async ()=>{
+  const settings = await getSettings()
+  generateMore(settings)
+})
+
+
+
+
+
+
 
 document
   .getElementById('btnRefreshModels')
@@ -875,59 +1205,59 @@ document
 //   sdapi.getInitImage(g_init_image_name)
 // })
 
-async function setInitImage () {
-  // await exportHelper.exportPng()
-  try {
-    const layer = await app.activeDocument.activeLayers[0]
-    old_name = layer.name 
-    await psapi.exportPng(random_session_id)
+// async function setInitImage () {
+//   // await exportHelper.exportPng()
+//   try {
+//     const layer = await app.activeDocument.activeLayers[0]
+//     old_name = layer.name 
+//     // await psapi.exportPng(random_session_id)
+//     image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
+//     image_name = `${image_name}.png`
     
-    image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
     
-    // image_name = psapi.layerToFileName(layer,random_session_id)
+//     await psapi.newExportPng(layer,image_name)
+    
+//     // image_name = psapi.layerToFileName(layer,random_session_id)
 
-    image_name = `${image_name}.png`
-    g_init_image_name = image_name
-    console.log(image_name)
-    const image_src = await sdapi.getInitImage(g_init_image_name)
-    let ini_image_element = document.getElementById('init_image')
-    ini_image_element.src = image_src
-  } catch (e) {
-    console.log('setInitImage error:', e)
-  }
+//     g_init_image_name = image_name
+//     console.log(image_name)
+//     const image_src = await sdapi.getInitImage(g_init_image_name)
+//     let ini_image_element = document.getElementById('init_image')
+//     ini_image_element.src = image_src
+//   } catch (e) {
+//     console.error(`setInitImage error:, ${e}`)
+//   }
+// }
+// document.getElementById('bSetInitImage').addEventListener('click', setInitImage)
+document.getElementById('bSetInitImage').addEventListener('click', async ()=>  {
+  const layer = await app.activeDocument.activeLayers[0]
+  psapi.setInitImage(layer, random_session_id)
+})
+
+document.getElementById('bSetInitImageMask').addEventListener('click', async ()=>  {
+  const layer = await app.activeDocument.activeLayers[0]
+  psapi.setInitImageMask(layer, random_session_id)
+})
+function moveElementToAnotherTab(elementId, newParentId){
+  const element = document.getElementById(elementId)
+  document.getElementById(newParentId).appendChild(element)
+  
 }
-document.getElementById('bSetInitImage').addEventListener('click', setInitImage)
 
-async function setInitImageMask () {
-  try {
-    const layer = await app.activeDocument.activeLayers[0]
-    old_name = layer.name 
-    await psapi.exportPng(random_session_id)
-    image_name = psapi.layerNameToFileName(old_name,layer.id,random_session_id)
-    
-    //get the active layer name
-    // const layer = await app.activeDocument.activeLayers[0]
-    // image_name = psapi.layerToFileName(layer,random_session_id)
-    image_name = `${image_name}.png`
-    
-    g_init_image_mask_name = image_name
-    console.log(image_name)
-    
-    const image_src = await sdapi.getInitImage(g_init_image_mask_name)
-    const ini_image_mask_element = document.getElementById('init_image_mask')
-    ini_image_mask_element.src = image_src
-  } catch (e) {
-    
-    console.error(`setInitImageMask error: ${e}`)
-  }
+// moveElementToAnotherTab("batchNumberUi","batchNumberViewerTabContainer")
+function updateProgressBarsHtml(new_value){
+  document.querySelectorAll('.pProgressBars').forEach(el =>{
+    // id = el.getAttribute("id")
+    // console.log("progressbar id:", id)
+    el.setAttribute('value',new_value)
+  })
+  document.querySelector('#pProgressBar').value
 }
-document
-  .getElementById('bSetInitImageMask')
-  .addEventListener('click', setInitImageMask)
-
 async function progressRecursive () {
   let json = await sdapi.requestProgress()
-  document.querySelector('#pProgressBar').value = json.progress * 100
+  // document.querySelector('#pProgressBar').value = json.progress * 100
+  progress_value = json.progress * 100
+  updateProgressBarsHtml(progress_value)
   if (json.progress > 0 && g_can_request_progress == true) {
     setTimeout(async ()=>{
       await progressRecursive()
@@ -1005,7 +1335,7 @@ async function imageToSmartObject () {
             }
           ],
           {
-            synchronousExecution: false,
+            synchronousExecution: true,
             modalBehavior: 'fail'
           }
         )
@@ -1016,7 +1346,7 @@ async function imageToSmartObject () {
     )
   } catch (e) {
     console.log('imageToSmartObject() => error: ')
-    console.log(e)
+    console.warn(e)
   }
 }
 
@@ -1086,13 +1416,13 @@ async function placeEmbedded () {
           }
         ],
         {
-          synchronousExecution: false,
+          synchronousExecution: true,
           modalBehavior: 'fail'
         }
       )
     })
   } catch (e) {
-    console.log(e)
+    console.warn(e)
   }
 }
 
@@ -1108,13 +1438,13 @@ async function openImageAction () {
     //directory where all image's request folders are. one folder for each request
     const relative_dir_path = `./server/python_server/`
 
-    image_path = `${relative_dir_path}/${gCurrentImagePath}`
+    const image_path = `${relative_dir_path}/${gCurrentImagePath}`
     // 'C:/Users/abdul/Desktop/photoshop_plugins/my_plugin_1/server/python_server/output- 1670544300.95411.png'
     let theTemplate = await pluginFolder.getEntry(image_path)
 
     await app.open(theTemplate)
   } catch (e) {
-    console.log("couldn't open image ", e)
+    console.warn("couldn't open image ", e)
   }
 }
 
@@ -1143,16 +1473,21 @@ async function convertToSmartObjectExe () {
   await require('photoshop').core.executeAsModal(convertToSmartObjectAction)
 }
 
-async function ImagesToLayersExe () {
-  for (image_path of gImage_paths) {
+async function ImagesToLayersExe (images_paths) {
+  image_path_to_layer = {}
+  console.log("ImagesToLayersExe: images_paths: ",images_paths)
+  for (image_path of images_paths) {
     gCurrentImagePath = image_path
     console.log(gCurrentImagePath)
     await openImageExe() //local image to new document
     await convertToSmartObjectExe() //convert the current image to smart object
     await stackLayers() // move the smart object to the original/old document
     await helper.layerToSelection() //transform the new smart object layer to fit selection area
+    layer = await app.activeDocument.activeLayers[0]
+    image_path_to_layer[image_path] = layer 
     // await reselect(selectionInfo)
   }
+  return image_path_to_layer
 }
 
 // document.getElementById('btnLoadImages').addEventListener('click',ImagesToLayersExe)
@@ -1202,8 +1537,305 @@ document.getElementById('collapsible').addEventListener('click', function () {
     content.style.display = 'block'
     this.textContent = 'Hide Samplers'
   }
-  // this.textContent = `${g_sd_sampler}: ${this.textContent}`
+  
 })
+
+function removeInitImageFromViewer(){
+
+}
+function removeMaskFromViewer(){
+
+}
+
+
+async function viewerImageClickHandler(img,viewer_layers){
+
+      
+  img.addEventListener('click',async (e)=>{
+    //turn off all layers
+    //select the layer this image represent and turn it on 
+    await executeAsModal(async ()=>{
+      const img = e.target
+      const layer_id = parseInt(img.dataset.image_id)
+      console.log("the layer id = ",layer_id)
+      const layer_path =  img.dataset.image_path
+      let visible_cont
+      // Array.isArray(layer)
+      
+      //turn off all layers linked the viewer tab
+      for(cont_layer of viewer_layers){
+          try{
+            //viewerImageObj.visible(false)
+            let i = 0 
+            //make all layers of that entry invisible
+            for (layer of cont_layer.layer ){
+              if (typeof layer !== "undefined"){
+                layer.visible = cont_layer.visibleOff[i]
+              }
+              i++
+            }
+            
+            //if the layer id of the first layer in the group container
+            //viewerImageObj.isSameLayer(layer_id)
+            if (cont_layer.layer[0].id == layer_id){
+              visible_cont = cont_layer
+            }
+          } catch (e){
+            console.error("cannot hide a layer: ",e)
+          } 
+        }
+
+    
+    
+        let i = 0
+      for (layer of visible_cont.layer){
+
+        layer.visible = visible_cont.visibleOn[i]
+        g_visible_layer_path = layer_path  //we store the path of the visible layer so we can acess it later in deleteHidden 
+        i++
+      }
+        
+
+
+    })
+
+  })
+}
+async function NewViewerImageClickHandler(img,viewer_layers){
+
+      
+  img.addEventListener('click',async (e)=>{
+    //turn off all layers
+    //select the layer this image represent and turn it on 
+    await executeAsModal(async ()=>{
+      const img = e.target
+      const layer_id = parseInt(img.dataset.image_id)
+      console.log("the layer id = ",layer_id)
+      const layer_path =  img.dataset.image_path
+      let selectedViewerImageObj
+      // Array.isArray(layer)
+      
+      //turn off all layers linked the viewer tab
+      for(viewerImageObj of viewer_layers){
+          try{
+            //viewerImageObj.visible(false)
+            
+            //make all layers of that entry invisible
+            viewerImageObj.visible(false)
+            
+            //if the layer id of the first layer in the group container
+            //viewerImageObj.isSameLayer(layer_id)
+            if (viewerImageObj.isSameLayer(layer_id)){
+              selectedViewerImageObj = viewerImageObj
+            }
+          } catch (e){
+            console.error("cannot hide a layer: ",e)
+          } 
+        }
+
+    
+    
+        selectedViewerImageObj.visible(true)
+        selectedViewerImageObj.select(true) 
+      g_visible_layer_path = layer_path  //we store the path of the visible layer so we can acess it later in deleteHidden 
+        
+
+
+    })
+
+  })
+}
+function createViewerImgHtml(output_dir_relative,image_path,layer_id){
+
+  const img = document.createElement('img')
+  img.src = `${output_dir_relative}/${image_path}`
+  img.className = "viewer-image"
+  console.log("image_path: ",image_path)
+  img.dataset.image_id = layer_id
+  img.dataset.image_path = image_path // image_path is not the same as src 
+  return img
+}
+
+function toggleLayerVisibility(layer, b_on){
+try{
+   layer.visible = b_on
+}catch(e){
+  console.warn(e)
+}
+}
+async function turnMaskVisible (
+  b_mask_group_on,
+  b_white_mask_on,
+  b_solid_black_mask_on
+) {
+  //will turn a mask group, white layer mask, and the solid black layer on and off
+  try {
+    await executeAsModal(() => {
+      toggleLayerVisibility(g_mask_group, b_mask_group_on)
+      toggleLayerVisibility(g_white_mask, b_white_mask_on)
+      toggleLayerVisibility(g_solid_black_mask, b_solid_black_mask_on)
+    })
+  } catch (e) {
+    console.warn(e)
+  }
+}
+
+async function maskVisibilityFunc(b_toggle){
+if (b_toggle === true){
+  turnMaskVisible(true,true,false)
+}else{//false
+  turnMaskVisible(false,false,false)
+}
+}
+function makeViewerLayer(layer){
+  // layer = {"layer":[mask_group,white_stroke,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
+  const viewer_layer = {layer:[layer],visibleOn:[true],visibleOff:[false]}
+
+  return viewer_layer 
+}
+function makeViewerMaskLayer(group_mask,white_mark,solid_black){
+   viewer_layer = {layer:[group_mask,white_mark,solid_black],visibleOn:[true,true,false],visibleOff:[false,false,false]}
+  return viewer_layer
+}
+function makeViewerInitImageLayer(init_image_group,init_image_layer,solid_white){
+  viewer_layer = {layer:[init_image_group,init_image_layer,solid_white],visibleOn:[true,true,true],visibleOff:[false,false,false]}
+ return viewer_layer
+}
+async function loadViewerImages(){
+  try{
+    //get the images path
+    console.log("g_image_path_to_layer:", g_image_path_to_layer)
+
+    const output_dir_relative = "./server/python_server/"
+    const container = document.getElementById("divViewerImagesContainer")
+    
+    while(container.firstChild){
+    container.removeChild(container.firstChild);
+    }
+    image_paths = Object.keys(g_image_path_to_layer);
+    console.log("image_paths: ",image_paths)
+    let i = 0
+    
+    // const viewer_layers = Object.keys(g_image_path_to_layer).map(path => makeViewerLayer(g_image_path_to_layer[path]))
+   
+    const viewer_layers = Object.keys(g_image_path_to_layer).map(path =>  new viewer.OutputImage(g_image_path_to_layer[path],path))
+
+  
+    
+    
+    if(g_init_image_related_layers.hasOwnProperty('init_image_group')){
+      const viewerInitImage= new viewer.InitImage(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'],'./server/python_server/init_images/')
+      viewer_layers.push(viewerInitImage)
+      //     const viewer_init_image_layer = makeViewerInitImageLayer(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'])//make init image viewer container layer 
+      const init_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_name,g_init_image_related_layers['init_image_group'].id)
+      container.appendChild(init_img_html)
+      // viewer_layers.push(viewer_init_image_layer) 
+      await NewViewerImageClickHandler(init_img_html,viewer_layers)// create click handler for each images 
+    }
+    
+    if(g_mask_related_layers.hasOwnProperty('mask_group')){
+      const viewerInitMaskImage= new viewer.InitMaskImage(g_mask_related_layers['mask_group'],g_mask_related_layers['white_mark'],g_mask_related_layers['solid_black'],'./server/python_server/init_images/')
+    
+      // const viewer_mask_layer = makeViewerMaskLayer(g_mask_related_layers['mask_group'],g_mask_related_layers['white_mark'],g_mask_related_layers['solid_black'])//make mask viewer layer 
+    const mask_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_mask_name,g_mask_related_layers['mask_group'].id)
+    container.appendChild(mask_img_html)
+    
+    //add init mask image
+    viewer_layers.push(viewerInitMaskImage)
+    await NewViewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images ,viewer_layers)// create click handler for each images 
+    // await viewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images 
+    }
+  
+
+    
+    
+    
+    console.log("image_paths: ",image_paths)
+    for (image_path of image_paths){
+      
+      //create img html element 
+      
+      const img = createViewerImgHtml(output_dir_relative,image_path,g_image_path_to_layer[image_path].id)
+      container.appendChild(img)
+      
+      //add on click event to img 
+     
+      await NewViewerImageClickHandler(img,viewer_layers)
+      i++
+    }
+    
+      
+
+    
+  }catch(e){
+    console.error(`loadViewer images: `,e)
+  }
+
+}
+async function deleteHidden (visible_layer_path, image_paths_to_layers) {
+  // visible layer
+  //delete all hidden layers
+  const visible_layer = image_paths_to_layers[visible_layer_path]
+  delete image_paths_to_layers[visible_layer_path]
+  await executeAsModal(async () => {
+    const layers = Object.keys(image_paths_to_layers).map(
+      key => image_paths_to_layers[key]
+    )
+    await psapi.cleanLayers(layers)
+  })
+  image_paths_to_layers = { [visible_layer_path]: visible_layer }
+  // g_image_path_to_layer = image_paths_to_layers // this is redundant, should delete later.
+  return image_paths_to_layers
+  // await loadViewerImages() // maybe we should pass g_image_path_to_layer instead of it been global
+
+}
+
+
+document.getElementById('btnDeleteHidden').addEventListener('click', async ()=>{
+  
+  g_image_path_to_layer = await deleteHidden(g_visible_layer_path,g_image_path_to_layer)
+  console.log("g_image_path_to_layer: ",g_image_path_to_layer)
+  await loadViewerImages() // maybe we should pass g_image_path_to_layer instead of it been global
+
+}) 
+
+document.getElementById('btnLoadViewer').addEventListener('click', loadViewerImages) 
+
+document.getElementById('btnLoadHistory').addEventListener('click',async function(){
+  try{
+
+    const output_dir_relative = "./server/python_server/"
+    const container = document.getElementById("divHistoryImagesContainer")
+    const uniqueDocumentId = await getUniqueDocumentId()
+    const [image_paths, metadata_jsons] = await sdapi.loadHistory(uniqueDocumentId)
+    
+    while(container.firstChild){
+    container.removeChild(container.firstChild);
+    }
+    
+    let i = 0
+    for (image_path of image_paths){
+      
+      const img = document.createElement('img')
+      img.src = `${output_dir_relative}/${image_path}`
+      img.className = "history-image"
+      img.dataset.metadata_json_string = JSON.stringify(metadata_jsons[i])
+      container.appendChild(img)
+      img.addEventListener('click',(e)=>{
+        const metadata_json = JSON.parse(e.target.dataset.metadata_json_string)
+        console.log("metadata_json: ",metadata_json)
+        // document.querySelector('#tiSeed').value = metadata_json.Seed
+        document.querySelector('#historySeedLabel').textContent = metadata_json.Seed
+        autoFillInSettings(metadata_json)
+      })
+      i++
+    }
+    
+  }catch(e){
+    console.warn(`loadHistory warning: ${e}`)
+  }
+
+}) 
 document.getElementById('btnLoadPromptShortcut').addEventListener('click',async function(){
   try{
 

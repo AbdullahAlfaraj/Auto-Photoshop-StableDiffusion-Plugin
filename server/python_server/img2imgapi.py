@@ -23,6 +23,16 @@ import time
 import serverHelper
 import metadata_to_json
 
+from PIL import Image, ImageFilter
+def applyDilation(img):
+    # img = Image.open("test_image_2.png")
+    dilation_img = img
+    for i in range(20):
+        dilation_img = dilation_img.filter(ImageFilter.MaxFilter(3))
+    return dilation_img
+
+
+
 async def img2ImgRequest(sd_url,payload):
     # init_img = Image.open(r"C:/Users/abdul/Desktop/photoshop_plugins/my_plugin_1/server/python_server/output- 1670544300.95411.png") 
     print("payload debug:",payload)
@@ -49,6 +59,7 @@ async def img2ImgRequest(sd_url,payload):
     #only if image exist then try to open it
     if(len(init_img_mask_name) > 0):
         init_img_mask = Image.open(f"{init_img_dir}/{init_img_mask_name}")
+        init_img_mask = applyDilation(init_img_mask)
         init_img_mask_str = img_2_b64(init_img_mask) 
         payload['mask'] = init_img_mask_str #there is only one mask, unlike 'init_images' which is of type array
 
@@ -69,7 +80,9 @@ async def img2ImgRequest(sd_url,payload):
 
         #create a directory to store the images at
         # dirName = f'{time.time()}'
-        dir_fullpath,dirName = serverHelper.makeDirPathName()
+        # dir_fullpath,dirName = serverHelper.makeDirPathName()
+        uniqueDocumentId = payload['uniqueDocumentId']
+        dir_fullpath,dirName = serverHelper.getUniqueDocumentDirPathName(uniqueDocumentId)
         serverHelper.createFolder(dir_fullpath)
         image_paths = []
         metadata = []
