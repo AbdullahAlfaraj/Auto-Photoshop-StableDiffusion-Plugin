@@ -231,6 +231,31 @@ function autoFillInModel(model_hash){
 }
 ////// End Models//////////
 
+////// Start Init Image && Init Image Mask//////////
+
+function getInitImageElement() {
+  const ini_image_element = document.getElementById('init_image')
+  return ini_image_element
+  
+}
+function setInitImageSrc(image_src){
+  
+  const ini_image_element = getInitImageElement()
+  ini_image_element.src = image_src
+}
+
+function getInitImageMaskElement() {
+  const ini_image_mask_element = document.getElementById('init_image_mask')
+  return ini_image_mask_element
+  
+}
+function setInitImageMaskSrc(image_src){
+  
+  const ini_image_mask_element = getInitImageMaskElement()
+  ini_image_mask_element.src = image_src
+}
+////// End Init Image && Init Image Mask//////////
+
 module.exports = {
   getPrompt,
   autoFillInPrompt,
@@ -250,6 +275,8 @@ module.exports = {
   getCheckedSamplerName,
   autoFillInSampler,
   autoFillInModel,
-  getMode
+  getMode,
+  setInitImageSrc,
+  setInitImageMaskSrc
 
 }

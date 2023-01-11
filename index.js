@@ -1025,12 +1025,16 @@ async function discard () {
   if (g_last_inpaint_layers.length > 0) {
     g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
     g_b_mask_layer_exist = false
+
   }
+  const random_img_src ='https://source.unsplash.com/random'
+  html_manip.setInitImageSrc(random_img_src)
+  html_manip.setInitImageMaskSrc(random_img_src)
   // const last_gen_layers = Object.keys(g_image_path_to_layer).map(
   //   path => g_image_path_to_layer[path]
   // )
 
-  
+
   // psapi.cleanLayers(last_gen_layers)
   await deleteNoneSelected(g_viewer_objects)
 }
