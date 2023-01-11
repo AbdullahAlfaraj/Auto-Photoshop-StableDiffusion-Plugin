@@ -256,6 +256,28 @@ function setInitImageMaskSrc(image_src){
 }
 ////// End Init Image && Init Image Mask//////////
 
+////// Start Generate Buttons //////////
+
+function getGenerateButtonsElements() {
+  generate_buttons = [...document.getElementsByClassName('btnGenerateClass')]
+  return generate_buttons
+  
+}
+function setGenerateButtonsColor(addClassName,removeClassName){
+  
+  const buttons = getGenerateButtonsElements()
+  buttons.forEach((button)=>{
+    button.classList.add(addClassName)
+    button.classList.remove(removeClassName)
+
+    
+  })
+  
+}
+
+
+////// End Generate Buttons //////////
+
 module.exports = {
   getPrompt,
   autoFillInPrompt,
@@ -277,6 +299,7 @@ module.exports = {
   autoFillInModel,
   getMode,
   setInitImageSrc,
-  setInitImageMaskSrc
+  setInitImageMaskSrc,
+  setGenerateButtonsColor
 
 }

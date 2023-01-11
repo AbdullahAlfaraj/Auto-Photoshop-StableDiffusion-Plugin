@@ -19,11 +19,13 @@ const viewer = require('./viewer')
 const selection = require('./selection')
 const util_layer = require('./utility/layer') 
 
+
 // const eventHandler = (event, descriptor) => {
-//   console.log("event got triggered!")
+//   // console.log("event got triggered!")
 //   console.log(event, descriptor)}
-  // id= descriptor?.ID
-// require("photoshop").action.addNotificationListener(['all'], eventHandler);
+  
+// require("photoshop").action.addNotificationListener(['set','move','transform'], eventHandler);
+
 // require("photoshop").action.addNotificationListener(['historyStateChanged'], eventHandler);
 
 // const onSelect = (event, descriptor) => {
@@ -610,15 +612,27 @@ function displayUpdate () {
   
   if(g_generation_session_mode !== g_sd_mode){
     const generate_btns = Array.from(document.getElementsByClassName('btnGenerateClass'))
-    generate_btns.forEach(element => element.textContent = `Generate ${g_sd_mode}`)
+    generate_btns.forEach(element =>{
+       element.textContent = `Generate ${g_sd_mode}`
+    
+      }
+       )
 
-     
+       html_manip.setGenerateButtonsColor('generate','generate-more')
   }
   else{
     const generate_btns = Array.from(document.getElementsByClassName('btnGenerateClass'))
-    generate_btns.forEach(element => element.textContent = 'Generate More')
+    generate_btns.forEach(element => {
+      element.textContent = 'Generate More'
+      
+    })
 
+    html_manip.setGenerateButtonsColor('generate-more','generate')
   }
+}
+else{//session is not active
+  html_manip.setGenerateButtonsColor('generate','generate-more')
+
 }
   
 
@@ -951,13 +965,20 @@ function sessionStartHtml(status){
 if (status){//session started
   accept_class_btns.forEach(element => element.style.display = 'inline-block')
   discard_class_btns.forEach(element => element.style.display = 'inline-block')
-  generate_btns.forEach(element => element.textContent = "Generate More")
+  generate_btns.forEach(element => {element.textContent = "Generate More"
+  
+}
+)
+html_manip.setGenerateButtonsColor('generate-more','generate')
+  
 
 }else{//session ended
   accept_class_btns.forEach(element => element.style.display = 'none')
   discard_class_btns.forEach(element => element.style.display = 'none')
-  generate_btns.forEach(element => element.textContent = "Generate")
-
+  generate_btns.forEach(element => {element.textContent = "Generate"
+  
+})
+html_manip.setGenerateButtonsColor('generate','generate-more')
 }
 
 
