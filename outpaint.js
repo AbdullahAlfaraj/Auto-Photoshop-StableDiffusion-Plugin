@@ -3,17 +3,6 @@ const app = window.require('photoshop').app
 const batchPlay = require('photoshop').action.batchPlay
 const psapi = require('./psapi')
 
-// async function createGroup () {
-//   const { executeAsModal } = require('photoshop').core
-
-//   const result = await executeAsModal(async () => {
-//     const options = { name: 'myGroup', opacity: 100 }
-//     await app.activeDocument.createLayerGroup(options)
-//   })
-//   const group_id = app.activeDocument.activeLayers[0].id
-//   console.log('new group: ', group_id)
-//   return group_id
-// }
 
 // async function moveToGroupCommand (to_index, layerIDs) {
 //   const batchPlay = require('photoshop').action.batchPlay
