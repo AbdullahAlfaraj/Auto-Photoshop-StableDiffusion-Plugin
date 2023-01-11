@@ -169,8 +169,8 @@ async function getLayerIndex (layer_id) {
   }
 }
 
-function unselectActiveLayers () {
-  const layers = app.activeDocument.activeLayers
+async function unselectActiveLayers () {
+  const layers = await app.activeDocument.activeLayers
   for (layer of layers) {
     layer.selected = false
   }
@@ -180,8 +180,8 @@ async function unselectActiveLayersExe () {
     await unselectActiveLayers()
   })
 }
-function selectLayers (layers) {
-  unselectActiveLayers()
+async function selectLayers (layers) {
+  await unselectActiveLayers()
   for (layer of layers) {
     layer.selected = true
   }
@@ -191,12 +191,12 @@ async function selectLayersExe(layers){
     await selectLayers(layers)
   })
 }
-function selectGroup (layer) {
-  unselectActiveLayers()
+async function selectGroup (layer) {
+  await unselectActiveLayers()
   layer.parent.selected = true
 }
 async function collapseGroup (layer) {
-  selectGroup(layer)
+  await selectGroup(layer)
   await app.activeDocument.activeLayers[0].merge()
 }
 
@@ -475,14 +475,15 @@ async function reSelectMarqueeCommand (selectionInfo) {
 }
 async function reSelectMarqueeExe (selectionInfo) {
   await executeAsModal(async () => {
-    reSelectMarqueeCommand(selectionInfo)
+    await reSelectMarqueeCommand(selectionInfo)
   })
 }
 
 async function snapshot_layer () {
-  let result
+  
   let psAction = require('photoshop').action
-  ids = app.activeDocument.activeLayers.map(layer => layer.id)
+  // const ids = (await app.activeDocument.activeLayers).map(layer => layer.id)
+  const ids = await app.activeDocument.layers.map(layer => layer.id)
   let command = [
     // Select All Layers current layer
     {
@@ -495,7 +496,7 @@ async function snapshot_layer () {
       ID: ids,
       _obj: 'duplicate',
       _target: [{ _enum: 'ordinal', _ref: 'layer', _value: 'targetEnum' }],
-      version: 5
+      // version: 5
     },
 
     // Merge Layers
@@ -514,15 +515,21 @@ async function snapshot_layer () {
       to: { _enum: 'ordinal', _ref: 'channel', _value: 'targetEnum' }
     }
   ]
-  result = await psAction.batchPlay(command, {   "synchronousExecution": true,
+  const result = await psAction.batchPlay(command, {   "synchronousExecution": true,
   "modalBehavior": "execute"})
+  console.log("snapshot_layer: result: ",result)
   return result
 }
 
 async function snapshot_layerExe () {
-  await require('photoshop').core.executeAsModal(snapshot_layer, {
-    commandName: 'Action Commands'
-  })
+  try{
+
+    await executeAsModal(async () => {await snapshot_layer()}, {
+      commandName: 'Action Commands'
+    })
+  }catch(e){
+    console.error(e)
+  }
 }
 
 // await runModalFunction();
@@ -823,7 +830,7 @@ async function createClippingMaskExe () {
   }
 
   await executeAsModal(async () => {
-    createClippingMaskCommand()
+    await createClippingMaskCommand()
   })
 }
 
@@ -871,7 +878,7 @@ async function saveUniqueDocumentIdExe (new_id) {
   }
 
   await executeAsModal(async () => {
-    saveUniqueDocumentIdCommand()
+    await saveUniqueDocumentIdCommand()
   })
 }
 
@@ -1070,8 +1077,30 @@ async function newExportPng (layer,image_name,width,height) {
     console.error(`newExportPng error: ,${e}`)
   }
 }
+async function mergeVisibleCommand () {
+  const result = await batchPlay(
+    [
+      {
+          "_obj": "mergeVisible",
+          "duplicate": true,
+          "_isCommand": true
+          // "_options": {
+          //   // "dialogOptions": "dontDisplay"
+          // }
+      }
+    ],{
+      "synchronousExecution": true,
+      "modalBehavior": "execute"
+    });
 
+  return result
+}
 
+async function mergeVisibleExe () {
+  await executeAsModal(async () => {
+    await mergeVisibleCommand()
+  })
+}
 
 module.exports = {
   createSolidLayer,
@@ -1109,5 +1138,6 @@ module.exports = {
   promptForMarqueeTool,
   saveUniqueDocumentIdExe,
   readUniqueDocumentIdExe,
-  newExportPng
+  newExportPng,
+  mergeVisibleExe
 }

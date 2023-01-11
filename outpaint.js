@@ -192,7 +192,7 @@ try{
         await psapi.reSelectMarqueeExe(selectionInfo)
         let [snapshotMaskLayer,snapshotMaskGroup] = await createSnapshot()
         await snapshotMaskGroup.moveAbove(snapshotGroup)
-        solid_black_layer.delete()
+        await solid_black_layer.delete()
         //set initial image
         //set mask image
         
@@ -289,6 +289,7 @@ async function snapAndFillExe(session_id){
 
   // console.log("outpaintFasterExe error:", e)
   }
+  return []
 
   }
 
@@ -336,7 +337,7 @@ async function outpaintFasterExe(session_id){
           snapshotMaskGroup.name = `${snapshotMaskGroup.name}_mask` 
           snapshotMaskLayer.moveBelow(solid_black_layer)
           await snapshotMaskGroup.moveAbove(snapshotGroup)
-          solid_black_layer.delete()// should we await for the deletion?
+          await solid_black_layer.delete()// should we await for the deletion?
 
           
           await psapi.selectLayers([snapshotGroup])
@@ -371,6 +372,7 @@ async function outpaintFasterExe(session_id){
 
   // console.log("outpaintFasterExe error:", e)
   }
+  return []
 
   }
 
@@ -388,22 +390,29 @@ async function outpaintFasterExe(session_id){
             const selectionInfo = await psapi.getSelectionInfoExe()
             
             //hide the current white mark mask layer
-            const white_mark_layer = app.activeDocument.activeLayers[0]
-            white_mark_layer.visible = false
+            const white_mark_layer = await app.activeDocument.activeLayers[0]
+            // white_mark_layer.visible = false
+            white_mark_layer.visible = true
+
             
             //create a snapshot of canvas
 
             // let [snapshotLayer,snapshotGroup] =  await createSnapshot()
-            await psapi.snapshot_layer()
+            // await psapi.snapshot_layer()
+            await psapi.unselectActiveLayersExe()//invisible layer will cause problem with merging "command is not available" type of error
+            // await psapi.mergeVisibleExe()
+            await psapi.snapshot_layerExe()
+
+
             const snapshotLayer = await app.activeDocument.activeLayers[0]
             
             const snapshotGroup = await psapi.createEmptyGroup()
             await psapi.createSolidLayer(255, 255, 255)
             const whiteSolidLayer = await app.activeDocument.activeLayers[0]
-            snapshotLayer.moveAbove(whiteSolidLayer)
+            await snapshotLayer.moveAbove(whiteSolidLayer)
             
-            await psapi.reSelectMarqueeExe(selectionInfo)
             await psapi.selectLayers([snapshotGroup])
+            await psapi.reSelectMarqueeExe(selectionInfo)
             await psapi.createClippingMaskExe()
             await psapi.reSelectMarqueeExe(selectionInfo)
              
@@ -477,6 +486,7 @@ async function outpaintFasterExe(session_id){
     }catch(e){
     console.warn("inpaintFasterExe error:", e)
     }
+    return []
     }
 module.exports = {
   createSnapshot,

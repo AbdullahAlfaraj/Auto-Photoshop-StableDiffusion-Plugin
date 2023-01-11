@@ -423,6 +423,7 @@ let g_isViewerMenuDisabled = false // disable the viewer menu and viewerImage wh
 let g_b_mask_layer_exist = false// true if inpaint mask layer exist, false otherwise.
 let g_inpaint_mask_layer;
 let g_inpaint_mask_layer_history_id; //store the history state id when creating a new inpaint mask layer
+let g_selection = {}
 const requestState = {
 	Generate: "generate",
 	Interrupt: "interrupt",
@@ -921,8 +922,10 @@ function toggleTwoButtonsByClass(isVisible,first_class,second_class){
 }
 
 async function acceptAll(){
-  for (const [path, viewer_object] of Object.entries(g_viewer_objects)) {
-    try{
+  try{
+
+    for (const [path, viewer_object] of Object.entries(g_viewer_objects)) {
+      try{
       
 
       viewer_object.setHighlight(true)// mark each layer as accepted 
@@ -932,6 +935,9 @@ async function acceptAll(){
     } 
   }
   await discard()// clean viewer tab
+}catch(e){
+console.warn(e)
+}
 }
 
 function endGenerationSession(){
@@ -1020,6 +1026,9 @@ document.getElementById('btnLastSeed').addEventListener('click', async () => {
   }
 })
 async function discard () {
+  try{
+
+  
   console.log(
     'click on btnCleanLayers,  g_last_outpaint_layers:',
     g_last_outpaint_layers
@@ -1058,6 +1067,10 @@ async function discard () {
 
   // psapi.cleanLayers(last_gen_layers)
   await deleteNoneSelected(g_viewer_objects)
+}
+catch(e){
+  console.warn(e)
+}
 }
 Array.from(document.getElementsByClassName('discardClass')).forEach(element => {
   element.addEventListener('click', async () => {
@@ -1359,37 +1372,84 @@ async function generateTxt2Img(settings){
   return json
 }
 
+async function hasSelectionChanged(new_selection,old_selection){
+  
+  if (new_selection.left === old_selection.left &&
+    new_selection.bottom === old_selection.bottom &&
+    new_selection.right === old_selection.right &&
+    new_selection.top === old_selection.top)
+  {
+    return false
+
+  }
+  else{
+    return true
+  }
+
+}
+function checkIfSelectionIsValid(selection){
+if (
+  selection.hasOwnProperty('left') &&
+  selection.hasOwnProperty('right') &&
+  selection.hasOwnProperty('top') &&
+  selection.hasOwnProperty('bottom')
+) {
+  return true
+}
+
+return false
+} 
 async function easyModeGenerate(){
+  
+  
+  const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+  if (!isSelectionAreaValid){      
+    await psapi.promptForMarqueeTool()        
+    return null
+  }
+    
+
   const mode = html_manip.getMode()
   // const settings = await getSettings()
   console.log("easyModeGenerate mdoe: ",mode)
-  
-  
-  if (g_is_generation_session_active)//active session
-    {//
-       if(g_generation_session_mode !== mode){ //active session but it's a new mode
+  if (checkIfSelectionIsValid(g_selection) ){// check we have an old selection stored
+    const new_selection = await psapi.getSelectionInfoExe()
+    if(await hasSelectionChanged(new_selection,g_selection))// check the new selection is difference than the old
+    {// end current session 
+      g_selection = new_selection
+      try{
 
-        
         endGenerationSession()
         await acceptAll()
-        //accept all
-        g_generation_session_mode = mode
-        }else{//active session and it's the same mode
-
-        }
         
-      }
-      else{ // new session 
-        g_generation_session_mode = mode
+      }catch(e){
+        console.warn(e)
       }
 
+      
+    }
+  }else{// store selection value
+    g_selection = await psapi.getSelectionInfoExe()
+  }
   
-  
-const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
-if (!isSelectionAreaValid){      
-  psapi.promptForMarqueeTool()        
-  return null
+if (g_is_generation_session_active) {
+  //active session
+  //
+  if (g_generation_session_mode !== mode) {
+    //active session but it's a new mode
+
+    endGenerationSession()
+    await acceptAll()
+    //accept all
+    g_generation_session_mode = mode
+  } 
+} else {
+  // new session
+  g_generation_session_mode = mode
 }
+
+
+  
   
   if(mode === "txt2img"){
     const settings = await getSettings()
@@ -2141,7 +2201,7 @@ async function loadViewerImages(){
       
       if (!g_viewer_objects.hasOwnProperty(path)){
 
-        const viewerInitImage= new viewer.InitImage(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'],'./server/python_server/init_images/')
+        const viewerInitImage= new viewer.InitImage(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'],path)
         
         
         const init_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_name)
@@ -2160,7 +2220,7 @@ async function loadViewerImages(){
       g_mask_related_layers['mask_group'],
       g_mask_related_layers['white_mark'],
       g_mask_related_layers['solid_black'],
-      './server/python_server/init_images/'
+      path
     )
 
     const mask_img_html = createViewerImgHtml(
@@ -2214,15 +2274,19 @@ async function loadViewerImages(){
 }
 
 async function deleteNoneSelected (viewer_objects) {
+  try{
+
+  
   // visible layer
   //delete all hidden layers
+
 await executeAsModal(async ()=>{
 
   for (const [path, viewer_object] of Object.entries(viewer_objects)) {
     try{
 
       // if (viewer_object.getHighlight() || viewer_object.is_active){//keep it if it's highlighted
-      const path = viewer_object.path
+      // const path = viewer_object.path
       if(viewer_object.state ===  viewer.ViewerObjState['Unlink']){
       viewer_object.unlink() // just delete the html image but keep the layer in the layers stack 
       viewer_object.visible(true)//make them visiable on the canvas
@@ -2239,39 +2303,12 @@ await executeAsModal(async ()=>{
 g_viewer_objects = {}
 g_image_path_to_layer = {}
 })
-
-  // const visible_layer = image_paths_to_layers[visible_layer_path]
-  // delete image_paths_to_layers[visible_layer_path]
-  // await executeAsModal(async () => {
-  //   const layers = Object.keys(image_paths_to_layers).map(
-  //     key => image_paths_to_layers[key]
-  //   )
-  //   await psapi.cleanLayers(layers)
-  // })
-  // image_paths_to_layers = { [visible_layer_path]: visible_layer }
-  // // g_image_path_to_layer = image_paths_to_layers // this is redundant, should delete later.
-  // return image_paths_to_layers
-  // // await loadViewerImages() // maybe we should pass g_image_path_to_layer instead of it been global
+  }
+  catch(e){
+    console.warn(e)
+  }
 
 }
-
-// async function deleteNoneSelected (visible_layer_path, image_paths_to_layers) {
-//   // visible layer
-//   //delete all hidden layers
-//   const visible_layer = image_paths_to_layers[visible_layer_path]
-//   delete image_paths_to_layers[visible_layer_path]
-//   await executeAsModal(async () => {
-//     const layers = Object.keys(image_paths_to_layers).map(
-//       key => image_paths_to_layers[key]
-//     )
-//     await psapi.cleanLayers(layers)
-//   })
-//   image_paths_to_layers = { [visible_layer_path]: visible_layer }
-//   // g_image_path_to_layer = image_paths_to_layers // this is redundant, should delete later.
-//   return image_paths_to_layers
-//   // await loadViewerImages() // maybe we should pass g_image_path_to_layer instead of it been global
-
-// }
 
 async function deleteNoneSelectedAndReloadViewer(){
 

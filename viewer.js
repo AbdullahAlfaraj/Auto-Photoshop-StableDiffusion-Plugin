@@ -78,7 +78,7 @@ class ViewerImage {
     this.img_html.classList.toggle("viewerImgSelected")
   }
   setImgHtml(){}
-  delete(){}
+  async delete(){}
   unlink(){
     //keep the layer but unlink it from the ui
     try{
@@ -136,7 +136,7 @@ class OutputImage extends ViewerImage {
   async delete(){
     try{
 
-      super.delete()
+      await super.delete()
       this.img_html.remove()//delete the img html element
       
       await psapi.cleanLayers([this.layer])
@@ -239,14 +239,20 @@ class InitImage extends ViewerImage {
     super.setImgHtml()
     this.img_html = img_html
   }
-  delete(){
-    super.delete()
-    this.img_html.remove()//delete the img html element
+  async delete(){
+    try{
 
-    
-
-    psapi.cleanLayers([this.init_group,this.init_snapshot,this.solid_layer])
-
+      await super.delete()
+      this.img_html.remove()//delete the img html element
+      
+      
+      
+      await psapi.cleanLayers([this.init_group,this.init_snapshot,this.solid_layer])
+      
+    }
+    catch(e){
+      console.warn(e)
+    }
   }
 }
 
@@ -327,11 +333,16 @@ class InitMaskImage extends ViewerImage {
       super.setImgHtml()
       this.img_html = img_html
     }
-    delete(){
-      super.delete()
-      this.img_html.remove()//delete the img html element
-  
-      psapi.cleanLayers([this.mask_group,this.white_mark, this.solid_black])
+    async delete(){
+      try{
+
+        await super.delete()
+        this.img_html.remove()//delete the img html element
+        
+        await psapi.cleanLayers([this.mask_group,this.white_mark, this.solid_black])
+      }catch(e){
+        console.warn(e)
+      }
   
     }
   }
