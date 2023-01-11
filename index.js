@@ -17,13 +17,30 @@ const html_manip = require('./html_manip')
 const export_png = require('./export_png')
 const viewer = require('./viewer')
 const selection = require('./selection')
-
+const util_layer = require('./utility/layer') 
 
 const eventHandler = (event, descriptor) => {
   console.log("event got triggered!")
   console.log(event, descriptor)}
-require("photoshop").action.addNotificationListener(['all'], eventHandler);
+  // id= descriptor?.ID
+// require("photoshop").action.addNotificationListener(['all'], eventHandler);
+// require("photoshop").action.addNotificationListener(['historyStateChanged'], eventHandler);
 
+const onSelect = (event, descriptor) => {
+  // console.log(`descriptor._target?.[0]._ref === "layer" : `,descriptor._target?.[0]._ref === "layer" )
+  // console.log(`descriptor._target?.[0]._name === "Mask -- Paint White to Mask -- temporary" : `,descriptor._target?.[0]._name === "Mask -- Paint White to Mask -- temporary" )
+  console.log(event,descriptor)
+  if(descriptor._target?.[0]._ref === "layer" && descriptor._target?.[0]._name === "Mask -- Paint White to Mask -- temporary") {
+    // -> The layer with name "Test Layer 1" was selected
+    console.log(" onSelect event got triggered!")
+    console.log("descriptor: ",descriptor)
+    // console.log()
+  }
+}
+
+require("photoshop").action.addNotificationListener(['all'], onSelect);
+
+ 
 
 async function getUniqueDocumentId () {
   try {
@@ -401,6 +418,9 @@ let g_viewer_objects = {}// {path: viewer_obj}
 let g_is_generation_session_active = false
 let g_number_generation_per_session = 0
 let g_isViewerMenuDisabled = false // disable the viewer menu and viewerImage when we're importing images into the current document
+let g_b_mask_layer_exist = false// true if inpaint mask layer exist, false otherwise.
+let g_inpaint_mask_layer;
+let g_inpaint_mask_layer_history_id; //store the history state id when creating a new inpaint mask layer
 const requestState = {
 	Generate: "generate",
 	Interrupt: "interrupt",
@@ -432,9 +452,47 @@ for (let rbModeElement of rbModeElements) {
     g_sd_mode = evt.target.value
     // console.log(`You clicked: ${g_sd_mode}`)
     displayUpdate()
+    postModeSelection()// do things after selection
   })
 }
+async function postModeSelection(){
+//
+try{
 
+  if(g_sd_mode === generationMode['Inpaint']){
+    //check if the we already have created a mask layer
+    if(!g_b_mask_layer_exist){
+
+      //make new layer "Mask -- Paint White to Mask -- temporary"
+      // if (g_is_generation_session_active)
+      // {//
+        // g_generation_session_mode = 
+        const name = "Mask -- Paint White to Mask -- temporary"
+        g_inpaint_mask_layer = await util_layer.createNewLayerExe(name)
+        
+        g_b_mask_layer_exist = true
+        const index = app.activeDocument.historyStates.length -1
+        g_inpaint_mask_layer_history_id =  app.activeDocument.historyStates[index].id
+        console.log("g_inpaint_mask_layer_history_id: ",g_inpaint_mask_layer_history_id)
+      // }
+    }
+  }
+  else{// if we switch from inpaint mode, delete the mask layer
+    // Find all history states after the creation of the inpaint mask and their name brush tool
+    console.log("g_inpaint_mask_layer_history_id: ",g_inpaint_mask_layer_history_id)
+    const historyBrushTools = app.activeDocument.historyStates.filter(h => (h.id > g_inpaint_mask_layer_history_id) && (h.name === "Brush Tool"))
+    console.log(historyBrushTools)
+    if(historyBrushTools.length === 0){
+
+      await util_layer.deleteLayers([g_inpaint_mask_layer])
+      g_b_mask_layer_exist = false
+    }
+  }
+}
+catch(e){
+console.warn(e)
+}
+}
 rbMaskContentElements = document.getElementsByClassName('rbMaskContent')
 
 for (let rbMaskContentElement of rbMaskContentElements) {
@@ -577,35 +635,8 @@ function displayUpdate () {
 //         <ul>${sortedNames.map(name => `<li>${name}</li>`).join('')}</ul>`
 // }
 
-async function addNewLayer () {
-  document.getElementById('layers').innerHTML = `<span>
-    addNewLayer was called
-    </span>`
-  await require('photoshop').core.executeAsModal(newNormalLayer)
-  // app.activeDocument.createLayer({ name: "myLayer", opacity: 80, mode: "colorDodge" });
-}
 
-async function newColorDodgeLayer (executionContext) {
-  document.getElementById('layers').innerHTML = `<span>
-        newColorDogeLayer was called
-        </span>`
-  await app.activeDocument.createLayer({
-    name: 'myLayer',
-    opacity: 80,
-    mode: 'colorDodge'
-  })
-}
 
-async function newNormalLayer (executionContext) {
-  document.getElementById('layers').innerHTML = `<span>
-    Normal was called
-    </span>`
-  await app.activeDocument.createLayer({
-    name: 'myLayer',
-    opacity: 100,
-    mode: 'normal'
-  })
-}
 
 function selectTool () {
   var doc = app.activeDocument
@@ -829,8 +860,8 @@ async function easyModeOutpaint(){
 async function btnInitInpaintHandler(){
   try{
 
-    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()//Note: this is redundant check, remove later
-    if(isSelectionAreaValid){
+    
+    
       
       // delete the layers of the previous mask operation
       g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
@@ -838,10 +869,7 @@ async function btnInitInpaintHandler(){
       g_last_inpaint_layers =  await outpaint.inpaintFasterExe(random_session_id)
       
       console.log ("outpaint.inpaintFasterExe(random_session_id):, g_last_inpaint_layers: ",g_last_inpaint_layers)
-    }
-    else{
-      psapi.promptForMarqueeTool()
-    }
+    
   }
   catch(e){
     console.warn(e)
@@ -996,6 +1024,7 @@ async function discard () {
   }
   if (g_last_inpaint_layers.length > 0) {
     g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
+    g_b_mask_layer_exist = false
   }
   // const last_gen_layers = Object.keys(g_image_path_to_layer).map(
   //   path => g_image_path_to_layer[path]
