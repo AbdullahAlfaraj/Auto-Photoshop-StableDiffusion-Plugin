@@ -49,7 +49,7 @@ async function createNewLayerCommand (layerName) {
   async function getIndexExe(){
   let index; 
     await executeAsModal(async ()=>{
-        index = getIndexCommand()
+        index = await getIndexCommand()
     })
 
     return index
