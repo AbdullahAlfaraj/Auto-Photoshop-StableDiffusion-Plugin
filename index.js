@@ -1610,6 +1610,7 @@ async function generate(settings){
     
 
   }
+  psapi.reSelectMarqueeExe(g_selection)
   //update the viewer
   await loadViewerImages()
 
