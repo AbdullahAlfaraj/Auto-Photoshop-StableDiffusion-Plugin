@@ -1,7 +1,7 @@
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
 async function getInitImage (init_image_name) {
   console.log('getInitImage(): get Init Image from the server :')
-  payload = {
+  const payload = {
     init_image_name: init_image_name
   }
 

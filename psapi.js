@@ -836,8 +836,13 @@ async function createClippingMaskExe () {
 
 async function checkIfSelectionAreaIsActive()
 {
-  let isSelectionAreaValid = await getSelectionInfoExe()
-return isSelectionAreaValid
+  try{
+
+    let isSelectionAreaValid = await getSelectionInfoExe()
+    return isSelectionAreaValid
+  }catch(e){
+    console.warn(e)
+  }
 }
 async function saveUniqueDocumentIdExe (new_id) {
   const batchPlay = require('photoshop').action.batchPlay

@@ -20,11 +20,25 @@ const selection = require('./selection')
 const util_layer = require('./utility/layer') 
 
 
-// const eventHandler = (event, descriptor) => {
-//   // console.log("event got triggered!")
-//   console.log(event, descriptor)}
+const eventHandler = async (event, descriptor) => {
+  // console.log("event got triggered!")
+  try{
+
+    const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
+    if (isSelectionActive){
+      
+      const [final_width,final_height] = await selection.selectionToFinalWidthHeight()
+      console.log("(final_width,final_height):",final_width,final_height)
+      console.log(event, descriptor)
+      html_manip.autoFillInWidth(final_width)
+      html_manip.autoFillInHeight(final_height)
+    }
+  }catch(e){
+    console.warn(e)
+  }
+}
   
-// require("photoshop").action.addNotificationListener(['set','move','transform'], eventHandler);
+require("photoshop").action.addNotificationListener(['set','move'], eventHandler);
 
 // require("photoshop").action.addNotificationListener(['historyStateChanged'], eventHandler);
 
@@ -1246,7 +1260,7 @@ function updateMetadata (new_metadata) {
 
   
 async function getSettings(){
-  payload = {}
+  let payload = {}
   try{
     
 
@@ -1324,8 +1338,19 @@ async function getSettings(){
 
     
   }
-
-
+  if(hi_res_fix){
+    payload['enable_hr'] = hi_res_fix
+    payload['firstphase_width'] = hWidth
+    payload['firstphase_height'] =  hHeight
+  }else{
+      //fix hi res bug: if we include firstphase_width or firstphase_height in the payload,
+      // sd api will use them instead of using width and height variables, even when enable_hr is set to "false"
+      delete payload['enable_hr']
+      delete payload['firstphase_width']
+      delete payload['firstphase_height']
+    }
+  
+  
 
 
 
@@ -1338,9 +1363,6 @@ async function getSettings(){
     sampler_index: sampler_name,
     width: width,
     height: height,
-    enable_hr : hi_res_fix,
-    firstphase_width: hWidth,
-    firstphase_height: hHeight,
     denoising_strength: denoising_strength,
     batch_size: numberOfImages,
     cfg_scale: cfg_scale,
@@ -1363,7 +1385,7 @@ async function generateTxt2Img(settings){
   let json = {}
   try{
 
-    json = await sdapi.requestTxt2Img(payload)
+    json = await sdapi.requestTxt2Img(settings)
   }catch(e) {
     console.warn(e)
     json = {}
