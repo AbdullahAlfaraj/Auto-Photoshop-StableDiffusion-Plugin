@@ -1,3 +1,5 @@
+const { unselectActiveLayers } = require('./psapi')
+
 const app = window.require('photoshop').app
 
 function getActiveLayer () {
@@ -13,88 +15,79 @@ function getActiveLayer () {
 
   return activeLayers[0]
 }
-// async function scaleDownLayer () {
-//   let layer = getActiveLayer()
-//   console.log(layer.name)
-//   async function scaleLayer (executionContext) {
-//     console.log('scaleLayer got called')
-//     await layer.scale(50, 50)
-//   }
 
-//   await require('photoshop').core.executeAsModal(scaleLayer)
-// }
 
 function getSize () {
   let doc = app.activeDocument
   return { height: doc.height, width: doc.width }
 }
 
-function getLayerSize (layer) {
-  console.log('layer.bounds:')
-  console.dir(layer.bounds)
-  const bounds = layer.bounds
-  const height = bounds.bottom - bounds.top
-  const width = bounds.right - bounds.left
-  return {
-    height: height,
-    width: width,
-    left: bounds.left,
-    right: bounds.right,
-    top: bounds.top,
-    bottom: bounds.bottom
-  }
-}
-async function getSelectionInfo () {
-  console.log('getSelectionInfo was called')
+// function getLayerSize (layer) {
+//   console.log('layer.bounds:')
+//   console.dir(layer.bounds)
+//   const bounds = layer.bounds
+//   const height = bounds.bottom - bounds.top
+//   const width = bounds.right - bounds.left
+//   return {
+//     height: height,
+//     width: width,
+//     left: bounds.left,
+//     right: bounds.right,
+//     top: bounds.top,
+//     bottom: bounds.bottom
+//   }
+// }
+// async function getSelectionInfo () {
+//   console.log('getSelectionInfo was called')
 
-  const { batchPlay } = require('photoshop').action
-  const { executeAsModal } = require('photoshop').core
+//   const { batchPlay } = require('photoshop').action
+//   const { executeAsModal } = require('photoshop').core
 
-  async function batchPlayWrapper () {
-    const result = await batchPlay(
-      [
-        {
-          _obj: 'get',
-          _target: [
-            {
-              _property: 'selection'
-            },
-            {
-              _ref: 'document',
-              _id: app.activeDocument._id
-            }
-          ],
-          _options: {
-            dialogOptions: 'dontDisplay'
-          }
-        }
-      ],
-      {
-        synchronousExecution: true,
-        modalBehavior: 'execute'
-      }
-    )
+//   async function batchPlayWrapper () {
+//     const result = await batchPlay(
+//       [
+//         {
+//           _obj: 'get',
+//           _target: [
+//             {
+//               _property: 'selection'
+//             },
+//             {
+//               _ref: 'document',
+//               _id: app.activeDocument._id
+//             }
+//           ],
+//           _options: {
+//             dialogOptions: 'dontDisplay'
+//           }
+//         }
+//       ],
+//       {
+//         synchronousExecution: true,
+//         modalBehavior: 'execute'
+//       }
+//     )
 
-    return result
-  }
+//     return result
+//   }
 
-  try {
-    const selection = (await executeAsModal(batchPlayWrapper))[0].selection
+//   try {
+//     const selection = (await executeAsModal(batchPlayWrapper))[0].selection
 
-    let selection_info = {
-      left: selection.left._value,
-      right: selection.right._value,
-      bottom: selection.bottom._value,
-      top: selection.top._value,
-      height: selection.bottom._value - selection.top._value,
-      width: selection.right._value - selection.left._value
-    }
-    // console.dir({selection_info})
-    return selection_info
-  } catch (e) {
-    console.warn('selection info error', e)
-  }
-}
+//     let selection_info = {
+//       left: selection.left._value,
+//       right: selection.right._value,
+//       bottom: selection.bottom._value,
+//       top: selection.top._value,
+//       height: selection.bottom._value - selection.top._value,
+//       width: selection.right._value - selection.left._value
+//     }
+//     // console.dir({selection_info})
+//     return selection_info
+//   } catch (e) {
+//     console.warn('selection info error', e)
+//   }
+// }
 
 const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
@@ -181,96 +174,106 @@ async function unSelect () {
   return result
 }
 
-async function layerToSelectionHelper () {
-  // console.log("executeAsModal layer.translate")
+// async function layerToSelectionHelper () {
+//   // console.log("executeAsModal layer.translate")
 
-  //get selection info
-  let activeLayer = getActiveLayer()
-  let selectionInfoPromise = await getSelectionInfo()
-  selectionInfoPromise.then(async value => {
-    console.dir(value)
+//   //get selection info
+//   let activeLayer = getActiveLayer()
+//   let selectionInfoPromise = await getSelectionInfo()
+//   selectionInfoPromise.then(async value => {
+//     console.dir(value)
 
-    let selection = value[0].selection
+//     let selection = value[0].selection
 
-    // let selectionInfo = value[0].selection
+//     // let selectionInfo = value[0].selection
 
-    //unselect everything so you can move the layer
-    // top_new = layer_info.top - top_dist
-    executeAsModal(unSelect).then(() => {
-      console.log('done unSelect Exe')
-      //scale layer
-      async function scaleLayer (executionContext) {
-        console.log('scaleLayer got called')
-        let layer_info = getLayerSize(activeLayer)
-        scale_x_ratio = (selection_info.width / layer_info.width) * 100
-        scale_y_ratio = (selection_info.height / layer_info.height) * 100
-        console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
-        activeLayer.scale(scale_x_ratio, scale_y_ratio)
-      }
+//     //unselect everything so you can move the layer
+//     // top_new = layer_info.top - top_dist
+//     executeAsModal(unSelect).then(() => {
+//       console.log('done unSelect Exe')
+//       //scale layer
+//       async function scaleLayer (executionContext) {
+//         console.log('scaleLayer got called')
+//         let layer_info = getLayerSize(activeLayer)
+//         scale_x_ratio = (selection_info.width / layer_info.width) * 100
+//         scale_y_ratio = (selection_info.height / layer_info.height) * 100
+//         console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
+//         activeLayer.scale(scale_x_ratio, scale_y_ratio)
+//       }
 
-      executeAsModal(scaleLayer).then(async () => {
-        console.log('done scaling Exe')
+//       executeAsModal(scaleLayer).then(async () => {
+//         console.log('done scaling Exe')
 
-        await require('photoshop').core.executeAsModal(moveLayerExe)
-      })
-    })
-  })
-}
+//         await require('photoshop').core.executeAsModal(moveLayerExe)
+//       })
+//     })
+//   })
+// }
 
-async function layerToSelection () {
-  //store active layer for later
+// async function layerToSelection (selection_info) {
+//   //store active layer for later
 
-  const { executeAsModal } = require('photoshop').core
+//   const { executeAsModal } = require('photoshop').core
 
-  try {
-    //Store selection info
-    //unSelect
-    //move layer
-    //scale layer
-    //Select from selection info
-    let selection_info = await getSelectionInfo()
-    console.dir({ selection_info })
+//   try {
+//     //Store selection info
+//     //unSelect
+//     //move layer
+//     //scale layer
+//     //Select from selection info
+//     // let selection_info = await getSelectionInfo()
+    
 
-    console.log('selection_info:')
-    console.dir({ selection_info })
+//     console.log('selection_info:',selection_info)
+    
 
-    console.log('unSelect')
+//     console.log('unSelect')
 
-    await executeAsModal(unSelect,  {'commandName': 'unSelect'})
+//     await executeAsModal(unSelect,  {'commandName': 'unSelect'})
 
-     //scale layer
-     async function scaleLayer (executionContext) {
-        console.log('scaleLayer got called')
-        const activeLayer = getActiveLayer()
-        let layer_info = getLayerSize(activeLayer)
-        scale_x_ratio = (selection_info.width / layer_info.width) * 100
-        scale_y_ratio = (selection_info.height / layer_info.height) * 100
-        console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
-        activeLayer.scale(scale_x_ratio, scale_y_ratio)
-      }
-      await executeAsModal(scaleLayer,  {'commandName': 'scaleLayer'})
+//      //scale layer
+//      async function scaleLayer (executionContext) {
+//         console.log('scaleLayer got called')
+//         // const activeLayer = getActiveLayer()
+//         const activeLayer = await app.activeDocument.activeLayers[0]
+
+//         let layer_info = getLayerSize(activeLayer)
+//         scale_x_ratio = (selection_info.width / layer_info.width) * 100
+//         scale_y_ratio = (selection_info.height / layer_info.height) * 100
+//         console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
+//         activeLayer.scale(scale_x_ratio, scale_y_ratio)
+//       }
+//       await executeAsModal(scaleLayer,  {'commandName': 'scaleLayer'})
 
 
-    async function moveLayerExe (layerToMove, selection_info) {
-        // const activeLayer = getActiveLayer()
-        let layer_info = getLayerSize(layerToMove)
-      top_dist = layer_info.top - selection_info.top
-      left_dist = layer_info.left - selection_info.left
-      await layerToMove.translate(-left_dist, -top_dist)
-    }
-    const activeLayer = await getActiveLayer()
-    await executeAsModal(async () => {
-      await moveLayerExe(activeLayer, selection_info)
-    },  {'commandName': 'moveLayerExe'})
+//     async function moveLayerExe (layerToMove, selection_info) {
+        
+//         let layer_info = getLayerSize(layerToMove)
+//       top_dist = layer_info.top - selection_info.top
+//       left_dist = layer_info.left - selection_info.left
+//       await layerToMove.translate(-left_dist, -top_dist)
+//     }
+//     // const activeLayer = await getActiveLayer()
+//     //store all active layers
+//     const activeLayers = await app.activeDocument.activeLayers
 
-    reselect(selection_info)
-  } catch (e) {
-    console.warn(e)
-  }
+
+//     await executeAsModal(async () => {
+      
+//       for (let layer of activeLayers){
+//         await psapi.selectLayers([layer])  
+//         await moveLayerExe(layer, selection_info)
+//       }
+//     },  {'commandName': 'moveLayerExe'})
+
+//     await reselect(selection_info)
+//   } catch (e) {
+//     console.warn(e)
+//   }
 
   
-}
+// }
 
 module.exports = {
-  layerToSelection
+  // layerToSelection
 }

@@ -2,7 +2,7 @@ const app = window.require('photoshop').app
 const batchPlay = require('photoshop').action.batchPlay
 const { executeAsModal } = require('photoshop').core
 const export_png = require('./export_png')
-const { layerToSelection } = require('./helper')
+// const { layerToSelection } = require('./helper')
 
 const storage = require('uxp').storage
 const fs = storage.localFileSystem
@@ -1065,7 +1065,8 @@ async function newExportPng (layer,image_name,width,height) {
         await selectLayers([dupLayer])
         // await selectLayerChannelCommand()
         await selectCanvasExe()
-        await layerToSelection()
+        const canvas_selection_info = await getSelectionInfoExe()
+        await layerToSelection(canvas_selection_info)
         // const selection_info = await getSelectionInfoExe()
         // await exportDoc.crop(selection_info)
         // export_image_name = `${layer.name}.png`
@@ -1100,6 +1101,91 @@ async function mergeVisibleExe () {
   await executeAsModal(async () => {
     await mergeVisibleCommand()
   })
+}
+
+async function layerToSelection (selection_info) {
+  //store active layer for later
+
+
+  try {
+    //Store selection info
+    //unSelect
+    //move layer
+    //scale layer
+    //Select from selection info
+    // let selection_info = await getSelectionInfo()
+    
+
+    console.log('selection_info:',selection_info)
+    
+
+    console.log('unSelect')
+
+    
+    function getLayerSize (layer) {
+      console.log('layer.bounds:')
+      console.dir(layer.bounds)
+      const bounds = layer.bounds
+      const height = bounds.bottom - bounds.top
+      const width = bounds.right - bounds.left
+      return {
+        height: height,
+        width: width,
+        left: bounds.left,
+        right: bounds.right,
+        top: bounds.top,
+        bottom: bounds.bottom
+      }
+    }
+     //scale layer
+     async function scaleLayer (layer,selection_info) {
+        console.log('scaleLayer got called')
+        // const activeLayer = getActiveLayer()
+        // const activeLayer = await app.activeDocument.activeLayers[0]
+
+        let layer_info = getLayerSize(layer)
+        scale_x_ratio = (selection_info.width / layer_info.width) * 100
+        scale_y_ratio = (selection_info.height / layer_info.height) * 100
+        console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
+        await layer.scale(scale_x_ratio, scale_y_ratio)
+      }
+      
+      
+
+    async function moveLayerExe (layerToMove, selection_info) {
+        
+        let layer_info = getLayerSize(layerToMove)
+      top_dist = layer_info.top - selection_info.top
+      left_dist = layer_info.left - selection_info.left
+      await layerToMove.translate(-left_dist, -top_dist)
+    }
+    // const activeLayer = await getActiveLayer()
+    
+    //store all active layers
+    const activeLayers = await app.activeDocument.activeLayers
+    await unSelectMarqueeExe()
+    // await executeAsModal(unSelect,  {'commandName': 'unSelect'})
+    // await executeAsModal(scaleLayer,  {'commandName': 'scaleLayer'})
+    
+    
+    
+
+
+    await executeAsModal(async () => {
+      
+      for (let layer of activeLayers){
+        await selectLayers([layer])// make sure only one layer is selected  
+        await scaleLayer(layer,selection_info)//scale to selection size
+        await moveLayerExe(layer, selection_info)//move to selection
+      }
+    },  {'commandName': 'moveLayerExe'})
+
+    // await reselect(selection_info)
+  } catch (e) {
+    console.warn(e)
+  }
+
+  
 }
 
 module.exports = {
@@ -1139,5 +1225,7 @@ module.exports = {
   saveUniqueDocumentIdExe,
   readUniqueDocumentIdExe,
   newExportPng,
-  mergeVisibleExe
+  mergeVisibleExe,
+  selectCanvasExe,
+  layerToSelection
 }

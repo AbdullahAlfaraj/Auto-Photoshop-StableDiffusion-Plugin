@@ -1682,12 +1682,27 @@ document.querySelector('#mModelsMenu').addEventListener('change', evt => {
   sdapi.requestSwapModel(g_model_title)
 })
 
-// document.getElementById('btnGetActiveLayer').addEventListener('click', getActiveLayer)
-// document.getElementById('btnScaleDown').addEventListener('click', scaleDownLayer)
-// document.getElementById('btnSelectionInfo').addEventListener('click', getSelectionInfo)
+
 document
   .getElementById('btnLayerToSelection')
-  .addEventListener('click', helper.layerToSelection)
+  .addEventListener('click',async()=>{
+    try{
+
+      const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+      if(isSelectionAreaValid){
+      const validSelection = isSelectionAreaValid
+      psapi.layerToSelection(validSelection)
+
+    }else{
+      psapi.promptForMarqueeTool()
+    }
+    
+  }catch(e)
+  {
+    console.warn(e)
+  }
+  } 
+  )
 
 // document.getElementById('bGetInitImage').addEventListener('click', () => {
 //   sdapi.getInitImage(g_init_image_name)
@@ -1840,25 +1855,6 @@ async function imageToSmartObject () {
 
 // document.getElementById('btnNewLayer').addEventListener('click', imageToSmartObject )
 
-async function fillLayer () {
-  // User picks an image file
-  const storage = require('uxp').storage
-  const fs = storage.localFileSystem
-  let imageFile = await fs.getFileForOpening({
-    types: storage.fileTypes.images
-  })
-
-  // Create ImageFill for this image
-  const ImageFill = require('scenegraph').ImageFill
-  let fill = new ImageFill(imageFile)
-
-  let layer = getActiveLayer()
-  layer.fillImage()
-}
-//fillLayer()
-
-// Set fill of first selected item
-// selection.items[0].fill = fill;
 
 async function placeEmbedded () {
   console.log('placeEmbedded():')
@@ -1970,7 +1966,7 @@ async function ImagesToLayersExe (images_paths) {
     await openImageExe() //local image to new document
     await convertToSmartObjectExe() //convert the current image to smart object
     await stackLayers() // move the smart object to the original/old document
-    await helper.layerToSelection() //transform the new smart object layer to fit selection area
+    await psapi.layerToSelection(g_selection) //transform the new smart object layer to fit selection area
     layer = await app.activeDocument.activeLayers[0]
     image_path_to_layer[image_path] = layer 
     // await reselect(selectionInfo)
