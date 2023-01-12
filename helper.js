@@ -268,14 +268,7 @@ async function layerToSelection () {
     console.warn(e)
   }
 
-  //   await executeAsModal(layerToSelectionHelper)
-
-  // .then(()=>{
-  //   console.log("layer is transelated by 2000 unit")
-  // })
-  //get selection info
-
-  //move layer to selection top_left position
+  
 }
 
 module.exports = {
