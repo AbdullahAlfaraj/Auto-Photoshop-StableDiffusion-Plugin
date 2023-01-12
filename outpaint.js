@@ -391,8 +391,8 @@ async function outpaintFasterExe(session_id){
             
             //hide the current white mark mask layer
             const white_mark_layer = await app.activeDocument.activeLayers[0]
-            // white_mark_layer.visible = false
-            white_mark_layer.visible = true
+            white_mark_layer.visible = false
+            // white_mark_layer.visible = true
 
             
             //create a snapshot of canvas
