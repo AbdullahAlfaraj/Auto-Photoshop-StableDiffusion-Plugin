@@ -224,10 +224,26 @@ function tempDisableElement(element,time){
 
 
 async function refreshUI(){
+
+  const b_proxy_server_status = await updateVersionUI()
+  if (b_proxy_server_status){
   
-  await initSamplers()
+  html_manip.setProxyServerStatus('connected','disconnected')
+  }else{
+    html_manip.setProxyServerStatus('disconnected','connected')
+  }
+
+  const bSamplersStatus = await initSamplers()
+  if(bSamplersStatus){
+    //means both automatic1111 and proxy server are online
+  html_manip.setAutomaticStatus('connected','disconnected')
+  // html_manip.setProxyServerStatus('connected','disconnected')
+  
+  }else{
+    html_manip.setAutomaticStatus('disconnected','connected')
+  }
   await refreshModels()
-  await updateVersionUI()
+  
 }
 
 
@@ -255,27 +271,32 @@ async function refreshModels () {
 
 
 async function updateVersionUI(){
-  
+  let bStatus = false
     try{
       version = await sdapi.getVersionRequest()
     document.getElementById('lVersionNumber').textContent = version
-    }
+      if(version !== 'v0.0.0'){
+        bStatus = true
+      }
+  }
     catch (e){
       console.warn(e)
       document.getElementById('lVersionNumber').textContent = "v0.0.0"
+      bStatus = false
     }
-  
+  return bStatus
 }
 
 
 
 async function initSamplers () {
- try{
+ let bStatus = false
+  try{
 
    let sampler_group = document.getElementById('sampler_group')
    sampler_group.innerHTML = ''
 
-  samplers = await sdapi.requestGetSamplers()
+  const samplers = await sdapi.requestGetSamplers()
   for (sampler of samplers) {
     console.log(sampler)
     // sampler.name
@@ -298,9 +319,15 @@ async function initSamplers () {
     })
   }
   document.getElementsByClassName('rbSampler')[0].setAttribute('checked', '')
+  if(samplers.length > 0)
+  {
+    bStatus = true
+    
+  }
 }catch(e){
   console.warn(e)
 }
+return bStatus
 }
 
 
@@ -455,10 +482,11 @@ let g_generation_session_mode = generationMode['Txt2Img']
 
 //***********Start: init function calls */
 
-refreshModels() // get the models when the plugin loads
+// refreshModels() // get the models when the plugin loads
+// initSamplers()
+// updateVersionUI()
+refreshUI()
 displayUpdate()
-initSamplers()
-updateVersionUI()
 promptShortcutExample()
 //***********End: init function calls */
 

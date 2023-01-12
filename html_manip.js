@@ -278,6 +278,14 @@ function setGenerateButtonsColor(addClassName,removeClassName){
 
 ////// End Generate Buttons //////////
 
+function setAutomaticStatus(newStatusClass,oldStatusClass){
+document.getElementById("automaticStatus").classList.add(newStatusClass)
+document.getElementById("automaticStatus").classList.remove(oldStatusClass)
+}
+function setProxyServerStatus(newStatusClass,oldStatusClass){
+  document.getElementById("proxyServerStatus").classList.add(newStatusClass)
+  document.getElementById("proxyServerStatus").classList.remove(oldStatusClass)
+  }
 module.exports = {
   getPrompt,
   autoFillInPrompt,
@@ -300,6 +308,7 @@ module.exports = {
   getMode,
   setInitImageSrc,
   setInitImageMaskSrc,
-  setGenerateButtonsColor
-
+  setGenerateButtonsColor,
+  setAutomaticStatus,
+  setProxyServerStatus
 }

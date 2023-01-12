@@ -258,6 +258,14 @@
   .generate{
     background-color: #ff595e;
   }
+  .connected{
+    color: #6db579;
+
+  }
+  .disconnected{
+    color: #ff595e;
+
+  }
 </style>
 
 <body>
@@ -271,6 +279,10 @@
       <div class="sp-tab" id="sp-history-tab"><sp-label>History</sp-label></div>
       <div class="sp-tab" id="sp-prompts-library-tab"><sp-label>Prompts library</sp-label></div>
       <div class="sp-tab" id="sp-settings-tab"><sp-label>Settings</sp-label></div>
+      <div>
+        <span class="disconnected" id="automaticStatus" title="'A' for Automatic1111 server (webui-user.bat), Green is connected. Red Means there is a problem with your Automatic1111. Run 'webui-user.bat' and hit 'Refresh' button ">A</span>
+        <span class="disconnected" id="proxyServerStatus"title="'P' for proxy server (start_server.bat), Green is connected. Red means you need to run 'start_server.bat' or hit Refresh button">P</span>
+      </div>
       <sp-label slot="label" id="lVersionNumber">v0.0.0</sp-label>
     </div>
 
