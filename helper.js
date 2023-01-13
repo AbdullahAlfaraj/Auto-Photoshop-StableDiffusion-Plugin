@@ -22,72 +22,7 @@ function getSize () {
   return { height: doc.height, width: doc.width }
 }
 
-// function getLayerSize (layer) {
-//   console.log('layer.bounds:')
-//   console.dir(layer.bounds)
-//   const bounds = layer.bounds
-//   const height = bounds.bottom - bounds.top
-//   const width = bounds.right - bounds.left
-//   return {
-//     height: height,
-//     width: width,
-//     left: bounds.left,
-//     right: bounds.right,
-//     top: bounds.top,
-//     bottom: bounds.bottom
-//   }
-// }
-// async function getSelectionInfo () {
-//   console.log('getSelectionInfo was called')
 
-//   const { batchPlay } = require('photoshop').action
-//   const { executeAsModal } = require('photoshop').core
-
-//   async function batchPlayWrapper () {
-//     const result = await batchPlay(
-//       [
-//         {
-//           _obj: 'get',
-//           _target: [
-//             {
-//               _property: 'selection'
-//             },
-//             {
-//               _ref: 'document',
-//               _id: app.activeDocument._id
-//             }
-//           ],
-//           _options: {
-//             dialogOptions: 'dontDisplay'
-//           }
-//         }
-//       ],
-//       {
-//         synchronousExecution: true,
-//         modalBehavior: 'execute'
-//       }
-//     )
-
-//     return result
-//   }
-
-//   try {
-//     const selection = (await executeAsModal(batchPlayWrapper))[0].selection
-
-//     let selection_info = {
-//       left: selection.left._value,
-//       right: selection.right._value,
-//       bottom: selection.bottom._value,
-//       top: selection.top._value,
-//       height: selection.bottom._value - selection.top._value,
-//       width: selection.right._value - selection.left._value
-//     }
-//     // console.dir({selection_info})
-//     return selection_info
-//   } catch (e) {
-//     console.warn('selection info error', e)
-//   }
-// }
 
 const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core

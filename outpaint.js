@@ -48,32 +48,9 @@ async function moveLayersToGroup (group_id) {
   })
 }
 
-// function unselectActiveLayers(){
 
-//     const layers = app.activeDocument.activeLayers
-//     for (layer of layers){
-//         layer.selected = false
-//     }
-// }
 
-// function selectLayers(layers){
 
-//     unselectActiveLayers()
-//     for (layer of layers){
-//         layer.selected = true
-//     }
-// }
-
-// function selectGroup(layer){
-//     unselectActiveLayers()
-//     layer.parent.selected = true
-
-// }
-
-// async function mergeGroup(layer){
-//     selectGroup(layer)
-//     await app.activeDocument.activeLayers[0].merge()
-// }
 
 async function createSnapshot () {
   const { executeAsModal } = require('photoshop').core
