@@ -466,6 +466,7 @@ let g_last_snap_and_fill_layers = []
 let g_metadatas = []
 let g_can_request_progress = true
 let g_saved_active_layers = []
+let g_saved_active_selection = {};
 let g_is_active_layers_stored = false
 let g_viewer_objects = {}// {path: viewer_obj}
 let g_is_generation_session_active = false
@@ -1257,6 +1258,42 @@ async function restoreActiveLayers () {
   //   g_saved_active_layers = []
   // } 
 }
+
+//store active selection only if they are not stored.
+async function storeActiveSelection () {
+  try{
+
+    setTimeout(async () => {
+      
+      const layers = await app.activeDocument.activeLayers
+    const current_selection =  await psapi.checkIfSelectionAreaIsActive()
+    console.log("storeActiveSelection: ", current_selection)
+    
+    if(current_selection){
+      g_saved_active_selection = current_selection
+      await psapi.unSelectMarqueeExe()
+    }
+  }, 200);
+  
+}catch(e){
+  console.warn(e)
+}
+}
+async function restoreActiveSelection () {
+  try{
+
+    const current_selection =  await psapi.checkIfSelectionAreaIsActive()
+    
+  console.log("restoreActiveSelection: ", current_selection)
+  if(!current_selection && checkIfSelectionIsValid(g_saved_active_selection)){
+    await psapi.reSelectMarqueeExe(g_saved_active_selection)
+    g_saved_active_selection = {}
+  }
+}
+catch(e){
+  console.warn(e)
+}
+}
 document.getElementById('btnSdUrl').addEventListener('click', async () => {
   //change the sdUrl in server in proxy server
   console.log("you clicked btnSdUrl")
@@ -1277,6 +1314,7 @@ document.querySelector('#taPrompt').addEventListener('focus', async () => {
   // console.log('we are in prompt textarea')
   // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
   await storeActiveLayers()
+  await storeActiveSelection()
   // await psapi.unselectActiveLayersExe()
 
 })
@@ -1286,6 +1324,7 @@ document.querySelector('#taPrompt').addEventListener('blur', async () => {
   // await psapi.unselectActiveLayersExe()
   // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
   await restoreActiveLayers()
+  await restoreActiveSelection()
 })
 
 document
@@ -1295,6 +1334,7 @@ document
     // console.log('we are in prompt textarea')
 
     await storeActiveLayers()
+    await storeActiveSelection()
     // await psapi.unselectActiveLayersExe()
   })
 document
@@ -1304,6 +1344,7 @@ document
     // console.log('we are out of prompt textarea')
     // await psapi.unselectActiveLayersExe()
     await restoreActiveLayers()
+    await restoreActiveSelection()
   })
 
 function updateMetadata (new_metadata) {
