@@ -199,11 +199,13 @@ async function snapAndFillExe(session_id){
           await psapi.snapshot_layer()
           const snapshotLayer = await app.activeDocument.activeLayers[0]
           const snapshotGroup = await psapi.createEmptyGroup()
-          
+          snapshotLayer.name = "Init Image Snapshot -- temporary"
+          snapshotGroup.name = "Init Image Group -- temporary"
 
-          snapshotGroup.name = `${snapshotGroup.name}_init_image`
+          // snapshotGroup.name = `${snapshotGroup.name}_init_image`
           await psapi.createSolidLayer(255, 255, 255)
           const whiteSolidLayer = await app.activeDocument.activeLayers[0]
+          whiteSolidLayer.name = "Background Color -- temporary"
           snapshotLayer.moveAbove(whiteSolidLayer)
           console.log("[snapshotLayer,snapshotGroup]:",[snapshotLayer,snapshotGroup])
           
@@ -292,10 +294,13 @@ async function outpaintFasterExe(session_id){
           // let [snapshotLayer,snapshotGroup] =  await createSnapshot()
           await psapi.snapshot_layer()
           const snapshotLayer = await app.activeDocument.activeLayers[0]
+          snapshotLayer.name = "Init Image Snapshot -- temporary"
           const snapshotGroup = await psapi.createEmptyGroup()
-          snapshotGroup.name = `${snapshotGroup.name}_init_image`
+          // snapshotGroup.name = `${snapshotGroup.name}_init_image`
+          snapshotGroup.name = "Init Image Group -- temporary"
           await psapi.createSolidLayer(255, 255, 255)
           const whiteSolidLayer = await app.activeDocument.activeLayers[0]
+          whiteSolidLayer.name = "Background Color -- temporary"
           snapshotLayer.moveAbove(whiteSolidLayer)
           console.log("[snapshotLayer,snapshotGroup]:",[snapshotLayer,snapshotGroup])
           
@@ -311,9 +316,11 @@ async function outpaintFasterExe(session_id){
           // let [snapshotMaskLayer,snapshotMaskGroup] = await createSnapshot()
           await psapi.snapshot_layer()
           const snapshotMaskLayer = await app.activeDocument.activeLayers[0]
+          snapshotMaskLayer.name = "Mask -- Paint White to Mask -- temporary"
           // const snapshotMaskGroup = await psapi.createEmptyGroup()
           
-          snapshotMaskGroup.name = `${snapshotMaskGroup.name}_mask` 
+          // snapshotMaskGroup.name = `${snapshotMaskGroup.name}_mask` 
+          snapshotMaskGroup.name = "Mask Group -- temporary" 
           snapshotMaskLayer.moveBelow(solid_black_layer)
           await snapshotMaskGroup.moveAbove(snapshotGroup)
           await solid_black_layer.delete()// should we await for the deletion?
@@ -376,6 +383,7 @@ async function outpaintFasterExe(session_id){
             //hide the current white mark mask layer
             const white_mark_layer = await app.activeDocument.activeLayers[0]
             white_mark_layer.visible = false
+            white_mark_layer.name = "Mask -- Paint White to Mask -- temporary"
             // white_mark_layer.visible = true
 
             
@@ -389,10 +397,12 @@ async function outpaintFasterExe(session_id){
 
 
             const snapshotLayer = await app.activeDocument.activeLayers[0]
-            
+            snapshotLayer.name = "Init Image Snapshot -- temporary"
             const snapshotGroup = await psapi.createEmptyGroup()
+            snapshotGroup.name = "Init Image Group -- temporary"
             await psapi.createSolidLayer(255, 255, 255)
             const whiteSolidLayer = await app.activeDocument.activeLayers[0]
+            whiteSolidLayer.name = "Background Color -- temporary"
             await snapshotLayer.moveAbove(whiteSolidLayer)
             
             await psapi.selectLayers([snapshotGroup])
@@ -404,10 +414,13 @@ async function outpaintFasterExe(session_id){
 
 
             const maskGroup = await psapi.createEmptyGroup()
-            maskGroup.name = `${maskGroup.name}_mask`
+            // maskGroup.name = `${maskGroup.name}_mask`
+            
+            maskGroup.name = "Mask Group -- temporary" 
 
             await psapi.createSolidLayer(0, 0, 0)
             const blackSolidLayer = await app.activeDocument.activeLayers[0]
+            blackSolidLayer.name = "Don't Edit -- temporary" 
             // snapshotLayer.moveAbove(blackSolidLayer)
             white_mark_layer.moveAbove(blackSolidLayer)
             white_mark_layer.visible = true
@@ -466,6 +479,7 @@ async function outpaintFasterExe(session_id){
               layer.visible = false 
             }
             const util_layer = require('./utility/layer')
+            
             await util_layer.collapseFolderExe([snapshotGroup,maskGroup],false)
         })
         return inpaintLayers
