@@ -560,13 +560,24 @@ for (let rbMaskContentElement of rbMaskContentElements) {
 
 document.addEventListener("mouseenter",async (event)=>{
   try{
-    console.log("hover on window")
-  const new_selection = await psapi.getSelectionInfoExe()
-  if(await hasSelectionChanged(new_selection,g_selection)){
-    sessionStartHtml(false)//generate ,red color
-  }else{
-    sessionStartHtml(true)//generate more, green color
+  //only check if the generation mode has not changed. changing the mode will trigger it's own procedure, so doing it here again is redundant  
+  if(g_generation_session_mode === g_sd_mode){
 
+    console.log("hover on window")
+    const new_selection = await psapi.getSelectionInfoExe()
+    if(await hasSelectionChanged(new_selection,g_selection)){
+      
+      const [final_width,final_height] = await selection.selectionToFinalWidthHeight()
+      console.log("(final_width,final_height):",final_width,final_height)
+      
+      html_manip.autoFillInWidth(final_width)
+      html_manip.autoFillInHeight(final_height)
+
+      sessionStartHtml(false)//generate ,red color
+    }else{
+      sessionStartHtml(true)//generate more, green color
+      
+    }
   }
 }catch(e){
   console.warn(e)
