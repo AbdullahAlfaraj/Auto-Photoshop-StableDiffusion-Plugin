@@ -54,9 +54,53 @@ async function createNewLayerCommand (layerName) {
 
     return index
   }
+  const photoshop = require("photoshop");
+
+const collapseFolderCommand = async (expand = false, recursive = false) => {
+  let result  
+  try {
+         result = await batchPlay(
+            [
+                {
+                    _obj: "set",
+                    _target: {
+                        _ref: [
+                            {_property: "layerSectionExpanded"},
+                            {
+                                _ref: "layer",
+                                _enum: "ordinal",
+                                _value: "targetEnum",
+                            }
+                        ],
+                    },
+                    to: expand,
+                    recursive,
+                    _options: {dialogOptions: "dontDisplay"},
+                },
+            ],
+            {synchronousExecution: true}
+        );
+    } catch (e) {
+        console.error(e.message);
+    }
+    return result
+}
+async function collapseFolderExe(expand = false, recursive = false){
+try{
+
+  await executeAsModal(async()=>{
+    await collapseFolderCommand(expand,recursive)
+  })
+}catch(e){
+  console.warn(e)
+}
+
+
+}
   module.exports = {
     
     createNewLayerExe,
     deleteLayers,
-    getIndexExe
+    getIndexExe,
+    collapseFolderExe
   }
