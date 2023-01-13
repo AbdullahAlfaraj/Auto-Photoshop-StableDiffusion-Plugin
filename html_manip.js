@@ -102,12 +102,6 @@ function autoFillInDenoisingStrength (denoising_strength_value) {
 ////// Start Hi Res Fix//////////
 
 
-document.getElementById('chHiResFixs').addEventListener('input', evt => {
-  const label_value = evt.target.value / 100
-  // console.log("label_value: ", label_value)
-  document.getElementById('lDenoisingStrength').innerHTML = `${label_value}`
-
-})
 
 //get the value that is relevant to stable diffusion
 function getHiResFixs() {
@@ -150,7 +144,7 @@ sliderAddEventListener('hrDenoisingStrength','hDenoisingStrength',0.01)
 
 
 function autoFillInHiResFixs(firstphase_width,firstphase_height) {
-  setHiResFixs(true)
+  
   //update the firstphase width slider and label
   autoFillInSliderUi(firstphase_width,'hrWidth','hWidth',1.0/64)
   //update the firstphase height slider and label
@@ -278,6 +272,9 @@ function setGenerateButtonsColor(addClassName,removeClassName){
 
 ////// End Generate Buttons //////////
 
+
+////// Start Servers Status //////////
+
 function setAutomaticStatus(newStatusClass,oldStatusClass){
 document.getElementById("automaticStatus").classList.add(newStatusClass)
 document.getElementById("automaticStatus").classList.remove(oldStatusClass)
@@ -286,6 +283,68 @@ function setProxyServerStatus(newStatusClass,oldStatusClass){
   document.getElementById("proxyServerStatus").classList.add(newStatusClass)
   document.getElementById("proxyServerStatus").classList.remove(oldStatusClass)
   }
+////// End Servers Status //////////
+
+
+////// Start Reset Settings Button //////////
+
+document.getElementById("btnResetSettings").addEventListener('click',autoFillDefaultSettings)
+
+const defaultSettings = {
+model: null,
+prompt_shortcut: null,
+positive_prompt: "",
+negative_prompt: "",
+selection_mode: null,
+batch_number: 1,
+steps: 20,
+width: 512 ,
+height:512,
+firstphase_width:512,
+firstphase_height:512,
+cfg:7,
+denoising_strength:0.7,
+hi_res_denoising_strength:0.7,
+mask_blur: 8,
+inpaint_at_full_res: false,
+hi_res_fix:false,
+inpaint_padding:0,
+seed:-1,
+samplers: null,
+mask_content:null
+}
+
+function autoFillInBatchNumber(batch_number){
+  document.getElementById('tiNumberOfImages').value = String(batch_number)
+}
+function autoFillInSteps(steps){
+  document.getElementById('tiNumberOfSteps').value = String(steps)
+}
+function autoFillDefaultSettings(){
+try{
+
+  //reset all UI settings except model selection and sampler selection 
+  autoFillInPrompt(defaultSettings['positive_prompt'])
+autoFillInNegativePrompt(defaultSettings['negative_prompt'])
+autoFillInBatchNumber (defaultSettings['batch_number'])
+autoFillInSteps (defaultSettings['steps'])
+autoFillInWidth(defaultSettings['width'])
+autoFillInHeight(defaultSettings['height'])
+autoFillInHiResFixs(defaultSettings['firstphase_width'],defaultSettings['firstphase_height'])
+document.getElementById('slCfgScale').value = defaultSettings['cfg']
+autoFillInDenoisingStrength(defaultSettings['denoising_strength'])
+autoFillInSliderUi(defaultSettings['hi_res_denoising_strength'],'hrDenoisingStrength','hDenoisingStrength',100)
+document.getElementById('slMaskBlur').value = defaultSettings['mask_blur']
+document.getElementById('chInpaintFullRes').checked = defaultSettings['inpaint_at_full_res']
+setHiResFixs(defaultSettings['hi_res_fix'])
+document.getElementById('tiSeed').value = String(defaultSettings['seed'])
+
+}catch(e){
+  console.warn(e)
+}
+
+}
+////// End Reset Settings Button //////////
 module.exports = {
   getPrompt,
   autoFillInPrompt,
@@ -310,5 +369,7 @@ module.exports = {
   setInitImageMaskSrc,
   setGenerateButtonsColor,
   setAutomaticStatus,
-  setProxyServerStatus
+  setProxyServerStatus,
+  defaultSettings,
+  autoFillDefaultSettings
 }

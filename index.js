@@ -410,6 +410,7 @@ function autoFillInSettings(metadata_json){
     {
       // chHiResFixs
       const [firstphase_width,firstphase_height] =metadata_json["First pass size"].split('x')
+      html_manip.setHiResFixs(true)
       html_manip.autoFillInHiResFixs(firstphase_width,firstphase_height)
       html_manip.autoFillInSliderUi(metadata_json['Denoising strength'],'hrDenoisingStrength','hDenoisingStrength',100)
     }else{//
