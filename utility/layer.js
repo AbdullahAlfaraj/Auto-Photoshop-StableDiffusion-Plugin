@@ -1,5 +1,6 @@
 const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
+const {cleanLayers, getLayerIndex, selectLayers} = require('../psapi')
 
 async function createNewLayerExe (layerName) {
 
@@ -16,10 +17,10 @@ async function createNewLayerCommand (layerName) {
     })
   }
 
+  
 
 
   async function deleteLayers(layers){
-    const {cleanLayers, getLayerIndex} = require('../psapi')
     await cleanLayers(layers)
   }
 
@@ -85,12 +86,14 @@ const collapseFolderCommand = async (expand = false, recursive = false) => {
     }
     return result
 }
-async function collapseFolderExe(expand = false, recursive = false){
+async function collapseFolderExe(layers,expand = false, recursive = false){
 try{
-
+for (let layer of layers){
   await executeAsModal(async()=>{
+    await selectLayers([layer]) 
     await collapseFolderCommand(expand,recursive)
   })
+}
 }catch(e){
   console.warn(e)
 }
