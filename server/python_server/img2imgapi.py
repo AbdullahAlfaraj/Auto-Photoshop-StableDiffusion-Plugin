@@ -60,7 +60,7 @@ async def img2ImgRequest(sd_url,payload):
     if(len(init_img_mask_name) > 0):
         init_img_mask = Image.open(f"{init_img_dir}/{init_img_mask_name}")
         
-        if(payload['use_sharp_mask']):
+        if(payload['use_sharp_mask'] == False):# use blurry mask 
             init_img_mask = applyDilation(init_img_mask)
 
         init_img_mask_str = img_2_b64(init_img_mask) 
