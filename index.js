@@ -32,6 +32,15 @@ const eventHandler = async (event, descriptor) => {
       console.log(event, descriptor)
       html_manip.autoFillInWidth(final_width)
       html_manip.autoFillInHeight(final_height)
+      // if selection has changed : change the color and text generate btn  "Generate" color "red" 
+      const new_selection = await psapi.getSelectionInfoExe()
+      if(await hasSelectionChanged(new_selection,g_selection)){
+        sessionStartHtml(false)//generate ,red color
+      }else{
+        sessionStartHtml(true)//generate more, green color
+
+      }
+      //
     }
   }catch(e){
     console.warn(e)
@@ -549,6 +558,20 @@ for (let rbMaskContentElement of rbMaskContentElements) {
   })
 }
 
+document.addEventListener("mouseenter",async (event)=>{
+  try{
+    console.log("hover on window")
+  const new_selection = await psapi.getSelectionInfoExe()
+  if(await hasSelectionChanged(new_selection,g_selection)){
+    sessionStartHtml(false)//generate ,red color
+  }else{
+    sessionStartHtml(true)//generate more, green color
+
+  }
+}catch(e){
+  console.warn(e)
+}
+})
 ////add tips to element when mouse hover on an element 
 // function getToolTipElement(){
 //   const tool_tip = document.getElementById("tool_tip")
