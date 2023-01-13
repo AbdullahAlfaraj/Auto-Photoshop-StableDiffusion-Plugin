@@ -345,6 +345,31 @@ document.getElementById('tiSeed').value = String(defaultSettings['seed'])
 
 }
 ////// End Reset Settings Button //////////
+
+function getMaskBlur(){
+  const isDisabled = document.getElementById('slMaskBlur').hasAttribute('disabled')
+  let mask_blur = 0
+  if(isDisabled){
+    mask_blur = 0
+  }else{
+    mask_blur = document.getElementById('slMaskBlur').value
+
+  }
+  return mask_blur
+}
+function getUseSharpMask(){
+  const isChecked = document.getElementById('chUseSharpMask').checked
+  return isChecked
+}
+document.getElementById('chUseSharpMask').addEventListener('change',(ev)=>{
+  const isChecked = ev.target.checked
+  if(isChecked){
+    document.getElementById('slMaskBlur').setAttribute('disabled')
+  }else{
+    document.getElementById('slMaskBlur').removeAttribute('disabled')
+
+  }
+})
 module.exports = {
   getPrompt,
   autoFillInPrompt,
@@ -371,5 +396,7 @@ module.exports = {
   setAutomaticStatus,
   setProxyServerStatus,
   defaultSettings,
-  autoFillDefaultSettings
+  autoFillDefaultSettings,
+  getMaskBlur,
+  getUseSharpMask
 }

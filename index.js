@@ -1379,7 +1379,9 @@ async function getSettings(){
   const cfg_scale = document.querySelector('#slCfgScale').value
   //  const model_index = document.querySelector("#")
   const seed = document.querySelector('#tiSeed').value
-  const mask_blur = document.querySelector('#slMaskBlur').value
+  // const mask_blur = document.querySelector('#slMaskBlur').value
+  const use_sharp_mask = html_manip.getUseSharpMask()
+  const mask_blur = html_manip.getMaskBlur()
   const inpaint_full_res_padding = document.querySelector('#slInpaintPadding').value
 
   console.dir(numberOfImages)
@@ -1472,6 +1474,7 @@ async function getSettings(){
     cfg_scale: cfg_scale,
     seed: seed,
     mask_blur: mask_blur,
+    use_sharp_mask: use_sharp_mask,
     use_prompt_shortcut: bUsePromptShortcut,
     prompt_shortcut_ui_dict: prompt_shortcut_ui_dict,
     uniqueDocumentId: uniqueDocumentId,

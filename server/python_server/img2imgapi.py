@@ -59,7 +59,10 @@ async def img2ImgRequest(sd_url,payload):
     #only if image exist then try to open it
     if(len(init_img_mask_name) > 0):
         init_img_mask = Image.open(f"{init_img_dir}/{init_img_mask_name}")
-        init_img_mask = applyDilation(init_img_mask)
+        
+        if(payload['use_sharp_mask']):
+            init_img_mask = applyDilation(init_img_mask)
+
         init_img_mask_str = img_2_b64(init_img_mask) 
         payload['mask'] = init_img_mask_str #there is only one mask, unlike 'init_images' which is of type array
 

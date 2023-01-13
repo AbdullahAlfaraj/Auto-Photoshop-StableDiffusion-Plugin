@@ -361,6 +361,8 @@
         <sp-label>SD Url:</sp-label><sp-textfield id="tiSdUrl" type="text" placeholder="http://127.0.0.1:7860"
         value=""></sp-textfield><button class="btnSquare" id="btnSdUrl">Submit</button>
       </div>
+          <sp-checkbox id="chUseSharpMask">use sharp mask</sp-checkbox>
+          
     </div>
 
     <div class="sp-tab-page visible" id="sp-stable-diffusion-ui-tab-page">
@@ -526,7 +528,8 @@
           <sp-label slot="label" id="hDenoisingStrength">0.7</sp-label>
         </sp-slider>
 
-        <sp-slider show-value="true" id="slMaskBlur" min="0" max="64" value="7">
+
+        <sp-slider  show-value="true" id="slMaskBlur"  min="0" max="64" value="7">
           <sp-label slot="label">Mask Blur:</sp-label>
           <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
         </sp-slider>
