@@ -2503,13 +2503,28 @@ document.getElementById('btnLoadPromptShortcut').addEventListener('click',async 
 
 }) 
 
+document.getElementById('btnUpdatePromptShortcut').addEventListener('click',async function(){
+  try{
+    prompt_shortcut = await sdapi.loadPromptShortcut()
+    var newKey = document.getElementById('KeyPromptShortcut').value
+    var newValue = document.getElementById('ValuePromptShortcut').value
+    console.log(newKey)
+    console.log(newValue)
+    prompt_shortcut[newKey] = newValue
+    var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
+    console.log(JSONInPrettyFormat)
+    document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+  }catch(e){
+    console.warn(`loadPromptShortcut warning: ${e}`)
+  }
+
+}) 
+
 
 document
   .getElementById('btnSavePromptShortcut')
   .addEventListener('click', async function () {
     try {
-      
-
       const r1 = await dialog_box.prompt(
         'Are you sure you want to save prompt shortcut?',
         "This will override your old prompt shortcut file, you can't undo this operation",
@@ -2522,8 +2537,6 @@ document
         /* Yes */
         console.log("Save")
         
-      
-      
         prompt_shortcut_string = document.getElementById('taPromptShortcut').value
         let prompt_shortcut =  JSON.parse(prompt_shortcut_string)
   
@@ -2541,6 +2554,7 @@ document
 
      
   })
+
 
 // Hi res fix stuff
 
