@@ -298,6 +298,14 @@
   .rbMaskContent{
     font-size: 1.1em;
   }
+  #slCfgScale{
+    width:50%;
+    margin-right:10px;
+  }
+  #slDenoisingStrength{
+    width:50%;
+    margin-left:10px;
+  }
 </style>
 
 <body>
@@ -560,15 +568,18 @@
             <sp-label class="labelNumber" slot="label" id="hDenoisingStrength">0.7</sp-label>
           </sp-slider>
         </div>
-        <sp-slider show-value="true" id="slCfgScale" min="1" max="30" value="7">
-          <sp-label slot="label">CFG Scale:</sp-label>
+        <div style="display:flex;">
+
+          <sp-slider show-value="true" id="slCfgScale" min="1" max="30" value="7">
+            <sp-label slot="label">CFG Scale:</sp-label>
           <!-- <sp-label slot="label" id="lCfgScale">7</sp-label> -->
         </sp-slider>
-
+        
         <sp-slider show-value="false" id="slDenoisingStrength" min="0" max="100" value="70">
           <sp-label slot="label">Denoising Strength:</sp-label>
           <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label>
         </sp-slider>
+      </div>
         
 
 
