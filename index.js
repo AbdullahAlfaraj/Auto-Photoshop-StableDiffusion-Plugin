@@ -658,6 +658,8 @@ function displayUpdate () {
     document.getElementById('slInpainting_fill').style.display = 'none' // hide inpainting fill mode
     document.getElementById('chInpaintFullRes').style.display = 'none' 
 
+    
+    document.getElementById('chHiResFixs').style.display = 'flex' 
     if(html_manip.getHiResFixs()){
       document.getElementById('hi-res-sliders-container').style.display = 'flex'
     }
@@ -680,6 +682,7 @@ function displayUpdate () {
     document.getElementById('chInpaintFullRes').style.display = 'none' 
     document.getElementById('slInpaintPadding').style.display = 'none' 
     document.getElementById("slMaskBlur").style.display = 'none'
+    document.getElementById('chHiResFixs').style.display = 'none'
   }
   if (g_sd_mode == 'inpaint' || g_sd_mode== 'outpaint') {
     ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring   
@@ -704,6 +707,7 @@ function displayUpdate () {
       document.getElementById('slInpaintPadding').style.display = 'none' 
     }
     document.getElementById("slMaskBlur").style.display = 'block'
+    document.getElementById('chHiResFixs').style.display = 'none'
     // document.getElementById('btnInitOutpaint').style.display = 'inline-flex'
     // document.getElementById('btnInitInpaint').style.display = 'inline-flex'
     // document.getElementById('btnInitOutpaint').style.display = 'none'
