@@ -370,6 +370,18 @@ document.getElementById('chUseSharpMask').addEventListener('change',(ev)=>{
 
   }
 })
+
+document.getElementById('chUseSmartObject').addEventListener('change',(ev)=>{
+  const isChecked = ev.target.checked
+  if(isChecked){
+    g_b_use_smart_object = true
+  }else{
+    g_b_use_smart_object = false
+
+  }
+})
+
+
 module.exports = {
   getPrompt,
   autoFillInPrompt,

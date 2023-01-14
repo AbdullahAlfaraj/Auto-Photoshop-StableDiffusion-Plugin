@@ -26,15 +26,18 @@ const eventHandler = async (event, descriptor) => {
 
     const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
     if (isSelectionActive){
-      
+      const current_selection = isSelectionActive // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.  
       const [final_width,final_height] = await selection.selectionToFinalWidthHeight()
       console.log("(final_width,final_height):",final_width,final_height)
       console.log(event, descriptor)
       html_manip.autoFillInWidth(final_width)
       html_manip.autoFillInHeight(final_height)
+      console.log(`(${current_selection.width} * ${current_selection.height}) /(${final_width}* ${final_height})`)
+
+      console.log("detail density: ",(current_selection.width * current_selection.height) /(final_width* final_height))
       // if selection has changed : change the color and text generate btn  "Generate" color "red" 
-      const new_selection = await psapi.getSelectionInfoExe()
-      if(await hasSelectionChanged(new_selection,g_selection)){
+      // const new_selection = await psapi.getSelectionInfoExe()
+      if(await hasSelectionChanged(current_selection,g_selection)){
         sessionStartHtml(false)//generate ,red color
       }else{
         sessionStartHtml(true)//generate more, green color
@@ -476,6 +479,7 @@ let g_b_mask_layer_exist = false// true if inpaint mask layer exist, false other
 let g_inpaint_mask_layer;
 let g_inpaint_mask_layer_history_id; //store the history state id when creating a new inpaint mask layer
 let g_selection = {}
+let g_b_use_smart_object = true // true to keep layer as smart objects, false to rasterize them
 const requestState = {
 	Generate: "generate",
 	Interrupt: "interrupt",
@@ -574,7 +578,10 @@ document.addEventListener("mouseenter",async (event)=>{
       
       html_manip.autoFillInWidth(final_width)
       html_manip.autoFillInHeight(final_height)
+      console.log(`(${new_selection.width} * ${new_selection.height}) /(${final_width}* ${final_height})`)
 
+      console.log("detail density: ",(new_selection.width * new_selection.height) /(final_width* final_height))
+      
       sessionStartHtml(false)//generate ,red color
     }else{
       sessionStartHtml(true)//generate more, green color
@@ -2095,6 +2102,12 @@ async function ImagesToLayersExe (images_paths) {
     console.log(gCurrentImagePath)
     await openImageExe() //local image to new document
     await convertToSmartObjectExe() //convert the current image to smart object
+    if (g_b_use_smart_object === false){
+
+      await executeAsModal(async ()=>{
+        await app.activeDocument.activeLayers[0].rasterize()//rastrize the active layer
+      })
+    }
     await stackLayers() // move the smart object to the original/old document
     await psapi.layerToSelection(g_selection) //transform the new smart object layer to fit selection area
     layer = await app.activeDocument.activeLayers[0]
