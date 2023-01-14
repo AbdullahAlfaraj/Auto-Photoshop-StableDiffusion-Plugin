@@ -661,7 +661,9 @@ function displayUpdate () {
     if(html_manip.getHiResFixs()){
       document.getElementById('hi-res-sliders-container').style.display = 'flex'
     }
-    
+
+    document.getElementById('slInpaintPadding').style.display = 'none' 
+
     // document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
   }
 
@@ -675,6 +677,8 @@ function displayUpdate () {
     // document.getElementById('btnSnapAndFill').style.display = 'inline-flex' // hide snap and fill button mode
     document.getElementById('hi-res-sliders-container').style.display = 'none'
     document.getElementById('chInpaintFullRes').style.display = 'none' 
+    document.getElementById('slInpaintPadding').style.display = 'none' 
+
   }
   if (g_sd_mode == 'inpaint' || g_sd_mode== 'outpaint') {
     ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring   
@@ -692,6 +696,12 @@ function displayUpdate () {
     
     document.getElementById('hi-res-sliders-container').style.display = 'none'
     document.getElementById('chInpaintFullRes').style.display = 'inline-flex' 
+    if(document.getElementById('chInpaintFullRes').checked){
+
+      document.getElementById('slInpaintPadding').style.display = 'block' 
+    }else{
+      document.getElementById('slInpaintPadding').style.display = 'none' 
+    }
     // document.getElementById('btnInitOutpaint').style.display = 'inline-flex'
     // document.getElementById('btnInitInpaint').style.display = 'inline-flex'
     // document.getElementById('btnInitOutpaint').style.display = 'none'

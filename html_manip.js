@@ -101,7 +101,16 @@ function autoFillInDenoisingStrength (denoising_strength_value) {
 
 ////// Start Hi Res Fix//////////
 
+document.getElementById('chInpaintFullRes').addEventListener('click',(ev)=>{
+  const inpaint_padding_slider = document.getElementById('slInpaintPadding')
+  
+  if (ev.target.checked){
+    inpaint_padding_slider.style.display = 'block'
+  }else{
+    inpaint_padding_slider.style.display = 'none'
 
+  }
+})
 document.getElementById('chHiResFixs').addEventListener('click',(ev)=>{
   const container = document.getElementById('hi-res-sliders-container')
   
