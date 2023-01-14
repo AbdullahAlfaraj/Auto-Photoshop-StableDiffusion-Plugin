@@ -135,7 +135,7 @@ function setHiResFixs(isChecked) {
 function sliderAddEventListener(slider_id,label_id,multiplier){
   document.getElementById(slider_id).addEventListener('input', evt => {
     const sd_value = evt.target.value * multiplier // convert slider value to SD ready value
-    document.getElementById(label_id).textContent = sd_value
+    document.getElementById(label_id).textContent = Number(sd_value).toFixed(2)
   })
 }
 

@@ -276,13 +276,18 @@
 
   }
   #hrWidth{
-    width:50%;
+    width:33%;
     margin-right: 10px;
   }
   #hrHeight{
-    width:50%;
+    width:33%;
     margin-left: 10px;
 
+  }
+  #hrDenoisingStrength{
+    width:33%;
+    margin-left:10px;
+    
   }
   #tiNumberOfSteps{
     width: 50%;
@@ -548,6 +553,10 @@
             <sp-label slot="label">Hi Res Height:</sp-label>
             <sp-label class="labelNumber" slot="label" id="hHeight">512</sp-label>
           </sp-slider>
+          <sp-slider show-value="false" id="hrDenoisingStrength" min="0" max="100" value="70">
+            <sp-label slot="label">Hi Res Denoising:</sp-label>
+            <sp-label class="labelNumber" slot="label" id="hDenoisingStrength">0.7</sp-label>
+          </sp-slider>
         </div>
         <sp-slider show-value="true" id="slCfgScale" min="1" max="30" value="7">
           <sp-label slot="label">CFG Scale:</sp-label>
@@ -558,10 +567,7 @@
           <sp-label slot="label">Denoising Strength:</sp-label>
           <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label>
         </sp-slider>
-        <sp-slider show-value="false" id="hrDenoisingStrength" min="0" max="100" value="70">
-          <sp-label slot="label"> High Res Denoising Strength:</sp-label>
-          <sp-label slot="label" id="hDenoisingStrength">0.7</sp-label>
-        </sp-slider>
+        
 
 
         <sp-slider  show-value="true" id="slMaskBlur"  min="0" max="64" value="7">
@@ -590,9 +596,9 @@
 
       </div>
       <div>
-        <div>
+        <div style="display:flex">
           <sp-label>Seed:</sp-label><sp-textfield id="tiSeed" placeholder="Seed" value="-1"></sp-textfield>
-          <button class="btnSquare" id="btnRandomSeed">Random</button>
+          <button class="btnSquare" id="btnRandomSeed" style="margin-right: 3px; margin-left: 3px;">Random</button>
           <button class="btnSquare" id="btnLastSeed">Last</button>
         </div>
         <button type="button" id="collapsible">Show Samplers</button>
