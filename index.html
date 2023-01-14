@@ -266,6 +266,15 @@
     color: #ff595e;
 
   }
+  #slWidth{
+    width:50%;
+    margin-right: 10px;
+  }
+  #slHeight{
+    width:50%;
+    margin-left: 10px;
+
+  }
 </style>
 
 <body>
@@ -497,7 +506,7 @@
           <sp-label>Steps:</sp-label><sp-textfield id="tiNumberOfSteps" type="number" placeholder="20"
             value="20"></sp-textfield>
         </div>
-        <div>
+        <div style="display:flex;">
           <sp-slider show-value="false" id="slWidth" min="1" max="32" value="8">
             <sp-label slot="label">Width:</sp-label>
             <sp-label class="labelNumber" slot="label" id="lWidth">512</sp-label>

@@ -32,9 +32,9 @@ const eventHandler = async (event, descriptor) => {
       console.log(event, descriptor)
       html_manip.autoFillInWidth(final_width)
       html_manip.autoFillInHeight(final_height)
-      console.log(`(${current_selection.width} * ${current_selection.height}) /(${final_width}* ${final_height})`)
+      console.log(` (${final_width}* ${final_height})/(${current_selection.width} * ${current_selection.height})`)
 
-      console.log("detail density: ",(current_selection.width * current_selection.height) /(final_width* final_height))
+      console.log("detail density: ",(final_width* final_height)/(current_selection.width * current_selection.height))
       // if selection has changed : change the color and text generate btn  "Generate" color "red" 
       // const new_selection = await psapi.getSelectionInfoExe()
       if(await hasSelectionChanged(current_selection,g_selection)){
