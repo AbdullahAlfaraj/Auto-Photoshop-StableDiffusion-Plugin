@@ -535,7 +535,7 @@
             <sp-label class="labelNumber" slot="label" id="lHeight">512</sp-label>
           </sp-slider>
         </div>
-        <div id='hi-res-sliders-container' style="display:flex;">
+        <div id='hi-res-sliders-container' style="display:none;">
           <sp-slider show-value="false" id="hrWidth" min="1" max="32" value="8">
             <sp-label slot="label">Hi Res Width:</sp-label>
             <sp-label class="labelNumber" slot="label" id="hWidth">512</sp-label>
@@ -574,7 +574,7 @@
             <sp-radio class="rbMaskContent" value="3">latent nothing</sp-radio>
           </sp-radio-group>
         </div>
-        <sp-checkbox id="chInpaintFullRes">Inpaint at full resolution</sp-checkbox>
+        <sp-checkbox id="chInpaintFullRes">Inpaint at Full Res</sp-checkbox>
         <sp-checkbox id="chHiResFixs">Hi Res Fix</sp-checkbox>
         <sp-slider show-value="false" id="slInpaintPadding" min="0" max="64" value="0">
           <sp-label slot="label" id="lNameInpaintPdding">Inpaint Padding:</sp-label>
