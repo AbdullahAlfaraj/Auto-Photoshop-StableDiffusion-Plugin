@@ -27,11 +27,13 @@ const eventHandler = async (event, descriptor) => {
     const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
     if (isSelectionActive){
       
-      const [final_width,final_height] = await selection.selectionToFinalWidthHeight()
+      const [final_width,final_height,initial_width,initial_height] = await selection.selectionToFinalWidthHeight()
       console.log("(final_width,final_height):",final_width,final_height)
       console.log(event, descriptor)
       html_manip.autoFillInWidth(final_width)
       html_manip.autoFillInHeight(final_height)
+      html_manip.autoFillInHRWidth(initial_width)
+      html_manip.autoFillInHRHeight(initial_height)
       // if selection has changed : change the color and text generate btn  "Generate" color "red" 
       const new_selection = await psapi.getSelectionInfoExe()
       if(await hasSelectionChanged(new_selection,g_selection)){
@@ -567,11 +569,13 @@ document.addEventListener("mouseenter",async (event)=>{
     const new_selection = await psapi.getSelectionInfoExe()
     if(await hasSelectionChanged(new_selection,g_selection)){
       
-      const [final_width,final_height] = await selection.selectionToFinalWidthHeight()
+      const [final_width,final_height,initial_width,initial_height] = await selection.selectionToFinalWidthHeight()
       console.log("(final_width,final_height):",final_width,final_height)
       
       html_manip.autoFillInWidth(final_width)
       html_manip.autoFillInHeight(final_height)
+      html_manip.autoFillInHRWidth(initial_width)
+      html_manip.autoFillInHRHeight(initial_height)
 
       sessionStartHtml(false)//generate ,red color
     }else{
@@ -860,10 +864,10 @@ document.querySelector('#hrWidth').addEventListener('input', evt => {
   hWidth = sliderToResolution(evt.target.value)
   document.querySelector('#hWidth').textContent = hWidth
 })
-document.querySelector('#hrScale').addEventListener('input', evt => {
-  hScale = sliderToResolution(evt.target.value)
-  document.querySelector('#hScale').textContent = hScale
-})
+//document.querySelector('#hrScale').addEventListener('input', evt => {
+//  hScale = sliderToResolution(evt.target.value)
+//  document.querySelector('#hScale').textContent = hScale
+//})
 document.querySelector('#slInpaintPadding').addEventListener('input', evt => {
   padding = evt.target.value * 4
   document.querySelector('#lInpaintPadding').textContent = padding
@@ -1403,7 +1407,7 @@ async function getSettings(){
   const hWidth = html_manip.getSliderSdValue('hrWidth',64)
   const hHeight = html_manip.getSliderSdValue('hrHeight',64)
   const hSteps = html_manip.getSliderSdValue('hrNumberOfSteps',1)
-  const hScale = html_manip.getSliderSdValue('hrScale',1)
+  //const hScale = html_manip.getSliderSdValue('hrScale',1)
   console.log("Check")
   
   const uniqueDocumentId = await getUniqueDocumentId()
@@ -1447,9 +1451,11 @@ async function getSettings(){
   }
   if(hi_res_fix){
     payload['enable_hr'] = hi_res_fix
-    payload['firstphase_width'] = hWidth
-    payload['firstphase_height'] =  hHeight
-    payload['hr_scale'] =  hScale // Scale
+    payload['firstphase_width'] = width
+    payload['firstphase_height'] =  height
+    payload['hr_resize_x'] = hWidth
+    payload['hr_resize_y'] =  hHeight
+    // payload['hr_scale'] =  hScale // Scale
     payload['hr_upscaler'] =  upscaler // Upscaler
     payload['hr_second_pass_steps'] =  hSteps // Number of Steps
   }else{
