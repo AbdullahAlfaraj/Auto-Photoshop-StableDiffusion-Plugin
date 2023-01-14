@@ -133,7 +133,7 @@ document.getElementById("sp-viewer-tab").addEventListener('click',()=>{
 
 })
 document.getElementById("sp-stable-diffusion-ui-tab").addEventListener('click', ()=>{
-  moveElementToAnotherTab("batchNumberUi","batchNumberSdUiTabContainer")
+  moveElementToAnotherTab("batchNumberUi","batchNumber-steps-container")
 
 })
 // entrypoints.setup({

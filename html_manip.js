@@ -102,7 +102,16 @@ function autoFillInDenoisingStrength (denoising_strength_value) {
 ////// Start Hi Res Fix//////////
 
 
+document.getElementById('chHiResFixs').addEventListener('click',(ev)=>{
+  const container = document.getElementById('hi-res-sliders-container')
+  
+  if (ev.target.checked){
+    container.style.display = 'flex'
+  }else{
+    container.style.display = 'none'
 
+  }
+})
 //get the value that is relevant to stable diffusion
 function getHiResFixs() {
   const isChecked = document.getElementById('chHiResFixs').checked

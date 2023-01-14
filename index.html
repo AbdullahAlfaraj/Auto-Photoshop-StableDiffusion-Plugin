@@ -275,6 +275,21 @@
     margin-left: 10px;
 
   }
+  #hrWidth{
+    width:50%;
+    margin-right: 10px;
+  }
+  #hrHeight{
+    width:50%;
+    margin-left: 10px;
+
+  }
+  #tiNumberOfSteps{
+    width: 50%;
+  }
+   #tiNumberOfSteps{
+    width:auto;
+  }
 </style>
 
 <body>
@@ -305,7 +320,11 @@
         
       </div>
       <div>
-          <div style="display:inline-flex;">
+        <button class="btnSquare btnGenerateClass" id="btnGenerate">Generate</button>
+        <button class="btnSquare btnInterruptClass" id="btnInterruptViewer" style="display:none;">Interrupt</button>
+        <button class="btnSquare acceptClass" id="btnAcceptViewer" style="display:none;">Accept</button>
+        <button class="btnSquare discardClass" id="btnDiscardViewer" style="display:none;">Discard</button>  
+        <div style="display:inline-flex;">
             <div id="batchNumberViewerTabContainer" >
               <!-- we will append here batch number field here   -->
               <!-- <sp-label>Images:</sp-label> -->
@@ -316,10 +335,7 @@
               <sp-label slot="label">Progress...</sp-label>
             </sp-progressbar>
           </div>
-          <button class="btnSquare btnGenerateClass" id="btnGenerate">Generate</button>
-        <button class="btnSquare btnInterruptClass" id="btnInterruptViewer" style="display:none;">Interrupt</button>
-        <button class="btnSquare acceptClass" id="btnAcceptViewer" style="display:none;">Accept</button>
-        <button class="btnSquare discardClass" id="btnDiscardViewer" style="display:none;">Discard</button>
+          
         
         <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
 
@@ -495,17 +511,20 @@
           </table>
         </div>
       </div>
-      <div class="">
-        <div id="batchNumberSdUiTabContainer">
-          <div id="batchNumberUi">
-            <sp-label>Images:</sp-label><sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
+      <div class="" id="batchNumber-steps-container">
+        <div id="batchNumberUi">
+        <div style="display:flex;">
+
+          <div id="batchNumberSdUiTabContainer">
+              <sp-label>Images:</sp-label><sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
               value="1"></sp-textfield>
+            </div>
+            <div>
+              <sp-label>Steps:</sp-label><sp-textfield id="tiNumberOfSteps" type="number" placeholder="20"
+              value="20"></sp-textfield>
+            </div>
           </div>
-        </div>
-        <div>
-          <sp-label>Steps:</sp-label><sp-textfield id="tiNumberOfSteps" type="number" placeholder="20"
-            value="20"></sp-textfield>
-        </div>
+          </div>
         <div style="display:flex;">
           <sp-slider show-value="false" id="slWidth" min="1" max="32" value="8">
             <sp-label slot="label">Width:</sp-label>
@@ -516,7 +535,7 @@
             <sp-label class="labelNumber" slot="label" id="lHeight">512</sp-label>
           </sp-slider>
         </div>
-        <div>
+        <div id='hi-res-sliders-container' style="display:flex;">
           <sp-slider show-value="false" id="hrWidth" min="1" max="32" value="8">
             <sp-label slot="label">Hi Res Width:</sp-label>
             <sp-label class="labelNumber" slot="label" id="hWidth">512</sp-label>
