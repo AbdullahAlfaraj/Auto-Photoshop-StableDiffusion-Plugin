@@ -75,8 +75,8 @@
   }
 
   .column-item-image {
-    width: 150px;
-    height: 150px;
+    width: 100px;
+    height: 100px;
     margin: 0;
   }
   .viewer-image, .history-image{
@@ -94,7 +94,7 @@
     color: white;
     cursor: pointer;
 
-    width: 100%;
+    width: 100px;
     border: none;
     text-align: left;
     outline: none;
@@ -463,7 +463,7 @@
         </div>
 
         <sp-radio-group>
-          <sp-label slot="label">Select a Mode:</sp-label>
+          <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
           <sp-radio class="rbMode" checked value="txt2img">txt2img</sp-radio>
           <sp-radio class="rbMode" value="img2img">img2img</sp-radio>
           <sp-radio class="rbMode" value="inpaint">inpaint</sp-radio>
@@ -507,7 +507,7 @@
                       width="300px" height="100px" />
                   </div>
                   <div class="imgButton">
-                    <button class="column-item button-style" id="bSetInitImage">Set Init Image</button>
+                    <button class="column-item button-style" id="bSetInitImage">Set Image</button>
                   </div>
                 </div>
               </td>
