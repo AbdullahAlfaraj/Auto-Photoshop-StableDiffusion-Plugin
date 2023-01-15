@@ -412,7 +412,19 @@ document.getElementById('chUseSmartObject').addEventListener('change',(ev)=>{
   }
 })
 
-
+function getPromptShortcut(){
+  //read json string
+  //converted into json object
+  const prompt_shortcut_string = document.getElementById('taPromptShortcut').value
+  const prompt_shortcut = JSON.parse(prompt_shortcut_string)
+  return prompt_shortcut
+}
+function setPromptShortcut(prompt_shortcut){
+  //prompt_shortcut is json object
+  //convert it into pretty json string and save it in the prompt shortcut textarea 
+  var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 7);
+  document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+}
 module.exports = {
   getPrompt,
   autoFillInPrompt,
@@ -443,5 +455,8 @@ module.exports = {
   getMaskBlur,
   getUseSharpMask,
   autoFillInHRHeight,
-  autoFillInHRWidth
+  autoFillInHRWidth,
+  getPromptShortcut,
+  setPromptShortcut
+
 }

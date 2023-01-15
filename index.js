@@ -2545,8 +2545,11 @@ document.getElementById('btnLoadPromptShortcut').addEventListener('click',async 
   try{
 
     prompt_shortcut = await sdapi.loadPromptShortcut()
-    var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
-    document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+    // var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
+    // document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+    html_manip.setPromptShortcut(prompt_shortcut)// fill the prompt shortcut textarea
+    refreshPromptMenue()//refresh the prompt menue
+
   }catch(e){
     console.warn(`loadPromptShortcut warning: ${e}`)
   }
@@ -2567,6 +2570,7 @@ document.getElementById('btnUpdatePromptShortcut').addEventListener('click',asyn
     var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
     console.log(JSONInPrettyFormat)
     document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+    refreshPromptMenue()
   }catch(e){
     console.warn(`loadPromptShortcut warning: ${e}`)
   }
@@ -2643,3 +2647,47 @@ chHiResFixs.addEventListener("change", function() {
     div.style.display = "none";
   }
 });
+
+async function refreshPromptMenue () {
+  try{
+
+    //get the prompt_shortcut_json
+    //iterate over the each entery   
+    const prompt_shortcut = html_manip.getPromptShortcut()
+    const prompt_shortcut_menu = document.getElementById('mPromptShortcutMenu')
+    prompt_shortcut_menu.innerHTML = ''
+  
+    for (const [key, value] of Object.entries(prompt_shortcut)) {
+    if(value.trim() ===""){//skip empty spaces
+      continue;
+    }
+    const menu_item_element = document.createElement('sp-menu-item')
+    
+    menu_item_element.innerHTML = key
+    prompt_shortcut_menu.appendChild(menu_item_element)
+  }
+}catch(e){
+  console.warn(e)
+}
+}
+
+refreshPromptMenue()
+
+document.getElementById('mPromptShortcutMenu').addEventListener('change', evt => {
+  
+  const prompt_shortcut = html_manip.getPromptShortcut()
+  const key = evt.target.value
+  console.log("key:" ,key)
+  changePromptShortcutKey(key)
+  changePromptShortcutValue(prompt_shortcut[key])
+  
+})
+
+function changePromptShortcutKey(new_key){
+  
+  document.getElementById('KeyPromptShortcut').value = new_key
+}
+function changePromptShortcutValue(new_value){
+  document.getElementById('ValuePromptShortcut').value = new_value
+
+}
