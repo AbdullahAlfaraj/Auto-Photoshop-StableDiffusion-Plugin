@@ -508,11 +508,16 @@ promptShortcutExample()
 //add click event on radio button mode, so that when a button is clicked it change g_sd_mode globally
 rbModeElements = document.getElementsByClassName('rbMode')
 for (let rbModeElement of rbModeElements) {
-  rbModeElement.addEventListener('click', evt => {
-    g_sd_mode = evt.target.value
-    // console.log(`You clicked: ${g_sd_mode}`)
-    displayUpdate()
-    postModeSelection()// do things after selection
+  rbModeElement.addEventListener('click', async (evt) => {
+    try{
+
+      g_sd_mode = evt.target.value
+      // console.log(`You clicked: ${g_sd_mode}`)
+      displayUpdate()
+      await postModeSelection()// do things after selection
+    }catch(e){
+      console.warn(e)
+    }
   })
 }
 async function postModeSelection(){
@@ -542,9 +547,10 @@ try{
     console.log("g_inpaint_mask_layer_history_id: ",g_inpaint_mask_layer_history_id)
     const historyBrushTools = app.activeDocument.historyStates.filter(h => (h.id > g_inpaint_mask_layer_history_id) && (h.name === "Brush Tool"))
     console.log(historyBrushTools)
-    if(historyBrushTools.length === 0){
+    if(historyBrushTools.length === 0 && g_b_mask_layer_exist){
 
       await util_layer.deleteLayers([g_inpaint_mask_layer])
+      
       g_b_mask_layer_exist = false
     }
   }

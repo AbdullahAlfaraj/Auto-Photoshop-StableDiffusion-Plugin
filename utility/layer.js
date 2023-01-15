@@ -21,7 +21,12 @@ async function createNewLayerCommand (layerName) {
 
 
   async function deleteLayers(layers){
-    await cleanLayers(layers)
+    try{
+
+      await cleanLayers(layers)
+    }catch(e){
+      console.warn(e)
+    }
   }
 
   async function getIndexCommand(){
