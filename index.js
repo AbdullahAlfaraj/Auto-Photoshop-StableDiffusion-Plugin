@@ -2555,7 +2555,10 @@ document.getElementById('btnLoadPromptShortcut').addEventListener('click',async 
 
 document.getElementById('btnUpdatePromptShortcut').addEventListener('click',async function(){
   try{
-    prompt_shortcut = await sdapi.loadPromptShortcut()
+
+    // prompt_shortcut = await sdapi.loadPromptShortcut()
+    const prompt_shortcut_string = document.getElementById('taPromptShortcut').value
+    const prompt_shortcut = JSON.parse(prompt_shortcut_string)
     var newKey = document.getElementById('KeyPromptShortcut').value
     var newValue = document.getElementById('ValuePromptShortcut').value
     console.log(newKey)
