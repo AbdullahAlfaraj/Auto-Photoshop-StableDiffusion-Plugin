@@ -2682,6 +2682,9 @@ document.getElementById('mPromptShortcutMenu').addEventListener('change', evt =>
   changePromptShortcutValue(prompt_shortcut[key])
   
 })
+document.getElementById('btnRefreshPromptShortcutMenu').addEventListener('click',()=>{
+  refreshPromptMenue()
+})
 
 function changePromptShortcutKey(new_key){
   

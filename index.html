@@ -396,13 +396,16 @@
       <div class="">
         <sp-textarea id="taPromptShortcut" placeholder="prompt shortcut" value=""></sp-textarea>
       </div>
-      
-      <sp-picker size="m" label="Selection a prompt">
-        <sp-menu id="mPromptShortcutMenu" slot="options">
-          <!-- <sp-menu-item> item </sp-menu-item> -->
-        </sp-menu>
-      </sp-picker>
+      <div>
 
+        <sp-picker size="m" label="Selection a prompt">
+          <sp-menu id="mPromptShortcutMenu" slot="options">
+            <!-- <sp-menu-item> item </sp-menu-item> -->
+          </sp-menu>
+        </sp-picker>
+        <button class="btnSquare" id="btnRefreshPromptShortcutMenu">Refresh Menu</button>
+        
+      </div>
       <div>
         <button class="btnSquare" id="btnLoadPromptShortcut">Load</button>
         <button class="btnSquare" id="btnSavePromptShortcut">Save</button>
