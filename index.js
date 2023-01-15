@@ -27,7 +27,7 @@ const eventHandler = async (event, descriptor) => {
     const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
     if (isSelectionActive){
       const current_selection = isSelectionActive // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.  
-      const [final_width,final_height] = await selection.selectionToFinalWidthHeight()
+      const [final_width,final_height,initial_width,initial_height] = await selection.selectionToFinalWidthHeight()
       console.log("(final_width,final_height):",final_width,final_height)
       console.log(event, descriptor)
       html_manip.autoFillInWidth(final_width)
@@ -35,6 +35,8 @@ const eventHandler = async (event, descriptor) => {
       console.log(` (${final_width}* ${final_height})/(${current_selection.width} * ${current_selection.height})`)
 
       console.log("detail density: ",(final_width* final_height)/(current_selection.width * current_selection.height))
+      html_manip.autoFillInHRWidth(initial_width)
+      html_manip.autoFillInHRHeight(initial_height)
       // if selection has changed : change the color and text generate btn  "Generate" color "red" 
       // const new_selection = await psapi.getSelectionInfoExe()
       if(await hasSelectionChanged(current_selection,g_selection)){
@@ -355,8 +357,6 @@ function promptShortcutExample(){
   document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
 }
 
-
-
 function autoFillInSettings(metadata_json){
  try{
 
@@ -573,7 +573,7 @@ document.addEventListener("mouseenter",async (event)=>{
     const new_selection = await psapi.getSelectionInfoExe()
     if(await hasSelectionChanged(new_selection,g_selection)){
       
-      const [final_width,final_height] = await selection.selectionToFinalWidthHeight()
+      const [final_width,final_height,initial_width,initial_height] = await selection.selectionToFinalWidthHeight()
       console.log("(final_width,final_height):",final_width,final_height)
       
       html_manip.autoFillInWidth(final_width)
@@ -581,7 +581,9 @@ document.addEventListener("mouseenter",async (event)=>{
       console.log(`(${new_selection.width} * ${new_selection.height}) /(${final_width}* ${final_height})`)
 
       console.log("detail density: ",(new_selection.width * new_selection.height) /(final_width* final_height))
-      
+            html_manip.autoFillInHRWidth(initial_width)
+      html_manip.autoFillInHRHeight(initial_height)
+
       sessionStartHtml(false)//generate ,red color
     }else{
       sessionStartHtml(true)//generate more, green color
@@ -661,7 +663,7 @@ function displayUpdate () {
     
     document.getElementById('chHiResFixs').style.display = 'flex' 
     if(html_manip.getHiResFixs()){
-      document.getElementById('hi-res-sliders-container').style.display = 'flex'
+      document.getElementById('HiResDiv').style.display = 'block'
     }
 
     document.getElementById('slInpaintPadding').style.display = 'none' 
@@ -678,7 +680,7 @@ function displayUpdate () {
     document.getElementById('init_image_mask_container').style.display = 'none' // hide mask
     document.getElementById('slInpainting_fill').style.display = 'none' // hide inpainting fill mode
     // document.getElementById('btnSnapAndFill').style.display = 'inline-flex' // hide snap and fill button mode
-    document.getElementById('hi-res-sliders-container').style.display = 'none'
+    document.getElementById('HiResDiv').style.display = 'none'
     document.getElementById('chInpaintFullRes').style.display = 'none' 
     document.getElementById('slInpaintPadding').style.display = 'none' 
     document.getElementById("slMaskBlur").style.display = 'none'
@@ -698,7 +700,7 @@ function displayUpdate () {
     document.getElementById('slInpainting_fill').style.display = 'block'
     document.getElementById('init_image_container').style.display = 'block' // hide init image
     
-    document.getElementById('hi-res-sliders-container').style.display = 'none'
+    document.getElementById('HiResDiv').style.display = 'none'
     document.getElementById('chInpaintFullRes').style.display = 'inline-flex' 
     if(document.getElementById('chInpaintFullRes').checked){
 
@@ -894,6 +896,10 @@ document.querySelector('#hrWidth').addEventListener('input', evt => {
   hWidth = sliderToResolution(evt.target.value)
   document.querySelector('#hWidth').textContent = hWidth
 })
+//document.querySelector('#hrScale').addEventListener('input', evt => {
+//  hScale = sliderToResolution(evt.target.value)
+//  document.querySelector('#hScale').textContent = hScale
+//})
 document.querySelector('#slInpaintPadding').addEventListener('input', evt => {
   padding = evt.target.value * 4
   document.querySelector('#lInpaintPadding').textContent = padding
@@ -1398,8 +1404,6 @@ function updateMetadata (new_metadata) {
 async function getSettings(){
   let payload = {}
   try{
-    
-
     numberOfImages = document.querySelector('#tiNumberOfImages').value
     numberOfSteps = document.querySelector('#tiNumberOfSteps').value
   const prompt = html_manip.getPrompt()
@@ -1408,6 +1412,7 @@ async function getSettings(){
   // console.log("prompt:",prompt)
   // console.log("negative_prompt:",negative_prompt)
   const model_index = document.querySelector('#mModelsMenu').selectedIndex
+  const upscaler = document.querySelector('#hrModelsMenu').value
   const cfg_scale = document.querySelector('#slCfgScale').value
   //  const model_index = document.querySelector("#")
   const seed = document.querySelector('#tiSeed').value
@@ -1433,6 +1438,8 @@ async function getSettings(){
   const height = html_manip.getHeight()
   const hWidth = html_manip.getSliderSdValue('hrWidth',64)
   const hHeight = html_manip.getSliderSdValue('hrHeight',64)
+  const hSteps = html_manip.getSliderSdValue('hrNumberOfSteps',1)
+  //const hScale = html_manip.getSliderSdValue('hrScale',1)
   console.log("Check")
   
   const uniqueDocumentId = await getUniqueDocumentId()
@@ -1473,13 +1480,16 @@ async function getSettings(){
     payload['denoising_strength'] = denoising_strength
     payload['init_image_name'] = g_init_image_name
 
-
-    
   }
   if(hi_res_fix){
     payload['enable_hr'] = hi_res_fix
-    payload['firstphase_width'] = hWidth
-    payload['firstphase_height'] =  hHeight
+    payload['firstphase_width'] = width
+    payload['firstphase_height'] =  height
+    payload['hr_resize_x'] = hWidth
+    payload['hr_resize_y'] =  hHeight
+    // payload['hr_scale'] =  hScale // Scale
+    payload['hr_upscaler'] =  upscaler // Upscaler
+    payload['hr_second_pass_steps'] =  hSteps // Number of Steps
   }else{
       //fix hi res bug: if we include firstphase_width or firstphase_height in the payload,
       // sd api will use them instead of using width and height variables, even when enable_hr is set to "false"
@@ -2570,4 +2580,37 @@ document
      
   })
 
+// Hi res fix stuff
 
+var hr_models = [
+  "Latent",
+  "Latent (antialiased)",
+  "Latent (bicubic)",
+  "Latent (bicubic antialiased)",
+  "Latent (nearest)",
+  "Latent (nearest-exact)",
+  "Lanczos",
+  "Nearest",
+  "ESRGAN",
+  "RealESRGAN",
+  "LDSR",
+  "SwinIR"
+]
+
+for (let model of hr_models) {
+  // console.log(model.title)
+  const menu_item_element = document.createElement('sp-menu-item')
+  menu_item_element.className = "hrModelsMenuItem"
+  menu_item_element.innerHTML = model
+  document.getElementById('hrModelsMenu').appendChild(menu_item_element)
+}
+
+var chHiResFixs = document.getElementById("chHiResFixs");
+var div = document.getElementById("HiResDiv");
+chHiResFixs.addEventListener("change", function() {
+  if (chHiResFixs.checked) {
+    div.style.display = "block";
+  } else {
+    div.style.display = "none";
+  }
+});

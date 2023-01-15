@@ -31,7 +31,7 @@ async function selectionToFinalWidthHeight(){
         const selectionInfo = await getSelectionInfoExe()
         const [finalWidth,finalHeight] = finalWidthHeight(selectionInfo.width,selectionInfo.height,512,512)
 
-        return [parseInt(finalWidth),parseInt(finalHeight)]
+        return [parseInt(finalWidth),parseInt(finalHeight),selectionInfo.width,selectionInfo.height]
     }catch(e){
         console.warn("you need a rectangular selection",e)
     }

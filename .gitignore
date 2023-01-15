@@ -12,3 +12,5 @@ server/python_server/init_images/*
 node_modules/
 server/python_server/prompt_shortcut.json
 experimental/
+start_server.sh
+start_server.bat

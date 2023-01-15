@@ -66,6 +66,19 @@ function autoFillInHeight(height_value){
   //update the label
   document.getElementById('lHeight').innerHTML = `${height_value}`
 }
+
+function autoFillInHRHeight(height_value){
+  document.getElementById('hrHeight').value = `${height_value / 64}`
+  //update the label
+  document.getElementById('hHeight').innerHTML = `${height_value}`
+}
+
+function autoFillInHRWidth(height_value){
+  document.getElementById('hrWidth').value = `${height_value / 64}`
+  //update the label
+  document.getElementById('hWidth').innerHTML = `${height_value}`
+}
+
 ////// End Height//////////
 
 
@@ -428,5 +441,7 @@ module.exports = {
   defaultSettings,
   autoFillDefaultSettings,
   getMaskBlur,
-  getUseSharpMask
+  getUseSharpMask,
+  autoFillInHRHeight,
+  autoFillInHRWidth
 }

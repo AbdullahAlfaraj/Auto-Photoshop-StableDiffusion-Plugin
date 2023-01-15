@@ -554,7 +554,7 @@
             <sp-label class="labelNumber" slot="label" id="lHeight">512</sp-label>
           </sp-slider>
         </div>
-        <div id='hi-res-sliders-container' style="display:none;">
+        <!-- <div id='hi-res-sliders-container' style="display:none;">
           <sp-slider show-value="false" id="hrWidth" min="1" max="32" value="8">
             <sp-label slot="label">Hi Res Width:</sp-label>
             <sp-label class="labelNumber" slot="label" id="hWidth">512</sp-label>
@@ -567,7 +567,7 @@
             <sp-label slot="label">Hi Res Denoising:</sp-label>
             <sp-label class="labelNumber" slot="label" id="hDenoisingStrength">0.7</sp-label>
           </sp-slider>
-        </div>
+        </div> -->
         <div style="display:flex;">
 
           <sp-slider show-value="true" id="slCfgScale" min="1" max="30" value="7">
@@ -597,8 +597,44 @@
             <sp-radio class="rbMaskContent" value="3">latent nothing</sp-radio>
           </sp-radio-group>
         </div>
-        <sp-checkbox id="chInpaintFullRes">Inpaint at Full Res</sp-checkbox>
-        <!-- <sp-checkbox id="chHiResFixs">Hi Res Fix</sp-checkbox> -->
+        <div>
+          <sp-checkbox id="chInpaintFullRes">Inpaint at Full Res</sp-checkbox>
+          <sp-checkbox id="chHiResFixs">Hi Res Fix</sp-checkbox>
+        </div>
+        <div id="HiResDiv" style="display:none;">
+          
+          <div style="display:flex;">
+            <div>
+
+              <sp-label>Upscaler: </sp-label>
+              <sp-picker size="m" label="Upscaler Options">
+                <sp-menu id="hrModelsMenu" slot="options">
+                  <!-- <sp-menu-item> item </sp-menu-item> -->
+                </sp-menu>
+              </sp-picker>
+            </div>
+            <div>
+
+              <sp-label>Hi Res Steps:</sp-label><sp-textfield id="hrNumberOfSteps" type="number" placeholder="20"
+              value="20" style="margin-top: 3px; width:auto;"></sp-textfield>
+            </div>
+          </div>
+          <div id='hi-res-sliders-container' style="display:flex;">
+
+              <sp-slider show-value="false" id="hrWidth" min="1" max="32" value="8">
+                <sp-label slot="label">Hi Res Output Width:</sp-label>
+                <sp-label class="labelNumber" slot="label" id="hWidth">512</sp-label>
+              </sp-slider>
+              <sp-slider show-value="false" id="hrHeight" min="1" max="32" value="8">
+                <sp-label slot="label">Hi Res Output Height:</sp-label>
+                <sp-label class="labelNumber" slot="label" id="hHeight">512</sp-label>
+              </sp-slider>
+              <sp-slider show-value="false" id="hrDenoisingStrength" min="0" max="100" value="70">
+                <sp-label slot="label"> High Res Denoising Strength:</sp-label>
+                <sp-label slot="label" id="hDenoisingStrength">0.7</sp-label>
+              </sp-slider>
+            </div>
+        </div>
         <sp-slider show-value="false" id="slInpaintPadding" min="0" max="64" value="0">
           <sp-label slot="label" id="lNameInpaintPdding">Inpaint Padding:</sp-label>
           <sp-label class="labelNumber" slot="label" id="lInpaintPadding">0</sp-label>
@@ -609,7 +645,7 @@
 
       </div>
       <div>
-        <sp-checkbox id="chHiResFixs">Hi Res Fix</sp-checkbox>
+        <!-- <sp-checkbox id="chHiResFixs">Hi Res Fix</sp-checkbox> -->
         <div style="display:flex">
           <sp-label>Seed:</sp-label><sp-textfield id="tiSeed" placeholder="Seed" value="-1"></sp-textfield>
           <button class="btnSquare" id="btnRandomSeed" style="margin-right: 3px; margin-left: 3px;">Random</button>
@@ -636,8 +672,6 @@
           <sp-radio class="rbSampler" value="DPM++ 2S a Karras">DPM++ 2S a Karras</sp-radio>
           <sp-radio class="rbSampler" value="DPM++ 2M Karras">DPM++ 2M Karras</sp-radio>
           <sp-radio class="rbSampler" value="DPM++ SDE Karras">DPM++ SDE Karras</sp-radio>
-
-
         </sp-radio-group>
       </div>
     </div>
