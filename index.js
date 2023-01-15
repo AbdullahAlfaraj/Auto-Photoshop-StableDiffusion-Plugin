@@ -112,6 +112,9 @@ async function getUniqueDocumentId () {
 // attach event listeners for tabs
 Array.from(document.querySelectorAll(".sp-tab")).forEach(theTab => {
   theTab.onclick = () => {
+    try{
+
+    
     // localStorage.setItem("currentTab", theTab.getAttribute("id"));
     Array.from(document.querySelectorAll(".sp-tab")).forEach(aTab => {
       if (aTab.getAttribute("id") === theTab.getAttribute("id")) {
@@ -127,7 +130,10 @@ Array.from(document.querySelectorAll(".sp-tab")).forEach(theTab => {
         tabPage.classList.remove("visible");
       }
     });
+  }catch(e){
+    console.warn(e)
   }
+}
 });
 
 document.getElementById("sp-viewer-tab").addEventListener('click',()=>{
