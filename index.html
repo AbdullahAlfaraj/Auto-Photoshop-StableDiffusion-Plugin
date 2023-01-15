@@ -5,23 +5,24 @@
   <script src="index.js"></script>
 </head>
 <style>
-  sp-textarea,textarea {
+  sp-textarea,
+  textarea {
 
     width: 100%;
     height: 100px;
 
   }
 
-  #taPromptShortcut{
+  #taPromptShortcut {
     height: 300px;
-    margin: 3px auto; 
+    margin: 3px auto;
   }
 
-  #taPrompt{
-    
+  #taPrompt {
+
     box-sizing: border-box;
-    background: rgb(37,37,37);
-    
+    background: rgb(37, 37, 37);
+
   }
 
   .container {
@@ -79,11 +80,14 @@
     height: 100px;
     margin: 0;
   }
-  .viewer-image, .history-image{
+
+  .viewer-image,
+  .history-image {
     width: 100px;
     height: 100px;
     margin: 0;
   }
+
   .column-item {
 
     margin: 0;
@@ -151,15 +155,18 @@
     display: flex;
     margin-left: auto;
   }
-  .flexContainer{
+
+  .flexContainer {
     flex: 0 0 auto;
     display: flex;
     flex-direction: row;
   }
+
   #historySeedLabelContainer {
     display: flex;
     margin-left: auto;
   }
+
   #menu-bar-container {
 
     width: 100%;
@@ -245,66 +252,85 @@
     flex: 0 0 auto;
   }
 
-  .viewerImgSelected{
+  .viewerImgSelected {
     border: 3px solid #6db579;
   }
-  .viewerImgActive{
+
+  .viewerImgActive {
     border: 3px solid #fb9700;
   }
- 
-  .generate-more{
+
+  .generate-more {
     background-color: #6db579;
   }
-  .generate{
+
+  .generate {
     background-color: #ff595e;
   }
-  .connected{
+
+  .connected {
     color: #6db579;
 
   }
-  .disconnected{
+
+  .disconnected {
     color: #ff595e;
 
   }
-  #slWidth{
-    width:50%;
+
+  #slWidth {
+    width: 50%;
     margin-right: 10px;
   }
-  #slHeight{
-    width:50%;
+
+  #slHeight {
+    width: 50%;
     margin-left: 10px;
 
   }
-  #hrWidth{
-    width:33%;
+
+  #hrWidth {
+    width: 33%;
     margin-right: 10px;
   }
-  #hrHeight{
-    width:33%;
+
+  #hrHeight {
+    width: 33%;
     margin-left: 10px;
 
   }
-  #hrDenoisingStrength{
-    width:33%;
-    margin-left:10px;
-    
+
+  #hrDenoisingStrength {
+    width: 33%;
+    margin-left: 10px;
+
   }
-  #tiNumberOfSteps{
+
+  #tiNumberOfSteps {
     width: 50%;
   }
-   #tiNumberOfSteps{
-    width:auto;
+
+  #tiNumberOfSteps {
+    width: auto;
   }
-  .rbMaskContent{
+
+  .rbMaskContent {
     font-size: 1.1em;
   }
-  #slCfgScale{
-    width:50%;
-    margin-right:10px;
+
+  #slCfgScale {
+    width: 50%;
+    margin-right: 10px;
   }
-  #slDenoisingStrength{
-    width:50%;
-    margin-left:10px;
+
+  #slDenoisingStrength {
+    width: 50%;
+    margin-left: 10px;
+  }
+
+  #slInpaintingMaskWeight {
+    width: 100%;
+    margin-left: 10px;
   }
 </style>
 
@@ -320,8 +346,10 @@
       <div class="sp-tab" id="sp-prompts-library-tab"><sp-label>Prompts library</sp-label></div>
       <div class="sp-tab" id="sp-settings-tab"><sp-label>Settings</sp-label></div>
       <div>
-        <span class="disconnected" id="automaticStatus" title="'A' for Automatic1111 server (webui-user.bat), Green is connected. Red Means there is a problem with your Automatic1111. Run 'webui-user.bat' and hit 'Refresh' button ">A</span>
-        <span class="disconnected" id="proxyServerStatus"title="'P' for proxy server (start_server.bat), Green is connected. Red means you need to run 'start_server.bat' or hit Refresh button">P</span>
+        <span class="disconnected" id="automaticStatus"
+          title="'A' for Automatic1111 server (webui-user.bat), Green is connected. Red Means there is a problem with your Automatic1111. Run 'webui-user.bat' and hit 'Refresh' button ">A</span>
+        <span class="disconnected" id="proxyServerStatus"
+          title="'P' for proxy server (start_server.bat), Green is connected. Red means you need to run 'start_server.bat' or hit Refresh button">P</span>
       </div>
       <sp-label slot="label" id="lVersionNumber">v0.0.0</sp-label>
     </div>
@@ -330,35 +358,37 @@
       <div class="flexContainer">
 
         <sp-label slot="label">View your generated images on the canvas</sp-label>
-        
+
       </div>
       <div>
-        
+
       </div>
       <div>
         <button class="btnSquare btnGenerateClass" id="btnGenerate">Generate</button>
         <button class="btnSquare btnInterruptClass" id="btnInterruptViewer" style="display:none;">Interrupt</button>
         <button class="btnSquare acceptClass" id="btnAcceptViewer" style="display:none;">Accept</button>
-        <button class="btnSquare discardClass" id="btnDiscardViewer" style="display:none;">Discard</button>  
+        <button class="btnSquare discardClass" id="btnDiscardViewer" style="display:none;">Discard</button>
         <div style="display:inline-flex;">
-            <div id="batchNumberViewerTabContainer" >
-              <!-- we will append here batch number field here   -->
-              <!-- <sp-label>Images:</sp-label> -->
-              <!-- <sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
+          <div id="batchNumberViewerTabContainer">
+            <!-- we will append here batch number field here   -->
+            <!-- <sp-label>Images:</sp-label> -->
+            <!-- <sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
                 value="1"></sp-textfield> -->
-              </div>
-            <sp-progressbar class="pProgressBars" id="pViewerProgressBar" max=100 value=0 style="margin-left:10px; width: 100px;">
-              <sp-label slot="label">Progress...</sp-label>
-            </sp-progressbar>
           </div>
-          
-        
+          <sp-progressbar class="pProgressBars" id="pViewerProgressBar" max=100 value=0
+            style="margin-left:10px; width: 100px;">
+            <sp-label slot="label">Progress...</sp-label>
+          </sp-progressbar>
+        </div>
+
+
         <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
 
       </div>
       <div class="" id="divViewerImagesContainer">
-        <img  class="viewer-image" id="viewer_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' />
-        
+        <img class="viewer-image" id="viewer_image_test" data-metadata_json_string='{"a":1}'
+          src='https://source.unsplash.com/random' />
+
 
       </div>
     </div>
@@ -372,12 +402,13 @@
         </div>
       </div>
       <div>
-        
+
       </div>
       <button class="btnSquare" id="btnLoadHistory">Load</button>
       <div class="" id="divHistoryImagesContainer">
-        <img  class="history-image" id="history_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' />
-        
+        <img class="history-image" id="history_image_test" data-metadata_json_string='{"a":1}'
+          src='https://source.unsplash.com/random' />
+
 
       </div>
     </div>
@@ -392,7 +423,7 @@
         <sp-label slot="label">Value for new prompt shortcut</sp-label>
         <sp-textarea id="ValuePromptShortcut" placeholder="to be replaced with" value=""></sp-textarea>
         <button class="btnSquare" id="btnUpdatePromptShortcut">Add to Prompt Shortcut</button>
-      </div> 
+      </div>
       <div class="">
         <sp-textarea id="taPromptShortcut" placeholder="prompt shortcut" value=""></sp-textarea>
       </div>
@@ -404,7 +435,7 @@
           </sp-menu>
         </sp-picker>
         <button class="btnSquare" id="btnRefreshPromptShortcutMenu">Refresh Menu</button>
-        
+
       </div>
       <div>
         <button class="btnSquare" id="btnLoadPromptShortcut">Load</button>
@@ -417,13 +448,13 @@
       <div>
 
         <sp-label>SD Url:</sp-label><sp-textfield id="tiSdUrl" type="text" placeholder="http://127.0.0.1:7860"
-        value=""></sp-textfield><button class="btnSquare" id="btnSdUrl">Submit</button>
+          value=""></sp-textfield><button class="btnSquare" id="btnSdUrl">Submit</button>
       </div>
-          <sp-checkbox id="chUseSharpMask">use sharp mask</sp-checkbox>
-          <sp-checkbox checked id="chUseSmartObject">Smart Object</sp-checkbox>
-          
-          
-          
+      <sp-checkbox id="chUseSharpMask">use sharp mask</sp-checkbox>
+      <sp-checkbox checked id="chUseSmartObject">Smart Object</sp-checkbox>
+
+
+
     </div>
 
     <div class="sp-tab-page visible" id="sp-stable-diffusion-ui-tab-page">
@@ -450,13 +481,14 @@
         <!-- <button class="btnSquare" id="btnCleanLayers">Clean Layers</button> -->
         <button class="btnSquare acceptClass" id="btnAccept" style="display:none;">Accept</button>
         <button class="btnSquare discardClass" id="btnDiscard" style="display:none;">Discard</button>
-        <button class="btnSquare" id="btnResetSettings" title="reset the ui settings to their default values">Reset</button>
+        <button class="btnSquare" id="btnResetSettings"
+          title="reset the ui settings to their default values">Reset</button>
         <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
       </div>
-      
 
-      
-      
+
+
+
       <div>
         <div id="progressContainer" class="">
 
@@ -474,8 +506,8 @@
           </div>
 
           <div class="">
-            <sp-textarea id="taNegativePrompt" placeholder="Negative Prompt" id="taNegativePrompt" value="{ugly}" multiline
-              grows></sp-textarea>
+            <sp-textarea id="taNegativePrompt" placeholder="Negative Prompt" id="taNegativePrompt" value="{ugly}"
+              multiline grows></sp-textarea>
           </div>
         </div>
 
@@ -484,16 +516,17 @@
           <sp-radio class="rbMode" checked value="txt2img">txt2img</sp-radio>
           <sp-radio class="rbMode" value="img2img">img2img</sp-radio>
           <sp-radio class="rbMode" value="inpaint">inpaint</sp-radio>
-          <sp-radio class="rbMode" id="rbOutpaintMode" value="outpaint" title="Use this mode when you want to fill empty areas of the canvas">outpaint</sp-radio>
+          <sp-radio class="rbMode" id="rbOutpaintMode" value="outpaint"
+            title="Use this mode when you want to fill empty areas of the canvas">outpaint</sp-radio>
           <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
-          
+
         </sp-radio-group>
 
 
         <div id="image_viewer">
           <div class="imgButton">
-        
-<!-- 
+
+            <!-- 
             <button class="button-style2" id="btnInitInpaint">Init inpaint
               Mask</button> -->
             <!-- <button button class="button-style2" id="btnInitOutpaint">Init Outpaint
@@ -512,14 +545,14 @@
             <tr>
               <td id="initImageColumn">
                 <div id="init_image_container" class="imgContainer">
-                  
+
                   <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
 
-                  
+
                   <div>
-                    
-                    
-                    
+
+
+
                     <img id="init_image" class="column-item-image" src='https://source.unsplash.com/random'
                       width="300px" height="100px" />
                   </div>
@@ -543,22 +576,22 @@
           </table>
         </div>
       </div>
-      <div class="" >
+      <div class="">
         <div id="batchNumber-steps-container">
 
-        
-        <div id="batchNumberUi">
-        <div style="display:flex;">
 
-          <div id="batchNumberSdUiTabContainer">
-              <sp-label>Images:</sp-label><sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
-              value="1"></sp-textfield>
+          <div id="batchNumberUi">
+            <div style="display:flex;">
+
+              <div id="batchNumberSdUiTabContainer">
+                <sp-label>Images:</sp-label><sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
+                  value="1"></sp-textfield>
+              </div>
+              <div>
+                <sp-label>Steps:</sp-label><sp-textfield id="tiNumberOfSteps" type="number" placeholder="20"
+                  value="20"></sp-textfield>
+              </div>
             </div>
-            <div>
-              <sp-label>Steps:</sp-label><sp-textfield id="tiNumberOfSteps" type="number" placeholder="20"
-              value="20"></sp-textfield>
-            </div>
-          </div>
           </div>
         </div>
         <div style="display:flex;">
@@ -586,21 +619,25 @@
           </sp-slider>
         </div> -->
         <div style="display:flex;">
-
           <sp-slider show-value="true" id="slCfgScale" min="1" max="30" value="7">
             <sp-label slot="label">CFG Scale:</sp-label>
-          <!-- <sp-label slot="label" id="lCfgScale">7</sp-label> -->
-        </sp-slider>
-        
-        <sp-slider show-value="false" id="slDenoisingStrength" min="0" max="100" value="70">
-          <sp-label slot="label">Denoising Strength:</sp-label>
-          <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label>
-        </sp-slider>
-      </div>
-        
+            <!-- <sp-label slot="label" id="lCfgScale">7</sp-label> -->
+          </sp-slider>
+          <sp-slider show-value="false" id="slDenoisingStrength" min="0" max="100" value="70">
+            <sp-label slot="label">Denoising Strength:</sp-label>
+            <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label>
+          </sp-slider>
+        </div>
+        <div style="display:flex;">
+          <sp-slider show-value="false" id="slInpaintingMaskWeight" min="0" max="100" value="100">
+            <sp-label slot="label">Inpainting conditioning mask strength:</sp-label>
+            <sp-label slot="label" id="lInpaintingMaskWeight">1</sp-label>
+          </sp-slider>
+        </div>
 
 
-        <sp-slider  show-value="true" id="slMaskBlur"  min="0" max="64" value="7">
+
+        <sp-slider show-value="true" id="slMaskBlur" min="0" max="64" value="7">
           <sp-label slot="label">Mask Blur:</sp-label>
           <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
         </sp-slider>
@@ -619,7 +656,7 @@
           <sp-checkbox id="chHiResFixs">Hi Res Fix</sp-checkbox>
         </div>
         <div id="HiResDiv" style="display:none;">
-          
+
           <div style="display:flex;">
             <div>
 
@@ -633,24 +670,24 @@
             <div>
 
               <sp-label>Hi Res Steps:</sp-label><sp-textfield id="hrNumberOfSteps" type="number" placeholder="20"
-              value="20" style="margin-top: 3px; width:auto;"></sp-textfield>
+                value="20" style="margin-top: 3px; width:auto;"></sp-textfield>
             </div>
           </div>
           <div id='hi-res-sliders-container' style="display:flex;">
 
-              <sp-slider show-value="false" id="hrWidth" min="1" max="32" value="8">
-                <sp-label slot="label">Hi Res Output Width:</sp-label>
-                <sp-label class="labelNumber" slot="label" id="hWidth">512</sp-label>
-              </sp-slider>
-              <sp-slider show-value="false" id="hrHeight" min="1" max="32" value="8">
-                <sp-label slot="label">Hi Res Output Height:</sp-label>
-                <sp-label class="labelNumber" slot="label" id="hHeight">512</sp-label>
-              </sp-slider>
-              <sp-slider show-value="false" id="hrDenoisingStrength" min="0" max="100" value="70">
-                <sp-label slot="label"> High Res Denoising Strength:</sp-label>
-                <sp-label slot="label" id="hDenoisingStrength">0.7</sp-label>
-              </sp-slider>
-            </div>
+            <sp-slider show-value="false" id="hrWidth" min="1" max="32" value="8">
+              <sp-label slot="label">Hi Res Output Width:</sp-label>
+              <sp-label class="labelNumber" slot="label" id="hWidth">512</sp-label>
+            </sp-slider>
+            <sp-slider show-value="false" id="hrHeight" min="1" max="32" value="8">
+              <sp-label slot="label">Hi Res Output Height:</sp-label>
+              <sp-label class="labelNumber" slot="label" id="hHeight">512</sp-label>
+            </sp-slider>
+            <sp-slider show-value="false" id="hrDenoisingStrength" min="0" max="100" value="70">
+              <sp-label slot="label"> High Res Denoising Strength:</sp-label>
+              <sp-label slot="label" id="hDenoisingStrength">0.7</sp-label>
+            </sp-slider>
+          </div>
         </div>
         <sp-slider show-value="false" id="slInpaintPadding" min="0" max="64" value="0">
           <sp-label slot="label" id="lNameInpaintPdding">Inpaint Padding:</sp-label>
