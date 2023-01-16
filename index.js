@@ -664,6 +664,9 @@ document.addEventListener("mouseenter",async (event)=>{
 
 // show the interface that need to be shown and hide the interface that need to be hidden
 function displayUpdate () {
+  try{
+
+  
   if (g_sd_mode == 'txt2img') {
     document.getElementById('slDenoisingStrength').style.display = 'none' // hide denoising strength slider
     // document.getElementById("image_viewer").style.display = 'none' // hide images
@@ -703,7 +706,12 @@ function displayUpdate () {
     // document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
     document.getElementById('tableInitImageContainer').style.display = 'none' // hide the table 
     setTimeout(() => {
-      document.getElementById('tableInitImageContainer').style.display = 'table' // show the table after some time so it gets rendered. 
+      try{
+
+        document.getElementById('tableInitImageContainer').style.display = 'table' // show the table after some time so it gets rendered. 
+      }catch(e){
+        console.warn(e)
+      }
     }, 100);
     
 
@@ -760,7 +768,10 @@ else{//session is not active
 
 }
   
-
+  }
+  catch(e){
+    console.warn(e)
+  }
 }
 // function showLayerNames () {
 //   const app = window.require('photoshop').app
