@@ -2694,3 +2694,11 @@ function changePromptShortcutValue(new_value){
   document.getElementById('ValuePromptShortcut').value = new_value
 
 }
+
+// adding a listner here for the inpaint_mask_strengh to be able to use api calls, allowing to dynamicly change the value
+// a set button could be added to the ui to reduce the number of api calls in case of a slow connection
+document.querySelector('#slInpaintingMaskWeight').addEventListener('input', async evt => {
+  const label_value = evt.target.value / 100
+  document.getElementById('lInpaintingMaskWeight').innerHTML = `${label_value}`
+  await sdapi.setInpaintMaskWeight(label_value)
+})

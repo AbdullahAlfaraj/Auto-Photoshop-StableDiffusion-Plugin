@@ -306,6 +306,11 @@
     width:50%;
     margin-left:10px;
   }
+
+  #slInpaintingMaskWeight {
+    width: 100%;
+    margin-left: 10px;
+  }
 </style>
 
 <body>
@@ -595,6 +600,12 @@
         <sp-slider show-value="false" id="slDenoisingStrength" min="0" max="100" value="70">
           <sp-label slot="label">Denoising Strength:</sp-label>
           <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label>
+        </sp-slider>
+      </div>
+      <div style="display:flex;">
+        <sp-slider show-value="false" id="slInpaintingMaskWeight" min="0" max="100" value="100">
+          <sp-label slot="label">Inpainting conditioning mask strength:</sp-label>
+          <sp-label slot="label" id="lInpaintingMaskWeight">1</sp-label>
         </sp-slider>
       </div>
         
