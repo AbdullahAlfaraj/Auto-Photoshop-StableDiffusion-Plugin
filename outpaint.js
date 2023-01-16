@@ -382,6 +382,11 @@ async function outpaintFasterExe(session_id){
             
             //hide the current white mark mask layer
             const white_mark_layer = await app.activeDocument.activeLayers[0]
+            await psapi.selectLayers([white_mark_layer])
+            await psapi.reSelectMarqueeExe(selectionInfo)
+            await psapi.createClippingMaskExe()
+            await psapi.reSelectMarqueeExe(selectionInfo)
+            
             white_mark_layer.visible = false
             white_mark_layer.name = "Mask -- Paint White to Mask -- temporary"
             // white_mark_layer.visible = true
