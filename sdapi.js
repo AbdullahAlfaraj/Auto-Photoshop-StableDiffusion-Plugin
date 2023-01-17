@@ -337,6 +337,26 @@ async function savePromptShortcut (prompt_shortcut) {
 
   return json['prompt_shortcut']
 }
+async function setInpaintMaskWeight(value) {
+ try {
+  const full_url = 'http://127.0.0.1:8000/sdapi/v1/options'
+  payload = {
+    inpainting_mask_weight: value
+  }
+  await fetch(full_url, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+ } catch (e) {
+  console.warn(e)
+ }
+  
+}
 
 module.exports = {
   requestTxt2Img,
@@ -351,5 +371,6 @@ module.exports = {
   changeSdUrl,
   loadPromptShortcut,
   savePromptShortcut,
-  loadHistory
+  loadHistory,
+  setInpaintMaskWeight,
 }
