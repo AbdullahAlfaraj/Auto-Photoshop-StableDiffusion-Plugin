@@ -358,6 +358,23 @@ async function setInpaintMaskWeight(value) {
   
 }
 
+ async function requestGetConfig() {
+  console.log('requestGetModels: ')
+  let json = []
+  try{
+
+    const full_url = 'http://127.0.0.1:8000/config'
+    let request = await fetch(full_url)
+    json = await request.json()
+    console.log('models json:')
+    console.dir(json)
+    
+  }catch(e){
+    console.warn(`issues requesting from ${full_url}`,e)
+  }
+    return json
+}
+
 module.exports = {
   requestTxt2Img,
   requestImg2Img,
@@ -373,4 +390,5 @@ module.exports = {
   savePromptShortcut,
   loadHistory,
   setInpaintMaskWeight,
+  requestGetConfig
 }

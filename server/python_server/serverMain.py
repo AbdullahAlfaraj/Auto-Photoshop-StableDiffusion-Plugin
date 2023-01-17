@@ -201,11 +201,28 @@ async def getInitImageHandle(request:Request):
     
     return {"payload": payload,"init_image_str":init_img_str}
 
+@app.get('/config')
+async def sdapi(request: Request, response: Response):
+    try:
+        
+        resp = requests.get(url=f'{sd_url}/config', params=request.query_params)
+        response.status_code = resp.status_code
+        response.body = resp.content
+    except:
+        print(f'exception: fail to send request to {sd_url}/config')
+        print(f'{request}')
+    return response
+
 @app.get('/sdapi/v1/{path:path}')
 async def sdapi(path: str, request: Request, response: Response):
-    resp = requests.get(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params)
-    response.status_code = resp.status_code
-    response.body = resp.content
+    try:
+        
+        resp = requests.get(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params)
+        response.status_code = resp.status_code
+        response.body = resp.content
+    except:
+        print(f'exception: fail to send request to {sd_url}/sdapi/v1/{path}')
+        print(f'{request}')
     return response
 
 @app.post('/sdapi/v1/{path:path}')
