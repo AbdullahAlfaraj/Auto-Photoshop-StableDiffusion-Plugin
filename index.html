@@ -603,7 +603,7 @@
         </sp-slider>
       </div>
       <div style="display:flex;">
-        <sp-slider show-value="false" id="slInpaintingMaskWeight" min="0" max="100" value="100">
+        <sp-slider show-value="false" id="slInpaintingMaskWeight" min="0" max="100" value="100" title="0 will keep the composition; 1 will allow composition to change">
           <sp-label slot="label">Inpainting conditioning mask strength:</sp-label>
           <sp-label slot="label" id="lInpaintingMaskWeight">1</sp-label>
         </sp-slider>
@@ -615,7 +615,10 @@
           <sp-label slot="label">Mask Blur:</sp-label>
           <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
         </sp-slider>
-
+        <sp-slider  show-value="true" id="slMaskExpansion"  min="0" max="64" value="40">
+          <sp-label slot="label">Mask Expansion:</sp-label>
+          <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
+        </sp-slider>
         <div id="slInpainting_fill">
           <sp-radio-group id="Inpainting_fill_group" class="">
             <sp-label slot="label">Mask Content:</sp-label>

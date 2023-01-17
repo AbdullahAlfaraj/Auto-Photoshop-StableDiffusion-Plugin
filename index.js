@@ -1460,6 +1460,8 @@ async function getSettings(){
   // const mask_blur = document.querySelector('#slMaskBlur').value
   const use_sharp_mask = html_manip.getUseSharpMask()
   const mask_blur = html_manip.getMaskBlur()
+  const mask_expansion = document.getElementById('slMaskExpansion').value
+
   const inpaint_full_res_padding = document.querySelector('#slInpaintPadding').value
 
   console.dir(numberOfImages)
@@ -1503,6 +1505,7 @@ async function getSettings(){
     console.log('g_init_image_mask_name is ', g_init_image_mask_name)
     payload['init_image_mask_name'] = g_init_image_mask_name
     payload['inpainting_fill'] = g_inpainting_fill
+    payload['mask_expansion'] = mask_expansion
   }
   else if(mode == 'img2img'){
     var g_use_mask_image = false
