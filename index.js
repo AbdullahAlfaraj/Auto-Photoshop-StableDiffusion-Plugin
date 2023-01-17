@@ -1613,6 +1613,8 @@ return false
 } 
 async function easyModeGenerate(){
   
+  try{
+
   
   const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
   if (!isSelectionAreaValid){      
@@ -1707,7 +1709,9 @@ if (g_is_generation_session_active) {
     }
 
     }
-
+  }catch(e){
+    console.warn(e)
+  }
 }
 async function generate(settings){
 
@@ -1722,8 +1726,8 @@ async function generate(settings){
     toggleTwoButtonsByClass(true,'btnGenerateClass','btnInterruptClass')
     g_can_request_progress = true
     //wait 2 seconds till you check for progress
-    setTimeout(function () {
-      progressRecursive()
+    setTimeout(async function () {
+      await progressRecursive()
   
     }, 2000)
   

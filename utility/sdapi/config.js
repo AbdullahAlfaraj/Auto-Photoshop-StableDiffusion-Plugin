@@ -21,9 +21,7 @@ class SdConfig {
 
         // const upscaler_comp = this.config.components.filter(comp =>comp.props.elem_id === "txt2img_hr_upscaler")[0]
         let upscaler_comp
-        // [101].props.variant
         console.log("this.config: ",this.config)
-        // x.components[1].props.elem_id
         for(let comp of this.config.components){
             if(comp?.props?.elem_id){
                 const elem_id = comp?.props?.elem_id
