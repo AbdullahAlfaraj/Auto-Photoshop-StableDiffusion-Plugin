@@ -18,6 +18,7 @@ const export_png = require('./export_png')
 const viewer = require('./viewer')
 const selection = require('./selection')
 const util_layer = require('./utility/layer') 
+const sd_options = require('./utility/sdapi/options') 
 
 
 const eventHandler = async (event, descriptor) => {
@@ -244,6 +245,7 @@ function tempDisableElement(element,time){
 
 
 async function refreshUI(){
+try{
 
   const b_proxy_server_status = await updateVersionUI()
   if (b_proxy_server_status){
@@ -263,7 +265,16 @@ async function refreshUI(){
     html_manip.setAutomaticStatus('disconnected','connected')
   }
   await refreshModels()
-  
+  //get the latest options
+  await g_sd_options_obj.getOptions()
+  //get the selected model
+  const current_model_title = g_sd_options_obj.getCurrentModel()
+  //update the ui with that model title
+  const current_model_hash = html_manip.getModelHashByTitle(current_model_title)
+  html_manip.autoFillInModel(current_model_hash)
+}catch(e){
+  console.warn(e)
+}
 }
 
 
@@ -284,6 +295,8 @@ async function refreshModels () {
     menu_item_element.dataset.model_title = model.title
     document.getElementById('mModelsMenu').appendChild(menu_item_element)
   }
+  
+  
 }catch(e){
   console.warn(e)
 }
@@ -486,6 +499,9 @@ let g_inpaint_mask_layer;
 let g_inpaint_mask_layer_history_id; //store the history state id when creating a new inpaint mask layer
 let g_selection = {}
 let g_b_use_smart_object = true // true to keep layer as smart objects, false to rasterize them
+let g_sd_options_obj = new sd_options.SdOptions()
+g_sd_options_obj.getOptions()
+
 const requestState = {
 	Generate: "generate",
 	Interrupt: "interrupt",
@@ -665,8 +681,7 @@ document.addEventListener("mouseenter",async (event)=>{
 // show the interface that need to be shown and hide the interface that need to be hidden
 function displayUpdate () {
   try{
-
-  
+    
   if (g_sd_mode == 'txt2img') {
     document.getElementById('slDenoisingStrength').style.display = 'none' // hide denoising strength slider
     // document.getElementById("image_viewer").style.display = 'none' // hide images
@@ -1858,8 +1873,8 @@ Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(btn =>{
 
 document
   .getElementById('btnRefreshModels')
-  .addEventListener('click', (e)=>{
-    refreshUI()
+  .addEventListener('click', async (e)=>{
+    await refreshUI()
     tempDisableElement(e.target,3000)
   }
     )

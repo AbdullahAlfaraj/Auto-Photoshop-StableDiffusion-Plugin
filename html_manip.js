@@ -236,9 +236,25 @@ function getModelElementByHash(model_hash){
     console.warn(`Model '${model_hash}' not found ${e}`)
   }
 }
+function getModelHashByTitle (model_title) {
+  //return find the model hash by it's title
+  try {
+    return [...document.getElementsByClassName('mModelMenuItem')].filter(
+      e => e.dataset.model_title == model_title
+    )[0].dataset.model_hash
+  } catch (e) {
+    console.warn(e)
+  }
+}
+
 function getSelectedModelHash(){
   //return the hash of the first selected model menu item
-  return  [...document.getElementsByClassName('mModelMenuItem')].filter(e => e.selected == true)[0].dataset.model_hash
+  try{
+
+    return  [...document.getElementsByClassName('mModelMenuItem')].filter(e => e.selected == true)[0].dataset.model_hash
+  }catch(e){
+    console.warn(e)
+  }
 }
 
 function selectModelUi(model_hash){
@@ -246,6 +262,7 @@ function selectModelUi(model_hash){
   model_element = getModelElementByHash(model_hash)
   model_element.selected = true
 }
+
 function autoFillInModel(model_hash){
   // unCheckAllSamplers()
   model_element = getModelElementByHash(model_hash)
@@ -457,6 +474,7 @@ module.exports = {
   autoFillInHRHeight,
   autoFillInHRWidth,
   getPromptShortcut,
-  setPromptShortcut
+  setPromptShortcut,
+  getModelHashByTitle 
 
 }
