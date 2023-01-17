@@ -1016,7 +1016,7 @@ async function easyModeOutpaint(){
       g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
 
       // create new layers related to the current mask operation.
-      g_last_outpaint_layers = await outpaint.outpaintFasterExe(random_session_id)
+      g_last_outpaint_layers = await outpaint.outpaintExe(random_session_id)
     }
       
     
