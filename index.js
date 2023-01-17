@@ -19,6 +19,7 @@ const viewer = require('./viewer')
 const selection = require('./selection')
 const util_layer = require('./utility/layer') 
 const sd_options = require('./utility/sdapi/options') 
+const sd_config = require('./utility/sdapi/config') 
 
 
 const eventHandler = async (event, descriptor) => {
@@ -501,6 +502,8 @@ let g_selection = {}
 let g_b_use_smart_object = true // true to keep layer as smart objects, false to rasterize them
 let g_sd_options_obj = new sd_options.SdOptions()
 g_sd_options_obj.getOptions()
+let g_sd_config_obj = new sd_config.SdConfig()
+g_sd_config_obj.getConfig() 
 
 const requestState = {
 	Generate: "generate",
