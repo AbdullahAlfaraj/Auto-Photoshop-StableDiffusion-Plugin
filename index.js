@@ -2747,12 +2747,12 @@ document.querySelector('#slInpaintingMaskWeight').addEventListener('change', asy
   await sdapi.setInpaintMaskWeight(label_value)
   
   //get the inpaint mask weight from the webui sd 
-  // await g_sd_options_obj.getOptions()
-  // const inpainting_mask_weight = await g_sd_options_obj.getInpaintingMaskWeight()
-  // // html_manip.autoFillInInpaintingMaskWeight(inpainting_mask_weight)
-  // evt.target.value = inpainting_mask_weight * 100
-  // document.getElementById('lInpaintingMaskWeight').innerHTML = `${inpainting_mask_weight}`
-  // console.log("inpainting_mask_weight: ", inpainting_mask_weight)
+  await g_sd_options_obj.getOptions()
+  const inpainting_mask_weight = await g_sd_options_obj.getInpaintingMaskWeight()
+  // html_manip.autoFillInInpaintingMaskWeight(inpainting_mask_weight)
+  evt.target.value = inpainting_mask_weight * 100
+  document.getElementById('lInpaintingMaskWeight').innerHTML = `${inpainting_mask_weight}`
+  console.log("inpainting_mask_weight: ", inpainting_mask_weight)
 }catch(e){
   console.warn(e)
 }
