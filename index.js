@@ -20,7 +20,7 @@ const selection = require('./selection')
 const util_layer = require('./utility/layer') 
 const sd_options = require('./utility/sdapi/options') 
 const sd_config = require('./utility/sdapi/config') 
-
+const session = require('./utility/session')
 
 const eventHandler = async (event, descriptor) => {
   // console.log("event got triggered!")
@@ -504,6 +504,8 @@ let g_sd_options_obj = new sd_options.SdOptions()
 g_sd_options_obj.getOptions()
 let g_sd_config_obj = new sd_config.SdConfig()
 g_sd_config_obj.getConfig() 
+
+let g_generation_session = new session.GenerationSession(0) //session manager
 
 const requestState = {
 	Generate: "generate",
@@ -1106,9 +1108,10 @@ function endGenerationSession(){
 const accept_class_btns = Array.from(document.getElementsByClassName("acceptClass"))
 accept_class_btns.forEach(element => element.addEventListener('click',async ()=>{
   try{
-
-    endGenerationSession()
-    await acceptAll()
+    
+    await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and garbage collect the temp layers
+    // endGenerationSession()
+    // await acceptAll()
     
   }catch(e){
     console.warn(e)
@@ -1231,8 +1234,10 @@ catch(e){
 }
 Array.from(document.getElementsByClassName('discardClass')).forEach(element => {
   element.addEventListener('click', async () => {
-    endGenerationSession()
-    await discard()
+    //end session here
+    await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and garbage collect the temp layers
+    // endGenerationSession()
+    // await discard()
   })
 })
 
@@ -1618,7 +1623,7 @@ async function easyModeGenerate(){
   
   try{
 
-  
+  //make sure you have selection area active on the canvas
   const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
   if (!isSelectionAreaValid){      
     await psapi.promptForMarqueeTool()        
@@ -1635,9 +1640,9 @@ async function easyModeGenerate(){
     {// end current session 
       g_selection = new_selection
       try{
-
-        endGenerationSession()
-        await acceptAll()
+        await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and garbage collect the temp layers
+        // endGenerationSession()
+        // await acceptAll()
         
       }catch(e){
         console.warn(e)
@@ -1655,8 +1660,10 @@ if (g_is_generation_session_active) {
   if (g_generation_session_mode !== mode) {
     //active session but it's a new mode
 
-    endGenerationSession()
-    await acceptAll()
+    await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and garbage collect the temp layers
+    // endGenerationSession()
+    // await acceptAll()
+
     //accept all
     g_generation_session_mode = mode
   } 
@@ -1765,9 +1772,11 @@ async function generate(settings){
     //check whether request was "generate" or "generate more"
     //if it's generate discard the session 
     if(isFistGeneration){
-      endGenerationSession()
-      //delete all mask related layers
-      await discard()// clean viewer tab and the mask related layers
+      await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and garbage collect the temp layers
+      
+      // endGenerationSession()
+      // //delete all mask related layers
+      // await discard()// clean viewer tab and the mask related layers
     }
     return null
    }
@@ -1776,9 +1785,11 @@ async function generate(settings){
    if(Object.keys(json).length === 0)
    {
     if(isFistGeneration){
-      endGenerationSession()
-      //delete all mask related layers
-      await discard()// clean viewer tab and the mask related layers
+      await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and garbage collect the temp layers
+      
+      // endGenerationSession()
+      // //delete all mask related layers
+      // await discard()// clean viewer tab and the mask related layers
     }
     return null
    }
