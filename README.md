@@ -18,6 +18,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 	- [First time runing the plugin (remote Automatic1111):](#first-time-runing-the-plugin-remote-automatic1111)
 	- [Steps to run the plugin for second time and onward:](#steps-to-run-the-plugin-for-second-time-and-onward)
 - [How to Use the Plugin:](#how-to-use-the-plugin)
+	- [How to Videos:](#how-to-videos)
 	- [Quick test:](#quick-test)
 	- [txt2Img:](#txt2img)
 	- [img2img:](#img2img)
@@ -91,6 +92,10 @@ that's it.
 4) start " Adobe UXP Developer Tool" and load the plugin
 
 # How to Use the Plugin:
+watch this video for an in-depth, how to use the auto-photoshop-sd plugin! made by [NIHIL Project](https://www.youtube.com/@NIHILProject)
+## How to Videos:
+[![Click Here to Watch Tutorial](https://img.youtube.com/vi/XaR-D1ZVrjw/sddefault.jpg)](https://www.youtube.com/watch?v=XaR-D1ZVrjw&ab_channel=NIHILProject "Photoshop with Stable Diffusion AI is truly AMAZING (and also scary)")
+
 
 ## Quick test:
 1) In photoshop, start a new project.
