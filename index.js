@@ -601,29 +601,39 @@ for (let rbMaskContentElement of rbMaskContentElements) {
 
 document.addEventListener("mouseenter",async (event)=>{
   try{
-  //only check if the generation mode has not changed. changing the mode will trigger it's own procedure, so doing it here again is redundant  
+  //only check if the generation mode has not changed( e.g a session.mode === img2img and the current selection is "img2img"  ).
+  // changing the mode will trigger it's own procedure, so doing it here again is redundant  
   if(g_generation_session_mode === g_sd_mode){
 
     console.log("hover on window")
     const new_selection = await psapi.getSelectionInfoExe()
     if(await hasSelectionChanged(new_selection,g_selection)){
+      // if the selection has changed
       
+      // calculate the final width and height
       const [final_width,final_height,initial_width,initial_height] = await selection.selectionToFinalWidthHeight()
       console.log("(final_width,final_height):",final_width,final_height)
-      
+      // update the width and height ui sliders 
       html_manip.autoFillInWidth(final_width)
       html_manip.autoFillInHeight(final_height)
-      console.log(`(${new_selection.width} * ${new_selection.height}) /(${final_width}* ${final_height})`)
-
-      console.log("detail density: ",(new_selection.width * new_selection.height) /(final_width* final_height))
+      // console.log(`(${new_selection.width} * ${new_selection.height}) /(${final_width}* ${final_height})`)
+      // console.log("detail density: ",(new_selection.width * new_selection.height) /(final_width* final_height))
             html_manip.autoFillInHRWidth(initial_width)
       html_manip.autoFillInHRHeight(initial_height)
 
       // sessionStartHtml(false)//generate ,red color
-      g_ui.endSessionUI()
+      
+      //indicate that the session will end if you generate
+      //only if the session is active
+     if (g_generation_session.state === session.SessionState['Active']) {
+        g_ui.endSessionUI()
+     }
+
     }else{
       // sessionStartHtml(true)//generate more, green color
-      g_ui.startSessionUI()
+      
+        g_ui.startSessionUI()
+      
       
     }
   }
@@ -1084,7 +1094,30 @@ function toggleTwoButtonsByClass(isVisible,first_class,second_class){
   return isVisible
 }
 
+async function discardAll(){
+  //discard all generated images setting highlight to false
+  //then call discard() to garbage collect the mask related layers 
+  try{
+
+    for (const [path, viewer_object] of Object.entries(g_viewer_objects)) {
+      try{
+      
+
+      viewer_object.setHighlight(false)// mark each layer as discarded 
+
+    } catch (e){
+      console.error(e)
+    } 
+  }
+  await discard()// clean viewer tab
+}catch(e){
+console.warn(e)
+}
+}
+
 async function acceptAll(){
+  //accept all generated images by highlighting them
+  //then call discard() to garbage collect the mask related layers 
   try{
 
     for (const [path, viewer_object] of Object.entries(g_viewer_objects)) {
@@ -1110,11 +1143,25 @@ function endGenerationSession(){
 }
 
 
+
+
+const custom_class_btns = Array.from(document.getElementsByClassName("customClass"))
+custom_class_btns.forEach(element => element.addEventListener('click',async ()=>{
+  try{
+    
+    await g_generation_session.endSession(session.GarbageCollectionState['Custom'])//end session and accept only selected images
+    
+    
+  }catch(e){
+    console.warn(e)
+  }
+}))
+
 const accept_class_btns = Array.from(document.getElementsByClassName("acceptClass"))
 accept_class_btns.forEach(element => element.addEventListener('click',async ()=>{
   try{
     
-    await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and garbage collect the temp layers
+    await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and accept all images
     // endGenerationSession()
     // await acceptAll()
     
@@ -1240,7 +1287,7 @@ catch(e){
 Array.from(document.getElementsByClassName('discardClass')).forEach(element => {
   element.addEventListener('click', async () => {
     //end session here
-    await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and garbage collect the temp layers
+    await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and remove all images
     // endGenerationSession()
     // await discard()
   })
@@ -1645,7 +1692,7 @@ async function easyModeGenerate(){
     {// end current session 
       g_selection = new_selection
       try{
-        await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and garbage collect the temp layers
+        await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and accept all images
         // endGenerationSession()
         // await acceptAll()
         
@@ -1665,7 +1712,7 @@ if (g_is_generation_session_active) {
   if (g_generation_session_mode !== mode) {
     //active session but it's a new mode
 
-    await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and garbage collect the temp layers
+    await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and accept all images
     // endGenerationSession()
     // await acceptAll()
 
@@ -1778,7 +1825,7 @@ async function generate(settings){
     //check whether request was "generate" or "generate more"
     //if it's generate discard the session 
     if(isFistGeneration){
-      await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and garbage collect the temp layers
+      await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and delete all images
       
       // endGenerationSession()
       // //delete all mask related layers
@@ -1791,7 +1838,7 @@ async function generate(settings){
    if(Object.keys(json).length === 0)
    {
     if(isFistGeneration){
-      await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and garbage collect the temp layers
+      await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and delete all images
       
       // endGenerationSession()
       // //delete all mask related layers

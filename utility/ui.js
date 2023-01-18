@@ -10,7 +10,11 @@ class UI {
     const discard_class_btns = Array.from(
       document.getElementsByClassName('discardClass')
     )
-
+    
+    const custom_class_btns = Array.from(
+        document.getElementsByClassName('customClass')
+      )
+    
     const generate_btns = Array.from(
       document.getElementsByClassName('btnGenerateClass')
     )
@@ -22,6 +26,10 @@ class UI {
     discard_class_btns.forEach(
       element => (element.style.display = 'inline-block')
     )
+    custom_class_btns.forEach(
+        element => (element.style.display = 'inline-block')
+      )
+    
     //make the generate button show "Generate More" when a session is active
     generate_btns.forEach(element => {
       element.textContent = 'Generate More'
@@ -38,13 +46,19 @@ class UI {
     const discard_class_btns = Array.from(
       document.getElementsByClassName('discardClass')
     )
-
+    const custom_class_btns = Array.from(
+        document.getElementsByClassName('customClass')
+      )
+      
     const generate_btns = Array.from(
       document.getElementsByClassName('btnGenerateClass')
     )
 
     accept_class_btns.forEach(element => (element.style.display = 'none'))
     discard_class_btns.forEach(element => (element.style.display = 'none'))
+    custom_class_btns.forEach(
+        element => (element.style.display = 'none')
+      )
     generate_btns.forEach(element => {
       element.textContent = 'Generate'
     })
