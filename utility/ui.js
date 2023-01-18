@@ -1,5 +1,6 @@
 class UI {
   constructor () {}
+
   startSessionUI () {
     // will toggle the buttons needed when a generation session start
 
@@ -49,7 +50,7 @@ class UI {
     const custom_class_btns = Array.from(
         document.getElementsByClassName('customClass')
       )
-      
+
     const generate_btns = Array.from(
       document.getElementsByClassName('btnGenerateClass')
     )
@@ -60,10 +61,21 @@ class UI {
         element => (element.style.display = 'none')
       )
     generate_btns.forEach(element => {
-      element.textContent = 'Generate'
+      element.textContent = `Generate ${g_sd_mode}`
     })
     html_manip.setGenerateButtonsColor('generate', 'generate-more')
   }
+  
+  setGenerateBtnText(textContent){
+    const generate_btns = Array.from(
+  document.getElementsByClassName('btnGenerateClass')
+)
+generate_btns.forEach(element => {
+  element.textContent = textContent
+})
+
+  }
+
 }
 
 module.exports = {

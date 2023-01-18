@@ -37,7 +37,7 @@ class GenerationSession{
     this.id += 1//increment the session id for each session we start
     this.state = SessionState['Active']
     this.isFirstGeneration = false // only before the first generation is requested should this be true
-
+    console.log("current session id: ", this.id)
     
     }
     async endSession(garbage_collection_state){

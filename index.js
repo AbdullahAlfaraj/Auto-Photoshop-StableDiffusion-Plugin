@@ -22,6 +22,32 @@ const sd_options = require('./utility/sdapi/options')
 const sd_config = require('./utility/sdapi/config') 
 const session = require('./utility/session')
 const ui = require('./utility/ui')
+
+async function hasSessionSelectionChanged(){
+  try{
+
+    const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
+    if (isSelectionActive){
+      const current_selection = isSelectionActive // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.  
+      
+
+
+      if(await hasSelectionChanged(current_selection,g_selection)){
+
+        return true
+      }else{
+        //selection has not changed
+        return false
+
+      }
+      
+    }
+  }catch(e){
+    console.warn(e)
+    return false
+  }
+}
+
 const eventHandler = async (event, descriptor) => {
   // console.log("event got triggered!")
   try{
@@ -542,7 +568,7 @@ for (let rbModeElement of rbModeElements) {
 
       g_sd_mode = evt.target.value
       // console.log(`You clicked: ${g_sd_mode}`)
-      displayUpdate()
+      await displayUpdate()
       await postModeSelection()// do things after selection
     }catch(e){
       console.warn(e)
@@ -589,11 +615,11 @@ console.warn(e)
 rbMaskContentElements = document.getElementsByClassName('rbMaskContent')
 
 for (let rbMaskContentElement of rbMaskContentElements) {
-  rbMaskContentElement.addEventListener('click', evt => {
+  rbMaskContentElement.addEventListener('click', async evt => {
     g_inpainting_fill = evt.target.value
 
     // console.log(`You clicked: ${g_inpainting_fill}`)
-    displayUpdate()
+    await displayUpdate()
   })
 }
 
@@ -699,7 +725,7 @@ document.addEventListener("mouseenter",async (event)=>{
 
 
 // show the interface that need to be shown and hide the interface that need to be hidden
-function displayUpdate () {
+async function displayUpdate () {
   try{
     
   if (g_sd_mode == 'txt2img') {
@@ -791,16 +817,28 @@ function displayUpdate () {
        html_manip.setGenerateButtonsColor('generate','generate-more')
   }
   else{
-    const generate_btns = Array.from(document.getElementsByClassName('btnGenerateClass'))
-    generate_btns.forEach(element => {
-      element.textContent = 'Generate More'
-      
-    })
+    //1) and the session is active
+    //2) is the same generation mode
+    
+    if (!await hasSessionSelectionChanged()){
+      //3a) and the selection hasn't change
 
-    html_manip.setGenerateButtonsColor('generate-more','generate')
+      const generate_btns = Array.from(document.getElementsByClassName('btnGenerateClass'))
+      generate_btns.forEach(element => {
+        element.textContent = 'Generate More'
+        
+      })
+      
+      html_manip.setGenerateButtonsColor('generate-more','generate')
+    }
+    else{
+      //3b) selection has change
+
+    }
   }
 }
 else{//session is not active
+  g_ui.setGenerateBtnText(`Generate ${g_sd_mode}`)
   html_manip.setGenerateButtonsColor('generate','generate-more')
 
 }
@@ -1088,7 +1126,7 @@ function toggleTwoButtonsByClass(isVisible,first_class,second_class){
       first_class_btns.forEach(element => element.textContent = "Generate More")
 
     }else{//show generate button
-      first_class_btns.forEach(element => element.textContent = "Generate")
+      first_class_btns.forEach(element => element.textContent = `Generate ${g_sd_mode}`)
 
     }
     second_class_btns.forEach(element => element.style.display = 'none')
@@ -1175,36 +1213,6 @@ accept_class_btns.forEach(element => element.addEventListener('click',async ()=>
 }))
 
 
-
-function sessionStartHtml(status){
-// will toggle the buttons needed when a generation session start 
-  const accept_class = "acceptClass"
-  const discard_class = "discardClass"
-
-  const accept_class_btns = Array.from(document.getElementsByClassName(accept_class))
-  const discard_class_btns = Array.from(document.getElementsByClassName(discard_class))
-  const generate_btns = Array.from(document.getElementsByClassName('btnGenerateClass'))
-if (status){//session started
-  accept_class_btns.forEach(element => element.style.display = 'inline-block')
-  discard_class_btns.forEach(element => element.style.display = 'inline-block')
-  generate_btns.forEach(element => {element.textContent = "Generate More"
-  
-}
-)
-html_manip.setGenerateButtonsColor('generate-more','generate')
-  
-
-}else{//session ended
-  accept_class_btns.forEach(element => element.style.display = 'none')
-  discard_class_btns.forEach(element => element.style.display = 'none')
-  generate_btns.forEach(element => {element.textContent = "Generate"
-  
-})
-html_manip.setGenerateButtonsColor('generate','generate-more')
-}
-
-
-}
 
   function toggleTwoButtons (defaultVal,first_btn_id,second_btn_id) {
     if (defaultVal) {
