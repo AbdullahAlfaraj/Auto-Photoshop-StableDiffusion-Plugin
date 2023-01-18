@@ -19,14 +19,30 @@ class GenerationSession{
         this.state = SessionState['Inactive'] 
         this.mode = "txt2img"
         this.selectionInfo = null
+        this.isFirstGeneration = true // only before the first generation is requested should this be true
     }
-    
+    isActive(){
+        return this.state === SessionState['Active']
+    }
+    isInactive(){
+        return this.state === SessionState['Inactive']
+    }
+    activate(){
+        this.state = SessionState['Active']
+    }
+    deactivate(){
+        this.state = SessionState['Inactive']
+    }
     startSession(){
     this.id += 1//increment the session id for each session we start
-    SessionState['Active'] 
+    this.state = SessionState['Active']
+    this.isFirstGeneration = false // only before the first generation is requested should this be true
+
+    
     }
     async endSession(garbage_collection_state){
         try{
+            this.state = SessionState['Inactive']// end the session by deactivate it
 
             endGenerationSession()//end session
             if(garbage_collection_state === GarbageCollectionState['Accept']){
@@ -42,8 +58,9 @@ class GenerationSession{
             await discard()//this will discard what is not been highlighted
             
         }
-        this.state = SessionState['Inactive']// end the session by deactivate it
         
+        
+        this.isFirstGeneration = true // only before the first generation is requested should this be true
     }catch(e){
         console.warn(e)
     }

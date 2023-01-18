@@ -558,9 +558,7 @@ try{
     if(!g_b_mask_layer_exist){
 
       //make new layer "Mask -- Paint White to Mask -- temporary"
-      // if (g_is_generation_session_active)
-      // {//
-        // g_generation_session_mode = 
+      
         const name = "Mask -- Paint White to Mask -- temporary"
         g_inpaint_mask_layer = await util_layer.createNewLayerExe(name)
         
@@ -568,7 +566,7 @@ try{
         const index = app.activeDocument.historyStates.length -1
         g_inpaint_mask_layer_history_id =  app.activeDocument.historyStates[index].id
         console.log("g_inpaint_mask_layer_history_id: ",g_inpaint_mask_layer_history_id)
-      // }
+      
     }
   }
   else{// if we switch from inpaint mode, delete the mask layer
@@ -623,16 +621,19 @@ document.addEventListener("mouseenter",async (event)=>{
 
       // sessionStartHtml(false)//generate ,red color
       
-      //indicate that the session will end if you generate
-      //only if the session is active
-     if (g_generation_session.state === session.SessionState['Active']) {
+      if (g_generation_session.state === session.SessionState['Active']) {
+        //indicate that the session will end if you generate
+       //only if you move the selection while the session is active
         g_ui.endSessionUI()
+     }else{
+      // move the selection while the session is inactive
+
      }
 
     }else{
       // sessionStartHtml(true)//generate more, green color
-      
-        g_ui.startSessionUI()
+        //if you didn't move the selection.
+        // g_ui.startSessionUI()
       
       
     }
@@ -773,11 +774,13 @@ function displayUpdate () {
     // document.getElementById('btnInitInpaint').style.display = 'none'
   }
 
-  //if a generation session is active but we changed mode. the generate button will reflect that
-  if (g_is_generation_session_active ){
-
-  
-  if(g_generation_session_mode !== g_sd_mode){
+  if (g_is_generation_session_active || g_generation_session.isActive() ){//Note: remove the "or" operation after refactoring the code 
+    //if the session is active
+    
+    
+    if(g_generation_session_mode !== g_sd_mode){  
+    //if a generation session is active but we changed mode. the generate button will reflect that
+    //Note: add this code to the UI class
     const generate_btns = Array.from(document.getElementsByClassName('btnGenerateClass'))
     generate_btns.forEach(element =>{
        element.textContent = `Generate ${g_sd_mode}`
@@ -992,7 +995,7 @@ async function snapAndFillHandler () {
   try {
     const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
     if (isSelectionAreaValid) {
-      if (!g_is_generation_session_active) {
+      if (!g_is_generation_session_active || g_generation_session.isInactive()) {
         // clear the layers related to the last mask operation.
         g_last_snap_and_fill_layers = await psapi.cleanLayers(
           g_last_snap_and_fill_layers
@@ -1027,7 +1030,7 @@ async function snapAndFillHandler () {
 async function easyModeOutpaint(){
   try{
 
-    if(!g_is_generation_session_active){
+    if(!g_is_generation_session_active || g_generation_session.isInactive()){
       // clear the layers related to the last mask operation.
       g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
 
@@ -1050,7 +1053,7 @@ async function btnInitInpaintHandler(){
 
     
     
-    if(!g_is_generation_session_active){
+    if(!g_is_generation_session_active || g_generation_session.isInactive()){
       // delete the layers of the previous mask operation
       g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
       // store the layer of the current mask operation
@@ -1080,7 +1083,7 @@ function toggleTwoButtonsByClass(isVisible,first_class,second_class){
 
   } else {//show generate or generate more button
     first_class_btns.forEach(element => element.style.display = 'inline-block')
-    if(g_is_generation_session_active){//show generate more
+    if(g_is_generation_session_active || g_generation_session.isActive()){//show generate more
 
       first_class_btns.forEach(element => element.textContent = "Generate More")
 
@@ -1138,6 +1141,7 @@ console.warn(e)
 
 function endGenerationSession(){
   g_is_generation_session_active = false
+  
   // sessionStartHtml(g_is_generation_session_active)
   g_ui.endSessionUI()
 }
@@ -1706,7 +1710,7 @@ async function easyModeGenerate(){
     g_selection = await psapi.getSelectionInfoExe()
   }
   
-if (g_is_generation_session_active) {
+if (g_is_generation_session_active || g_generation_session.isActive()) {
   //active session
   //
   if (g_generation_session_mode !== mode) {
@@ -1781,9 +1785,12 @@ async function generate(settings){
     //pre generation
     // toggleGenerateInterruptButton(true)
     
-    const isFistGeneration = !(g_is_generation_session_active) // check if this is the first generation in the session 
+    // const isFistGeneration = !(g_is_generation_session_active) // check if this is the first generation in the session 
+    const isFistGeneration = !(g_generation_session.isActive()) // check if this is the first generation in the session 
+
+    g_generation_session.activate() 
     g_is_generation_session_active = true// active
-    // sessionStartHtml(g_is_generation_session_active)
+
     g_ui.startSessionUI()
     // toggleTwoButtons(true,'btnGenerate','btnInterrupt')
     toggleTwoButtonsByClass(true,'btnGenerateClass','btnInterruptClass')
