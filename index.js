@@ -21,7 +21,7 @@ const util_layer = require('./utility/layer')
 const sd_options = require('./utility/sdapi/options') 
 const sd_config = require('./utility/sdapi/config') 
 const session = require('./utility/session')
-
+const ui = require('./utility/ui')
 const eventHandler = async (event, descriptor) => {
   // console.log("event got triggered!")
   try{
@@ -42,9 +42,11 @@ const eventHandler = async (event, descriptor) => {
       // if selection has changed : change the color and text generate btn  "Generate" color "red" 
       // const new_selection = await psapi.getSelectionInfoExe()
       if(await hasSelectionChanged(current_selection,g_selection)){
-        sessionStartHtml(false)//generate ,red color
+        // sessionStartHtml(false)//generate ,red color
+        g_ui.endSessionUI()
       }else{
-        sessionStartHtml(true)//generate more, green color
+        // sessionStartHtml(true)//generate more, green color
+        g_ui.startSessionUI()
 
       }
       //
@@ -506,7 +508,7 @@ let g_sd_config_obj = new sd_config.SdConfig()
 g_sd_config_obj.getConfig() 
 
 let g_generation_session = new session.GenerationSession(0) //session manager
-
+let g_ui = new ui.UI()
 const requestState = {
 	Generate: "generate",
 	Interrupt: "interrupt",
@@ -617,9 +619,11 @@ document.addEventListener("mouseenter",async (event)=>{
             html_manip.autoFillInHRWidth(initial_width)
       html_manip.autoFillInHRHeight(initial_height)
 
-      sessionStartHtml(false)//generate ,red color
+      // sessionStartHtml(false)//generate ,red color
+      g_ui.endSessionUI()
     }else{
-      sessionStartHtml(true)//generate more, green color
+      // sessionStartHtml(true)//generate more, green color
+      g_ui.startSessionUI()
       
     }
   }
@@ -1101,7 +1105,8 @@ console.warn(e)
 
 function endGenerationSession(){
   g_is_generation_session_active = false
-  sessionStartHtml(g_is_generation_session_active)
+  // sessionStartHtml(g_is_generation_session_active)
+  g_ui.endSessionUI()
 }
 
 
@@ -1731,7 +1736,8 @@ async function generate(settings){
     
     const isFistGeneration = !(g_is_generation_session_active) // check if this is the first generation in the session 
     g_is_generation_session_active = true// active
-    sessionStartHtml(g_is_generation_session_active)
+    // sessionStartHtml(g_is_generation_session_active)
+    g_ui.startSessionUI()
     // toggleTwoButtons(true,'btnGenerate','btnInterrupt')
     toggleTwoButtonsByClass(true,'btnGenerateClass','btnInterruptClass')
     g_can_request_progress = true
