@@ -298,6 +298,13 @@
   .rbMaskContent{
     font-size: 1.1em;
   }
+  #rbSelectionModeLabel, .rbSelectionMode{
+    font-size: 1.0em;
+  }
+  .checkbox{
+    font-size: 1.0em;
+
+  }
   #slCfgScale{
     width:50%;
     margin-right:10px;
@@ -570,6 +577,18 @@
           </div>
           </div>
         </div>
+        <div id="selectionMode">
+          <div>
+            <sp-label id="rbSelectionModeLabel" slot="label">Selection Mode:</sp-label>
+          </div>
+          
+          <sp-radio-group id="selectionModeGroup" class="">
+            <sp-radio class="rbSelectionMode" checked value="0">ratio</sp-radio>
+            <sp-radio class="rbSelectionMode" value="1">precise</sp-radio>
+            <sp-radio class="rbSelectionMode" value="2">ignore</sp-radio>
+            
+          </sp-radio-group>
+        </div>
         <div style="display:flex;">
           <sp-slider show-value="false" id="slWidth" min="1" max="32" value="8">
             <sp-label slot="label">Width:</sp-label>
@@ -633,8 +652,8 @@
           </sp-radio-group>
         </div>
         <div>
-          <sp-checkbox id="chInpaintFullRes">Inpaint at Full Res</sp-checkbox>
-          <sp-checkbox id="chHiResFixs">Hi Res Fix</sp-checkbox>
+          <sp-checkbox class="checkbox" id="chInpaintFullRes">Inpaint at Full Res</sp-checkbox>
+          <sp-checkbox class="checkbox" id="chHiResFixs">Hi Res Fix</sp-checkbox>
         </div>
         <div id="HiResDiv" style="display:none;">
           
