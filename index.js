@@ -1613,9 +1613,20 @@ async function getSettings(){
   
   
 
-
-
-
+    //work with the hord
+    const script_args_json = {
+      model: "Anything Diffusion",
+      nsfw: false,
+      shared_laion: false,
+      seed_variation: 1,
+      post_processing_1: "None",
+      post_processing_2: "None",
+      post_processing_3: "None"
+    }
+    
+    const script_args = Object.values(script_args_json)
+    
+    
   payload = {...payload,
     prompt: prompt,
     negative_prompt: negative_prompt,
@@ -1633,7 +1644,9 @@ async function getSettings(){
     use_prompt_shortcut: bUsePromptShortcut,
     prompt_shortcut_ui_dict: prompt_shortcut_ui_dict,
     uniqueDocumentId: uniqueDocumentId,
-    mode:mode
+    mode:mode,
+    // script_args: script_args,
+    // script_name:"Run on Stable Horde"
   }
 
 }
