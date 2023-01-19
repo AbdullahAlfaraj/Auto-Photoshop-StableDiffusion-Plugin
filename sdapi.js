@@ -1,4 +1,4 @@
-const plugin_url = "http://3.70.132.54:8000"
+const plugin_url = "http://3.67.180.218:8000"
 
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
 async function getInitImage (init_image_name) {

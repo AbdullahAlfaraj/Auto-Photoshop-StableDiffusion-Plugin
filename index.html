@@ -250,7 +250,7 @@
 
   <div class="container wrapper">
     <div class="sp-tabs">
-      <div class="sp-tab selected" id="sp-stable-diffusion-ui-tab"><sp-label>Stable Diffusion UI</sp-label></div>
+      <div class="sp-tab selected" id="sp-stable-diffusion-ui-tab"><sp-label>Inference</sp-label></div>
       <div class="sp-tab" id="sp-viewer-tab"><sp-label>Viewer</sp-label></div>
       <div class="sp-tab" id="sp-history-tab"><sp-label>History</sp-label></div>
       <div class="sp-tab" id="sp-prompts-library-tab"><sp-label>Prompts library</sp-label></div>
@@ -341,10 +341,10 @@
 
       <div>
 
-        <button class="btnSquare" id="btnLayerToSelection">Layer To Selection</button>
+        <button class="btnSquare" id="btnLayerToSelection" style="display:none;">Layer To Selection</button>
         <button class="btnSquare" id="btnGenerate">Generate</button>
         <button class="btnSquare" id="btnInterrupt" style="display:none;">Interrupt</button>
-        <button class="btnSquare" id="btnCleanLayers">Clean Layers</button>
+        <button class="btnSquare" id="btnCleanLayers" style="display:none;">Clean Layers</button>
         <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
       </div>
       <div>
@@ -353,18 +353,18 @@
           <sp-progressbar id="pProgressBar" max=100 value=0>
             <sp-label slot="label">Progress...</sp-label>
           </sp-progressbar>
-          <sp-checkbox id="chUsePromptShortcut" checked>prompt shortcut</sp-checkbox>
+          <sp-checkbox id="chUsePromptShortcut">prompt shortcut</sp-checkbox>
         </div>
         <div class="prompts">
           <!-- <sp-label slot="label">Prompt</sp-label> -->
           <div class="">
-            <sp-textarea id="taPrompt" placeholder="Prompt" value="cute cat, {painterly_style_1}"></sp-textarea>
+            <sp-textarea id="taPrompt" placeholder="Prompt" value="An epic red chest with shining golden frame and a lock in shape of a dragon's head"></sp-textarea>
             <!-- <textarea id="taPrompt" placeholder="Prompt" value="cute cat"></textarea> -->
 
           </div>
 
           <div class="">
-            <sp-textarea id="taNegativePrompt" placeholder="Negative Prompt" id="taNegativePrompt" value="{ugly}" multiline
+            <sp-textarea id="taNegativePrompt" placeholder="Negative Prompt" id="taNegativePrompt" value="" multiline
               grows></sp-textarea>
           </div>
         </div>
@@ -446,26 +446,26 @@
         </div>
         <div>
           <sp-label>Steps:</sp-label><sp-textfield id="tiNumberOfSteps" type="number" placeholder="20"
-            value="20"></sp-textfield>
+            value="30"></sp-textfield>
         </div>
         <div>
-          <sp-slider show-value="false" id="slWidth" min="1" max="32" value="8">
+          <sp-slider show-value="false" id="slWidth" min="1" max="32" value="12">
             <sp-label slot="label">Width:</sp-label>
-            <sp-label class="labelNumber" slot="label" id="lWidth">512</sp-label>
+            <sp-label class="labelNumber" slot="label" id="lWidth">768</sp-label>
           </sp-slider>
-          <sp-slider show-value="false" id="slHeight" min="1" max="32" value="8">
+          <sp-slider show-value="false" id="slHeight" min="1" max="32" value="12">
             <sp-label slot="label">Height:</sp-label>
-            <sp-label class="labelNumber" slot="label" id="lHeight">512</sp-label>
+            <sp-label class="labelNumber" slot="label" id="lHeight">768</sp-label>
           </sp-slider>
         </div>
         <div>
-          <sp-slider show-value="false" id="hrWidth" min="1" max="32" value="8">
+          <sp-slider show-value="false" id="hrWidth" min="1" max="32" value="12">
             <sp-label slot="label">Hi Res Width:</sp-label>
-            <sp-label class="labelNumber" slot="label" id="hWidth">512</sp-label>
+            <sp-label class="labelNumber" slot="label" id="hWidth">768</sp-label>
           </sp-slider>
-          <sp-slider show-value="false" id="hrHeight" min="1" max="32" value="8">
+          <sp-slider show-value="false" id="hrHeight" min="1" max="32" value="12">
             <sp-label slot="label">Hi Res Height:</sp-label>
-            <sp-label class="labelNumber" slot="label" id="hHeight">512</sp-label>
+            <sp-label class="labelNumber" slot="label" id="hHeight">768</sp-label>
           </sp-slider>
         </div>
         <sp-slider show-value="true" id="slCfgScale" min="1" max="30" value="7">

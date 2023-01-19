@@ -15,6 +15,7 @@ const dialog_box = require('./dialog_box')
 const {entrypoints} = require('uxp')
 const html_manip = require('./html_manip')
 const export_png = require('./export_png')
+const formats = require('uxp').storage.formats;
 
 async function getUniqueDocumentId () {
   try {
@@ -199,6 +200,11 @@ async function refreshModels () {
     menu_item_element.dataset.model_title = model.title
     document.getElementById('mModelsMenu').appendChild(menu_item_element)
   }
+
+  if (g_model_title == '' && g_models.length > 0) {
+    g_model_title = g_models[0]
+    document.getElementById('mModelsMenu').selectedIndex = 0
+  }
 }catch(e){
   console.warn(e)
 }
@@ -278,7 +284,7 @@ function autoFillInSettings(metadata_json){
      "Sampler": "Euler a",
      "CFG scale": "7.0",
      "Seed": "2300061620",
-     "Size": "512x512",
+     "Size": "768x768",
      "Model hash": "3e16efc8",
      "Seed resize from": "-1x-1",
      "Denoising strength": "0",
@@ -365,8 +371,8 @@ let g_models = []
 let g_model_title = ''
 // let gWidth = 512
 // let gHeight = 512
-let hWidth = 512
-let hHeight = 512
+let hWidth = 768
+let hHeight = 768
 let h_denoising_strength = .7
 let g_inpainting_fill = 0
 let g_last_outpaint_layers = []
@@ -1431,13 +1437,14 @@ async function openImageAction () {
   const storage = require('uxp').storage
   const fs = storage.localFileSystem
   try {    
-    let r = await fetch(url)
+    let r = await fetch(encodeURI(gCurrentImagePath))
     if (!r.ok) {
       throw new Error(await r.text())
     }
 
     let tmp = await fs.getTemporaryFolder()
-    let f = await tmp.createFile(gCurrentImagePath, {overwrite: true})
+    let fileName = gCurrentImagePath.replace(/^.*[\\\/]/, '')
+    let f = await tmp.createFile(fileName, {overwrite: true})
     let bytes = await r.arrayBuffer()
 
     await f.write(bytes, {format: formats.binary})

@@ -37,9 +37,9 @@
       "type": "panel",
       "id": "vanilla",
       "label": {
-        "default": "Starter Panel",
-        "en-US": "Starter Panel",
-        "es-ES": "Starter Panel"
+        "default": "RJ Diffusion",
+        "en-US": "RJ Diffusion",
+        "es-ES": "RJ Diffusion"
       },
       "minimumSize": {
         "width": 400,
