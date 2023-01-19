@@ -12,7 +12,9 @@ import time
 import serverHelper
 import prompt_shortcut
 import metadata_to_json
+import search
 sd_url = os.environ.get('SD_URL', 'http://127.0.0.1:7860')
+
 
 async def txt2ImgRequest(payload):
     # payload = { 
@@ -248,6 +250,30 @@ async def sdapi(path: str, request: Request, response: Response):
     return response
 
 
+
+
+@app.post('/search/image/')
+async def searchImage(request:Request):
+    try:
+        json = await request.json()
+    except: 
+        json = {}
+    
+
+    try:
+        keywords = json.get('keywords','cute dogs') 
+        images = await search.imageSearch(keywords)
+        print(images)
+        
+        
+        return {"images":images}
+    except:
+        print("keywords",keywords)
+        # print(f'{request}')
+    return {"error": "error message: can't preform an image search"}
+
+
+    # return response
 @app.post('/history/load')
 async def loadHistory(request: Request):
     # {'image_paths','metadata_setting'}

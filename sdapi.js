@@ -390,6 +390,39 @@ async function requestGetOptions() {
   }
     return json
 }
+
+
+async function imageSearch (keywords) {
+  
+  let json = {}
+  try {
+    payload = {
+      "keywords":keywords
+    }
+
+    const full_url = 'http://127.0.0.1:8000/search/image/'
+
+    let request = await fetch(full_url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    json = await request.json()
+    console.log('imageSearch:', json)
+    
+    return json['images']
+    
+  } catch (e) {
+    console.warn(e)
+  
+  }
+    return []
+}
+
 module.exports = {
   requestTxt2Img,
   requestImg2Img,
@@ -406,5 +439,6 @@ module.exports = {
   loadHistory,
   setInpaintMaskWeight,
   requestGetConfig,
-  requestGetOptions
+  requestGetOptions,
+  imageSearch
 }

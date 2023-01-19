@@ -79,7 +79,7 @@
     height: 100px;
     margin: 0;
   }
-  .viewer-image, .history-image{
+  .viewer-image, .history-image, .image-search{
     width: 100px;
     height: 100px;
     margin: 0;
@@ -390,6 +390,10 @@
       <div>
         
       </div>
+      <sp-textfield id="imageSearchField" type="text" placeholder="cute cats"
+        value=""><sp-label slot="label">Search:</sp-label></sp-textfield>
+      
+      <button class="btnSquare" id="btnImageSearch">Image Search</button>
       <button class="btnSquare" id="btnLoadHistory">Load</button>
       <div class="" id="divHistoryImagesContainer">
         <img  class="history-image" id="history_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' />
