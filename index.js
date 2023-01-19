@@ -48,34 +48,58 @@ async function hasSessionSelectionChanged(){
   }
 }
 
-const eventHandler = async (event, descriptor) => {
-  // console.log("event got triggered!")
-  try{
 
+
+async function calcWidthHeightFromSelection(){
+  //set the width and height, hrWidth, and hrHeight using selection info and selection mode
+  const selection_mode = html_manip.getSelectionMode()
+      if(selection_mode === "ratio"){
+        //change (width and height) and (hrWidth, hrHeight) to match the ratio of selection 
+        const [width,height,hr_width,hr_height] = await selection.selectionToFinalWidthHeight()
+        
+        html_manip.autoFillInWidth(width)
+        html_manip.autoFillInHeight(height)
+        html_manip.autoFillInHRWidth(hr_width)
+        html_manip.autoFillInHRHeight(hr_height)
+        
+      }else if(selection_mode ==="precise" ){
+        const selectionInfo = await psapi.getSelectionInfoExe()
+        const [width,height,hr_width,hr_height] = [selectionInfo.width,selectionInfo.height,0,0]
+        html_manip.autoFillInWidth(width)
+        html_manip.autoFillInHeight(height)
+
+
+      }
+}
+const eventHandler = async (event, descriptor) => {
+  
+  try{
+    console.log(event, descriptor)
+    
     const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
     if (isSelectionActive){
       const current_selection = isSelectionActive // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.  
-      const [final_width,final_height,initial_width,initial_height] = await selection.selectionToFinalWidthHeight()
-      console.log("(final_width,final_height):",final_width,final_height)
-      console.log(event, descriptor)
-      html_manip.autoFillInWidth(final_width)
-      html_manip.autoFillInHeight(final_height)
-      console.log(` (${final_width}* ${final_height})/(${current_selection.width} * ${current_selection.height})`)
+      
+      await calcWidthHeightFromSelection()
 
-      console.log("detail density: ",(final_width* final_height)/(current_selection.width * current_selection.height))
-      html_manip.autoFillInHRWidth(initial_width)
-      html_manip.autoFillInHRHeight(initial_height)
-      // if selection has changed : change the color and text generate btn  "Generate" color "red" 
+      
+      
+      // console.log(` (${final_width}* ${final_height})/(${current_selection.width} * ${current_selection.height})`)
+      // console.log("detail density: ",(final_width* final_height)/(current_selection.width * current_selection.height))
+      
+      
       // const new_selection = await psapi.getSelectionInfoExe()
+      
       if(await hasSelectionChanged(current_selection,g_selection)){
-        // sessionStartHtml(false)//generate ,red color
+        // endSessionUI //red color
+        // if selection has changed : change the color and text generate btn  "Generate" color "red" 
         g_ui.endSessionUI()
       }else{
-        // sessionStartHtml(true)//generate more, green color
+        // startSessionUI// green color
         g_ui.startSessionUI()
 
       }
-      //
+      
     }
   }catch(e){
     console.warn(e)
@@ -634,18 +658,8 @@ document.addEventListener("mouseenter",async (event)=>{
     if(await hasSelectionChanged(new_selection,g_selection)){
       // if the selection has changed
       
-      // calculate the final width and height
-      const [final_width,final_height,initial_width,initial_height] = await selection.selectionToFinalWidthHeight()
-      console.log("(final_width,final_height):",final_width,final_height)
-      // update the width and height ui sliders 
-      html_manip.autoFillInWidth(final_width)
-      html_manip.autoFillInHeight(final_height)
-      // console.log(`(${new_selection.width} * ${new_selection.height}) /(${final_width}* ${final_height})`)
-      // console.log("detail density: ",(new_selection.width * new_selection.height) /(final_width* final_height))
-            html_manip.autoFillInHRWidth(initial_width)
-      html_manip.autoFillInHRHeight(initial_height)
+      await calcWidthHeightFromSelection()
 
-      // sessionStartHtml(false)//generate ,red color
       
       if (g_generation_session.state === session.SessionState['Active']) {
         //indicate that the session will end if you generate
