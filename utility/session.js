@@ -8,7 +8,8 @@ const SessionState = {
 const GarbageCollectionState = {
 	Accept : "accept", // accept all generated images
 	Discard: "discard",//discard all generated images
-    Custom: "custom"//accept only chosen images
+    DiscardSelected: "discard_selected",
+    AcceptSelected: "accept_selected"//accept_selected only chosen images
 
 }
 
@@ -50,9 +51,15 @@ class GenerationSession{
             await acceptAll()
         }else if(garbage_collection_state === GarbageCollectionState['Discard']){
             //this should be discardAll()
-            // await discard()
+            
             await discardAll()
-        }else if(garbage_collection_state === GarbageCollectionState['Custom'])
+        }else if(garbage_collection_state === GarbageCollectionState['DiscardSelected'])
+        {
+            //this should be discardAllExcept(selectedLayers)
+            await discardSelected()//this will discard what is not been highlighted
+            
+        }
+        else if(garbage_collection_state === GarbageCollectionState['AcceptSelected'])
         {
             //this should be discardAllExcept(selectedLayers)
             await discard()//this will discard what is not been highlighted

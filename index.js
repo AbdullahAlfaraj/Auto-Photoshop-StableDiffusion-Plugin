@@ -1191,6 +1191,31 @@ console.warn(e)
 }
 }
 
+async function discardSelected(){
+  //discard all generated images setting highlight to false
+  //then call discard() to garbage collect the mask related layers 
+  try{
+
+    for (const [path, viewer_object] of Object.entries(g_viewer_objects)) {
+      try{
+      if(viewer_object.is_active){
+        viewer_object.setHighlight(true)//highlight the active image, since active images are not highlighted in the viewer 
+      }
+      
+      viewer_object.toggleHighlight()// if invert the highlights on all images 
+      
+    } catch (e){
+      console.error(e)
+    } 
+  }
+  await discard()// delete the images that currently highlighted
+}catch(e){
+console.warn(e)
+}
+}
+
+
+
 function endGenerationSession(){
   g_is_generation_session_active = false
   
@@ -1201,11 +1226,23 @@ function endGenerationSession(){
 
 
 
-const custom_class_btns = Array.from(document.getElementsByClassName("customClass"))
-custom_class_btns.forEach(element => element.addEventListener('click',async ()=>{
+const discard_selected_class_btns = Array.from(document.getElementsByClassName("discardSelectedClass"))
+discard_selected_class_btns.forEach(element => element.addEventListener('click',async ()=>{
   try{
     
-    await g_generation_session.endSession(session.GarbageCollectionState['Custom'])//end session and accept only selected images
+    await g_generation_session.endSession(session.GarbageCollectionState['DiscardSelected'])//end session and accept only selected images
+    
+    
+  }catch(e){
+    console.warn(e)
+  }
+}))
+
+const accept_selected_class_btns = Array.from(document.getElementsByClassName("acceptSelectedClass"))
+accept_selected_class_btns.forEach(element => element.addEventListener('click',async ()=>{
+  try{
+    
+    await g_generation_session.endSession(session.GarbageCollectionState['AcceptSelected'])//end session and accept only selected images
     
     
   }catch(e){
@@ -1871,7 +1908,7 @@ async function generate(settings){
       
       // endGenerationSession()
       // //delete all mask related layers
-      // await discard()// clean viewer tab and the mask related layers
+      
     }
     return null
    }
@@ -1884,7 +1921,7 @@ async function generate(settings){
       
       // endGenerationSession()
       // //delete all mask related layers
-      // await discard()// clean viewer tab and the mask related layers
+      
     }
     return null
    }

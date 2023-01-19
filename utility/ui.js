@@ -12,8 +12,13 @@ class UI {
       document.getElementsByClassName('discardClass')
     )
     
-    const custom_class_btns = Array.from(
-        document.getElementsByClassName('customClass')
+    
+    const discard_selected_class_btns = Array.from(
+      document.getElementsByClassName('discardSelectedClass')
+    )
+  
+    const accept_selected_class_btns = Array.from(
+        document.getElementsByClassName('acceptSelectedClass')
       )
     
     const generate_btns = Array.from(
@@ -27,7 +32,8 @@ class UI {
     discard_class_btns.forEach(
       element => (element.style.display = 'inline-block')
     )
-    custom_class_btns.forEach(
+    discard_selected_class_btns.forEach(element => (element.style.display = 'inline-block'))
+    accept_selected_class_btns.forEach(
         element => (element.style.display = 'inline-block')
       )
     
@@ -47,8 +53,13 @@ class UI {
     const discard_class_btns = Array.from(
       document.getElementsByClassName('discardClass')
     )
-    const custom_class_btns = Array.from(
-        document.getElementsByClassName('customClass')
+    const discard_selected_class_btns = Array.from(
+      document.getElementsByClassName('discardSelectedClass')
+    )
+  
+
+    const accept_selected_class_btns = Array.from(//Node: change customClass to acceptSelectedClass
+        document.getElementsByClassName('acceptSelectedClass')
       )
 
     const generate_btns = Array.from(
@@ -57,7 +68,9 @@ class UI {
 
     accept_class_btns.forEach(element => (element.style.display = 'none'))
     discard_class_btns.forEach(element => (element.style.display = 'none'))
-    custom_class_btns.forEach(
+    discard_selected_class_btns.forEach(element => (element.style.display = 'none'))
+
+    accept_selected_class_btns.forEach(
         element => (element.style.display = 'none')
       )
     generate_btns.forEach(element => {

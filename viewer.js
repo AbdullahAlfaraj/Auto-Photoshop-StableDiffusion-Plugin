@@ -32,7 +32,7 @@ class ViewerImage {
     this.img_html = null
     this.is_highlighted = false
     this.can_highlight = true
-    this.is_active = false
+    this.is_active = false// active is a temporary highlight
     this.state = ViewerObjState["Delete"]
     
   }
@@ -45,10 +45,19 @@ class ViewerImage {
   }
   active(isActive){
     if(isActive){
-      
+      //unlink it if it's active 
+      this.state = ViewerObjState['Unlink']
+
       this.img_html.classList.add("viewerImgActive")
 
     }else{
+      if(this.getHighlight() === false){// if it's not active and it's not highlighted
+        
+        this.state = ViewerObjState['Delete']
+      }else{
+        
+        this.state = ViewerObjState['Unlink'] //it's not active but it's highlighted then keep it
+      }
       this.img_html.classList.remove("viewerImgActive")
     }
     this.is_active = isActive
@@ -67,6 +76,7 @@ class ViewerImage {
         
       }else{
         this.img_html.classList.remove("viewerImgSelected")
+        this.state = ViewerObjState["Delete"]
       }
     }
   }
@@ -74,8 +84,11 @@ class ViewerImage {
     return this.is_highlighted
   }
   toggleHighlight(){
-    this.is_highlighted = !this.is_highlighted  
-    this.img_html.classList.toggle("viewerImgSelected")
+    
+    const toggle_value = !this.getHighlight()
+    this.setHighlight(toggle_value)
+    // this.is_highlighted = !this.is_highlighted  
+    // this.img_html.classList.toggle("viewerImgSelected")
   }
   setImgHtml(){}
   async delete(){}
