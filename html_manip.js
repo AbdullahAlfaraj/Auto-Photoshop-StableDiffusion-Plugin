@@ -442,6 +442,13 @@ function setPromptShortcut(prompt_shortcut){
   var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 7);
   document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
 }
+
+////start selection mode/////
+function getSelectionMode(){
+  return [...document.getElementsByClassName('rbSelectionMode')].filter(e => e.checked == true)[0].value
+}
+
+///end selection mode////
 module.exports = {
   getPrompt,
   autoFillInPrompt,
@@ -475,6 +482,7 @@ module.exports = {
   autoFillInHRWidth,
   getPromptShortcut,
   setPromptShortcut,
-  getModelHashByTitle 
+  getModelHashByTitle,
+  getSelectionMode
 
 }
