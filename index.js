@@ -867,17 +867,20 @@ async function restoreActiveLayers () {
   // } 
 }
 document.getElementById('btnSdUrl').addEventListener('click', async () => {
+  console.log("Not supported")
+  return
+
   //change the sdUrl in server in proxy server
-  console.log("you clicked btnSdUrl")
-  let new_sd_url = document.getElementById('tiSdUrl').value
-  console.log("new_sd_url: ", new_sd_url)
+  // console.log("you clicked btnSdUrl")
+  // let new_sd_url = document.getElementById('tiSdUrl').value
+  // console.log("new_sd_url: ", new_sd_url)
 
-  new_sd_url = new_sd_url.trim()
-  console.log("new_sd_url.trim(): ", new_sd_url)
+  // new_sd_url = new_sd_url.trim()
+  // console.log("new_sd_url.trim(): ", new_sd_url)
 
-  if (new_sd_url.length > 0) {
-    await sdapi.changeSdUrl(new_sd_url)
-  }
+  // if (new_sd_url.length > 0) {
+  //   await sdapi.changeSdUrl(new_sd_url)
+  // }
 })
 
 
@@ -1427,17 +1430,18 @@ async function placeEmbedded () {
 async function openImageAction () {
   const storage = require('uxp').storage
   const fs = storage.localFileSystem
-  try {
-    let pluginFolder = await fs.getPluginFolder()
-    // let theTemplate = await pluginFolder.getEntry("/image1.png");
-    //directory where all image's request folders are. one folder for each request
-    const relative_dir_path = `./server/python_server/`
+  try {    
+    let r = await fetch(url)
+    if (!r.ok) {
+      throw new Error(await r.text())
+    }
 
-    const image_path = `${relative_dir_path}/${gCurrentImagePath}`
-    // 'C:/Users/abdul/Desktop/photoshop_plugins/my_plugin_1/server/python_server/output- 1670544300.95411.png'
-    let theTemplate = await pluginFolder.getEntry(image_path)
+    let tmp = await fs.getTemporaryFolder()
+    let f = await tmp.createFile(gCurrentImagePath, {overwrite: true})
+    let bytes = await r.arrayBuffer()
 
-    await app.open(theTemplate)
+    await f.write(bytes, {format: formats.binary})
+    await app.open(f)
   } catch (e) {
     console.warn("couldn't open image ", e)
   }
@@ -1472,7 +1476,7 @@ async function ImagesToLayersExe (images_paths) {
   image_path_to_layer = {}
   console.log("ImagesToLayersExe: images_paths: ",images_paths)
   for (image_path of images_paths) {
-    gCurrentImagePath = image_path
+    gCurrentImagePath = sdapi.plugin_url + "/" + image_path
     console.log(gCurrentImagePath)
     await openImageExe() //local image to new document
     await convertToSmartObjectExe() //convert the current image to smart object
@@ -1539,7 +1543,6 @@ async function loadViewerImages(){
     //get the images path
     console.log("g_image_path_to_layer:", g_image_path_to_layer)
 
-    const output_dir_relative = "./server/python_server/"
     const container = document.getElementById("divViewerImagesContainer")
     
     while(container.firstChild){
@@ -1553,7 +1556,7 @@ async function loadViewerImages(){
     console.log("image_paths: ",image_paths)
     for (image_path of image_paths){
       const img = document.createElement('img')
-      img.src = `${output_dir_relative}/${image_path}`
+      img.src = `${sdapi.plugin_url}/${image_path}`
       img.className = "viewer-image"
       console.log("image_path: ",image_path)
       img.dataset.image_id = g_image_path_to_layer[image_path].id
@@ -1625,7 +1628,6 @@ document.getElementById('btnLoadViewer').addEventListener('click', loadViewerIma
 document.getElementById('btnLoadHistory').addEventListener('click',async function(){
   try{
 
-    const output_dir_relative = "./server/python_server/"
     const container = document.getElementById("divHistoryImagesContainer")
     const uniqueDocumentId = await getUniqueDocumentId()
     const [image_paths, metadata_jsons] = await sdapi.loadHistory(uniqueDocumentId)
@@ -1638,7 +1640,7 @@ document.getElementById('btnLoadHistory').addEventListener('click',async functio
     for (image_path of image_paths){
       
       const img = document.createElement('img')
-      img.src = `${output_dir_relative}/${image_path}`
+      img.src = `${sdapi.plugin_url}/${image_path}`
       img.className = "history-image"
       img.dataset.metadata_json_string = JSON.stringify(metadata_jsons[i])
       container.appendChild(img)

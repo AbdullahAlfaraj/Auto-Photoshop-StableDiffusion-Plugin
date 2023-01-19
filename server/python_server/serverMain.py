@@ -12,6 +12,8 @@ import time
 import serverHelper
 import prompt_shortcut
 import metadata_to_json
+from fastapi.staticfiles import StaticFiles
+
 sd_url = os.environ.get('SD_URL', 'http://127.0.0.1:7860')
 
 async def txt2ImgRequest(payload):
@@ -85,6 +87,7 @@ from typing import Union
 from fastapi import FastAPI
 
 app = FastAPI()
+app.mount("/output", StaticFiles(directory="output"), name="output")
 
 
 @app.get("/")

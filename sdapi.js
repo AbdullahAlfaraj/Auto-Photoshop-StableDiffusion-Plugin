@@ -1,3 +1,5 @@
+const plugin_url = "http://3.70.132.54:8000"
+
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
 async function getInitImage (init_image_name) {
   console.log('getInitImage(): get Init Image from the server :')
@@ -5,7 +7,7 @@ async function getInitImage (init_image_name) {
     init_image_name: init_image_name
   }
 
-  const full_url = 'http://127.0.0.1:8000/getInitImage/'
+  const full_url = plugin_url + '/getInitImage/'
   console.log(full_url)
   console.log('getInitImage payload:', payload)
   let request = await fetch(full_url, {
@@ -50,7 +52,7 @@ async function requestTxt2Img (payload) {
 
   console.log('requestTxt2Img(): about to send a fetch request')
 
-  const full_url = 'http://127.0.0.1:8000/txt2img/'
+  const full_url = plugin_url + '/txt2img/'
   console.log(full_url)
 
   let request = await fetch(full_url, {
@@ -99,7 +101,7 @@ async function requestTxt2Img (payload) {
 async function requestImg2Img (payload) {
   console.log('requestTxt2Img(): about to send a fetch request')
 
-  const full_url = 'http://127.0.0.1:8000/img2img/'
+  const full_url = plugin_url + '/img2img/'
   console.log(full_url)
   console.log('requestImg2Img payload is: ', payload)
   let request = await fetch(full_url, {
@@ -123,7 +125,7 @@ async function requestProgress () {
   console.log('requestProgress: ')
 
   const full_url =
-    'http://127.0.0.1:8000/sdapi/v1/progress?skip_current_image=false'
+    plugin_url + '/sdapi/v1/progress?skip_current_image=false'
   let request = await fetch(full_url)
   let json = await request.json()
   console.log('progress json:')
@@ -137,7 +139,7 @@ async function requestGetModels () {
   let json = []
   try{
 
-    const full_url = 'http://127.0.0.1:8000/sdapi/v1/sd-models'
+    const full_url = plugin_url + '/sdapi/v1/sd-models'
     let request = await fetch(full_url)
     json = await request.json()
     console.log('models json:')
@@ -152,7 +154,7 @@ async function requestGetModels () {
 async function requestGetSamplers () {
   console.log('requestGetSamplers: ')
 
-  const full_url = 'http://127.0.0.1:8000/sdapi/v1/samplers'
+  const full_url = plugin_url + '/sdapi/v1/samplers'
   let request = await fetch(full_url)
   let json = await request.json()
   console.log('samplers json:')
@@ -163,9 +165,9 @@ async function requestGetSamplers () {
 
 async function requestSwapModel (model_title) {
   console.log('requestSwapModel: ')
-  // const full_url = 'http://127.0.0.1:8000/swapModel'
+  // const full_url = plugin_url + '/swapModel'
 
-  const full_url = 'http://127.0.0.1:8000/sdapi/v1/options'
+  const full_url = plugin_url + '/sdapi/v1/options'
   payload = {
     sd_model_checkpoint: model_title
   }
@@ -190,9 +192,9 @@ async function requestSwapModel (model_title) {
 async function requestInterrupt (model_title) {
   try {
     console.log('requestInterrupt: ')
-    // const full_url = 'http://127.0.0.1:8000/swapModel'
+    // const full_url = plugin_url + '/swapModel'
 
-    const full_url = 'http://127.0.0.1:8000/sdapi/v1/interrupt'
+    const full_url = plugin_url + '/sdapi/v1/interrupt'
     // payload = {
     //   sd_model_checkpoint: model_title
     // }
@@ -224,7 +226,7 @@ async function getVersionRequest(){
     console.log('requestGetSamplers: ')
   try {
 
-    const full_url = 'http://127.0.0.1:8000/version'
+    const full_url = plugin_url + '/version'
     let request = await fetch(full_url)
     let json = await request.json()
     console.log('version json:',json)
@@ -250,7 +252,7 @@ async function changeSdUrl(new_sd_url){
       "sd_url": new_sd_url
     }
 
-    const full_url = 'http://127.0.0.1:8000/sd_url/'
+    const full_url = plugin_url + '/sd_url/'
     console.log("changeSdUrl: payload: ", payload)
   let request = await fetch(full_url, {
     method: 'POST',
@@ -292,7 +294,7 @@ async function loadHistory (uniqueDocumentId) {
       "uniqueDocumentId":uniqueDocumentId
     }
 
-    const full_url = 'http://127.0.0.1:8000/history/load'
+    const full_url = plugin_url + '/history/load'
 
     let request = await fetch(full_url, {
       method: 'POST',
@@ -318,7 +320,7 @@ async function loadPromptShortcut () {
   try {
     payload = {}
 
-    const full_url = 'http://127.0.0.1:8000/prompt_shortcut/load'
+    const full_url = plugin_url + '/prompt_shortcut/load'
 
     let request = await fetch(full_url, {
       method: 'POST',
@@ -345,7 +347,7 @@ async function savePromptShortcut (prompt_shortcut) {
   try {
     payload = {"prompt_shortcut":prompt_shortcut}
 
-    const full_url = 'http://127.0.0.1:8000/prompt_shortcut/save'
+    const full_url = plugin_url + '/prompt_shortcut/save'
 
     let request = await fetch(full_url, {
       method: 'POST',
@@ -379,5 +381,6 @@ module.exports = {
   changeSdUrl,
   loadPromptShortcut,
   savePromptShortcut,
-  loadHistory
+  loadHistory,
+  plugin_url
 }
