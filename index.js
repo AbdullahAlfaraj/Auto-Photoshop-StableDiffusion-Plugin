@@ -2738,7 +2738,10 @@ document.getElementById('btnImageSearch').addEventListener('click',async functio
     for (let image_search_obj of image_search_objs){
       
       const img = document.createElement('img')
-      img.src = image_search_obj['image']
+      // img.src = image_search_obj['image']
+      
+      img.src = image_search_obj['thumbnail']
+
       img.className = "image-search"
       // img.dataset.metadata_json_string = JSON.stringify(metadata_jsons[i])
       container.appendChild(img)
