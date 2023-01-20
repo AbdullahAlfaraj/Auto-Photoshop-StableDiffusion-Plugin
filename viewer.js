@@ -121,7 +121,7 @@ class OutputImage extends ViewerImage {
   select () {
     super.select()
     if (this.isLayerValid()) {
-      psapi.selectLayers([this.layer])
+      psapi.selectLayersExe([this.layer])
       //   console.log(`${this.layer.id} got selected`);
     }
   }
