@@ -303,6 +303,7 @@
   }
   .checkbox{
     font-size: 1.0em;
+    margin-right:10px;
 
   }
   #slCfgScale{
@@ -656,8 +657,9 @@
             <sp-radio class="rbMaskContent" value="3">latent nothing</sp-radio>
           </sp-radio-group>
         </div>
-        <div>
+        <div style="display:flex;">
           <sp-checkbox class="checkbox" id="chInpaintFullRes">Inpaint at Full Res</sp-checkbox>
+          <sp-checkbox class="checkbox" id="chRestoreFaces">Restore Faces</sp-checkbox>
           <sp-checkbox class="checkbox" id="chHiResFixs">Hi Res Fix</sp-checkbox>
         </div>
         <div id="HiResDiv" style="display:none;">

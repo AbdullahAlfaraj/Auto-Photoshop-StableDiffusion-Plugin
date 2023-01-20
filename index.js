@@ -1611,7 +1611,7 @@ async function getSettings(){
   
   const sampler_name = html_manip.getCheckedSamplerName()
   const mode = html_manip.getMode()
-  
+  const b_restore_faces = document.getElementById("chRestoreFaces").checked
   
   let denoising_strength = h_denoising_strength
   if (mode == 'inpaint' || mode == 'outpaint')
@@ -1645,6 +1645,7 @@ async function getSettings(){
     payload['init_image_name'] = g_init_image_name
 
   }
+
   if(hi_res_fix){
     payload['enable_hr'] = hi_res_fix
     payload['firstphase_width'] = width
@@ -1696,6 +1697,7 @@ async function getSettings(){
     prompt_shortcut_ui_dict: prompt_shortcut_ui_dict,
     uniqueDocumentId: uniqueDocumentId,
     mode:mode,
+    restore_faces: b_restore_faces
     // script_args: script_args,
     // script_name:"Run on Stable Horde"
   }
