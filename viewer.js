@@ -222,7 +222,7 @@ class InitImage extends ViewerImage {
     //   selectLayers.push(this.solid_layer)
     // }
 
-    psapi.selectLayers(selectLayers)
+    psapi.selectLayersExe(selectLayers)
     //   console.log(`${this.layer.id} got selected`);
   }
 
@@ -316,7 +316,7 @@ class InitMaskImage extends ViewerImage {
       //   selectLayers.push(this.solid_layer)
       // }
   
-      psapi.selectLayers(selectLayers)
+      psapi.selectLayersExe(selectLayers)
       //   console.log(`${this.layer.id} got selected`);
     }
   

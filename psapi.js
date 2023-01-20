@@ -680,15 +680,18 @@ async function setInitImage (layer, session_id) {
   // await exportPng(session_id)
   // image_name = await app.activeDocument.activeLayers[0].name
   
-  // image_name = layerNameToFileName(old_name,layer.id,random_session_id)
+  //convert layer name to a file name
   image_name = layerNameToFileName(old_name,layer.id,session_id)
   image_name = `${image_name}.png`
+
+  //the width and height of the exported image
   const width = html_manip.getWidth()
   const height = html_manip.getHeight()
   await newExportPng(layer,image_name,width,height)
 
   g_init_image_name = image_name
   console.log(image_name)
+  
   const image_src = await sdapi.getInitImage(g_init_image_name)
   let ini_image_element = document.getElementById('init_image')
   ini_image_element.src = image_src
