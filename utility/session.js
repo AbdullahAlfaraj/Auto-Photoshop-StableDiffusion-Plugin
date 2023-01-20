@@ -74,6 +74,12 @@ class GenerationSession{
 
           
     }
+    isSameMode(selected_mode){
+        if (this.mode === selected_mode){
+            return true
+        }
+        return false
+    }
     loadLastSession(){
         //load the last session from the server
         
