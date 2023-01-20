@@ -576,6 +576,7 @@ const generationMode = {
   Outpaint: "outpaint"
 }
 let g_generation_session_mode = generationMode['Txt2Img']
+let g_viewer_manger = new viewer.ViewerManager()
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -2539,7 +2540,7 @@ async function loadViewerImages(){
     
     
    
-    const viewer_layers = [] 
+    // const viewer_layers = [] 
     // Object.keys(g_image_path_to_layer).map(path =>  new viewer.OutputImage(g_image_path_to_layer[path],path))
 
   

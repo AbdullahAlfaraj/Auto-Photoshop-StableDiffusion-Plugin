@@ -359,11 +359,37 @@ class InitMaskImage extends ViewerImage {
   
     }
   }
-  
+
+  class ViewerManager{
+    constructor(){
+      this.outputImages = []
+      this.initImages = []
+      this.initMaskImage 
+    }
+    deleteAll(){
+
+    }
+    keepAll(){
+
+    }
+    keepSelected(){
+
+    }
+    deleteSelected(){
+
+    }
+    deleteInitImages(){
+
+    }
+    deleteMask(){
+
+    }
+  }
 
 module.exports = {
   OutputImage,
   InitImage,
   InitMaskImage,
-  ViewerObjState
+  ViewerObjState,
+  ViewerManager
 }
