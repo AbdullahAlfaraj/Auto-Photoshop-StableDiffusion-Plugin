@@ -2099,6 +2099,7 @@ document
       const image_name = await psapi.setInitImageMask(layer, random_session_id)
       const path = `./server/python_server/init_images/${image_name}`
       g_viewer_manager.addMaskLayers(layer,path,false)//can be autodeleted?
+      psapi.unselectActiveLayersExe()
     }catch(e){
       console.warn(e)
     }

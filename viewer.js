@@ -479,26 +479,41 @@ class InitMaskImage extends ViewerImage {
       this.addMaskLayers(white_mark,path,true)
     }
     addMaskLayers(white_mark,path,auto_delete){
-      if (!this.maskLayersJson.hasOwnProperty(path)){//it's a new mask, mostly for the first time storing the mask
+      try{
 
+        if (!this.maskLayersJson.hasOwnProperty(path)){//it's a new mask, mostly for the first time storing the mask
+          
         const mask_layers = new maskLayers(this.maskGroup,white_mark,this.mask_solid_background,auto_delete)
         this.maskLayersJson[path] = mask_layers
       }else{//for updating the mask
         
+          //just update the html
+          const new_path = `${path}?t=${new Date().getTime()}`  
+          console.log("new mask path: ",new_path)
+          // this.maskLayersJson[path].img_html.src = new_path
+          this.pathToViewerImage[path].img_html.src = new_path          
+        }
+      }catch(e){
+        console.warn(e)
       }
     }
     updateMaskLayer(){
 
     }
     addInitImageLayers(snapshot,path,auto_delete){
-      if (!this.initImageLayersJson.hasOwnProperty(path)){
-        //if this is a new init image
+      try{
+
+        if (!this.initImageLayersJson.hasOwnProperty(path)){
+          //if this is a new init image
         //store it all of layers in a container object
         const init_image_layers = new initImageLayers(this.initGroup,snapshot,this.init_solid_background,auto_delete)
         this.initImageLayersJson[path] = init_image_layers
 
       }
-
+      
+    }catch(e){
+      console.warn(e)
+    }
     }
 
     hasViewerImage(path){
