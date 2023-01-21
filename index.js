@@ -1948,11 +1948,15 @@ async function generate(settings){
   //open the generated images from disk and load them onto the canvas
   if(isFistGeneration){//this is new generation session
 
-    g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
+    // g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
+    g_image_path_to_layer = await silentImagesToLayersExe(gImage_paths)
+
     g_number_generation_per_session = 1
   }
   else{// generation session is active so we will generate more
-    const last_images_paths = await ImagesToLayersExe(gImage_paths)
+    // const last_images_paths = await ImagesToLayersExe(gImage_paths)
+    const last_images_paths = await silentImagesToLayersExe(gImage_paths)
+
     g_image_path_to_layer = {...g_image_path_to_layer, ...last_images_paths}
     g_number_generation_per_session++
     
@@ -2231,18 +2235,30 @@ async function imageToSmartObject () {
 // document.getElementById('btnNewLayer').addEventListener('click', imageToSmartObject )
 
 
-async function placeEmbedded () {
-  console.log('placeEmbedded():')
+async function placeEmbedded (image_path) {
+  //silent importer
+  
+  try {
+  console.log('placeEmbedded(): image_path: ',image_path)
 
-  const { batchPlay } = require('photoshop').action
-  const { executeAsModal } = require('photoshop').core
-
+  const formats = require("uxp").storage.formats;
   const storage = require('uxp').storage
   const fs = storage.localFileSystem
-  entry = await fs.getFileForOpening()
-  let token = fs.createSessionToken(entry)
+  const names = image_path.split('/')
+  const length = names.length  
+  const image_name = names[length- 1] 
+  const project_name = names[length- 2]
+  let pluginFolder = await fs.getPluginFolder()
+  const image_dir = `./server/python_server/output/${project_name}`
+  // image_path = "output/f027258e-71b8-430a-9396-0a19425f2b44/output- 1674323725.126322.png"
+  
+  let img_dir = await pluginFolder.getEntry(image_dir)
+  // const file = await img_dir.createFile('output- 1674298902.0571606.png', {overwrite: true});
+  
+  const file = await img_dir.createFile(image_name, {overwrite: true});
 
-  try {
+  const img = await file.read({format: formats.binary}) ;
+  const token = storage.localFileSystem.createSessionToken(file);
     executeAsModal(async () => {
       const result = await batchPlay(
         [
@@ -2276,9 +2292,11 @@ async function placeEmbedded () {
         ],
         {
           synchronousExecution: true,
-          modalBehavior: 'fail'
+          modalBehavior: 'execute'
         }
+      
       )
+      console.log("placeEmbedd batchPlay result: ", result)
     })
   } catch (e) {
     console.warn(e)
@@ -2354,7 +2372,36 @@ async function ImagesToLayersExe (images_paths) {
   }
   return image_path_to_layer
 }
+async function silentImagesToLayersExe (images_paths) {
+  image_path_to_layer = {}
+  console.log("silentImagesToLayersExe: images_paths: ",images_paths)
+  for (image_path of images_paths) {
+    gCurrentImagePath = image_path
+    console.log(gCurrentImagePath)
+    await placeEmbedded(image_path)//silent import into the document
+    // await openImageExe() //local image to new document
+    // await convertToSmartObjectExe() //convert the current image to smart object
 
+      setTimeout(async ()=>{
+        if (g_b_use_smart_object === false){
+    
+          await executeAsModal(async ()=>{
+            await app.activeDocument.activeLayers[0].rasterize()//rastrize the active layer
+          })
+        }
+        
+        await psapi.layerToSelection(s)
+    
+    },200)
+
+    // await stackLayers() // move the smart object to the original/old document
+    // await psapi.layerToSelection(g_selection) //transform the new smart object layer to fit selection area
+    // layer = await app.activeDocument.activeLayers[0]
+    // image_path_to_layer[image_path] = layer 
+    // await reselect(selectionInfo)
+  }
+  return image_path_to_layer
+}
 // document.getElementById('btnLoadImages').addEventListener('click',ImagesToLayersExe)
 
 //stack layer to original document
