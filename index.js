@@ -2375,6 +2375,15 @@ async function ImagesToLayersExe (images_paths) {
 async function silentImagesToLayersExe (images_paths) {
   image_path_to_layer = {}
   console.log("silentImagesToLayersExe: images_paths: ",images_paths)
+  // Returns a Promise that resolves after "ms" Milliseconds
+  const timer = ms => new Promise(res => setTimeout(res, ms))
+    // We need to wrap the loop into an async function for this to work
+    // for (var i = 0; i < 3; i++) {
+    //   console.log(i)
+    //   await timer(3000) // then the created Promise can be awaited
+    // }
+  
+
   for (image_path of images_paths) {
     gCurrentImagePath = image_path
     console.log(gCurrentImagePath)
@@ -2382,22 +2391,21 @@ async function silentImagesToLayersExe (images_paths) {
     // await openImageExe() //local image to new document
     // await convertToSmartObjectExe() //convert the current image to smart object
 
-      setTimeout(async ()=>{
-        if (g_b_use_smart_object === false){
-    
-          await executeAsModal(async ()=>{
-            await app.activeDocument.activeLayers[0].rasterize()//rastrize the active layer
-          })
-        }
-        
-        await psapi.layerToSelection(s)
-    
-    },200)
+    await timer(100) // then the created Promise can be awaited
 
+    if (g_b_use_smart_object === false){
+
+      await executeAsModal(async ()=>{
+        await app.activeDocument.activeLayers[0].rasterize()//rastrize the active layer
+      })
+    }
+    
+    await psapi.layerToSelection(g_selection)
+    
     // await stackLayers() // move the smart object to the original/old document
     // await psapi.layerToSelection(g_selection) //transform the new smart object layer to fit selection area
-    // layer = await app.activeDocument.activeLayers[0]
-    // image_path_to_layer[image_path] = layer 
+    layer = await app.activeDocument.activeLayers[0]
+    image_path_to_layer[image_path] = layer 
     // await reselect(selectionInfo)
   }
   return image_path_to_layer
