@@ -523,8 +523,8 @@ gCurrentImagePath = ''
 let g_init_image_name = ''
 // let g_init_mask_layer;
 let g_init_image_mask_name =''
-let g_mask_related_layers = {}
-let g_init_image_related_layers = {}
+// let g_mask_related_layers = {}
+// let g_init_image_related_layers = {}
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
 let g_sd_mode = 'txt2img'
 let g_sd_sampler = 'Euler a'
@@ -547,7 +547,7 @@ let g_can_request_progress = true
 let g_saved_active_layers = []
 let g_saved_active_selection = {};
 let g_is_active_layers_stored = false
-let g_viewer_objects = {}// {path: viewer_obj}
+
 let g_is_generation_session_active = false
 let g_number_generation_per_session = 0
 let g_isViewerMenuDisabled = false // disable the viewer menu and viewerImage when we're importing images into the current document
@@ -576,7 +576,7 @@ const generationMode = {
   Outpaint: "outpaint"
 }
 let g_generation_session_mode = generationMode['Txt2Img']
-let g_viewer_manger = new viewer.ViewerManager()
+let g_viewer_manager = new viewer.ViewerManager()
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -1054,19 +1054,19 @@ async function snapAndFillHandler () {
     if (isSelectionAreaValid) {
       if (!g_is_generation_session_active || g_generation_session.isInactive()) {
         // clear the layers related to the last mask operation.
-        g_last_snap_and_fill_layers = await psapi.cleanLayers(
-          g_last_snap_and_fill_layers
-        )
+        // g_last_snap_and_fill_layers = await psapi.cleanLayers(
+        //   g_last_snap_and_fill_layers
+        // )
         // create new layers related to the current mask operation.
         await executeAsModal(async () => {
           g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(
             random_session_id
           )
         })
-        console.log(
-          'outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ',
-          g_last_snap_and_fill_layers
-        )
+        // console.log(
+        //   'outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ',
+        //   g_last_snap_and_fill_layers
+        // )
       }
     } else {
       psapi.promptForMarqueeTool()
@@ -1159,11 +1159,11 @@ async function discardAll(){
   //then call discard() to garbage collect the mask related layers 
   try{
 
-    for (const [path, viewer_object] of Object.entries(g_viewer_objects)) {
+    for (const [path, viewer_image_obj] of Object.entries(g_viewer_manager.pathToViewerImage)) {
       try{
       
 
-      viewer_object.setHighlight(false)// mark each layer as discarded 
+        viewer_image_obj.setHighlight(false)// mark each layer as discarded 
 
     } catch (e){
       console.error(e)
@@ -1180,11 +1180,11 @@ async function acceptAll(){
   //then call discard() to garbage collect the mask related layers 
   try{
 
-    for (const [path, viewer_object] of Object.entries(g_viewer_objects)) {
+    for (const [path, viewer_image_obj] of Object.entries(g_viewer_manager.pathToViewerImage)) {
       try{
       
 
-      viewer_object.setHighlight(true)// mark each layer as accepted 
+        viewer_image_obj.setHighlight(true)// mark each layer as accepted 
 
     } catch (e){
       console.error(e)
@@ -1201,13 +1201,14 @@ async function discardSelected(){
   //then call discard() to garbage collect the mask related layers 
   try{
 
-    for (const [path, viewer_object] of Object.entries(g_viewer_objects)) {
+    for (const [path, viewer_image_obj] of Object.entries(g_viewer_manager.pathToViewerImage)) {
       try{
-      if(viewer_object.is_active){
-        viewer_object.setHighlight(true)//highlight the active image, since active images are not highlighted in the viewer 
+      if(viewer_image_obj.is_active){
+        viewer_image_obj.active(false)//convert active to highlight  
+        viewer_image_obj.setHighlight(true)//highlight the active image, since active images are not highlighted in the viewer
       }
       
-      viewer_object.toggleHighlight()// if invert the highlights on all images 
+      viewer_image_obj.toggleHighlight()// if invert the highlights on all images 
       
     } catch (e){
       console.error(e)
@@ -1305,28 +1306,28 @@ document.getElementById('btnLastSeed').addEventListener('click', async () => {
     console.warn(e)
   }
 })
-async function discard () {
+async function discard() {
   try{
 
   
-  console.log(
-    'click on btnCleanLayers,  g_last_outpaint_layers:',
-    g_last_outpaint_layers
-  )
-  console.log(
-    'click on btnCleanLayers,  g_last_inpaint_layers:',
-    g_last_inpaint_layers
-  )
+  // console.log(
+  //   'click on btnCleanLayers,  g_last_outpaint_layers:',
+  //   g_last_outpaint_layers
+  // )
+  // console.log(
+  //   'click on btnCleanLayers,  g_last_inpaint_layers:',
+  //   g_last_inpaint_layers
+  // )
 
-  console.log(
-    'click on btnCleanLayers,  g_last_snap_and_fill_layers:',
-    g_last_snap_and_fill_layers
-  )
+  // console.log(
+  //   'click on btnCleanLayers,  g_last_snap_and_fill_layers:',
+  //   g_last_snap_and_fill_layers
+  // )
 
-  console.log('g_last_snap_and_fill_layers')
-  g_last_snap_and_fill_layers = await psapi.cleanLayers(
-    g_last_snap_and_fill_layers
-  )
+  // console.log('g_last_snap_and_fill_layers')
+  // g_last_snap_and_fill_layers = await psapi.cleanLayers(
+  //   g_last_snap_and_fill_layers
+  // )
 
   if (g_last_outpaint_layers.length > 0) {
     g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
@@ -1346,7 +1347,7 @@ async function discard () {
 
 
   // psapi.cleanLayers(last_gen_layers)
-  await deleteNoneSelected(g_viewer_objects)
+  await deleteNoneSelected(g_viewer_manager.pathToViewerImage)
 }
 catch(e){
   console.warn(e)
@@ -1366,11 +1367,11 @@ async function deleteMaskRelatedLayers(){
   console.log("click on btnCleanLayers,  g_last_outpaint_layers:",g_last_outpaint_layers)
   console.log("click on btnCleanLayers,  g_last_inpaint_layers:",g_last_inpaint_layers)
   
-  console.log("click on btnCleanLayers,  g_last_snap_and_fill_layers:",g_last_snap_and_fill_layers)
+  // console.log("click on btnCleanLayers,  g_last_snap_and_fill_layers:",g_last_snap_and_fill_layers)
 
   
-  console.log("g_last_snap_and_fill_layers")
-  g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
+  // console.log("g_last_snap_and_fill_layers")
+  // g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
   
   if (g_last_outpaint_layers.length > 0){
     g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
@@ -2078,8 +2079,32 @@ document
   
   document.getElementById('btnSetInitImageViewer').addEventListener('click', async ()=>  {
     const layer = await app.activeDocument.activeLayers[0]
-    psapi.setInitImage(layer, random_session_id)
+    const image_name = await psapi.setInitImage(layer, random_session_id)
+    const path = `./server/python_server/init_images/${image_name}`
+    g_viewer_manager.addInitImageLayers(layer,path,false)
+     
   })
+  
+  document.getElementById('btnSetMaskViewer').addEventListener('click', async ()=>  {
+    try{
+      await executeAsModal(async ()=>{
+        if(g_viewer_manager.mask_solid_background){
+
+          g_viewer_manager.mask_solid_background.visible = true
+        } 
+
+      })
+      const layer = g_viewer_manager.maskGroup
+      // const layer = await app.activeDocument.activeLayers[0]
+      const image_name = await psapi.setInitImageMask(layer, random_session_id)
+      const path = `./server/python_server/init_images/${image_name}`
+      g_viewer_manager.addMaskLayers(layer,path,false)//can be autodeleted?
+    }catch(e){
+      console.warn(e)
+    }
+     
+  })
+
   
 document.getElementById('bSetInitImage').addEventListener('click', async ()=>  {
   const layer = await app.activeDocument.activeLayers[0]
@@ -2415,21 +2440,21 @@ async function NewViewerImageClickHandler(img,viewer_obj_owner){
       // Array.isArray(layer)
       
       //turn off all layers linked the viewer tab
-      console.log("the current g_viewer_objects is: ",g_viewer_objects)
-      for (const [path, viewer_object] of Object.entries(g_viewer_objects)) {
+     
+      for (const [path, viewer_object] of Object.entries(g_viewer_manager.pathToViewerImage)) {
         try{
           if(viewer_object.getHighlight()){
-            viewer_object.state = viewer.ViewerObjState["Unlink"]
+            // viewer_object.state = viewer.ViewerObjState["Unlink"]
           }
           else{
-            viewer_object.state = viewer.ViewerObjState["Delete"]
+            // viewer_object.state = viewer.ViewerObjState["Delete"]
           }
           viewer_object.visible(false)
           viewer_object.active(false)
           
-          console.log("viewer_object.path: ",viewer_object.path)
-          console.log("viewer_object.info(): ")
-          viewer_object.info()
+          // console.log("viewer_object.path: ",viewer_object.path)
+          // console.log("viewer_object.info(): ")
+          // viewer_object.info()
 
         } catch (e){
           console.error("cannot hide a layer: ",e)
@@ -2457,13 +2482,13 @@ async function NewViewerImageClickHandler(img,viewer_obj_owner){
     
         // selectedViewerImageObj.visible(true)
         // selectedViewerImageObj.select(true) 
-        viewer_obj_owner.state = viewer.ViewerObjState['Unlink']
+        // viewer_obj_owner.state = viewer.ViewerObjState['Unlink']
         viewer_obj_owner.visible(true)
         viewer_obj_owner.select(true)
         viewer_obj_owner.active(true)
-        console.log("viewer_obj_owner.path: ",viewer_obj_owner.path)
-        console.log("viewer_obj_owner.info(): ")
-        viewer_obj_owner.info()
+        // console.log("viewer_obj_owner.path: ",viewer_obj_owner.path)
+        // console.log("viewer_obj_owner.info(): ")
+        // viewer_obj_owner.info()
         if(e.shiftKey)
         {
           viewer_obj_owner.setHighlight(true)
@@ -2529,7 +2554,9 @@ async function loadViewerImages(){
     console.log("g_image_path_to_layer:", g_image_path_to_layer)
 
     const output_dir_relative = "./server/python_server/"
-    const container = document.getElementById("divViewerImagesContainer")
+    const init_image_container = document.getElementById("divInitImageViewerContainer")
+    const mask_container = document.getElementById("divInitMaskViewerContainer")
+    const output_image_container = document.getElementById("divViewerImagesContainer")
     
     // while(container.firstChild){
     // container.removeChild(container.firstChild);
@@ -2544,45 +2571,61 @@ async function loadViewerImages(){
     // Object.keys(g_image_path_to_layer).map(path =>  new viewer.OutputImage(g_image_path_to_layer[path],path))
 
   
-
+ 
     
-    if(g_init_image_related_layers.hasOwnProperty('init_image_group') )
+    // if(g_viewer_manager.g_init_image_related_layers.hasOwnProperty('init_image_group') )
+    if(g_viewer_manager.initGroup)//it means we are in an img2img related mode
      {
-      const path =  `./server/python_server/init_images/'${g_init_image_name}`
-      
-      if (!g_viewer_objects.hasOwnProperty(path)){
 
-        const viewerInitImage= new viewer.InitImage(g_init_image_related_layers['init_image_group'],g_init_image_related_layers['init_image_layer'],g_init_image_related_layers['solid_white'],path)
+
+      // const path =  `./server/python_server/init_images/${g_init_image_name}`
+      const paths = Object.keys(g_viewer_manager.initImageLayersJson) 
+      for (const path of paths){
+
+        if (!g_viewer_manager.hasViewerImage(path)){
+          // const group = g_init_image_related_layers['init_image_group']
+        // const snapshot = g_init_image_related_layers['init_image_layer']
+        // const solid_background = g_init_image_related_layers['solid_white']
         
+        const group = g_viewer_manager.initImageLayersJson[path].group
+        const snapshot = g_viewer_manager.initImageLayersJson[path].snapshot
+        const solid_background = g_viewer_manager.initImageLayersJson[path].solid_background
+        const auto_delete = g_viewer_manager.initImageLayersJson[path].autoDelete
+        const initImage = g_viewer_manager.addInitImage(group,snapshot,solid_background,path,auto_delete)
         
         const init_img_html = createViewerImgHtml('./server/python_server/init_images/',g_init_image_name)
-        container.appendChild(init_img_html)
-        viewerInitImage.setImgHtml(init_img_html)
-        g_viewer_objects[path] = viewerInitImage
-        await NewViewerImageClickHandler(init_img_html,viewerInitImage)// create click handler for each images 
+        init_image_container.appendChild(init_img_html)
+        initImage.setImgHtml(init_img_html)
+        
+        await NewViewerImageClickHandler(init_img_html,initImage)// create click handler for each images 
       }
+    }  
     }
 
     
-  if (g_mask_related_layers.hasOwnProperty('mask_group')) {
-  const path = `./server/python_server/init_images/'${g_init_image_mask_name}`
-  if (!g_viewer_objects.hasOwnProperty(path)) {
-    const viewerInitMaskImage = new viewer.InitMaskImage(
-      g_mask_related_layers['mask_group'],
-      g_mask_related_layers['white_mark'],
-      g_mask_related_layers['solid_black'],
-      path
-    )
+  // if (g_mask_related_layers.hasOwnProperty('mask_group')) {
+    if(g_viewer_manager.maskGroup){
+  const path = `./server/python_server/init_images/${g_init_image_mask_name}`
+  if (!g_viewer_manager.hasViewerImage(path)) {
+    // const group = g_mask_related_layers['mask_group']
+    // const white_mark = g_mask_related_layers['white_mark']
+    // const solid_background = g_mask_related_layers['solid_black']
+    
+    const group = g_viewer_manager.maskLayersJson[path].group
+    const white_mark = g_viewer_manager.maskLayersJson[path].white_mark
+    const solid_background = g_viewer_manager.maskLayersJson[path].solid_background
+    const mask_obj = g_viewer_manager.addMask(group,white_mark,solid_background,path)
+    
 
     const mask_img_html = createViewerImgHtml(
       './server/python_server/init_images/',
       g_init_image_mask_name
     )
 
-    container.appendChild(mask_img_html)
-    viewerInitMaskImage.setImgHtml(mask_img_html)
-    g_viewer_objects[path] = viewerInitMaskImage
-    await NewViewerImageClickHandler(mask_img_html, viewerInitMaskImage) // create click handler for each images ,viewer_layers)// create click handler for each images
+    mask_container.appendChild(mask_img_html)
+    mask_obj.setImgHtml(mask_img_html)
+    
+    await NewViewerImageClickHandler(mask_img_html, mask_obj) // create click handler for each images ,viewer_layers)// create click handler for each images
     // await viewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images
   }
 }
@@ -2593,22 +2636,26 @@ async function loadViewerImages(){
     
     
     console.log("image_paths: ",image_paths)
-    for (image_path of image_paths){
+    for (const path of image_paths){
       
+      // const path = image_path
       //check if viewer obj already exist by using the path on hard drive 
-      if(!g_viewer_objects.hasOwnProperty(image_path)){
+      if(!g_viewer_manager.hasViewerImage(path)){
         //create viewer object if it doesn't exist 
-        const viewer_obj =  new viewer.OutputImage(g_image_path_to_layer[image_path],image_path)
-        g_viewer_objects[image_path] = viewer_obj 
+        
+        // const viewer_obj =  new viewer.OutputImage(g_image_path_to_layer[image_path],image_path)
+ 
         
         //create an html image element and attach it container, and link it to the viewer obj
-        const img = createViewerImgHtml(output_dir_relative,image_path,g_image_path_to_layer[image_path].id)
-        viewer_obj.setImgHtml(img)
-        container.appendChild(img)
         
+        const layer = g_image_path_to_layer[path]
+        const img = createViewerImgHtml(output_dir_relative,path,layer.id)
+        const output_image_obj = g_viewer_manager.addOutputImage(layer,path)
         
+        output_image_obj.setImgHtml(img)
+        output_image_container.appendChild(img)
         //add on click event handler to the html img 
-        await NewViewerImageClickHandler(img,viewer_obj)
+        await NewViewerImageClickHandler(img,output_image_obj)
        
       }
 
@@ -2638,20 +2685,27 @@ await executeAsModal(async ()=>{
 
       // if (viewer_object.getHighlight() || viewer_object.is_active){//keep it if it's highlighted
       // const path = viewer_object.path
-      if(viewer_object.state ===  viewer.ViewerObjState['Unlink']){
-      viewer_object.unlink() // just delete the html image but keep the layer in the layers stack 
+      
+
       viewer_object.visible(true)//make them visiable on the canvas
-    }else if(viewer_object.state === viewer.ViewerObjState['Delete']){// delete it if it isn't  highlighted
+
       await viewer_object.delete()//delete the layer from layers stack
       
-    }
+    //   if(viewer_object.state ===  viewer.ViewerObjState['Unlink']){
+    //   viewer_object.unlink() // just delete the html image but keep the layer in the layers stack 
+    //   viewer_object.visible(true)//make them visiable on the canvas
+    // }else if(viewer_object.state === viewer.ViewerObjState['Delete']){// delete it if it isn't  highlighted
+    //   await viewer_object.delete()//delete the layer from layers stack
+      
+    // }
     delete g_image_path_to_layer[path]
     
   }catch(e){
     console.warn(e)
   }
 }
-g_viewer_objects = {}
+g_viewer_manager.pathToViewerImage = {}
+g_viewer_manager.initImageLayersJson = {}
 g_image_path_to_layer = {}
 })
   }
@@ -2663,7 +2717,7 @@ g_image_path_to_layer = {}
 
 async function deleteNoneSelectedAndReloadViewer(){
 
-  await deleteNoneSelected(g_viewer_objects)
+  await deleteNoneSelected(g_viewer_manager.pathToViewerImage)
   console.log("g_image_path_to_layer: ",g_image_path_to_layer)
   await loadViewerImages() // maybe we should pass g_image_path_to_layer instead of it been global
 }

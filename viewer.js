@@ -33,8 +33,11 @@ class ViewerImage {
     this.is_highlighted = false
     this.can_highlight = true
     this.is_active = false// active is a temporary highlight
-    this.state = ViewerObjState["Delete"]
+    this.state = ViewerObjState['Unlink']
     
+    // true will delete the layers from the layer stacks when the session ends,
+    // false mean use this.state to determine whither you delete the layer or not
+    this.autoDelete = false
   }
   info(){
     console.log("state: ",this.state)
@@ -46,22 +49,25 @@ class ViewerImage {
   active(isActive){
     if(isActive){
       //unlink it if it's active 
-      this.state = ViewerObjState['Unlink']
+      // this.state = ViewerObjState['Unlink']
 
       this.img_html.classList.add("viewerImgActive")
 
     }else{
       if(this.getHighlight() === false){// if it's not active and it's not highlighted
         
-        this.state = ViewerObjState['Delete']
+        // this.state = ViewerObjState['Delete']
       }else{
         
-        this.state = ViewerObjState['Unlink'] //it's not active but it's highlighted then keep it
+        // this.state = ViewerObjState['Unlink'] //it's not active but it's highlighted then keep it
       }
       this.img_html.classList.remove("viewerImgActive")
     }
     this.is_active = isActive
     
+  }
+  setAutoDelete(auto_delete){
+    this.autoDelete = auto_delete
   }
   isLayerValid () {}
   isSameLayer (layer_id) {}
@@ -71,12 +77,12 @@ class ViewerImage {
       this.is_highlighted = is_highlighted
       if(this.is_highlighted)
       {
-        this.state = ViewerObjState['Unlink']
+        // this.state = ViewerObjState['Unlink']
         this.img_html.classList.add("viewerImgSelected")
         
       }else{
         this.img_html.classList.remove("viewerImgSelected")
-        this.state = ViewerObjState["Delete"]
+        // this.state = ViewerObjState["Delete"]
       }
     }
   }
@@ -91,7 +97,46 @@ class ViewerImage {
     // this.img_html.classList.toggle("viewerImgSelected")
   }
   setImgHtml(){}
-  async delete(){}
+  
+  async delete(){
+    try{
+
+      this.img_html.remove()//delete the img html element
+    
+    //1) it's output layer // can_highlight && this.getHighlight()
+    //2) it init or mask relate layers // this.autoDelete 
+    //3) it output layer that been used as init layer // !can_highlight && !this.autoDelete
+
+    // do 1) and 2) here . test for 3) in InitImage 
+    
+    //1)
+    if (this.can_highlight && (this.getHighlight() || this.is_active))
+    {//keep if can be highlighted and either is highlighted or active
+    this.state = ViewerObjState['Unlink']
+    }else{//
+    this.state = ViewerObjState['Delete']
+
+    }
+    
+
+    if(this.autoDelete){//remove if it's first automated layer
+        this.state = ViewerObjState['Delete']  
+    }
+
+  
+
+    
+    // else {
+    //   //discard only if it's 
+    //   if (this.autoDelete){
+    //     this.state = ViewerObjState['Delete']
+    //   }
+    // }
+  }catch(e){
+    console.warn(e)
+  }
+  }
+
   unlink(){
     //keep the layer but unlink it from the ui
     try{
@@ -113,9 +158,14 @@ class OutputImage extends ViewerImage {
     this.img_html = null;
   }
   visible (visibleOn) {
-    super.visible(visibleOn)
-    if (this.isLayerValid()) {
-      this.layer.visible = visibleOn
+    try{
+
+      super.visible(visibleOn)
+      if (this.isLayerValid()) {
+        this.layer.visible = visibleOn
+      }
+    }catch(e){
+      console.warn(e)
     }
   }
   select () {
@@ -150,9 +200,10 @@ class OutputImage extends ViewerImage {
     try{
 
       await super.delete()
-      this.img_html.remove()//delete the img html element
-      
-      await psapi.cleanLayers([this.layer])
+      // this.img_html.remove()//delete the img html element
+      if(this.state === ViewerObjState['Delete']){
+        await psapi.cleanLayers([this.layer])
+      }
     }catch(e){
       console.warn(e)
     }
@@ -184,25 +235,33 @@ class InitImage extends ViewerImage {
 
     this.path = path
     this.can_highlight = false
+    // if (this.autoDelete === false){
+    //   this.state = ViewerObjState['Unlink']
+    // }
   }
   visible (visibleOn) {
-    super.visible(visibleOn)
-    //   const isValid = this.isLayerValid()
-    let visibleValues = []
-    if (visibleOn) {
-      visibleValues = [true, true, true]
-    } else {
-      visibleValues = [false, false, false]
-    }
+    try{
 
-    if (this.isLayerValid(this.init_group)) {
-      this.init_group.visible = visibleValues[0]
-    }
-    if (this.isLayerValid(this.init_snapshot)) {
-      this.init_snapshot.visible = visibleValues[1]
-    }
-    if (this.isLayerValid(this.solid_layer)) {
-      this.solid_layer.visible = visibleValues[2]
+      super.visible(visibleOn)
+      //   const isValid = this.isLayerValid()
+      let visibleValues = []
+      if (visibleOn) {
+        visibleValues = [true, true, true]
+      } else {
+        visibleValues = [false, false, false]
+      }
+      
+      if (this.isLayerValid(this.init_group)) {
+        this.init_group.visible = visibleValues[0]
+      }
+      if (this.isLayerValid(this.init_snapshot)) {
+        this.init_snapshot.visible = visibleValues[1]
+      }
+      if (this.isLayerValid(this.solid_layer)) {
+        this.solid_layer.visible = visibleValues[2]
+      }
+    }catch(e){
+      console.warn(e)
     }
   }
 
@@ -256,11 +315,18 @@ class InitImage extends ViewerImage {
     try{
 
       await super.delete()
-      this.img_html.remove()//delete the img html element
+
+      // this.img_html.remove()//delete the img html element
       
-      
-      
-      await psapi.cleanLayers([this.init_group,this.init_snapshot,this.solid_layer])
+      if (!this.autoDelete && !this.can_highlight)
+      {//don't delete since it's output layer that is been used as init image
+      this.state = ViewerObjState['Unlink']
+      }
+
+            if(this.state === ViewerObjState['Delete']){
+       
+              await psapi.cleanLayers([this.init_group,this.init_snapshot,this.solid_layer])
+      }
       
     }
     catch(e){
@@ -280,11 +346,13 @@ class InitMaskImage extends ViewerImage {
       this.can_highlight = false
     }
     visible (visibleOn) {
-      super.visible(visibleOn)
-      //   const isValid = this.isLayerValid()
+      try{
+
+        super.visible(visibleOn)
+        //   const isValid = this.isLayerValid()
       let visibleValues = []
       if (visibleOn) {
-        visibleValues = [true, true, true]
+        visibleValues = [true, true, false]
       } else {
         visibleValues = [false, false, false]
       }
@@ -298,20 +366,23 @@ class InitMaskImage extends ViewerImage {
       if (this.isLayerValid(this.solid_black)) {
         this.solid_black.visible = visibleValues[2]
       }
+      }catch(e){
+        console.warn(e)
+      }
     }
   
     select () {
       super.select()
   
       const selectLayers = []
-      if (this.isLayerValid(this.mask_group)) {
+      // if (this.isLayerValid(this.mask_group)) {
         
-        selectLayers.push(this.mask_group)
-      }
-      // if (this.isLayerValid(this.init_snapshot)) {
-        
-      //   selectLayers.push(this.init_snapshot)
+      //   selectLayers.push(this.mask_group)
       // }
+      if (this.isLayerValid(this.white_mark)) {
+        
+        selectLayers.push(this.white_mark)
+      }
       // if (this.isLayerValid(this.solid_layer)) {
       //   selectLayers.push(this.solid_layer)
       // }
@@ -350,9 +421,11 @@ class InitMaskImage extends ViewerImage {
       try{
 
         await super.delete()
-        this.img_html.remove()//delete the img html element
-        
-        await psapi.cleanLayers([this.mask_group,this.white_mark, this.solid_black])
+        // this.img_html.remove()//delete the img html element
+        if(this.state === ViewerObjState['Delete']){
+          await psapi.cleanLayers([this.mask_group,this.white_mark, this.solid_black])
+         
+        }
       }catch(e){
         console.warn(e)
       }
@@ -360,11 +433,101 @@ class InitMaskImage extends ViewerImage {
     }
   }
 
+  class initImageLayers{//store info about the init image related layers
+    constructor(group,snapshot,solid_background,autoDelete){
+      this.group = group
+      this.snapshot = snapshot
+      this.solid_background = solid_background
+      this.autoDelete = autoDelete
+    }
+  }
+  class maskLayers{//store info about the init image related layers
+    constructor(group,white_mark,solid_background,autoDelete){
+      this.group = group
+      this.white_mark = white_mark
+      this.solid_background = solid_background
+      this.autoDelete = autoDelete
+    }
+  }
   class ViewerManager{
+    //viewer manager will reset after the end of the session
+    //it will store 
     constructor(){
       this.outputImages = []
       this.initImages = []
-      this.initMaskImage 
+      this.initMaskImage
+      this.pathToViewerImage = {}// quick way to check if an link image path on disk to ViewerImage object.
+      this.initImageLayersJson ={}//{path: initImageLayers}
+      
+      this.mask_layer
+      this.maskLayersJson ={}//{path: MaskLayers}
+
+      //Note:move initGroup, to GenerationSession
+      this.initGroup
+      this.init_solid_background
+      this.maskGroup
+      this.mask_solid_background
+    }
+    initializeInitImage(group,snapshot,solid_background,path){
+      this.initGroup = group
+      this.init_solid_background = solid_background
+      this.addInitImageLayers(snapshot,path,true)
+    }
+    initializeMask(group,white_mark,solid_background,path){
+      this.maskGroup = group
+      this.mask_solid_background = solid_background
+      this.addMaskLayers(white_mark,path,true)
+    }
+    addMaskLayers(white_mark,path,auto_delete){
+      if (!this.maskLayersJson.hasOwnProperty(path)){//it's a new mask, mostly for the first time storing the mask
+
+        const mask_layers = new maskLayers(this.maskGroup,white_mark,this.mask_solid_background,auto_delete)
+        this.maskLayersJson[path] = mask_layers
+      }else{//for updating the mask
+        
+      }
+    }
+    updateMaskLayer(){
+
+    }
+    addInitImageLayers(snapshot,path,auto_delete){
+      if (!this.initImageLayersJson.hasOwnProperty(path)){
+        //if this is a new init image
+        //store it all of layers in a container object
+        const init_image_layers = new initImageLayers(this.initGroup,snapshot,this.init_solid_background,auto_delete)
+        this.initImageLayersJson[path] = init_image_layers
+
+      }
+
+    }
+
+    hasViewerImage(path){
+      if (this.pathToViewerImage.hasOwnProperty(path)){
+        return true
+      }
+      return false 
+    }
+    addOutputImage(layer,path){
+      
+      const outputImage =  new OutputImage(layer,path)
+       
+      this.outputImages.push(outputImage)
+      this.pathToViewerImage[path] = outputImage// 
+      return outputImage
+    }
+    addInitImage(group,snapshot,solid_background,path,auto_delete){
+      const initImage =  new InitImage(group,snapshot,solid_background,path)
+      initImage.setAutoDelete(auto_delete)
+      this.initImages.push(initImage)
+      this.pathToViewerImage[path] = initImage
+      return initImage
+    }
+    addMask(group,white_mark,solid_background,path){
+      const mask =  new InitMaskImage(group,white_mark,solid_background,path)
+      
+      this.initMaskImage = mask
+      this.pathToViewerImage[path] = mask
+      return mask
     }
     deleteAll(){
 

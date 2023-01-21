@@ -695,6 +695,8 @@ async function setInitImage (layer, session_id) {
   const image_src = await sdapi.getInitImage(g_init_image_name)
   let ini_image_element = document.getElementById('init_image')
   ini_image_element.src = image_src
+  
+  return image_name
 } catch (e) {
   console.error(`psapi.js setInitImage error:, ${e}`)
 }
@@ -727,7 +729,7 @@ async function setInitImageMask (layer, session_id) {
   ini_image_mask_element.dataset.layer_id = layer.id
 
   //create viewer init image obj
-  
+  return image_name
 } catch (e) {
   console.error(`psapi.js setInitImageMask error: `,e)
 }
@@ -755,8 +757,8 @@ async function setInitImageMask (layer, session_id) {
 // }
 
 async function cleanLayers(layers){
-  g_init_image_related_layers = {}
-  g_mask_related_layers = {}
+  // g_init_image_related_layers = {}
+  // g_mask_related_layers = {}
   // await loadViewerImages()// we should move loadViewerImages to a new file viewer.js
   console.log("cleanLayers() -> layers:",layers)
   for (layer of layers){

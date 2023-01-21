@@ -188,16 +188,16 @@ async function snapAndFillExe(session_id){
 
           
           snapAndFillLayers = [snapshotLayer,snapshotGroup,whiteSolidLayer]
-          // await setTimeout(saveAndHide,1000)
-          // g_mask_related_layers['mask_group'] = snapshotMaskGroup
-          // g_mask_related_layers['white_mark'] = snapshotMaskLayer
-          // // g_mask_related_layers['solid_black'] = blackSolidLayer
           
-          g_init_image_related_layers['init_image_group'] = snapshotGroup
-          g_init_image_related_layers['init_image_layer'] = snapshotLayer
-          g_init_image_related_layers['solid_white'] = whiteSolidLayer
+          // g_init_image_related_layers['init_image_group'] = snapshotGroup
+          // g_init_image_related_layers['init_image_layer'] = snapshotLayer
+          // g_init_image_related_layers['solid_white'] = whiteSolidLayer
 
-          await psapi.setInitImage(snapshotGroup,session_id)
+          
+          const image_name = await psapi.setInitImage(snapshotGroup,session_id)
+          const path = `./server/python_server/init_images/${image_name}`
+    
+          g_viewer_manager.initializeInitImage(snapshotGroup,snapshotLayer,whiteSolidLayer,path)//this will be called once a session and will add the first init image to th viewer manager
           
           
           for (layer of snapAndFillLayers){
@@ -297,7 +297,9 @@ async function outpaintFasterExe(session_id){
           await psapi.createClippingMaskExe()
           await psapi.selectLayers([snapshotGroup])
 
-          await psapi.setInitImage(snapshotGroup,session_id)
+          const image_name = await psapi.setInitImage(snapshotGroup,session_id)
+          const path = `./server/python_server/init_images/${image_name}`
+
           await psapi.reSelectMarqueeExe(selectionInfo)
           
           await psapi.selectLayers([snapshotMaskGroup])
@@ -311,14 +313,16 @@ async function outpaintFasterExe(session_id){
           //set initial image
           //set mask image
         outpaintLayers = [snapshotMaskGroup,snapshotMaskLayer,snapshotLayer,snapshotGroup,whiteSolidLayer]
-        g_mask_related_layers['mask_group'] = snapshotMaskGroup
-        g_mask_related_layers['white_mark'] = snapshotMaskLayer
-        // g_mask_related_layers['solid_black'] = blackSolidLayer
+        // g_mask_related_layers['mask_group'] = snapshotMaskGroup
+        // g_mask_related_layers['white_mark'] = snapshotMaskLayer
+        // // g_mask_related_layers['solid_black'] = blackSolidLayer
+        g_viewer_manager.initializeMask(snapshotMaskGroup,snapshotMaskLayer,null,path)
+        // g_init_image_related_layers['init_image_group'] = snapshotGroup
+        // g_init_image_related_layers['init_image_layer'] = snapshotLayer
+        // g_init_image_related_layers['solid_white'] = whiteSolidLayer
         
-        g_init_image_related_layers['init_image_group'] = snapshotGroup
-        g_init_image_related_layers['init_image_layer'] = snapshotLayer
-        g_init_image_related_layers['solid_white'] = whiteSolidLayer
         
+        g_viewer_manager.initializeInitImage(snapshotGroup,snapshotLayer,whiteSolidLayer,path)//this will be called once a session and will add the first init image to th viewer manager
         for (layer of outpaintLayers){
           layer.visible = false 
         }
@@ -403,25 +407,31 @@ async function outpaintFasterExe(session_id){
             
             await addClippingMaskToLayer(snapshotGroup,selectionInfo)
   
-            await psapi.setInitImage(snapshotGroup,session_id)
+            
+            const init_image_name = await psapi.setInitImage(snapshotGroup,session_id)
+            const init_path = `./server/python_server/init_images/${init_image_name}`
+            
             await psapi.reSelectMarqueeExe(selectionInfo)
             
             await addClippingMaskToLayer(snapshotMaskGroup,selectionInfo)
             
             await psapi.reSelectMarqueeExe(selectionInfo)
   
-            await psapi.setInitImageMask(snapshotMaskGroup,session_id)
+            // await psapi.setInitImageMask(snapshotMaskGroup,session_id)
+            const mask_name = await psapi.setInitImageMask(snapshotMaskGroup,session_id)
+            const mask_path = `./server/python_server/init_images/${mask_name}`
             await psapi.reSelectMarqueeExe(selectionInfo)
             //set initial image
             //set mask image
           outpaintLayers = [snapshotMaskGroup,snapshotMaskLayer,snapshotLayer,snapshotGroup,whiteSolidLayer]
-          g_mask_related_layers['mask_group'] = snapshotMaskGroup
-          g_mask_related_layers['white_mark'] = snapshotMaskLayer
-          // g_mask_related_layers['solid_black'] = blackSolidLayer
-          
-          g_init_image_related_layers['init_image_group'] = snapshotGroup
-          g_init_image_related_layers['init_image_layer'] = snapshotLayer
-          g_init_image_related_layers['solid_white'] = whiteSolidLayer
+          // g_mask_related_layers['mask_group'] = snapshotMaskGroup
+          // g_mask_related_layers['white_mark'] = snapshotMaskLayer
+          // // g_mask_related_layers['solid_black'] = blackSolidLayer
+          g_viewer_manager.initializeMask(snapshotMaskGroup,snapshotMaskLayer,null,mask_path)
+          // g_init_image_related_layers['init_image_group'] = snapshotGroup
+          // g_init_image_related_layers['init_image_layer'] = snapshotLayer
+          // g_init_image_related_layers['solid_white'] = whiteSolidLayer
+          g_viewer_manager.initializeInitImage(snapshotGroup,snapshotLayer,whiteSolidLayer,init_path)//this will be called once a session and will add the first init image to th viewer manager
           
           for (layer of outpaintLayers){
             layer.visible = false 
@@ -536,10 +546,16 @@ async function outpaintFasterExe(session_id){
             // await psapi.selectLayers([snapshotGroup])
 
             await psapi.selectLayers([maskGroup])
-            await psapi.setInitImageMask(maskGroup,session_id)
+            // await psapi.setInitImageMask(maskGroup,session_id)
+            const mask_name = await psapi.setInitImageMask(maskGroup,session_id)
+            const mask_path = `./server/python_server/init_images/${mask_name}`
+
             await psapi.reSelectMarqueeExe(selectionInfo)
             await psapi.selectLayers([snapshotGroup])
-            await psapi.setInitImage(snapshotGroup,session_id)
+            
+            const image_name = await psapi.setInitImage(snapshotGroup,session_id)
+            const path = `./server/python_server/init_images/${image_name}`
+            
             await psapi.reSelectMarqueeExe(selectionInfo)
             // await psapi.selectLayers([snapshotMaskGroup])
             // await psapi.setInitImageMask(snapshotMaskGroup)
@@ -548,14 +564,14 @@ async function outpaintFasterExe(session_id){
             
             psapi.selectLayers([maskGroup])
             inpaintLayers = [maskGroup,white_mark_layer,blackSolidLayer,snapshotGroup,snapshotLayer,whiteSolidLayer]
-            g_mask_related_layers['mask_group'] = maskGroup
-            g_mask_related_layers['white_mark'] = white_mark_layer
-            g_mask_related_layers['solid_black'] = blackSolidLayer
-            
-            g_init_image_related_layers['init_image_group'] = snapshotGroup
-            g_init_image_related_layers['init_image_layer'] = snapshotLayer
-            g_init_image_related_layers['solid_white'] = whiteSolidLayer
-            
+            // g_mask_related_layers['mask_group'] = maskGroup
+            // g_mask_related_layers['white_mark'] = white_mark_layer
+            // g_mask_related_layers['solid_black'] = blackSolidLayer
+            g_viewer_manager.initializeMask(maskGroup,white_mark_layer,blackSolidLayer,mask_path)
+            // g_init_image_related_layers['init_image_group'] = snapshotGroup
+            // g_init_image_related_layers['init_image_layer'] = snapshotLayer
+            // g_init_image_related_layers['solid_white'] = whiteSolidLayer
+            g_viewer_manager.initializeInitImage(snapshotGroup,snapshotLayer,whiteSolidLayer,path)//this will be called once a session and will add the first init image to th viewer manager
             for (layer of inpaintLayers){
               layer.visible = false 
             }
