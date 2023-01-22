@@ -539,8 +539,8 @@ let hHeight = 512
 let h_denoising_strength = .7
 let g_inpainting_fill = 0
 // let g_last_outpaint_layers = []
-let g_last_inpaint_layers = []
-let g_last_snap_and_fill_layers = []
+// let g_last_inpaint_layers = []
+// let g_last_snap_and_fill_layers = []
 
 let g_metadatas = []
 let g_can_request_progress = true
@@ -1061,9 +1061,9 @@ async function snapAndFillHandler () {
         // )
         // create new layers related to the current mask operation.
         await executeAsModal(async () => {
-          g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(
-            random_session_id
-          )
+          // g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
+          await outpaint.snapAndFillExe(random_session_id)
+
         })
         // console.log(
         //   'outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ',
@@ -1089,7 +1089,7 @@ async function snapAndFillHandler () {
 async function easyModeOutpaint(){
   try{
 
-    if(g_generation_session.isInactive()){
+    if(g_generation_session.isFirstGeneration){
       // clear the layers related to the last mask operation.
       // g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
 
@@ -1113,13 +1113,15 @@ async function btnInitInpaintHandler(){
 
     
     
-    if(g_generation_session.isInactive()){
+    if(g_generation_session.isFirstGeneration){
       // delete the layers of the previous mask operation
-      g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
+      // g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
       // store the layer of the current mask operation
-      g_last_inpaint_layers =  await outpaint.inpaintFasterExe(random_session_id)
+      // g_last_inpaint_layers =  await outpaint.inpaintFasterExe(random_session_id)
+      await outpaint.inpaintFasterExe(random_session_id)
+
       
-      console.log ("outpaint.inpaintFasterExe(random_session_id):, g_last_inpaint_layers: ",g_last_inpaint_layers)
+      // console.log ("outpaint.inpaintFasterExe(random_session_id):, g_last_inpaint_layers: ",g_last_inpaint_layers)
     }
   }
   catch(e){
@@ -1188,7 +1190,10 @@ async function acceptAll(){
         if(viewer_image_obj.isActive() && viewer_image_obj instanceof viewer.OutputImage){
           //check if the active viewer_image_obj is a type of OutputImage and move it to the top of the output group folder
           //this is so when we accept all layers the canvas will look the same. otherwise the image could be cover by another generated image
-          await g_generation_session.moveToTopOfOutputGroup(viewer_image_obj.layer)
+          if(viewer_image_obj.isLayerValid()){
+
+            await g_generation_session.moveToTopOfOutputGroup(viewer_image_obj.layer)
+          }
           
         }
         viewer_image_obj.setHighlight(true)// mark each layer as accepted 
@@ -1341,11 +1346,11 @@ async function discard() {
   //   g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
   //   console.log('g_last_outpaint_layers has 1 layers')
   // }
-  if (g_last_inpaint_layers.length > 0) {
-    g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
-    g_b_mask_layer_exist = false
+  // if (g_last_inpaint_layers.length > 0) {
+  //   g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
+  //   g_b_mask_layer_exist = false
 
-  }
+  // }
   const random_img_src ='https://source.unsplash.com/random'
   html_manip.setInitImageSrc(random_img_src)
   html_manip.setInitImageMaskSrc(random_img_src)
@@ -1374,7 +1379,7 @@ Array.from(document.getElementsByClassName('discardClass')).forEach(element => {
 
 async function deleteMaskRelatedLayers(){
   // console.log("click on btnCleanLayers,  g_last_outpaint_layers:",g_last_outpaint_layers)
-  console.log("click on btnCleanLayers,  g_last_inpaint_layers:",g_last_inpaint_layers)
+  // console.log("click on btnCleanLayers,  g_last_inpaint_layers:",g_last_inpaint_layers)
   
   // console.log("click on btnCleanLayers,  g_last_snap_and_fill_layers:",g_last_snap_and_fill_layers)
 
@@ -1387,10 +1392,10 @@ async function deleteMaskRelatedLayers(){
   //   console.log("g_last_outpaint_layers has 1 layers")
 
   // }
-  if (g_last_inpaint_layers.length> 0 ){
-    g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
+  // if (g_last_inpaint_layers.length> 0 ){
+  //   g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
 
-  }
+  // }
 
 }
 // document.getElementById('btnCleanLayers').addEventListener('click', async () => {
@@ -1821,14 +1826,15 @@ if (g_generation_session.isActive()) {
       session.GarbageCollectionState['Accept']
     ) 
     g_ui.endSessionUI()
-
+    //start new session after you ended the old one 
+    await g_generation_session.startSession()
     
     g_generation_session.mode = mode
   }
 } else {
   // new session
   g_generation_session.mode = mode
-  g_generation_session.startSession()//start the session and create a output folder
+  await g_generation_session.startSession()//start the session and create a output folder
 }
 
 

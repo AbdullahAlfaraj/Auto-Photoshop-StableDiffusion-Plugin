@@ -271,7 +271,7 @@ async function outpaintFasterExe(session_id){
           console.log("[snapshotLayer,snapshotGroup]:",[snapshotLayer,snapshotGroup])
           
           //select opaque pixel and create black fill layer
-          await psapi.selectLayers([snapshotLayer])
+          await psapi.selectLayersExe([snapshotLayer])
           await psapi.selectLayerChannelCommand()
           const snapshotMaskGroup = await psapi.createEmptyGroup()
 

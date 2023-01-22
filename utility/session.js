@@ -42,13 +42,14 @@ class GenerationSession{
     
     this.id += 1//increment the session id for each session we start
     this.activate()
-    // this.isFirstGeneration = false // only before the first generation is requested should this be true
+    this.isFirstGeneration = true // only before the first generation is requested should this be true
+    
     console.log("current session id: ", this.id)
     try{
         
         const session_name = this.name()
         const activeLayers = await app.activeDocument.activeLayers 
-        await psapi.unselectActiveLayers() // unselect all layer so the create group is place at the top of the document 
+        await psapi.unselectActiveLayersExe() // unselect all layer so the create group is place at the top of the document 
         const outputGroup = await psapi.createEmptyGroup(session_name)
         this.outputGroup = outputGroup
         await psapi.selectLayersExe(activeLayers)
@@ -86,6 +87,9 @@ class GenerationSession{
         
         
         this.isFirstGeneration = true // only before the first generation is requested should this be true
+        
+        await util_layer.collapseFolderExe([this.outputGroup],false)// close the folder group
+
     }catch(e){
         console.warn(e)
     }
