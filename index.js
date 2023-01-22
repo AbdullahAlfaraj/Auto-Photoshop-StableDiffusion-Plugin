@@ -1499,16 +1499,26 @@ catch(e){
   console.warn(e)
 }
 }
+
 document.getElementById('btnSdUrl').addEventListener('click', async () => {
   //change the sdUrl in server in proxy server
   console.log("you clicked btnSdUrl")
   let new_sd_url = document.getElementById('tiSdUrl').value
+  
   console.log("new_sd_url: ", new_sd_url)
 
   new_sd_url = new_sd_url.trim()
   console.log("new_sd_url.trim(): ", new_sd_url)
 
   if (new_sd_url.length > 0) {
+    //check if the last character of the url has "/" or '\' and remove it
+    last_index = new_sd_url.length - 1
+    if (new_sd_url[last_index] === "/" || new_sd_url[last_index] === '\\')
+    {
+      new_sd_url = new_sd_url.slice(0,-1)
+    }
+    
+    //submit the change
     await sdapi.changeSdUrl(new_sd_url)
   }
 })
