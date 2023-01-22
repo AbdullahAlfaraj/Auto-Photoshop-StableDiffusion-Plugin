@@ -538,7 +538,7 @@ let hWidth = 512
 let hHeight = 512
 let h_denoising_strength = .7
 let g_inpainting_fill = 0
-let g_last_outpaint_layers = []
+// let g_last_outpaint_layers = []
 let g_last_inpaint_layers = []
 let g_last_snap_and_fill_layers = []
 
@@ -548,7 +548,7 @@ let g_saved_active_layers = []
 let g_saved_active_selection = {};
 let g_is_active_layers_stored = false
 
-let g_is_generation_session_active = false
+
 let g_number_generation_per_session = 0
 let g_isViewerMenuDisabled = false // disable the viewer menu and viewerImage when we're importing images into the current document
 let g_b_mask_layer_exist = false// true if inpaint mask layer exist, false otherwise.
@@ -562,6 +562,7 @@ let g_sd_config_obj = new sd_config.SdConfig()
 g_sd_config_obj.getConfig() 
 
 let g_generation_session = new session.GenerationSession(0) //session manager
+g_generation_session.deactivate()//session starte as inactive  
 let g_ui = new ui.UI()
 const requestState = {
 	Generate: "generate",
@@ -575,7 +576,8 @@ const generationMode = {
   Inpaint: "inpaint",
   Outpaint: "outpaint"
 }
-let g_generation_session_mode = generationMode['Txt2Img']
+
+g_generation_session.mode = generationMode['Txt2Img']
 let g_viewer_manager = new viewer.ViewerManager()
 //********** End: global variables */
 
@@ -656,7 +658,7 @@ document.addEventListener("mouseenter",async (event)=>{
   try{
   //only check if the generation mode has not changed( e.g a session.mode === img2img and the current selection is "img2img"  ).
   // changing the mode will trigger it's own procedure, so doing it here again is redundant  
-  if(g_generation_session_mode === g_sd_mode){
+  if(g_generation_session.mode === g_sd_mode){
 
     console.log("hover on window")
     const new_selection = await psapi.getSelectionInfoExe()
@@ -819,11 +821,11 @@ async function displayUpdate () {
     // document.getElementById('btnInitInpaint').style.display = 'none'
   }
 
-  if (g_is_generation_session_active || g_generation_session.isActive() ){//Note: remove the "or" operation after refactoring the code 
+  if (g_generation_session.isActive() ){//Note: remove the "or" operation after refactoring the code 
     //if the session is active
     
     
-    if(g_generation_session_mode !== g_sd_mode){  
+    if(g_generation_session.mode !== g_sd_mode){  
     //if a generation session is active but we changed mode. the generate button will reflect that
     //Note: add this code to the UI class
     const generate_btns = Array.from(document.getElementsByClassName('btnGenerateClass'))
@@ -1052,7 +1054,7 @@ async function snapAndFillHandler () {
   try {
     const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
     if (isSelectionAreaValid) {
-      if (!g_is_generation_session_active || g_generation_session.isInactive()) {
+      if (g_generation_session.isFirstGeneration) {
         // clear the layers related to the last mask operation.
         // g_last_snap_and_fill_layers = await psapi.cleanLayers(
         //   g_last_snap_and_fill_layers
@@ -1087,12 +1089,13 @@ async function snapAndFillHandler () {
 async function easyModeOutpaint(){
   try{
 
-    if(!g_is_generation_session_active || g_generation_session.isInactive()){
+    if(g_generation_session.isInactive()){
       // clear the layers related to the last mask operation.
-      g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
+      // g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
 
       // create new layers related to the current mask operation.
-      g_last_outpaint_layers = await outpaint.outpaintExe(random_session_id)
+      // g_last_outpaint_layers = await outpaint.outpaintExe(random_session_id)
+      await outpaint.outpaintExe(random_session_id)
     }
       
     
@@ -1110,7 +1113,7 @@ async function btnInitInpaintHandler(){
 
     
     
-    if(!g_is_generation_session_active || g_generation_session.isInactive()){
+    if(g_generation_session.isInactive()){
       // delete the layers of the previous mask operation
       g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
       // store the layer of the current mask operation
@@ -1140,7 +1143,7 @@ function toggleTwoButtonsByClass(isVisible,first_class,second_class){
 
   } else {//show generate or generate more button
     first_class_btns.forEach(element => element.style.display = 'inline-block')
-    if(g_is_generation_session_active || g_generation_session.isActive()){//show generate more
+    if( g_generation_session.isActive()){//show generate more
 
       first_class_btns.forEach(element => element.textContent = "Generate More")
 
@@ -1229,7 +1232,7 @@ console.warn(e)
 function endGenerationSession(){
   g_is_generation_session_active = false
   
-  // sessionStartHtml(g_is_generation_session_active)
+  
   g_ui.endSessionUI()
 }
 
@@ -1241,7 +1244,7 @@ discard_selected_class_btns.forEach(element => element.addEventListener('click',
   try{
     
     await g_generation_session.endSession(session.GarbageCollectionState['DiscardSelected'])//end session and accept only selected images
-    
+    g_ui.endSessionUI()
     
   }catch(e){
     console.warn(e)
@@ -1253,7 +1256,7 @@ accept_selected_class_btns.forEach(element => element.addEventListener('click',a
   try{
     
     await g_generation_session.endSession(session.GarbageCollectionState['AcceptSelected'])//end session and accept only selected images
-    
+    g_ui.endSessionUI()
     
   }catch(e){
     console.warn(e)
@@ -1265,6 +1268,7 @@ accept_class_btns.forEach(element => element.addEventListener('click',async ()=>
   try{
     
     await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and accept all images
+    g_ui.endSessionUI()
     // endGenerationSession()
     // await acceptAll()
     
@@ -1333,10 +1337,10 @@ async function discard() {
   //   g_last_snap_and_fill_layers
   // )
 
-  if (g_last_outpaint_layers.length > 0) {
-    g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
-    console.log('g_last_outpaint_layers has 1 layers')
-  }
+  // if (g_last_outpaint_layers.length > 0) {
+  //   g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
+  //   console.log('g_last_outpaint_layers has 1 layers')
+  // }
   if (g_last_inpaint_layers.length > 0) {
     g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
     g_b_mask_layer_exist = false
@@ -1361,6 +1365,7 @@ Array.from(document.getElementsByClassName('discardClass')).forEach(element => {
   element.addEventListener('click', async () => {
     //end session here
     await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and remove all images
+    g_ui.endSessionUI()
     // endGenerationSession()
     // await discard()
   })
@@ -1368,7 +1373,7 @@ Array.from(document.getElementsByClassName('discardClass')).forEach(element => {
 
 
 async function deleteMaskRelatedLayers(){
-  console.log("click on btnCleanLayers,  g_last_outpaint_layers:",g_last_outpaint_layers)
+  // console.log("click on btnCleanLayers,  g_last_outpaint_layers:",g_last_outpaint_layers)
   console.log("click on btnCleanLayers,  g_last_inpaint_layers:",g_last_inpaint_layers)
   
   // console.log("click on btnCleanLayers,  g_last_snap_and_fill_layers:",g_last_snap_and_fill_layers)
@@ -1377,11 +1382,11 @@ async function deleteMaskRelatedLayers(){
   // console.log("g_last_snap_and_fill_layers")
   // g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
   
-  if (g_last_outpaint_layers.length > 0){
-    g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
-    console.log("g_last_outpaint_layers has 1 layers")
+  // if (g_last_outpaint_layers.length > 0){
+  //   g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
+  //   console.log("g_last_outpaint_layers has 1 layers")
 
-  }
+  // }
   if (g_last_inpaint_layers.length> 0 ){
     g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
 
@@ -1790,7 +1795,9 @@ async function easyModeGenerate(){
     {// end current session 
       g_selection = new_selection
       try{
+        
         await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and accept all images
+        g_ui.endSessionUI()
         // endGenerationSession()
         // await acceptAll()
         
@@ -1804,22 +1811,23 @@ async function easyModeGenerate(){
     g_selection = await psapi.getSelectionInfoExe()
   }
   
-if (g_is_generation_session_active || g_generation_session.isActive()) {
+if (g_generation_session.isActive()) {
   //active session
   //
-  if (g_generation_session_mode !== mode) {
+  if (g_generation_session.mode !== mode) {
     //active session but it's a new mode
 
     await g_generation_session.endSession(
       session.GarbageCollectionState['Accept']
     ) 
+    g_ui.endSessionUI()
 
     
-    g_generation_session_mode = mode
+    g_generation_session.mode = mode
   }
 } else {
   // new session
-  g_generation_session_mode = mode
+  g_generation_session.mode = mode
   g_generation_session.startSession()//start the session and create a output folder
 }
 
@@ -1880,11 +1888,14 @@ async function generate(settings){
     //pre generation
     // toggleGenerateInterruptButton(true)
     
-    // const isFistGeneration = !(g_is_generation_session_active) // check if this is the first generation in the session 
-    const isFistGeneration = !(g_generation_session.isActive()) // check if this is the first generation in the session 
+    // const isFirstGeneration = !(g_is_generation_session_active) // check if this is the first generation in the session 
+    // const isFirstGeneration = !(g_generation_session.isActive()) // check if this is the first generation in the session 
+    const isFirstGeneration = g_generation_session.isFirstGeneration
+
 
     // g_generation_session.startSession()
-    g_is_generation_session_active = true// active
+    g_generation_session.activate()
+    
 
     g_ui.startSessionUI()
     // toggleTwoButtons(true,'btnGenerate','btnInterrupt')
@@ -1926,9 +1937,9 @@ async function generate(settings){
     updateProgressBarsHtml(0)
     //check whether request was "generate" or "generate more"
     //if it's generate discard the session 
-    if(isFistGeneration){
+    if(isFirstGeneration){
       await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and delete all images
-      
+      g_ui.endSessionUI()
       // endGenerationSession()
       // //delete all mask related layers
       
@@ -1939,9 +1950,9 @@ async function generate(settings){
    // check if json is empty {}, {} means the proxy server didn't return a valid data
    if(Object.keys(json).length === 0)
    {
-    if(isFistGeneration){
+    if(isFirstGeneration){
       await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and delete all images
-      
+      g_ui.endSessionUI()
       // endGenerationSession()
       // //delete all mask related layers
       
@@ -1961,12 +1972,13 @@ async function generate(settings){
 
   gImage_paths = json.image_paths
   //open the generated images from disk and load them onto the canvas
-  if(isFistGeneration){//this is new generation session
+  if(isFirstGeneration){//this is new generation session
 
     // g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
     g_image_path_to_layer = await silentImagesToLayersExe(gImage_paths)
 
     g_number_generation_per_session = 1
+    g_generation_session.isFirstGeneration = false 
   }
   else{// generation session is active so we will generate more
     // const last_images_paths = await ImagesToLayersExe(gImage_paths)
@@ -1974,6 +1986,7 @@ async function generate(settings){
 
     g_image_path_to_layer = {...g_image_path_to_layer, ...last_images_paths}
     g_number_generation_per_session++
+    
     
 
   }

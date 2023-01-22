@@ -162,7 +162,7 @@ async function snapAndFillExe(session_id){
   
           //create a snapshot of canvas
           // let [snapshotLayer,snapshotGroup] =  await createSnapshot()
-          await psapi.snapshot_layer()
+          await psapi.snapshot_layerExe()
           const snapshotLayer = await app.activeDocument.activeLayers[0]
           const snapshotGroup = await psapi.createEmptyGroup()
           snapshotLayer.name = "Init Image Snapshot -- temporary"
@@ -258,7 +258,7 @@ async function outpaintFasterExe(session_id){
   
           //create a snapshot of canvas
           // let [snapshotLayer,snapshotGroup] =  await createSnapshot()
-          await psapi.snapshot_layer()
+          await psapi.snapshot_layerExe()
           const snapshotLayer = await app.activeDocument.activeLayers[0]
           snapshotLayer.name = "Init Image Snapshot -- temporary"
           const snapshotGroup = await psapi.createEmptyGroup()
@@ -280,7 +280,7 @@ async function outpaintFasterExe(session_id){
           //create a snapshot of mask
           await psapi.reSelectMarqueeExe(selectionInfo)
           // let [snapshotMaskLayer,snapshotMaskGroup] = await createSnapshot()
-          await psapi.snapshot_layer()
+          await psapi.snapshot_layerExe()
           const snapshotMaskLayer = await app.activeDocument.activeLayers[0]
           snapshotMaskLayer.name = "Mask -- Paint White to Mask -- temporary"
           // const snapshotMaskGroup = await psapi.createEmptyGroup()
@@ -371,7 +371,7 @@ async function outpaintFasterExe(session_id){
     
             //create a snapshot of canvas
             // let [snapshotLayer,snapshotGroup] =  await createSnapshot()
-            await psapi.snapshot_layer()
+            await psapi.snapshot_layerExe()
             const snapshotLayer = await app.activeDocument.activeLayers[0]
             snapshotLayer.name = "Init Image Snapshot -- temporary"
             const snapshotGroup = await psapi.createEmptyGroup()
@@ -393,7 +393,7 @@ async function outpaintFasterExe(session_id){
             //create a snapshot of mask
             await psapi.reSelectMarqueeExe(selectionInfo)
             // let [snapshotMaskLayer,snapshotMaskGroup] = await createSnapshot()
-            await psapi.snapshot_layer()
+            await psapi.snapshot_layerExe()
             const snapshotMaskLayer = await app.activeDocument.activeLayers[0]
             snapshotMaskLayer.name = "Mask -- Paint White to Mask -- temporary"
             // const snapshotMaskGroup = await psapi.createEmptyGroup()

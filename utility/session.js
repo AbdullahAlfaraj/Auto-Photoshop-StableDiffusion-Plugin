@@ -42,7 +42,7 @@ class GenerationSession{
     
     this.id += 1//increment the session id for each session we start
     this.activate()
-    this.isFirstGeneration = false // only before the first generation is requested should this be true
+    // this.isFirstGeneration = false // only before the first generation is requested should this be true
     console.log("current session id: ", this.id)
     try{
         
@@ -60,7 +60,10 @@ class GenerationSession{
         try{
             this.state = SessionState['Inactive']// end the session by deactivate it
 
-            endGenerationSession()//end session
+            // endGenerationSession()//end session
+            
+                this.deactivate()
+                
             if(garbage_collection_state === GarbageCollectionState['Accept']){
                 
             await acceptAll()
