@@ -46,6 +46,9 @@ class ViewerImage {
   select () {
     
   }
+  isActive(){
+    return this.is_active
+  }
   active(isActive){
     if(isActive){
       //unlink it if it's active 

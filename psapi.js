@@ -75,11 +75,12 @@ async function makeGroupCommand () {
 
   return result
 }
-async function createEmptyGroup () {
+async function createEmptyGroup (name = "New Group") {
   let groupLayer
   await executeAsModal(async () => {
     await makeGroupCommand()
     groupLayer = app.activeDocument.activeLayers[0]
+    groupLayer.name = name
   })
   console.log('groupLayer:', groupLayer)
   return groupLayer

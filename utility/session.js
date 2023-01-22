@@ -21,6 +21,7 @@ class GenerationSession{
         this.mode = "txt2img"
         this.selectionInfo = null
         this.isFirstGeneration = true // only before the first generation is requested should this be true
+        this.outputGroup
     }
     isActive(){
         return this.state === SessionState['Active']
@@ -34,12 +35,26 @@ class GenerationSession{
     deactivate(){
         this.state = SessionState['Inactive']
     }
-    startSession(){
+    name(){
+        return `session - ${this.id}`
+    }
+    async startSession(){
+    
     this.id += 1//increment the session id for each session we start
-    this.state = SessionState['Active']
+    this.activate()
     this.isFirstGeneration = false // only before the first generation is requested should this be true
     console.log("current session id: ", this.id)
-    
+    try{
+        
+        const session_name = this.name()
+        const activeLayers = await app.activeDocument.activeLayers 
+        await psapi.unselectActiveLayers() // unselect all layer so the create group is place at the top of the document 
+        const outputGroup = await psapi.createEmptyGroup(session_name)
+        this.outputGroup = outputGroup
+        await psapi.selectLayersExe(activeLayers)
+    }catch(e){
+        console.warn(e)
+    }
     }
     async endSession(garbage_collection_state){
         try{
@@ -87,6 +102,15 @@ class GenerationSession{
     saveCurrentSession(){
         //all session info will be saved in a json file in the project folder
         }
+    async moveToTopOfOutputGroup(layer){
+        const output_group_id = await this.outputGroup.id
+        let group_index = await psapi.getLayerIndex(output_group_id)
+        const indexOffset = 1 //1 for background, 0 if no background exist
+        await executeAsModal(async ()=>{
+          await psapi.moveToGroupCommand(group_index - indexOffset, layer.id)
+    
+        })
+    }
 }
 
 

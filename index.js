@@ -1182,8 +1182,12 @@ async function acceptAll(){
 
     for (const [path, viewer_image_obj] of Object.entries(g_viewer_manager.pathToViewerImage)) {
       try{
-      
-
+        if(viewer_image_obj.isActive() && viewer_image_obj instanceof viewer.OutputImage){
+          //check if the active viewer_image_obj is a type of OutputImage and move it to the top of the output group folder
+          //this is so when we accept all layers the canvas will look the same. otherwise the image could be cover by another generated image
+          await g_generation_session.moveToTopOfOutputGroup(viewer_image_obj.layer)
+          
+        }
         viewer_image_obj.setHighlight(true)// mark each layer as accepted 
 
     } catch (e){
@@ -1806,16 +1810,17 @@ if (g_is_generation_session_active || g_generation_session.isActive()) {
   if (g_generation_session_mode !== mode) {
     //active session but it's a new mode
 
-    await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and accept all images
-    // endGenerationSession()
-    // await acceptAll()
+    await g_generation_session.endSession(
+      session.GarbageCollectionState['Accept']
+    ) 
 
-    //accept all
+    
     g_generation_session_mode = mode
-  } 
+  }
 } else {
   // new session
   g_generation_session_mode = mode
+  g_generation_session.startSession()//start the session and create a output folder
 }
 
 
@@ -1878,7 +1883,7 @@ async function generate(settings){
     // const isFistGeneration = !(g_is_generation_session_active) // check if this is the first generation in the session 
     const isFistGeneration = !(g_generation_session.isActive()) // check if this is the first generation in the session 
 
-    g_generation_session.activate() 
+    // g_generation_session.startSession()
     g_is_generation_session_active = true// active
 
     g_ui.startSessionUI()
@@ -2415,6 +2420,16 @@ async function silentImagesToLayersExe (images_paths) {
     // await stackLayers() // move the smart object to the original/old document
     // await psapi.layerToSelection(g_selection) //transform the new smart object layer to fit selection area
     layer = await app.activeDocument.activeLayers[0]
+    await g_generation_session.moveToTopOfOutputGroup(layer)
+    // const output_group_id = await g_generation_session.outputGroup.id
+    // let group_index = await psapi.getLayerIndex(output_group_id)
+    // const indexOffset = 1 //1 for background, 0 if no background exist
+    // await executeAsModal(async ()=>{
+    //   await psapi.moveToGroupCommand(group_index - indexOffset, layer.id)
+
+    // })
+    
+    
     image_path_to_layer[image_path] = layer 
     // await reselect(selectionInfo)
   }
