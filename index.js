@@ -648,7 +648,7 @@ for (let rbMaskContentElement of rbMaskContentElements) {
     g_inpainting_fill = evt.target.value
 
     // console.log(`You clicked: ${g_inpainting_fill}`)
-    await displayUpdate()
+    
   })
 }
 
