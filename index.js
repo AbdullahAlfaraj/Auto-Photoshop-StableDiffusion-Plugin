@@ -2841,8 +2841,10 @@ document.getElementById('btnImageSearch').addEventListener('click',async functio
       img.className = "image-search"
       // img.dataset.metadata_json_string = JSON.stringify(metadata_jsons[i])
       container.appendChild(img)
-      img.addEventListener('click',(e)=>{
+      img.addEventListener('click',async (e)=>{
         console.log(`the image url: ${img.src}`)
+        const link = img.src 
+        await downloadItExe(link)
         // const metadata_json = JSON.parse(e.target.dataset.metadata_json_string)
         // console.log("metadata_json: ",metadata_json)
         // document.querySelector('#tiSeed').value = metadata_json.Seed
@@ -3037,3 +3039,45 @@ document.querySelector('#slInpaintingMaskWeight').addEventListener('change', asy
   console.warn(e)
 }
 })
+
+
+async function downloadIt(link) {
+  const image = await fetch(link);
+  console.log(link);
+  const storage = require('uxp').storage
+  const fs = storage.localFileSystem
+
+  try {
+    const img = await image.arrayBuffer();
+    // const file = await fs.getFileForSaving("image.png");
+    const folder = await storage.localFileSystem.getTemporaryFolder();
+    const file = await folder.createFile("image.png", {overwrite: true});
+    // const file = await fs.getTempFolder()
+
+    await file.write(img);
+    const currentDocument = app.activeDocument;
+    const newDocument = await app.open(file);
+    if (currentDocument) {
+      await newDocument.activeLayers[0].duplicate(currentDocument);
+      await newDocument.closeWithoutSaving();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+
+  if (!file) {
+    return;
+  }
+}
+
+async function downloadItExe(link){
+
+  await executeAsModal(async ()=>{
+    try{
+      
+      await downloadIt(link)
+    }catch(e){
+      console.warn(e)
+    }
+  })
+}
