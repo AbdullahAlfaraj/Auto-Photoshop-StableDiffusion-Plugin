@@ -1840,50 +1840,30 @@ if (g_generation_session.isActive()) {
 
   
   
-  if(mode === "txt2img"){
-    const settings = await getSettings()
-
-    await generate(settings)
+  if(mode === "txt2img"){//Note: keep it for clearity/ readibility
   }
   else if (mode === generationMode['Img2Img']){
-    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
-    
-    if (isSelectionAreaValid){    
-    await snapAndFillHandler()
-    const settings = await getSettings()
-    await generate(settings)
-    }else{
-      psapi.promptForMarqueeTool()        
 
-    }
+    await snapAndFillHandler()
+    
   }
   else if(mode === "inpaint" ){
-    if(isSelectionAreaValid){
-
       await btnInitInpaintHandler()
-      const settings = await getSettings()
-      await generate(settings)
-    }else{
-      psapi.promptForMarqueeTool()        
-      
-    }
   }
   else if(mode === "outpaint"){
-    
-    const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
-    
-    if (isSelectionAreaValid){
+
       await easyModeOutpaint()
-      const settings = await getSettings()
-      generate(settings)
+      
 
     }
-    else{
-      psapi.promptForMarqueeTool()        
+   
+   //safe to close the previous generation_session outputfolder, since closing a folder will unselect any layer in it.
+   ////and the plugin may still need those layers for inpainting mode for example. 
+   
+   await g_generation_session.closePreviousOutputGroup()
 
-    }
-
-    }
+    const settings = await getSettings()
+    await generate(settings)
   }catch(e){
     console.warn(e)
   }

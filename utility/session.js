@@ -22,6 +22,7 @@ class GenerationSession{
         this.selectionInfo = null
         this.isFirstGeneration = true // only before the first generation is requested should this be true
         this.outputGroup
+        this.prevOutputGroup
     }
     isActive(){
         return this.state === SessionState['Active']
@@ -50,6 +51,7 @@ class GenerationSession{
         const session_name = this.name()
         const activeLayers = await app.activeDocument.activeLayers 
         await psapi.unselectActiveLayersExe() // unselect all layer so the create group is place at the top of the document 
+        this.prevOutputGroup = this.outputGroup
         const outputGroup = await psapi.createEmptyGroup(session_name)
         this.outputGroup = outputGroup
         await psapi.selectLayersExe(activeLayers)
@@ -95,6 +97,18 @@ class GenerationSession{
     }
 
           
+    }
+    async closePreviousOutputGroup(){
+        try{
+            //close the previous output folder 
+        await util_layer.collapseFolderExe([this.prevOutputGroup],false)// close the folder group
+        // and reselect the current output folder for clarity
+        await psapi.selectLayersExe([this.outputGroup])
+
+        }
+        catch(e){
+            console.warn(e)
+        }
     }
     isSameMode(selected_mode){
         if (this.mode === selected_mode){
