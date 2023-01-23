@@ -3115,3 +3115,17 @@ async function downloadItExe(link){
     }
   })
 }
+
+
+document.getElementById("btnSelectionArea").addEventListener('click',async ()=>{
+try{
+  if(checkIfSelectionIsValid(g_selection)){
+    await psapi.reSelectMarqueeExe(g_selection)
+    await eventHandler()
+  }
+}
+catch(e){
+  console.warn(e)
+
+}
+})
