@@ -1171,7 +1171,7 @@ async function discardAll(){
     for (const [path, viewer_image_obj] of Object.entries(g_viewer_manager.pathToViewerImage)) {
       try{
       
-
+        viewer_image_obj.active(false)//deactivate the layer
         viewer_image_obj.setHighlight(false)// mark each layer as discarded 
 
     } catch (e){
