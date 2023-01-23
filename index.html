@@ -169,6 +169,13 @@
 
   }
 
+  #sdBtnContainer{
+    display: flex;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
   .labelNumber {
     color: aliceblue;
   }
@@ -352,7 +359,7 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
   }
   .discardAllImgBtn{
     font-family: Arial, Verdana;   
-    background-image: url(./icon/discard_all.png);
+    background-image: url(./icon/discard_all_border.png);
  background-color: transparent;
  background-size: 30px;
     width: 30px;
@@ -361,9 +368,9 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
   }
   .discardSelectedImgBtn{
     font-family: Arial, Verdana;   
-    background-image: url(./icon/discard_selected.png);
+    background-image: url(./icon/discard_selected_border.png);
  background-color: transparent;
- background-size: 30px;
+ background-size: 24px;
     width: 30px;
     height: 30px;
     background-repeat: no-repeat;
@@ -413,6 +420,10 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
         <button class="btnSquare " id="btnSetInitImageViewer">Set Init Image</button>
         <button class="btnSquare btnGenerateClass" id="btnGenerate">Generate txt2img</button>
         <button class="btnSquare btnInterruptClass" id="btnInterruptViewer" style="display:none;">Interrupt</button>
+          <button class="btnSquare" id="btnSelectionArea" >Selection Area</button>
+
+        
+
         <div style="display:flex;justify-content: space-between;">
 
           
@@ -426,11 +437,7 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
             <button class="btnSquare discardSelectedClass discardSelectedImgBtn"  style="display:none;"></button>
 
         </div>
-        <div>
-          <button class="btnSquare" id="btnSelectionArea" >Selection Area</button>
-
-        </div>
-
+    
         <div style="display:inline-flex;">
             <div id="batchNumberViewerTabContainer" >
               <!-- we will append here batch number field here   -->
@@ -546,20 +553,26 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
 
       <!-- stable diffusion tab page -->
 
-      <div>
+      <div id="sdBtnContainer">
+        <div style="display:inline-flex;justify-content: space-between;">
 
-        <button class="btnSquare" id="btnLayerToSelection" title="Move and reSize the highlighted layer to fit into the Selection Area ">L2S</button>
-        <button class="btnSquare btnGenerateClass">Generate txt2img</button>
-        <button class="btnSquare btnInterruptClass" id="btnInterrupt" style="display:none;">Interrupt</button>
+          <button class="btnSquare" id="btnLayerToSelection" title="Move and reSize the highlighted layer to fit into the Selection Area ">L2S</button>
+          <button class="btnSquare btnGenerateClass">Generate txt2img</button>
+          <button class="btnSquare btnInterruptClass" id="btnInterrupt" style="display:none;">Interrupt</button>
+        </div>
         <!-- <button class="btnSquare btnInterruptClass" style="display:none;">Interrupt More</button> -->
         <!-- <button class="btnSquare" id="btnCleanLayers">Clean Layers</button> -->
         <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
         <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button> -->
-        <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;"></button>
-        <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;"></button>
-        <!-- <button class="btnSquare customClass"  style="display:none;">Accept Selected</button> -->
-        <button class="btnSquare resetButton" id="btnResetSettings" title="reset the ui settings to their default values">Reset Settings</button>
-        <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
+        
+        
+        <div style="display:inline-flex;justify-content: space-between;width: 133px;">
+          <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;"></button>
+          <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;"></button>
+          <!-- <button class="btnSquare customClass"  style="display:none;">Accept Selected</button> -->
+          <button class="btnSquare resetButton" id="btnResetSettings" title="reset the ui settings to their default values">Reset Settings</button>
+          <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
+        </div>
       </div>
       
 
