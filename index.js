@@ -2399,7 +2399,7 @@ async function silentImagesToLayersExe (images_paths) {
     // await openImageExe() //local image to new document
     // await convertToSmartObjectExe() //convert the current image to smart object
 
-    await timer(100) // then the created Promise can be awaited
+    await timer(200) // then the created Promise can be awaited
 
     if (g_b_use_smart_object === false){
 
