@@ -109,6 +109,18 @@ document.getElementById('chHiResFixs').addEventListener('input', evt => {
 
 })
 
+//binds visibility of hi res sliders to hi res checkbox
+document.getElementById('chHiResFixs').addEventListener("change", function() {
+  if (document.getElementById('chHiResFixs').checked) {
+    document.getElementById('hrWidth').style.display = "block";
+    document.getElementById('hrHeight').style.display = "block";
+    } else {
+      document.getElementById('hrWidth').style.display = "none";
+      document.getElementById('hrHeight').style.display = "none";
+    }
+});
+
+
 //get the value that is relevant to stable diffusion
 function getHiResFixs() {
   const isChecked = document.getElementById('chHiResFixs').checked

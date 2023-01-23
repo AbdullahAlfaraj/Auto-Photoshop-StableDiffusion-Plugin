@@ -466,6 +466,12 @@ function displayUpdate () {
     document.getElementById('btnInitOutpaint').style.display = 'none'
     document.getElementById('btnInitInpaint').style.display = 'none'
   }
+
+  //hide hi res sliders by default
+  document.getElementById('hrWidth').style.display = "none";
+  document.getElementById('hrHeight').style.display = "none";
+
+
 }
 // function showLayerNames () {
 //   const app = window.require('photoshop').app
