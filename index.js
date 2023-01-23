@@ -316,6 +316,12 @@ try{
   //update the ui with that model title
   const current_model_hash = html_manip.getModelHashByTitle(current_model_title)
   html_manip.autoFillInModel(current_model_hash)
+
+  //fetch the inpaint mask weight from sd webui and update the slider with it.
+    const inpainting_mask_weight = await g_sd_options_obj.getInpaintingMaskWeight()
+  console.log("inpainting_mask_weight: ", inpainting_mask_weight)
+  html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
+
 }catch(e){
   console.warn(e)
 }
@@ -576,6 +582,10 @@ let g_viewer_manager = new viewer.ViewerManager()
 refreshUI()
 displayUpdate()
 promptShortcutExample()
+
+
+
+
 //***********End: init function calls */
 
 //add click event on radio button mode, so that when a button is clicked it change g_sd_mode globally
@@ -2399,7 +2409,7 @@ async function silentImagesToLayersExe (images_paths) {
     // await openImageExe() //local image to new document
     // await convertToSmartObjectExe() //convert the current image to smart object
 
-    await timer(200) // then the created Promise can be awaited
+    await timer(500) // then the created Promise can be awaited
 
     if (g_b_use_smart_object === false){
 
@@ -3047,16 +3057,18 @@ document.querySelector('#slInpaintingMaskWeight').addEventListener('change', asy
   try{
 
     const label_value = evt.target.value / 100
-    document.getElementById('lInpaintingMaskWeight').innerHTML = `${label_value}`
+  document.getElementById('lInpaintingMaskWeight').innerHTML = `${label_value}`
   await sdapi.setInpaintMaskWeight(label_value)
   
   //get the inpaint mask weight from the webui sd 
   await g_sd_options_obj.getOptions()
   const inpainting_mask_weight = await g_sd_options_obj.getInpaintingMaskWeight()
   // html_manip.autoFillInInpaintingMaskWeight(inpainting_mask_weight)
-  evt.target.value = inpainting_mask_weight * 100
-  document.getElementById('lInpaintingMaskWeight').innerHTML = `${inpainting_mask_weight}`
+  // const slider_value = inpainting_mask_weight * 100
+  // evt.target.value = inpainting_mask_weight * 100
+  // document.getElementById('lInpaintingMaskWeight').innerHTML = `${inpainting_mask_weight}`
   console.log("inpainting_mask_weight: ", inpainting_mask_weight)
+  autoFillInInpaintMaskWeight(inpainting_mask_weight)
 }catch(e){
   console.warn(e)
 }

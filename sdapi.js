@@ -338,8 +338,8 @@ async function savePromptShortcut (prompt_shortcut) {
   return json['prompt_shortcut']
 }
 async function setInpaintMaskWeight(value) {
- try {
   const full_url = 'http://127.0.0.1:8000/sdapi/v1/options'
+ try {
   payload = {
     inpainting_mask_weight: value
   }
@@ -361,9 +361,9 @@ async function setInpaintMaskWeight(value) {
  async function requestGetConfig() {
   console.log('requestGetConfig: ')
   let json = []
+  const full_url = 'http://127.0.0.1:8000/config'
   try{
 
-    const full_url = 'http://127.0.0.1:8000/config'
     let request = await fetch(full_url)
     json = await request.json()
     console.log('models json:')
@@ -377,9 +377,9 @@ async function setInpaintMaskWeight(value) {
 async function requestGetOptions() {
   console.log('requestGetOptions: ')
   let json = []
+  const full_url = 'http://127.0.0.1:8000/sdapi/v1/options'
   try{
 
-    const full_url = 'http://127.0.0.1:8000/sdapi/v1/options'
     let request = await fetch(full_url)
     json = await request.json()
     console.log('models json:')

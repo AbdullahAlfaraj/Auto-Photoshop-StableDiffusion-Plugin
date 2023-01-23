@@ -109,6 +109,7 @@ function autoFillInDenoisingStrength (denoising_strength_value) {
   ).innerHTML = `${denoising_strength_value}`
 }
 
+
 ////// End Denoising Strength//////////
 
 
@@ -165,6 +166,7 @@ function autoFillInSliderUi(sd_value,slider_id,label_id,multiplier){
   document.getElementById(label_id).innerHTML = `${sd_value}`
 }
 
+
 //hrWidth is from [1 to 32] * 64 => [64 to 2048]  
 sliderAddEventListener('hrWidth', 'hWidth',64)
 sliderAddEventListener('hrHeight', 'hHeight',64)
@@ -183,6 +185,14 @@ function autoFillInHiResFixs(firstphase_width,firstphase_height) {
 }
 ////// End Hi Res Fix//////////
 
+////// Start Inpaint Mask Weight//////////
+function autoFillInInpaintMaskWeight(sd_value) {
+  
+  //update the inpaint mask weight
+  autoFillInSliderUi(sd_value,'slInpaintingMaskWeight','lInpaintingMaskWeight',100)
+  
+}
+////// End Inpaint Mask Weight//////////
 
 ////// Start Samplers//////////
 function unCheckAllSamplers () {
@@ -483,6 +493,7 @@ module.exports = {
   getPromptShortcut,
   setPromptShortcut,
   getModelHashByTitle,
-  getSelectionMode
+  getSelectionMode,
+  autoFillInInpaintMaskWeight
 
 }
