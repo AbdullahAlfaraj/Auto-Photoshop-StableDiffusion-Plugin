@@ -2710,6 +2710,7 @@ async function loadViewerImages(){
     
     
     console.log("image_paths: ",image_paths)
+    let lastOutputImage
     for (const path of image_paths){
       
       // const path = image_path
@@ -2725,7 +2726,7 @@ async function loadViewerImages(){
         const layer = g_image_path_to_layer[path]
         const img = createViewerImgHtml(output_dir_relative,path,layer.id)
         const output_image_obj = g_viewer_manager.addOutputImage(layer,path)
-        
+        lastOutputImage = output_image_obj
         output_image_obj.setImgHtml(img)
         output_image_container.appendChild(img)
         //add on click event handler to the html img 
@@ -2735,7 +2736,10 @@ async function loadViewerImages(){
 
       // i++
     }
-    
+    if(lastOutputImage){
+      //select the last generate/output image
+      lastOutputImage.img_html.click()
+    }
       
 
     
