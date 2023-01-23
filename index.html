@@ -323,6 +323,62 @@
     opacity : 0.65; 
     cursor : not-allowed;
   }
+  .buttonImage{
+ 
+ padding: 8px 8px 8px 32px;
+ font-family: Arial, Verdana;   
+background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABfUlEQVQ4y42TP2tUQRTFf3PnPYiLIAiKiKhIsLbxS9hZaykWNmKjgqT0A6SxslRIFRsRv0QwdZB1YyGipImbzWbfnHst3sZdZF92Bw7D/LmH37nDpL1NAyAlHgDXWW18j+A9QBXTnQhu3H704TXS2aU5s/f2/qvTZeXx78goDdE0Z9anusYDmxn4zMAlYglBMsN9zkAzgxwrGGCGnLzIwELCVZbUG+oicDWoLOtBhZwcAQFUZd6gCC/dBPW5Hr+/7VPaCHci2DU5TJVDBe+Q5cyvwT4ucfdleS7noQdURfMEDd4Rwc04OvzDtfWbjCYTitpG/hehoI4IZhmpjTgcj09jUGmeQAVXB4EypbRxjk5O0JTAvgygOBSnap9xsUJC0/nx4BLFW3p78c7Z6SeOJ2ktvL2wUC7G4zHh4uBgxPEkre30Ewb0NrZ0+XDEeUtGXdULZckYDodYMp59vLD9eZftjS31EnARuPr0Xn6yfoVbq/zlrz/pb37SG+DHXyrMGdFXikHpAAAAAElFTkSuQmCC);
+    background-position: 8px 8px;
+    background-repeat: no-repeat;
+
+  }
+  .acceptAllImgBtn{
+    font-family: Arial, Verdana;   
+    background-image: url(./icon/accept_all.png);
+ background-color: transparent;
+ background-size: 30px;
+    width: 30px;
+    height: 30px;
+    background-repeat: no-repeat;
+  }
+  .acceptSelectedImgBtn{
+    font-family: Arial, Verdana;   
+    background-image: url(./icon/accept_selected.png);
+ background-color: transparent;
+ background-size: 30px;
+    width: 30px;
+    height: 30px;
+    background-repeat: no-repeat;
+  }
+  .discardAllImgBtn{
+    font-family: Arial, Verdana;   
+    background-image: url(./icon/discard_all.png);
+ background-color: transparent;
+ background-size: 30px;
+    width: 30px;
+    height: 30px;
+    background-repeat: no-repeat;
+  }
+  .discardSelectedImgBtn{
+    font-family: Arial, Verdana;   
+    background-image: url(./icon/discard_selected.png);
+ background-color: transparent;
+ background-size: 30px;
+    width: 30px;
+    height: 30px;
+    background-repeat: no-repeat;
+  }
+
+  .resetButton{
+    
+    font-family: Arial, Verdana;   
+    background-image: url(./icon/reset_settings.png);
+ background-color: transparent;
+ background-size: 30px;
+    width: 30px;
+    height: 30px;
+    background-repeat: no-repeat;
+  }
 </style>
 
 <body>
@@ -357,11 +413,23 @@
         <button class="btnSquare " id="btnSetInitImageViewer">Set Init Image</button>
         <button class="btnSquare btnGenerateClass" id="btnGenerate">Generate txt2img</button>
         <button class="btnSquare btnInterruptClass" id="btnInterruptViewer" style="display:none;">Interrupt</button>
-        
-        <button class="btnSquare acceptClass"  style="display:none;">Accept All</button>
-        <button class="btnSquare discardClass"  style="display:none;">Discard All</button>
-        <button class="btnSquare acceptSelectedClass"  style="display:none;">Accept Selected</button>
-        <button class="btnSquare discardSelectedClass"  style="display:none;">Discard Selected</button>
+        <div style="display:flex;justify-content: space-between;">
+
+          
+            <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
+            <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button>
+            <button class="btnSquare acceptSelectedClass acceptSelectedImgBtn"  style="display:none;">Accept Selected</button>
+            <button class="btnSquare discardSelectedClass discardSelectedImgBtn"  style="display:none;">Discard Selected</button> -->
+            <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;"></button>
+            <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;"></button>
+            <button class="btnSquare acceptSelectedClass acceptSelectedImgBtn"  style="display:none;"></button>
+            <button class="btnSquare discardSelectedClass discardSelectedImgBtn"  style="display:none;"></button>
+
+        </div>
+        <div>
+          <button class="btnSquare" id="btnSelectionArea" >Selection Area</button>
+
+        </div>
 
         <div style="display:inline-flex;">
             <div id="batchNumberViewerTabContainer" >
@@ -485,10 +553,12 @@
         <button class="btnSquare btnInterruptClass" id="btnInterrupt" style="display:none;">Interrupt</button>
         <!-- <button class="btnSquare btnInterruptClass" style="display:none;">Interrupt More</button> -->
         <!-- <button class="btnSquare" id="btnCleanLayers">Clean Layers</button> -->
-        <button class="btnSquare acceptClass"  style="display:none;">Accept All</button>
-        <button class="btnSquare discardClass"  style="display:none;">Discard All</button>
+        <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
+        <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button> -->
+        <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;"></button>
+        <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;"></button>
         <!-- <button class="btnSquare customClass"  style="display:none;">Accept Selected</button> -->
-        <button class="btnSquare" id="btnResetSettings" title="reset the ui settings to their default values">Reset Settings</button>
+        <button class="btnSquare resetButton" id="btnResetSettings" title="reset the ui settings to their default values">Reset Settings</button>
         <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
       </div>
       
