@@ -87,10 +87,20 @@ class GenerationSession{
             
         }
         
+        //delete the old selection area
+        g_selection = {}
         
         this.isFirstGeneration = true // only before the first generation is requested should this be true
         
         await util_layer.collapseFolderExe([this.outputGroup],false)// close the folder group
+        
+        if(this.mode === generationMode['Inpaint'] && g_sd_mode ===  generationMode['Inpaint']){
+            //create "Mask -- Paint White to Mask -- temporary" layer if current session was inpiant and the selected session is inpaint
+            // the current inpaint session ended on inpaint
+            g_b_mask_layer_exist = false
+            await util_layer.deleteLayers([g_inpaint_mask_layer])
+            await createTempInpaintMaskLayer()
+        }
 
     }catch(e){
         console.warn(e)

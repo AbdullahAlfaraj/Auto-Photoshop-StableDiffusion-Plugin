@@ -112,21 +112,8 @@ const eventHandler = async (event, descriptor) => {
   
 require("photoshop").action.addNotificationListener(['set','move'], eventHandler);
 
-// require("photoshop").action.addNotificationListener(['historyStateChanged'], eventHandler);
 
-// const onSelect = (event, descriptor) => {
-//   // console.log(`descriptor._target?.[0]._ref === "layer" : `,descriptor._target?.[0]._ref === "layer" )
-//   // console.log(`descriptor._target?.[0]._name === "Mask -- Paint White to Mask -- temporary" : `,descriptor._target?.[0]._name === "Mask -- Paint White to Mask -- temporary" )
-//   console.log(event,descriptor)
-//   // if(descriptor._target?.[0]._ref === "layer" && descriptor._target?.[0]._name === "Mask -- Paint White to Mask -- temporary") {
-//   //   // -> The layer with name "Test Layer 1" was selected
-//   //   console.log(" onSelect event got triggered!")
-//   //   console.log("descriptor: ",descriptor)
-//   //   // console.log()
-//   // }
-// }
 
-// require("photoshop").action.addNotificationListener(['all'], onSelect);
 
  
 
@@ -606,37 +593,44 @@ for (let rbModeElement of rbModeElements) {
     }
   })
 }
+async function createTempInpaintMaskLayer(){
+  if(!g_b_mask_layer_exist){
+
+    //make new layer "Mask -- Paint White to Mask -- temporary"
+    
+      const name = "Mask -- Paint White to Mask -- temporary"
+      g_inpaint_mask_layer = await util_layer.createNewLayerExe(name)
+      
+      g_b_mask_layer_exist = true
+      const index = app.activeDocument.historyStates.length -1
+      g_inpaint_mask_layer_history_id =  app.activeDocument.historyStates[index].id
+      console.log("g_inpaint_mask_layer_history_id: ",g_inpaint_mask_layer_history_id)
+    
+  }
+}
+async function deleteTempInpaintMaskLayer(){
+
+  console.log("g_inpaint_mask_layer_history_id: ",g_inpaint_mask_layer_history_id)
+  const historyBrushTools = app.activeDocument.historyStates.filter(h => (h.id > g_inpaint_mask_layer_history_id) && (h.name === "Brush Tool"))
+  console.log(historyBrushTools)
+  if(historyBrushTools.length === 0 && g_b_mask_layer_exist){
+    
+    await util_layer.deleteLayers([g_inpaint_mask_layer])
+    
+    g_b_mask_layer_exist = false
+  }
+}
 async function postModeSelection(){
 //
 try{
 
   if(g_sd_mode === generationMode['Inpaint']){
     //check if the we already have created a mask layer
-    if(!g_b_mask_layer_exist){
-
-      //make new layer "Mask -- Paint White to Mask -- temporary"
-      
-        const name = "Mask -- Paint White to Mask -- temporary"
-        g_inpaint_mask_layer = await util_layer.createNewLayerExe(name)
-        
-        g_b_mask_layer_exist = true
-        const index = app.activeDocument.historyStates.length -1
-        g_inpaint_mask_layer_history_id =  app.activeDocument.historyStates[index].id
-        console.log("g_inpaint_mask_layer_history_id: ",g_inpaint_mask_layer_history_id)
-      
-    }
+    await createTempInpaintMaskLayer()
   }
   else{// if we switch from inpaint mode, delete the mask layer
     // Find all history states after the creation of the inpaint mask and their name brush tool
-    console.log("g_inpaint_mask_layer_history_id: ",g_inpaint_mask_layer_history_id)
-    const historyBrushTools = app.activeDocument.historyStates.filter(h => (h.id > g_inpaint_mask_layer_history_id) && (h.name === "Brush Tool"))
-    console.log(historyBrushTools)
-    if(historyBrushTools.length === 0 && g_b_mask_layer_exist){
-
-      await util_layer.deleteLayers([g_inpaint_mask_layer])
-      
-      g_b_mask_layer_exist = false
-    }
+    await deleteTempInpaintMaskLayer()
   }
 }
 catch(e){

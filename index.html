@@ -319,6 +319,10 @@
     width: 100%;
     margin-left: 10px;
   }
+  .disabled-btn{
+    opacity : 0.65; 
+    cursor : not-allowed;
+  }
 </style>
 
 <body>
@@ -558,7 +562,7 @@
                       width="300px" height="100px" />
                   </div>
                   <div class="imgButton">
-                    <button class="column-item button-style" id="bSetInitImage">Set Image</button>
+                    <button class="column-item button-style disabled-btn" disabled id="bSetInitImage">Image</button>
                   </div>
                 </div>
               </td>
@@ -569,7 +573,7 @@
                       width="100px" height="100px" />
                   </div>
                   <div class="imgButton">
-                    <button class="column-item button-style" id="bSetInitImageMask">Set Mask</button>
+                    <button class="column-item button-style disabled-btn" disabled id="bSetInitImageMask">Mask</button>
                   </div>
                 </div>
               </td>
