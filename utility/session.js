@@ -23,6 +23,8 @@ class GenerationSession{
         this.isFirstGeneration = true // only before the first generation is requested should this be true
         this.outputGroup
         this.prevOutputGroup
+        this.isLoadingActive = false
+        
     }
     isActive(){
         return this.state === SessionState['Active']
@@ -63,7 +65,7 @@ class GenerationSession{
         try{
             this.state = SessionState['Inactive']// end the session by deactivate it
 
-            // endGenerationSession()//end session
+         
             
                 this.deactivate()
                 
@@ -110,10 +112,13 @@ class GenerationSession{
     }
     async closePreviousOutputGroup(){
         try{
-            //close the previous output folder 
-        await util_layer.collapseFolderExe([this.prevOutputGroup],false)// close the folder group
-        // and reselect the current output folder for clarity
-        await psapi.selectLayersExe([this.outputGroup])
+
+        //close the previous output folder 
+        if(this.prevOutputGroup){
+            await util_layer.collapseFolderExe([this.prevOutputGroup],false)// close the folder group
+            // and reselect the current output folder for clarity
+            await psapi.selectLayersExe([this.outputGroup])
+        }
 
         }
         catch(e){

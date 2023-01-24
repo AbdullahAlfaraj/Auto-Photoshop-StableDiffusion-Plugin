@@ -91,20 +91,19 @@ const collapseFolderCommand = async (expand = false, recursive = false) => {
     }
     return result
 }
-async function collapseFolderExe(layers,expand = false, recursive = false){
-try{
-for (let layer of layers){
-  await executeAsModal(async()=>{
-    await selectLayers([layer]) 
-    await collapseFolderCommand(expand,recursive)
-  })
-}
-}catch(e){
-  console.warn(e)
+async function collapseFolderExe (layers, expand = false, recursive = false) {
+  for (let layer of layers) {
+    try {
+      await executeAsModal(async () => {
+        await selectLayers([layer])
+        await collapseFolderCommand(expand, recursive)
+      })
+    } catch (e) {
+      console.warn(e)
+    }
+  }
 }
 
-
-}
   module.exports = {
     
     createNewLayerExe,

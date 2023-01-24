@@ -93,13 +93,16 @@ const eventHandler = async (event, descriptor) => {
       if(await hasSelectionChanged(current_selection,g_selection)){
         // endSessionUI //red color
         // if selection has changed : change the color and text generate btn  "Generate" color "red" 
-        g_ui.endSessionUI()
+        // g_ui.endSessionUI()
+        const selected_mode = html_manip.getMode()
+        g_ui.generateModeUI(selected_mode)
       }else{
         //indicate that the session will continue. only if the session we are in the same mode as the session's mode 
         // startSessionUI// green color
         const current_mode = html_manip.getMode()
         if(g_generation_session.isSameMode(current_mode)){
-          g_ui.startSessionUI()
+          // g_ui.startSessionUI()
+          g_ui.generateMoreUI()
         }
 
       }
@@ -662,12 +665,15 @@ document.addEventListener("mouseenter",async (event)=>{
   try{
   //only check if the generation mode has not changed( e.g a session.mode === img2img and the current selection is "img2img"  ).
   // changing the mode will trigger it's own procedure, so doing it here again is redundant  
-  if(g_generation_session.mode === g_sd_mode){
+  if(g_generation_session.isActive() && g_generation_session.mode === g_sd_mode){
+    //if the generation session is active and the selected mode is still the same as the generation mode
 
     console.log("hover on window")
-    const new_selection = await psapi.getSelectionInfoExe()
-    if(await hasSelectionChanged(new_selection,g_selection)){
-      // if the selection has changed
+    
+    const new_selection = await psapi.getSelectionInfoExe()//get the current active selection if there is any
+    
+    if(new_selection && await hasSelectionChanged(new_selection,g_selection)){
+      // if there is an active selection and if the selection has changed
       
       await calcWidthHeightFromSelection()
 
@@ -675,7 +681,9 @@ document.addEventListener("mouseenter",async (event)=>{
       if (g_generation_session.state === session.SessionState['Active']) {
         //indicate that the session will end if you generate
        //only if you move the selection while the session is active
-        g_ui.endSessionUI()
+        // g_ui.endSessionUI()
+        const selected_mode = html_manip.getMode()
+        g_ui.generateModeUI(selected_mode)
      }else{
       // move the selection while the session is inactive
 
@@ -685,7 +693,7 @@ document.addEventListener("mouseenter",async (event)=>{
       // sessionStartHtml(true)//generate more, green color
         //if you didn't move the selection.
         // g_ui.startSessionUI()
-      
+      g_ui.generateMoreUI()      
       
     }
   }
@@ -1238,13 +1246,6 @@ console.warn(e)
 
 
 
-function endGenerationSession(){
-  g_is_generation_session_active = false
-  
-  
-  g_ui.endSessionUI()
-}
-
 
 
 
@@ -1253,7 +1254,7 @@ discard_selected_class_btns.forEach(element => element.addEventListener('click',
   try{
     
     await g_generation_session.endSession(session.GarbageCollectionState['DiscardSelected'])//end session and accept only selected images
-    g_ui.endSessionUI()
+    g_ui.onEndSessionUI()
     
   }catch(e){
     console.warn(e)
@@ -1265,7 +1266,7 @@ accept_selected_class_btns.forEach(element => element.addEventListener('click',a
   try{
     
     await g_generation_session.endSession(session.GarbageCollectionState['AcceptSelected'])//end session and accept only selected images
-    g_ui.endSessionUI()
+    g_ui.onEndSessionUI()
     
   }catch(e){
     console.warn(e)
@@ -1277,8 +1278,8 @@ accept_class_btns.forEach(element => element.addEventListener('click',async ()=>
   try{
     
     await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and accept all images
-    g_ui.endSessionUI()
-    // endGenerationSession()
+    g_ui.onEndSessionUI()
+    
     // await acceptAll()
     
   }catch(e){
@@ -1374,8 +1375,8 @@ Array.from(document.getElementsByClassName('discardClass')).forEach(element => {
   element.addEventListener('click', async () => {
     //end session here
     await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and remove all images
-    g_ui.endSessionUI()
-    // endGenerationSession()
+    g_ui.onEndSessionUI()
+    
     // await discard()
   })
 })
@@ -1508,7 +1509,7 @@ async function restoreActiveSelection () {
     const current_selection =  await psapi.checkIfSelectionAreaIsActive()
     
   console.log("restoreActiveSelection: ", current_selection)
-  if(!current_selection && checkIfSelectionIsValid(g_saved_active_selection)){
+  if(!current_selection && psapi.isSelectionValid(g_saved_active_selection)){
     await psapi.reSelectMarqueeExe(g_saved_active_selection)
     g_saved_active_selection = {}
   }
@@ -1543,12 +1544,15 @@ document.getElementById('btnSdUrl').addEventListener('click', async () => {
 
 
 document.querySelector('#taPrompt').addEventListener('focus', async () => {
-  console.log("taPrompt focus")
-  // console.log('we are in prompt textarea')
-  // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
-  await storeActiveLayers()
-  await storeActiveSelection()
-  // await psapi.unselectActiveLayersExe()
+  if(!g_generation_session.isLoadingActive){
+    
+    console.log("taPrompt focus")
+    // console.log('we are in prompt textarea')
+    // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
+    await storeActiveLayers()
+    await storeActiveSelection()
+    // await psapi.unselectActiveLayersExe()
+  }
 
 })
 document.querySelector('#taPrompt').addEventListener('blur', async () => {
@@ -1563,12 +1567,15 @@ document.querySelector('#taPrompt').addEventListener('blur', async () => {
 document
   .querySelector('#taNegativePrompt')
   .addEventListener('focus', async () => {
-    console.log("taNegativePrompt focus")
-    // console.log('we are in prompt textarea')
+    if(!g_generation_session.isLoadingActive){
 
-    await storeActiveLayers()
-    await storeActiveSelection()
-    // await psapi.unselectActiveLayersExe()
+      console.log("taNegativePrompt focus")
+      // console.log('we are in prompt textarea')
+      
+      await storeActiveLayers()
+      await storeActiveSelection()
+      // await psapi.unselectActiveLayersExe()
+    }
   })
 document
   .querySelector('#taNegativePrompt')
@@ -1771,18 +1778,7 @@ async function hasSelectionChanged(new_selection,old_selection){
   }
 
 }
-function checkIfSelectionIsValid(selection){
-if (
-  selection.hasOwnProperty('left') &&
-  selection.hasOwnProperty('right') &&
-  selection.hasOwnProperty('top') &&
-  selection.hasOwnProperty('bottom')
-) {
-  return true
-}
 
-return false
-} 
 async function easyModeGenerate(){
   
   try{
@@ -1798,7 +1794,7 @@ async function easyModeGenerate(){
   const mode = html_manip.getMode()
   // const settings = await getSettings()
   console.log("easyModeGenerate mdoe: ",mode)
-  if (checkIfSelectionIsValid(g_selection) ){// check we have an old selection stored
+  if (psapi.isSelectionValid(g_selection) ){// check we have an old selection stored
     const new_selection = await psapi.getSelectionInfoExe()
     if(await hasSelectionChanged(new_selection,g_selection))// check the new selection is difference than the old
     {// end current session 
@@ -1806,8 +1802,8 @@ async function easyModeGenerate(){
       try{
         
         await g_generation_session.endSession(session.GarbageCollectionState['Accept'])//end session and accept all images
-        g_ui.endSessionUI()
-        // endGenerationSession()
+        g_ui.onEndSessionUI()
+        
         // await acceptAll()
         
       }catch(e){
@@ -1829,7 +1825,7 @@ if (g_generation_session.isActive()) {
     await g_generation_session.endSession(
       session.GarbageCollectionState['Accept']
     ) 
-    g_ui.endSessionUI()
+    g_ui.onEndSessionUI()
     //start new session after you ended the old one 
     await g_generation_session.startSession()
     
@@ -1887,7 +1883,7 @@ async function generate(settings){
     g_generation_session.activate()
     
 
-    g_ui.startSessionUI()
+    g_ui.onStartSessionUI()
     // toggleTwoButtons(true,'btnGenerate','btnInterrupt')
     toggleTwoButtonsByClass(true,'btnGenerateClass','btnInterruptClass')
     g_can_request_progress = true
@@ -1929,8 +1925,8 @@ async function generate(settings){
     //if it's generate discard the session 
     if(isFirstGeneration){
       await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and delete all images
-      g_ui.endSessionUI()
-      // endGenerationSession()
+      g_ui.onEndSessionUI()
+      
       // //delete all mask related layers
       
     }
@@ -1942,8 +1938,8 @@ async function generate(settings){
    {
     if(isFirstGeneration){
       await g_generation_session.endSession(session.GarbageCollectionState['Discard'])//end session and delete all images
-      g_ui.endSessionUI()
-      // endGenerationSession()
+      g_ui.onEndSessionUI()
+      
       // //delete all mask related layers
       
     }
@@ -2276,8 +2272,9 @@ async function placeEmbedded (image_path) {
   const file = await img_dir.createFile(image_name, {overwrite: true});
 
   const img = await file.read({format: formats.binary}) ;
-  const token = storage.localFileSystem.createSessionToken(file);
-    executeAsModal(async () => {
+  const token = await storage.localFileSystem.createSessionToken(file);
+  let place_event_result
+    await executeAsModal(async () => {
       const result = await batchPlay(
         [
           {
@@ -2302,7 +2299,7 @@ async function placeEmbedded (image_path) {
                 _value: 0
               }
             },
-            _isCommand: false,
+            _isCommand: true,
             _options: {
               dialogOptions: 'dontDisplay'
             }
@@ -2315,7 +2312,11 @@ async function placeEmbedded (image_path) {
       
       )
       console.log("placeEmbedd batchPlay result: ", result)
+      
+      place_event_result = result[0]
     })
+
+    return place_event_result
   } catch (e) {
     console.warn(e)
   }
@@ -2390,39 +2391,62 @@ async function ImagesToLayersExe (images_paths) {
   }
   return image_path_to_layer
 }
+
+
 async function silentImagesToLayersExe (images_paths) {
+  try{  
+  g_generation_session.isLoadingActive = true
+  
+  await psapi.reSelectMarqueeExe(g_selection)
   image_path_to_layer = {}
   console.log("silentImagesToLayersExe: images_paths: ",images_paths)
   // Returns a Promise that resolves after "ms" Milliseconds
   const timer = ms => new Promise(res => setTimeout(res, ms))
-    // We need to wrap the loop into an async function for this to work
-    // for (var i = 0; i < 3; i++) {
-    //   console.log(i)
-    //   await timer(3000) // then the created Promise can be awaited
-    // }
-  
+ 
 
   for (image_path of images_paths) {
     gCurrentImagePath = image_path
     console.log(gCurrentImagePath)
-    await placeEmbedded(image_path)//silent import into the document
+    const placeEventResult = await placeEmbedded(image_path)//silent import into the document
+    
+    let layer = await app.activeDocument.layers.filter(l =>l.id === placeEventResult?.ID)[0];
     // await openImageExe() //local image to new document
     // await convertToSmartObjectExe() //convert the current image to smart object
+    let timer_count = 0
+    // console.log("image_path: ",image_path)
+    // let layer = await app.activeDocument.activeLayers[0]
+    console.log("loaded layer: ",layer)
+    console.log("placeEventResult?.ID: ",placeEventResult?.ID)
+    while(!layer && timer_count <= 10000){
+      await timer(100) // then the created Promise can be awaited
+      timer_count += 100 
+      // layer = await app.activeDocument.activeLayers[0]
+      layer = await app.activeDocument.layers.filter(l =>l.id === placeEventResult?.ID)[0];
+      const active_layer = await app.activeDocument.activeLayers[0]
+      console.log("active_layer.id: ",active_layer.id)
+      if(active_layer.id === placeEventResult?.ID)
+      {
+        layer = active_layer
+      }
 
-    await timer(500) // then the created Promise can be awaited
+      console.log("timer_count: ",timer_count)
+      console.log("loaded layer: ",layer)
+      console.log("placeEventResult?.ID: ",placeEventResult?.ID)
+    }
 
     if (g_b_use_smart_object === false){
 
       await executeAsModal(async ()=>{
-        await app.activeDocument.activeLayers[0].rasterize()//rastrize the active layer
+        await layer.rasterize()//rastrize the active layer
       })
     }
     
+    await psapi.selectLayersExe([layer])
     await psapi.layerToSelection(g_selection)
     
     // await stackLayers() // move the smart object to the original/old document
     // await psapi.layerToSelection(g_selection) //transform the new smart object layer to fit selection area
-    layer = await app.activeDocument.activeLayers[0]
+    // layer = await app.activeDocument.activeLayers[0]
     await g_generation_session.moveToTopOfOutputGroup(layer)
     // const output_group_id = await g_generation_session.outputGroup.id
     // let group_index = await psapi.getLayerIndex(output_group_id)
@@ -2437,7 +2461,13 @@ async function silentImagesToLayersExe (images_paths) {
     // await reselect(selectionInfo)
   }
   return image_path_to_layer
+  
+}catch(e){
+  console.warn(e)
 }
+g_generation_session.isLoadingActive = false
+}
+
 // document.getElementById('btnLoadImages').addEventListener('click',ImagesToLayersExe)
 
 //stack layer to original document
@@ -3095,13 +3125,15 @@ async function downloadIt(link) {
       await newDocument.activeLayers[0].duplicate(currentDocument);
       await newDocument.closeWithoutSaving();
     }
+
+    if (!file) {
+      return;
+    }
+
   } catch (e) {
-    console.log(e);
+    console.warn(e);
   }
 
-  if (!file) {
-    return;
-  }
 }
 
 async function downloadItExe(link){
@@ -3119,7 +3151,7 @@ async function downloadItExe(link){
 
 document.getElementById("btnSelectionArea").addEventListener('click',async ()=>{
 try{
-  if(checkIfSelectionIsValid(g_selection)){
+  if(psapi.isSelectionValid(g_selection)){
     await psapi.reSelectMarqueeExe(g_selection)
     await eventHandler()
   }

@@ -2,6 +2,7 @@ const app = window.require('photoshop').app
 const batchPlay = require('photoshop').action.batchPlay
 const { executeAsModal } = require('photoshop').core
 const export_png = require('./export_png')
+const { selectionToFinalWidthHeight } = require('./selection')
 // const { layerToSelection } = require('./helper')
 
 const storage = require('uxp').storage
@@ -184,9 +185,14 @@ async function unselectActiveLayersExe () {
 async function selectLayers (layers) {
   await unselectActiveLayers()
   for (layer of layers) {
-    layer.selected = true
+    try {
+      layer.selected = true
+    } catch (e) {
+      console.warn(e)
+    }
   }
 }
+
 async function selectLayersExe(layers){
   await executeAsModal(async ()=>{
     await selectLayers(layers)
@@ -411,6 +417,18 @@ async function getSelectionInfoCommand () {
   return result
 }
 
+function isSelectionValid(selection){
+  if (selection && // check if the selection is defined 
+    selection.hasOwnProperty('left') &&
+    selection.hasOwnProperty('right') &&
+    selection.hasOwnProperty('top') &&
+    selection.hasOwnProperty('bottom')
+  ) {
+    return true
+  }
+  
+  return false
+  } 
 async function getSelectionInfoExe () {
   console.log('getSelectionInfo was called')
 
@@ -418,16 +436,19 @@ async function getSelectionInfoExe () {
     const selection = (await executeAsModal(getSelectionInfoCommand))[0]
       .selection
 
-    let selection_info = {
-      left: selection.left._value,
-      right: selection.right._value,
-      bottom: selection.bottom._value,
-      top: selection.top._value,
-      height: selection.bottom._value - selection.top._value,
-      width: selection.right._value - selection.left._value
-    }
-    // console.dir({selection_info})
-    return selection_info
+      if(isSelectionValid(selection)){
+
+        let selection_info = {
+          left: selection.left._value,
+          right: selection.right._value,
+          bottom: selection.bottom._value,
+          top: selection.top._value,
+          height: selection.bottom._value - selection.top._value,
+          width: selection.right._value - selection.left._value
+        }
+        // console.dir({selection_info})
+        return selection_info
+      }
   } catch (e) {
     console.warn('selection info error', e)
   }
@@ -1238,5 +1259,7 @@ module.exports = {
   newExportPng,
   mergeVisibleExe,
   selectCanvasExe,
-  layerToSelection
+  layerToSelection,
+  isSelectionValid
+
 }
