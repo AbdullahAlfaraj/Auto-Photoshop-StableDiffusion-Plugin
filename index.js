@@ -2617,21 +2617,37 @@ async function NewViewerImageClickHandler(img,viewer_obj_owner){
         // selectedViewerImageObj.select(true) 
         // viewer_obj_owner.state = viewer.ViewerObjState['Unlink']
         viewer_obj_owner.visible(true)
-        await viewer_obj_owner.select(true)
+        await viewer_obj_owner.select(true)//select() does take arguments
         viewer_obj_owner.active(true)
         // console.log("viewer_obj_owner.path: ",viewer_obj_owner.path)
         // console.log("viewer_obj_owner.info(): ")
         // viewer_obj_owner.info()
         if(e.shiftKey)
         {
+          try{
+            if(g_viewer_manager.last_selected_viewer_obj){//if the last selected layer is valid then converted last selected layer into highlight layer
+              g_viewer_manager.last_selected_viewer_obj.setHighlight(true)
+            }
+          }catch(e){console.warn(e)}
+
           viewer_obj_owner.setHighlight(true)
           // e.target.classList.add("viewerImgSelected")
         }else if(e.altKey){
+          g_viewer_manager.last_selected_viewer_obj = null 
           viewer_obj_owner.setHighlight(false)
+          viewer_obj_owner.visible(false)
+          viewer_obj_owner.active(false)
+
+          // await viewer_obj_owner.select(false)
+          await psapi.unselectActiveLayersExe()
           // e.target.classList.remove("viewerImgSelected")
 
         }
-        
+
+        if(viewer_obj_owner.isActive()){// will not store current viewer_obj if we click "alt" click if we hit alt click
+
+          g_viewer_manager.last_selected_viewer_obj = viewer_obj_owner//store the current selection as last selection for the next click attempt .
+        }
         
         
 

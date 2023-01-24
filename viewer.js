@@ -470,6 +470,10 @@ class InitMaskImage extends ViewerImage {
       this.init_solid_background
       this.maskGroup
       this.mask_solid_background
+
+      //last_selected_obj
+      this.last_selected_viewer_obj
+
     }
     initializeInitImage(group,snapshot,solid_background,path){
       this.initGroup = group
