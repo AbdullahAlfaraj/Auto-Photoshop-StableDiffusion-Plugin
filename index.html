@@ -386,6 +386,17 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
     height: 30px;
     background-repeat: no-repeat;
   }
+  .snapshotButton{
+    
+    font-family: Arial, Verdana;   
+    background-image: url(./icon/camera_icon.png);
+ background-color: transparent;
+ background-size: 30px;
+    width: 30px;
+    height: 30px;
+    background-repeat: no-repeat;
+  }
+  
 </style>
 
 <body>
@@ -570,7 +581,9 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
           <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;"></button>
           <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;"></button>
           <!-- <button class="btnSquare customClass"  style="display:none;">Accept Selected</button> -->
+          <button class="btnSquare snapshotButton" id="btnSnapshot" title="create a snapshot of what you see on the canvas and place on a new layer">Snapshot</button>
           <button class="btnSquare resetButton" id="btnResetSettings" title="reset the ui settings to their default values">Reset Settings</button>
+          
           <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
         </div>
       </div>

@@ -385,6 +385,9 @@ mask_content:null
 document.getElementById("btnResetSettings").addEventListener('click',()=>{
   autoFillDefaultSettings(defaultSettings)
 })
+document.getElementById("btnSnapshot").addEventListener('click',async ()=>{
+  await psapi.snapshot_layerExe()
+})
 
 function getBatchNumber(){
 return document.getElementById('tiNumberOfImages').value
