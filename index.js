@@ -1991,7 +1991,7 @@ async function generate(settings){
     
 
   }
-  psapi.reSelectMarqueeExe(g_selection)
+  await psapi.reSelectMarqueeExe(g_selection)
   //update the viewer
   await loadViewerImages()
 
@@ -2057,6 +2057,7 @@ Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(btn =>{
   btn.addEventListener('click', async ()=>{
     // const settings = await getSettings()
     // generate(settings)
+    await 
     easyModeGenerate()
   })
   
@@ -2095,10 +2096,10 @@ document
       const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
       if(isSelectionAreaValid){
       const validSelection = isSelectionAreaValid
-      psapi.layerToSelection(validSelection)
+      await psapi.layerToSelection(validSelection)
 
     }else{
-      psapi.promptForMarqueeTool()
+      await psapi.promptForMarqueeTool()
     }
     
   }catch(e)
@@ -2132,7 +2133,7 @@ document
       const image_name = await psapi.setInitImageMask(layer, random_session_id)
       const path = `./server/python_server/init_images/${image_name}`
       g_viewer_manager.addMaskLayers(layer,path,false)//can be autodeleted?
-      psapi.unselectActiveLayersExe()
+      await psapi.unselectActiveLayersExe()
     }catch(e){
       console.warn(e)
     }
@@ -2142,12 +2143,12 @@ document
   
 document.getElementById('bSetInitImage').addEventListener('click', async ()=>  {
   const layer = await app.activeDocument.activeLayers[0]
-  psapi.setInitImage(layer, random_session_id)
+  await psapi.setInitImage(layer, random_session_id)
 })
 
 document.getElementById('bSetInitImageMask').addEventListener('click', async ()=>  {
   const layer = await app.activeDocument.activeLayers[0]
-  psapi.setInitImageMask(layer, random_session_id)
+  await psapi.setInitImageMask(layer, random_session_id)
 })
 function moveElementToAnotherTab(elementId, newParentId){
   const element = document.getElementById(elementId)
@@ -2385,6 +2386,9 @@ async function convertToSmartObjectExe () {
 }
 
 async function ImagesToLayersExe (images_paths) {
+  g_generation_session.isLoadingActive = true
+  
+  await psapi.reSelectMarqueeExe(g_selection)
   image_path_to_layer = {}
   console.log("ImagesToLayersExe: images_paths: ",images_paths)
   for (image_path of images_paths) {
@@ -2613,7 +2617,7 @@ async function NewViewerImageClickHandler(img,viewer_obj_owner){
         // selectedViewerImageObj.select(true) 
         // viewer_obj_owner.state = viewer.ViewerObjState['Unlink']
         viewer_obj_owner.visible(true)
-        viewer_obj_owner.select(true)
+        await viewer_obj_owner.select(true)
         viewer_obj_owner.active(true)
         // console.log("viewer_obj_owner.path: ",viewer_obj_owner.path)
         // console.log("viewer_obj_owner.info(): ")

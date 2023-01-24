@@ -171,10 +171,10 @@ class OutputImage extends ViewerImage {
       console.warn(e)
     }
   }
-  select () {
+  async select () {
     super.select()
     if (this.isLayerValid()) {
-      psapi.selectLayersExe([this.layer])
+      await psapi.selectLayersExe([this.layer])
       //   console.log(`${this.layer.id} got selected`);
     }
   }
@@ -268,7 +268,7 @@ class InitImage extends ViewerImage {
     }
   }
 
-  select () {
+  async select () {
     super.select()
 
     const selectLayers = []
@@ -284,7 +284,7 @@ class InitImage extends ViewerImage {
     //   selectLayers.push(this.solid_layer)
     // }
 
-    psapi.selectLayersExe(selectLayers)
+    await psapi.selectLayersExe(selectLayers)
     //   console.log(`${this.layer.id} got selected`);
   }
 
@@ -374,7 +374,7 @@ class InitMaskImage extends ViewerImage {
       }
     }
   
-    select () {
+    async select () {
       super.select()
   
       const selectLayers = []
@@ -390,7 +390,7 @@ class InitMaskImage extends ViewerImage {
       //   selectLayers.push(this.solid_layer)
       // }
   
-      psapi.selectLayersExe(selectLayers)
+      await psapi.selectLayersExe(selectLayers)
       //   console.log(`${this.layer.id} got selected`);
     }
   

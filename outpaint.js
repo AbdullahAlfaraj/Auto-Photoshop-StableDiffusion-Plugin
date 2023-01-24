@@ -562,7 +562,7 @@ async function outpaintFasterExe(session_id){
             // //set initial image
             // //set mask image
             
-            psapi.selectLayers([maskGroup])
+            await psapi.selectLayers([maskGroup])
             inpaintLayers = [maskGroup,white_mark_layer,blackSolidLayer,snapshotGroup,snapshotLayer,whiteSolidLayer]
             // g_mask_related_layers['mask_group'] = maskGroup
             // g_mask_related_layers['white_mark'] = white_mark_layer

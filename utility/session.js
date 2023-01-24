@@ -90,7 +90,7 @@ class GenerationSession{
         }
         
         //delete the old selection area
-        g_selection = {}
+        // g_selection = {}
         
         this.isFirstGeneration = true // only before the first generation is requested should this be true
         
