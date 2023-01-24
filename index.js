@@ -1797,7 +1797,7 @@ async function hasSelectionChanged(new_selection,old_selection){
 async function easyModeGenerate(){
   
   try{
-
+  let active_layer = await app.activeDocument.activeLayers[0]// store the active layer so we could reselected after the session end clean up
   //make sure you have selection area active on the canvas
   const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
   if (!isSelectionAreaValid){      
@@ -1854,7 +1854,7 @@ if (g_generation_session.isActive()) {
 
 
   
-  
+  await psapi.selectLayersExe([active_layer])//reselect the active layer since the clean up of the session sometime will change which layer is selected
   if(mode === "txt2img"){//Note: keep it for clearity/ readibility
   }
   else if (mode === generationMode['Img2Img']){
@@ -2163,7 +2163,7 @@ function updateProgressBarsHtml(new_value){
     // console.log("progressbar id:", id)
     el.setAttribute('value',new_value)
   })
-  document.querySelector('#pProgressBar').value
+  // document.querySelector('#pProgressBar').value
 }
 async function progressRecursive () {
   let json = await sdapi.requestProgress()
