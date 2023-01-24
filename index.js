@@ -790,6 +790,8 @@ async function displayUpdate () {
       document.getElementById('HiResDiv').style.display = 'block'
     }
 
+    document.getElementById('slMaskExpansion').style.display = 'none' 
+
     document.getElementById('slInpaintPadding').style.display = 'none' 
     document.getElementById("slMaskBlur").style.display = 'none'
     // document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
@@ -798,6 +800,7 @@ async function displayUpdate () {
 
   if (g_sd_mode == 'img2img') {
     document.getElementById('slDenoisingStrength').style.display = 'block' // show denoising strength
+    document.getElementById('slMaskExpansion').style.display = 'block'
     // document.getElementById("image_viewer").style.display = 'block'
     document.getElementById('init_image_container').style.display = 'block' // hide init image
 
@@ -814,6 +817,7 @@ async function displayUpdate () {
     ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring   
     // document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
     document.getElementById('tableInitImageContainer').style.display = 'none' // hide the table 
+    document.getElementById('slMaskExpansion').style.display = 'block'
     setTimeout(() => {
       try{
 
