@@ -13,7 +13,7 @@ const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
 const dialog_box = require('./dialog_box')
 // const {entrypoints} = require('uxp')
-const html_manip = require('./html_manip')
+const html_manip = require('./utility/html_manip')
 const export_png = require('./export_png')
 const viewer = require('./viewer')
 const selection = require('./selection')
@@ -554,12 +554,27 @@ let g_selection = {}
 let g_b_use_smart_object = true // true to keep layer as smart objects, false to rasterize them
 let g_sd_options_obj = new sd_options.SdOptions()
 g_sd_options_obj.getOptions()
-let g_sd_config_obj = new sd_config.SdConfig()
-g_sd_config_obj.getConfig() 
+// let g_sd_config_obj = new sd_config.SdConfig()
+// g_sd_config_obj.getConfig();
+
+// let g_width_slider = new ui.UIElement()
+// g_width_slider.getValue = html_manip.getWidth
+// ui_settings.uiElements.push = 
+
+let g_sd_config_obj
+(async function() {
+    let temp_config = new sd_config.SdConfig()
+    await temp_config.getConfig();  
+    temp_config.getUpscalerModels()
+    g_sd_config_obj = temp_config
+})();
 
 let g_generation_session = new session.GenerationSession(0) //session manager
 g_generation_session.deactivate()//session starte as inactive  
 let g_ui = new ui.UI()
+let g_ui_settings = new ui.UISettings()
+
+
 const requestState = {
 	Generate: "generate",
 	Interrupt: "interrupt",

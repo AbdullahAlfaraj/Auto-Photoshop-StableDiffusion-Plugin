@@ -40,6 +40,17 @@ function getWidth(){
   return width 
 }
 
+function getHrWidth(){
+  slider_width = document.getElementById('hrWidth').value
+  const width = slider_width * 64
+  return width 
+}
+
+function getHrHeight(){
+  slider_width = document.getElementById('hrHeight').value
+  const width = slider_width * 64
+  return width 
+}
 function autoFillInWidth(width_value){
   document.getElementById('slWidth').value = `${width_value / 64}`
   //update the label
@@ -346,8 +357,6 @@ function setProxyServerStatus(newStatusClass,oldStatusClass){
 
 ////// Start Reset Settings Button //////////
 
-document.getElementById("btnResetSettings").addEventListener('click',autoFillDefaultSettings)
-
 const defaultSettings = {
 model: null,
 prompt_shortcut: null,
@@ -372,30 +381,55 @@ samplers: null,
 mask_content:null
 }
 
+
+document.getElementById("btnResetSettings").addEventListener('click',()=>{
+  autoFillDefaultSettings(defaultSettings)
+})
+
+function getBatchNumber(){
+return document.getElementById('tiNumberOfImages').value
+}
 function autoFillInBatchNumber(batch_number){
   document.getElementById('tiNumberOfImages').value = String(batch_number)
 }
+
+function getSteps(){
+  return document.getElementById('tiNumberOfSteps').value
+}
 function autoFillInSteps(steps){
   document.getElementById('tiNumberOfSteps').value = String(steps)
+
+
 }
-function autoFillDefaultSettings(){
+function autoFillDefaultSettings(default_settings){
+  autoFillSettings(default_settings)
+}
+
+function setCFG(cfg_value){
+  document.getElementById('slCfgScale').value = cfg_value
+}
+function getCFG(){
+  return document.getElementById('slCfgScale').value 
+}
+
+function autoFillSettings(settings){
 try{
 
-  //reset all UI settings except model selection and sampler selection 
-  autoFillInPrompt(defaultSettings['positive_prompt'])
-autoFillInNegativePrompt(defaultSettings['negative_prompt'])
-autoFillInBatchNumber (defaultSettings['batch_number'])
-autoFillInSteps (defaultSettings['steps'])
-autoFillInWidth(defaultSettings['width'])
-autoFillInHeight(defaultSettings['height'])
-autoFillInHiResFixs(defaultSettings['firstphase_width'],defaultSettings['firstphase_height'])
-document.getElementById('slCfgScale').value = defaultSettings['cfg']
-autoFillInDenoisingStrength(defaultSettings['denoising_strength'])
-autoFillInSliderUi(defaultSettings['hi_res_denoising_strength'],'hrDenoisingStrength','hDenoisingStrength',100)
-document.getElementById('slMaskBlur').value = defaultSettings['mask_blur']
-document.getElementById('chInpaintFullRes').checked = defaultSettings['inpaint_at_full_res']
-setHiResFixs(defaultSettings['hi_res_fix'])
-document.getElementById('tiSeed').value = String(defaultSettings['seed'])
+ //reset all UI settings except model selection and sampler selection 
+autoFillInPrompt(settings['positive_prompt'])
+autoFillInNegativePrompt(settings['negative_prompt'])
+autoFillInBatchNumber (settings['batch_number'])
+autoFillInSteps (settings['steps'])
+autoFillInWidth(settings['width'])
+autoFillInHeight(settings['height'])
+autoFillInHiResFixs(settings['firstphase_width'],settings['firstphase_height'])
+document.getElementById('slCfgScale').value = settings['cfg']
+autoFillInDenoisingStrength(settings['denoising_strength'])
+autoFillInSliderUi(settings['hi_res_denoising_strength'],'hrDenoisingStrength','hDenoisingStrength',100)
+document.getElementById('slMaskBlur').value = settings['mask_blur']
+document.getElementById('chInpaintFullRes').checked = settings['inpaint_at_full_res']
+setHiResFixs(settings['hi_res_fix'])
+document.getElementById('tiSeed').value = String(settings['seed'])
 
 }catch(e){
   console.warn(e)
@@ -486,6 +520,7 @@ module.exports = {
   setProxyServerStatus,
   defaultSettings,
   autoFillDefaultSettings,
+  autoFillSettings,
   getMaskBlur,
   getUseSharpMask,
   autoFillInHRHeight,
@@ -494,6 +529,15 @@ module.exports = {
   setPromptShortcut,
   getModelHashByTitle,
   getSelectionMode,
-  autoFillInInpaintMaskWeight
+  autoFillInInpaintMaskWeight,
+  autoFillInSteps,
+  getSteps,
+  getBatchNumber,
+  autoFillInBatchNumber,
+  getHrWidth,
+  getHrHeight,
+  setCFG,
+  getCFG
+
 
 }

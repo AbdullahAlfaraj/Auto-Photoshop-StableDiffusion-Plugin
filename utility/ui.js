@@ -1,3 +1,4 @@
+const html_manip = require('./html_manip')
 class UI {
   constructor () {}
 
@@ -100,6 +101,113 @@ generate_btns.forEach(element => {
 
 }
 
+
+
+// const defaultSettings = {
+//   model: null,
+//   prompt_shortcut: null,
+//   positive_prompt: "",
+//   negative_prompt: "",
+//   selection_mode: null,
+//   batch_number: 1,
+//   steps: 20,
+//   width: 512 ,
+//   height:512,
+//   firstphase_width:512,
+//   firstphase_height:512,
+//   cfg:7,
+//   denoising_strength:0.7,
+//   hi_res_denoising_strength:0.7,
+//   mask_blur: 8,
+//   inpaint_at_full_res: false,
+//   hi_res_fix:false,
+//   inpaint_padding:0,
+//   seed:-1,
+//   samplers: null,
+//   mask_content:null
+//   }
+  
+class UIElement{
+  constructor (){
+    this.name 
+    this.html_elem
+    this.sd_value
+    
+
+}
+setValue(){
+
+}
+getValue(){
+
+}
+}
+function createUIElement(getter,setter){
+  let ui_element_obj = new ui.UIElement()
+  ui_element_obj.getValue = getter
+  ui_element_obj.setValue = setter
+  return ui_element_obj
+}
+class UISettings{
+  // get and set the settings of the ui. the stable diffusion settings not the human friendly settings
+  constructor(){
+    // this.width = new ui.UIElement()
+    // this.width.getValue = html_manip.getWidth 
+    // this.width.setValue = html_manip.autoFillInWidth
+    this.width = createUIElement(html_manip.getWidth,html_manip.autoFillInWidth)
+    this.height = createUIElement(html_manip.getHeight,html_manip.autoFillInHeight)
+    this.steps = createUIElement(html_manip.getSteps,html_manip.autoFillInSteps)
+    this.batch_number = createUIElement(html_manip.getBatchNumber,html_manip.autoFillInBatchNumber)
+    this.firstphase_width = createUIElement(html_manip.getHrWidth,html_manip.autoFillInHRWidth)
+    this.firstphase_height = createUIElement(html_manip.getHrHeight,html_manip.autoFillInHRHeight)
+    this.cfg = createUIElement(html_manip.getCFG,html_manip.setCFG)
+    this.denoising_strength =   createUIElement(html_manip.getDenoisingStrength,html_manip.autoFillInDenoisingStrength)
+    
+    this.uiElements = {
+  // model: null,
+  // prompt_shortcut: null,
+  // positive_prompt: "",
+  // negative_prompt: "",
+  // selection_mode: null,
+  batch_number: this.batch_number,
+  steps: this.steps,
+  width: this.width ,
+  height:this.height,
+  firstphase_width:this.firstphase_width,
+  firstphase_height:this.firstphase_height,
+  cfg: this.cfg,
+  denoising_strength:this.denoising_strength,
+  // hi_res_denoising_strength:0.7,
+  // mask_blur: 8,
+  // inpaint_at_full_res: false,
+  // hi_res_fix:false,
+  // inpaint_padding:0,
+  // seed:-1,
+  // samplers: null,
+  // mask_content:null
+  }
+  }
+  
+  autoFillInSettings(settings){
+    for (const [name, value] of Object.entries(settings)) {
+      if(this.uiElements.hasOwnProperty(name)){
+        //get the values for debugging
+        const value = this.uiElements[name].getValue()
+        console.log("(name,value):",name,value)
+        //set the value
+        // this.uiElements[name].setValue(value)
+      }
+    
+    }
+  }
+  
+}
+// const ui_settings = new UISettings()
+
+
 module.exports = {
-  UI
+  UI,
+UIElement,
+UISettings
+
 }

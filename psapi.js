@@ -695,7 +695,7 @@ async function exportPng (session_id) {
 async function setInitImage (layer, session_id) {
  try{
 
-  const html_manip = require('./html_manip') 
+  const html_manip = require('./utility/html_manip') 
   // const layer = await app.activeDocument.activeLayers[0]
   const old_name = layer.name 
   const sdapi = require('./sdapi')
@@ -725,7 +725,7 @@ async function setInitImage (layer, session_id) {
 }
 async function setInitImageMask (layer, session_id) {
   try{
-    const html_manip = require('./html_manip')
+    const html_manip = require('./utility/html_manip')
 
   
   // const layer = await app.activeDocument.activeLayers[0]
