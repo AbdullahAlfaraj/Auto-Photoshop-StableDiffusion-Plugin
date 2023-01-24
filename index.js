@@ -800,7 +800,7 @@ async function displayUpdate () {
 
   if (g_sd_mode == 'img2img') {
     document.getElementById('slDenoisingStrength').style.display = 'block' // show denoising strength
-    document.getElementById('slMaskExpansion').style.display = 'block'
+    document.getElementById('slMaskExpansion').style.display = 'none'
     // document.getElementById("image_viewer").style.display = 'block'
     document.getElementById('init_image_container').style.display = 'block' // hide init image
 
