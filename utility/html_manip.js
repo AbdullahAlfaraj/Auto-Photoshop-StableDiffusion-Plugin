@@ -494,6 +494,29 @@ function setPromptShortcut(prompt_shortcut){
 function getSelectionMode(){
   return [...document.getElementsByClassName('rbSelectionMode')].filter(e => e.checked == true)[0].value
 }
+function getMaskContent(){
+  
+  
+  return [...document.getElementsByClassName('rbMaskContent')].filter(e => e.checked == true)[0].value
+
+}
+function setMaskContent(value){
+
+ 
+    try{
+  
+      //assume the sampler_name is valid
+      //return the first 
+      //convert htmlCollection into an array, then user filter to get the radio button with the value equals to sampler_name
+     const mask_content_element = [...document.getElementsByClassName('rbMaskContent')].filter(e => e.value == value)[0]
+     mask_content_element.checked = true
+     return mask_content_element  
+    }catch(e){
+      console.warn(e)
+    }
+  
+  }
+
 
 ///end selection mode////
 module.exports = {
@@ -540,7 +563,9 @@ module.exports = {
   getHrWidth,
   getHrHeight,
   setCFG,
-  getCFG
+  getCFG,
+  getMaskContent,
+  setMaskContent
 
 
 }

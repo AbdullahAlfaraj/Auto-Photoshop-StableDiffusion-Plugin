@@ -579,6 +579,8 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
       </div>
           <sp-checkbox id="chUseSharpMask">use sharp mask</sp-checkbox>
           <sp-checkbox checked id="chUseSmartObject">Smart Object</sp-checkbox>
+          <sp-checkbox checked id="chUseSilentImport">Use Silent Import</sp-checkbox>
+          
           
           
           
@@ -735,12 +737,19 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
             <sp-label id="rbSelectionModeLabel" slot="label">Selection Mode:</sp-label>
           </div>
           
+          <div id="menu-bar-container_preset" style="display:inline-flex;">
           <sp-radio-group id="selectionModeGroup" class="">
             <sp-radio class="rbSelectionMode" checked value="ratio">ratio</sp-radio>
             <sp-radio class="rbSelectionMode" value="precise">precise</sp-radio>
             <sp-radio class="rbSelectionMode" value="ignore">ignore</sp-radio>
             
           </sp-radio-group>
+          
+            <sp-picker size="s" label="Smart Preset">
+              <sp-menu id="mPresetMenu" slot="options">
+                <!-- <sp-menu-item> item </sp-menu-item> -->
+              </sp-menu>
+            </sp-picker>
         </div>
         <div style="display:flex;">
           <sp-slider show-value="false" id="slWidth" min="1" max="32" value="8">
