@@ -109,10 +109,10 @@ function getDenoisingStrength () {
 }
 
 // display the value the user need to see in all elements related to denoising strength attribute
-function autoFillInDenoisingStrength (denoising_strength_value) {
+function autoFillInDenoisingStrength (denoising_strength_value) {//sd denoising strength value range from [0,1] slider range from [0, 100]
   //update the slider
   document.getElementById('slDenoisingStrength').value = `${
-    denoising_strength_value / 100
+    denoising_strength_value * 100
   }`
   //update the label
   document.getElementById(

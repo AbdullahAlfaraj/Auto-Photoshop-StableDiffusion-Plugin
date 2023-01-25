@@ -292,9 +292,12 @@ async def loadHistory(request: Request):
         image_paths = glob.glob(f'./output/{uniqueDocumentId}/*.png')
         settings_paths = glob.glob(f'./output/{uniqueDocumentId}/*.json')#note: why is we are not using settings_paths?
         print("loadHistory: image_paths:", image_paths)
+        
+
         history['image_paths'] = image_paths
         history['metadata_jsons'] = []
         for image_path in image_paths:
+            print("image_path: ", image_path)
             metadata_dict = metadata_to_json.createMetadataJsonFileIfNotExist(image_path)
             history['metadata_jsons'].append(metadata_dict)  
         
