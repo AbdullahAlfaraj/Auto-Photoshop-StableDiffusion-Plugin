@@ -93,9 +93,10 @@ class GenerationSession{
         // g_selection = {}
         
         this.isFirstGeneration = true // only before the first generation is requested should this be true
-        
+        // const is_visible = await this.outputGroup.visible
         await util_layer.collapseFolderExe([this.outputGroup],false)// close the folder group
-        
+        // this.outputGroup.visible = is_visible
+
         if(this.mode === generationMode['Inpaint'] && g_sd_mode ===  generationMode['Inpaint']){
             //create "Mask -- Paint White to Mask -- temporary" layer if current session was inpiant and the selected session is inpaint
             // the current inpaint session ended on inpaint
@@ -114,10 +115,13 @@ class GenerationSession{
         try{
 
         //close the previous output folder 
+        
         if(this.prevOutputGroup){
+            // const is_visible = await this.prevOutputGroup.visible
             await util_layer.collapseFolderExe([this.prevOutputGroup],false)// close the folder group
             // and reselect the current output folder for clarity
             await psapi.selectLayersExe([this.outputGroup])
+            // this.prevOutputGroup.visible = is_visible
         }
 
         }

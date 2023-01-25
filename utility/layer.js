@@ -95,8 +95,10 @@ async function collapseFolderExe (layers, expand = false, recursive = false) {
   for (let layer of layers) {
     try {
       await executeAsModal(async () => {
+        const is_visible = await layer.visible// don't change the visiblity of the layer when collapsing 
         await selectLayers([layer])
         await collapseFolderCommand(expand, recursive)
+        layer.visible = is_visible
       })
     } catch (e) {
       console.warn(e)

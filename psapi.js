@@ -186,7 +186,9 @@ async function selectLayers (layers) {
   await unselectActiveLayers()
   for (layer of layers) {
     try {
+      const is_visible = layer.visible// don't change the visibility when selecting the layer 
       layer.selected = true
+      layer.visible = is_visible
     } catch (e) {
       console.warn(e)
     }
@@ -195,6 +197,7 @@ async function selectLayers (layers) {
 
 async function selectLayersExe(layers){
   await executeAsModal(async ()=>{
+
     await selectLayers(layers)
   })
 }
