@@ -22,7 +22,7 @@ const sd_options = require('./utility/sdapi/options')
 const sd_config = require('./utility/sdapi/config') 
 const session = require('./utility/session')
 const ui = require('./utility/ui')
-
+const script_horde = require('./utility/sd_scripts/horde')
 async function hasSessionSelectionChanged(){
   try{
 
@@ -527,6 +527,7 @@ let g_sd_sampler = 'Euler a'
 let g_denoising_strength = 0.7
 let g_use_mask_image = false
 let g_models = []
+// let g_models_horde = []
 let g_model_title = ''
 // let gWidth = 512
 // let gHeight = 512
@@ -590,6 +591,7 @@ const generationMode = {
 
 g_generation_session.mode = generationMode['Txt2Img']
 let g_viewer_manager = new viewer.ViewerManager()
+
 //********** End: global variables */
 
 //***********Start: init function calls */
@@ -1726,19 +1728,29 @@ async function getSettings(){
   
 
     //work with the hord
-    const script_args_json = {
-      model: "Anything Diffusion",
-      nsfw: false,
-      shared_laion: false,
-      seed_variation: 1,
-      post_processing_1: "None",
-      post_processing_2: "None",
-      post_processing_3: "None"
+    
+
+    // const script_args_json = {
+    //   model: "Anything Diffusion",
+    //   nsfw: false,
+    //   shared_laion: false,
+    //   seed_variation: 1,
+    //   post_processing_1: "None",
+    //   post_processing_2: "None",
+    //   post_processing_3: "None"
+    // }
+    // const script_args = Object.values(script_args_json)
+    
+    const b_use_horde = script_horde.getUseHorde()
+    if(b_use_horde){
+
+      payload['script_name'] = script_horde.script_name
+      payload['script_args'] = script_horde.getScriptArgs()
+    }else{
+      delete payload['script_name']
+      delete payload['script_args']
     }
-    
-    const script_args = Object.values(script_args_json)
-    
-    
+
   payload = {...payload,
     prompt: prompt,
     negative_prompt: negative_prompt,

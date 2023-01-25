@@ -409,6 +409,7 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
       <div class="sp-tab" id="sp-viewer-tab"><sp-label>Viewer</sp-label></div>
       <div class="sp-tab" id="sp-history-tab"><sp-label>History</sp-label></div>
       <div class="sp-tab" id="sp-prompts-library-tab"><sp-label>Prompts library</sp-label></div>
+      <div class="sp-tab" id="sp-horde-tab"><sp-label>Horde</sp-label></div>
       <div class="sp-tab" id="sp-settings-tab"><sp-label>Settings</sp-label></div>
       <div>
         <span class="disconnected" id="automaticStatus" title="'A' for Automatic1111 server (webui-user.bat), Green is connected. Red Means there is a problem with your Automatic1111. Run 'webui-user.bat' and hit 'Refresh' button ">A</span>
@@ -536,6 +537,37 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
         <button class="btnSquare" id="btnLoadPromptShortcut">Load</button>
         <button class="btnSquare" id="btnSavePromptShortcut">Save</button>
       </div>
+    </div>
+    <div class="sp-tab-page" id="sp-horde-tab-page">
+      <!-- Horde tab page -->
+      <div>
+
+      
+      </div>
+          <sp-checkbox id="chUseHorde">Use Stable Diffusion Horde</sp-checkbox>
+          <div id="menu-bar-container_horde" style="display:flex;">
+            <sp-picker size="m" label="Selection type">
+              <sp-menu id="mModelsMenuHorde" slot="options">
+                <!-- <sp-menu-item> item </sp-menu-item> -->
+              </sp-menu>
+            </sp-picker>
+    
+            <button class="btnSquare" id="btnRefreshModelsHorde">Refresh Models</button>
+            <!-- <sp-label slot="label"
+              id="lVersionNumber">v0.0.0</sp-label> -->
+          </div>
+          <div>
+          <sp-checkbox id="chUseNSFW">NSFW</sp-checkbox>
+          <sp-checkbox id="chUseSharedLaion">Share with LION</sp-checkbox>
+          <sp-slider style="display:none" show-value="true" id="slSeedVariation" min="1" max="30" value="1">
+            <sp-label slot="label">Seed variation:</sp-label>
+          
+        </sp-slider>
+          </div>
+
+          
+          
+          
     </div>
 
     <div class="sp-tab-page" id="sp-settings-tab-page">
