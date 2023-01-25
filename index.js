@@ -785,6 +785,8 @@ async function displayUpdate () {
     document.getElementById('init_image_mask_container').style.display = 'none' // hide init mask
     document.getElementById('slInpainting_fill').style.display = 'none' // hide inpainting fill mode
     document.getElementById('chInpaintFullRes').style.display = 'none' 
+    
+    document.getElementById('slInpaintingMaskWeight').style.display = 'none' // hide inpainting conditional mask weight
 
     
     document.getElementById('chHiResFixs').style.display = 'flex' 
@@ -814,6 +816,7 @@ async function displayUpdate () {
     document.getElementById('slInpaintPadding').style.display = 'none' 
     document.getElementById("slMaskBlur").style.display = 'none'
     document.getElementById('chHiResFixs').style.display = 'none'
+    document.getElementById('slInpaintingMaskWeight').style.display = 'none' // hide inpainting conditional mask weight
   }
   if (g_sd_mode == 'inpaint' || g_sd_mode== 'outpaint') {
     ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring   
@@ -834,7 +837,8 @@ async function displayUpdate () {
     document.getElementById('init_image_mask_container').style.display = 'block'
     document.getElementById('slInpainting_fill').style.display = 'block'
     document.getElementById('init_image_container').style.display = 'block' // hide init image
-    
+    document.getElementById('slInpaintingMaskWeight').style.display = 'block' // hide inpainting conditional mask weight
+
     document.getElementById('HiResDiv').style.display = 'none'
     document.getElementById('chInpaintFullRes').style.display = 'inline-flex' 
     if(document.getElementById('chInpaintFullRes').checked){
