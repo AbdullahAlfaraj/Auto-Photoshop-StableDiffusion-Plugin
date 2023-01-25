@@ -307,6 +307,7 @@
   }
   #rbSelectionModeLabel, .rbSelectionMode{
     font-size: 1.0em;
+    margin-right: 12px;
   }
   .checkbox{
     font-size: 1.0em;
@@ -443,10 +444,10 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
             <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button>
             <button class="btnSquare acceptSelectedClass acceptSelectedImgBtn"  style="display:none;">Accept Selected</button>
             <button class="btnSquare discardSelectedClass discardSelectedImgBtn"  style="display:none;">Discard Selected</button> -->
-            <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;"></button>
-            <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;"></button>
-            <button class="btnSquare acceptSelectedClass acceptSelectedImgBtn"  style="display:none;"></button>
-            <button class="btnSquare discardSelectedClass discardSelectedImgBtn"  style="display:none;"></button>
+            <button title="Keep all generated images on the canvas" class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;"></button>
+            <button title="Delete all generated images from the canvas" class="btnSquare discardClass discardAllImgBtn"  style="display:none;"></button>
+            <button title="Keep only the highlighted images" class="btnSquare acceptSelectedClass acceptSelectedImgBtn"  style="display:none;"></button>
+            <button title="Delete only the highlighted images" class="btnSquare discardSelectedClass discardSelectedImgBtn"  style="display:none;"></button>
 
         </div>
     
@@ -594,7 +595,7 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
           </sp-menu>
         </sp-picker>
 
-        <button class="" id="btnRefreshModels">Refresh</button>
+        <button title="Refresh the plugin, only fixes minor issues." class="" id="btnRefreshModels">Refresh</button>
         <!-- <sp-label slot="label"
           id="lVersionNumber">v0.0.0</sp-label> -->
       </div>
@@ -634,7 +635,7 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
           <sp-progressbar class="pProgressBars" id="pProgressBar" max=100 value=0>
             <sp-label slot="label">Progress...</sp-label>
           </sp-progressbar>
-          <sp-checkbox id="chUsePromptShortcut" checked>prompt shortcut</sp-checkbox>
+          <sp-checkbox title="use {keyword} form the prompts library" id="chUsePromptShortcut" checked>prompt shortcut</sp-checkbox>
         </div>
         <div class="prompts">
           <!-- <sp-label slot="label">Prompt</sp-label> -->
@@ -652,10 +653,10 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
 
         <sp-radio-group>
           <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
-          <sp-radio class="rbMode" checked value="txt2img">txt2img</sp-radio>
-          <sp-radio class="rbMode" value="img2img">img2img</sp-radio>
-          <sp-radio class="rbMode" value="inpaint">inpaint</sp-radio>
-          <sp-radio class="rbMode" id="rbOutpaintMode" value="outpaint" title="Use this mode when you want to fill empty areas of the canvas">outpaint</sp-radio>
+          <sp-radio title="use this mode to generate images from text only" class="rbMode" checked value="txt2img">txt2img</sp-radio>
+          <sp-radio title="use this mode to generate variation of an image" class="rbMode" value="img2img">img2img</sp-radio>
+          <sp-radio title="use this mode to generate variation of a small area of an image, while keeping the rest of the image intact" class="rbMode" value="inpaint">inpaint</sp-radio>
+          <sp-radio title="use this mode to (1) fill any missing area of an image,(2) expand an image" class="rbMode" id="rbOutpaintMode" value="outpaint" >outpaint</sp-radio>
           <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
           
         </sp-radio-group>
@@ -722,11 +723,11 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
         <div style="display:flex;">
 
           <div id="batchNumberSdUiTabContainer">
-              <sp-label>Images:</sp-label><sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
+              <sp-label>Images:</sp-label><sp-textfield title="the number of images to generate at once.The larger the number more VRAM stable diffusion will use." id="tiNumberOfImages" type="number" placeholder="1"
               value="1"></sp-textfield>
             </div>
             <div>
-              <sp-label>Steps:</sp-label><sp-textfield id="tiNumberOfSteps" type="number" placeholder="20"
+              <sp-label>Steps:</sp-label><sp-textfield title="the higher the steps the longer it will take to generate an image" id="tiNumberOfSteps" type="number" placeholder="20"
               value="20"></sp-textfield>
             </div>
           </div>
@@ -740,12 +741,12 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
           <div id="menu-bar-container_preset" style="display:inline-flex;">
           <sp-radio-group id="selectionModeGroup" class="">
             <sp-radio class="rbSelectionMode" checked value="ratio">ratio</sp-radio>
-            <sp-radio class="rbSelectionMode" value="precise">precise</sp-radio>
-            <sp-radio class="rbSelectionMode" value="ignore">ignore</sp-radio>
+            <sp-radio title="use the selection area width and height to fill the width and height sliders" class="rbSelectionMode" value="precise">precise</sp-radio>
+            <sp-radio title="fill the width and height sliders manually" class="rbSelectionMode" value="ignore">ignore</sp-radio>
             
           </sp-radio-group>
           
-            <sp-picker size="s" label="Smart Preset">
+            <sp-picker title="auto fill the plugin with smart settings, to speed up your working process." size="s" label="Smart Preset">
               <sp-menu id="mPresetMenu" slot="options">
                 <!-- <sp-menu-item> item </sp-menu-item> -->
               </sp-menu>
@@ -777,7 +778,7 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
         </div> -->
         <div style="display:flex;">
 
-          <sp-slider show-value="true" id="slCfgScale" min="1" max="30" value="7">
+          <sp-slider title="larger value will put more emphasis on the prompt" show-value="true" id="slCfgScale" min="1" max="30" value="7">
             <sp-label slot="label">CFG Scale:</sp-label>
           <!-- <sp-label slot="label" id="lCfgScale">7</sp-label> -->
         </sp-slider>
@@ -787,23 +788,25 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
           <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label>
         </sp-slider>
       </div>
-      <div style="display:flex;">
-        <sp-slider show-value="false" id="slInpaintingMaskWeight" min="0" max="100" value="100" title="0 will keep the composition; 1 will allow composition to change">
-          <sp-label slot="label">Inpainting conditioning mask strength:</sp-label>
-          <sp-label slot="label" id="lInpaintingMaskWeight">1</sp-label>
-        </sp-slider>
-      </div>
-        
+  
 
 
         <sp-slider  show-value="true" id="slMaskBlur"  min="0" max="64" value="7">
           <sp-label slot="label">Mask Blur:</sp-label>
           <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
         </sp-slider>
-        <sp-slider  show-value="true" id="slMaskExpansion"  min="0" max="64" value="40">
+        <sp-slider  show-value="true" id="slMaskExpansion"  min="0" max="64" value="40" title="the larger the value the more the mask will expand, '0' means use precise masking, use in combination with the mask blur">
           <sp-label slot="label">Mask Expansion:</sp-label>
           <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
         </sp-slider>
+        
+        <div style="display:flex;">
+          <sp-slider show-value="false" id="slInpaintingMaskWeight" min="0" max="100" value="100" title="0 will keep the composition; 1 will allow composition to change">
+            <sp-label slot="label">Inpainting conditioning mask strength:</sp-label>
+            <sp-label slot="label" id="lInpaintingMaskWeight">1</sp-label>
+          </sp-slider>
+        </div>
+          
         <div id="slInpainting_fill">
           <sp-radio-group id="Inpainting_fill_group" class="">
             <sp-label slot="label">Mask Content:</sp-label>
@@ -813,6 +816,7 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
             <sp-radio class="rbMaskContent" value="3">latent nothing</sp-radio>
           </sp-radio-group>
         </div>
+        
         <div style="display:flex;">
           <sp-checkbox class="checkbox" id="chInpaintFullRes">Inpaint at Full Res</sp-checkbox>
           <sp-checkbox class="checkbox" id="chRestoreFaces">Restore Faces</sp-checkbox>
