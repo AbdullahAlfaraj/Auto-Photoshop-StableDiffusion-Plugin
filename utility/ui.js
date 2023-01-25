@@ -215,12 +215,21 @@ function loadPreset(ui_settings,preset){
   console.log("preset:",preset)
   ui_settings.autoFillInSettings(preset)
 }
+
 function loadLatentNoiseSettings(ui_settings){
   loadPreset(ui_settings,presets.LatentNoiseSettings)
 }
 
+function loadFillSettings(ui_settings){
+  loadPreset(ui_settings,presets.FillSettings)
+}
+function loadOriginalSettings(ui_settings){
+  loadPreset(ui_settings,presets.OriginalSettings)
+}
 let loadedPresets = {
-  "latent noise" :loadLatentNoiseSettings
+  "fill" : loadFillSettings,
+  "original": loadOriginalSettings,
+  "latent noise" :loadLatentNoiseSettings,
 
 }
 
@@ -231,6 +240,8 @@ module.exports = {
 UIElement,
 UISettings,
 loadLatentNoiseSettings,
+loadFillSettings,
+
 loadedPresets
 
 }
