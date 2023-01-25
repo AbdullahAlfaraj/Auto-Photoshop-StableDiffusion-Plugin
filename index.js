@@ -2457,6 +2457,9 @@ async function silentImagesToLayersExe (images_paths) {
   for (image_path of images_paths) {
     gCurrentImagePath = image_path
     console.log(gCurrentImagePath)
+    //unselect all layers so that the imported layer get place at the top of the document
+    await psapi.unselectActiveLayersExe()
+    
     const placeEventResult = await placeEmbedded(image_path)//silent import into the document
     
     let layer = await app.activeDocument.layers.filter(l =>l.id === placeEventResult?.ID)[0];
