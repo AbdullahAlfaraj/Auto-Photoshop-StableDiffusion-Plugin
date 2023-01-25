@@ -2819,7 +2819,8 @@ async function loadViewerImages(){
         const output_image_obj = g_viewer_manager.addOutputImage(layer,path)
         lastOutputImage = output_image_obj
         output_image_obj.setImgHtml(img)
-        output_image_container.appendChild(img)
+        output_image_obj.addButtonHtml()
+        output_image_container.appendChild(output_image_obj.img_html)
         //add on click event handler to the html img 
         await NewViewerImageClickHandler(img,output_image_obj)
        

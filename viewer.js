@@ -151,6 +151,24 @@ class ViewerImage {
       console.warn(e)
     }
   }
+
+  addButtonHtml(){
+    // Create new container element
+    const container = document.createElement('div');
+    container.className = "viewer-image-container";
+    
+    // Create button element
+    const button = document.createElement('button');
+    button.className = "viewer-image-button";
+    button.innerHTML = "Button";
+    
+    // Append elements to container
+    container.appendChild(this.img_html);
+    container.appendChild(button);
+    
+    this.img_html = container;
+  }
+  
 }
 
 class OutputImage extends ViewerImage {
