@@ -1708,7 +1708,7 @@ async function getSettings(){
 
   }
 
-  if(hi_res_fix){
+  if(hi_res_fix && ((width > 512 && height > 512))){
     payload['enable_hr'] = hi_res_fix
     payload['firstphase_width'] = width
     payload['firstphase_height'] =  height
@@ -3057,12 +3057,14 @@ var hr_models = [
   "Latent (bicubic antialiased)",
   "Latent (nearest)",
   "Latent (nearest-exact)",
+  "None",
   "Lanczos",
   "Nearest",
-  "ESRGAN",
-  "RealESRGAN",
+  "ESRGAN_4x",
+  "R-ESRGAN 4x+",
+  "R-ESRGAN 4x+ Anime6B",
   "LDSR",
-  "SwinIR"
+  "SwinIR 4x"
 ]
 
 for (let model of hr_models) {
