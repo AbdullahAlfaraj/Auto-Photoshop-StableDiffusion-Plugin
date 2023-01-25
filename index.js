@@ -534,7 +534,7 @@ let g_model_title = ''
 let hWidth = 512
 let hHeight = 512
 let h_denoising_strength = .7
-let g_inpainting_fill = 0
+// let g_inpainting_fill = 0
 // let g_last_outpaint_layers = []
 // let g_last_inpaint_layers = []
 // let g_last_snap_and_fill_layers = []
@@ -671,7 +671,7 @@ rbMaskContentElements = document.getElementsByClassName('rbMaskContent')
 
 for (let rbMaskContentElement of rbMaskContentElements) {
   rbMaskContentElement.addEventListener('click', async evt => {
-    g_inpainting_fill = evt.target.value
+    // g_inpainting_fill = evt.target.value
 
     // console.log(`You clicked: ${g_inpainting_fill}`)
     
@@ -1686,7 +1686,7 @@ async function getSettings(){
     console.log('g_use_mask_image is ', g_use_mask_image)
     console.log('g_init_image_mask_name is ', g_init_image_mask_name)
     payload['init_image_mask_name'] = g_init_image_mask_name
-    payload['inpainting_fill'] = g_inpainting_fill
+    payload['inpainting_fill'] = html_manip.getMaskContent()
     payload['mask_expansion'] = mask_expansion
   }
   else if(mode == 'img2img'){
@@ -1708,7 +1708,7 @@ async function getSettings(){
 
   }
 
-  if(hi_res_fix){
+  if(hi_res_fix && ((width > 512 && height > 512))){
     payload['enable_hr'] = hi_res_fix
     payload['firstphase_width'] = width
     payload['firstphase_height'] =  height
@@ -1989,17 +1989,32 @@ async function generate(settings){
 
   gImage_paths = json.image_paths
   //open the generated images from disk and load them onto the canvas
+  const b_use_silent_import = document.getElementById('chUseSilentImport').checked
   if(isFirstGeneration){//this is new generation session
 
-    // g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
-    g_image_path_to_layer = await silentImagesToLayersExe(gImage_paths)
+    if(b_use_silent_import){
+      g_image_path_to_layer = await silentImagesToLayersExe(gImage_paths)
+
+    }else{
+      g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
+
+    }
 
     g_number_generation_per_session = 1
     g_generation_session.isFirstGeneration = false 
   }
   else{// generation session is active so we will generate more
-    // const last_images_paths = await ImagesToLayersExe(gImage_paths)
-    const last_images_paths = await silentImagesToLayersExe(gImage_paths)
+    let last_images_paths
+    if(b_use_silent_import){
+     
+       last_images_paths = await silentImagesToLayersExe(gImage_paths)
+
+    }else{
+       last_images_paths = await ImagesToLayersExe(gImage_paths)
+
+
+    }
+   
 
     g_image_path_to_layer = {...g_image_path_to_layer, ...last_images_paths}
     g_number_generation_per_session++
@@ -3058,12 +3073,14 @@ var hr_models = [
   "Latent (bicubic antialiased)",
   "Latent (nearest)",
   "Latent (nearest-exact)",
+  "None",
   "Lanczos",
   "Nearest",
-  "ESRGAN",
-  "RealESRGAN",
+  "ESRGAN_4x",
+  "R-ESRGAN 4x+",
+  "R-ESRGAN 4x+ Anime6B",
   "LDSR",
-  "SwinIR"
+  "SwinIR 4x"
 ]
 
 for (let model of hr_models) {
@@ -3217,3 +3234,46 @@ catch(e){
 
 }
 })
+
+function addPresetMenuItem(preset_title){
+  // console.log(model_title,model_name)
+    const menu_item_element = document.createElement('sp-menu-item')
+    menu_item_element.className = "mPresetMenuItem"
+    menu_item_element.innerHTML = preset_title
+  
+    
+    // menu_item_element.addEventListener('select',()=>{
+    //   preset_func(g_ui_settings)
+    // })
+    return menu_item_element
+}
+
+function populatePresetMenu(){
+
+  const divider_elem = document.createElement('sp-menu-divider')
+  const preset_name = "Select Smart Preset"
+  const preset_func = ()=>{}
+  const dummy_preset_item = addPresetMenuItem(preset_name,preset_func)
+  dummy_preset_item.setAttribute('selected','selected')
+  // dummy_preset_item.setAttribute('disabled')
+  document.getElementById('mPresetMenu').appendChild(dummy_preset_item)
+  document.getElementById('mPresetMenu').appendChild(divider_elem)
+  for([key,value] of Object.entries(ui.loadedPresets)){
+    const preset_menu_item = addPresetMenuItem(key,value)
+    document.getElementById('mPresetMenu').appendChild(preset_menu_item)
+  }
+}
+
+populatePresetMenu()
+document.getElementById('mPresetMenu').addEventListener('change',(evt)=>{
+
+    const preset_index = evt.target.selectedIndex
+    const preset_name = evt.target.options[preset_index].textContent
+    if(ui.loadedPresets.hasOwnProperty(preset_name)){
+      const loader = ui.loadedPresets[preset_name]
+      loader(g_ui_settings)
+    }  
+  })
+  
+
+

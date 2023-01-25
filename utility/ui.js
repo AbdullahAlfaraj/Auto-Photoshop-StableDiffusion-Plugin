@@ -1,4 +1,6 @@
+const { loadHistory } = require('../sdapi')
 const html_manip = require('./html_manip')
+const presets = require('./presets/preset')
 class UI {
   constructor () {}
 
@@ -163,6 +165,7 @@ class UISettings{
     this.cfg = createUIElement(html_manip.getCFG,html_manip.setCFG)
     this.denoising_strength =   createUIElement(html_manip.getDenoisingStrength,html_manip.autoFillInDenoisingStrength)
     
+    this.mask_content = createUIElement(html_manip.getMaskContent,html_manip.setMaskContent)
     this.uiElements = {
   // model: null,
   // prompt_shortcut: null,
@@ -184,18 +187,22 @@ class UISettings{
   // inpaint_padding:0,
   // seed:-1,
   // samplers: null,
-  // mask_content:null
+  mask_content:this.mask_content
   }
+
   }
   
+
+  
+
   autoFillInSettings(settings){
     for (const [name, value] of Object.entries(settings)) {
-      if(this.uiElements.hasOwnProperty(name)){
+      if(this.uiElements.hasOwnProperty(name) && value){
         //get the values for debugging
-        const value = this.uiElements[name].getValue()
-        console.log("(name,value):",name,value)
+        const old_value = this.uiElements[name].getValue()
+        console.log("(name,old_value) => newValue:",name,old_value,value)
         //set the value
-        // this.uiElements[name].setValue(value)
+        this.uiElements[name].setValue(value)
       }
     
     }
@@ -204,10 +211,26 @@ class UISettings{
 }
 // const ui_settings = new UISettings()
 
+function loadPreset(ui_settings,preset){
+  console.log("preset:",preset)
+  ui_settings.autoFillInSettings(preset)
+}
+function loadLatentNoiseSettings(ui_settings){
+  loadPreset(ui_settings,presets.LatentNoiseSettings)
+}
+
+let loadedPresets = {
+  "latent noise" :loadLatentNoiseSettings
+
+}
+
+
 
 module.exports = {
   UI,
 UIElement,
-UISettings
+UISettings,
+loadLatentNoiseSettings,
+loadedPresets
 
 }

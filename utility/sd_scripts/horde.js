@@ -26,18 +26,7 @@
       return menu_item_element
   }
   
-  function compareModelCounts( a, b ) {
-    // if ( a.count < b.count ){
-    //   return -1;
-    // }
-    // if ( a.last_nom > b.last_nom ){
-    //   return 1;
-    // }
-    // return 0;
-    // return points.sort(function(a, b){return b-a});
-  }
-  
-  
+
   async function refreshModelsHorde () {
       try{
           
