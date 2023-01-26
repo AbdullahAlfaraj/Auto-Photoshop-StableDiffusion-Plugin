@@ -228,7 +228,7 @@ class OutputImage extends ViewerImage {
     //true if the layer is defined
     //false otherwise
     let isValid = false
-    if (typeof this.layer !== 'undefined') {
+    if (typeof this.layer !== 'undefined' && this.layer) {
       isValid = true
     }
     return isValid
@@ -352,7 +352,7 @@ class InitImage extends ViewerImage {
     //false otherwise
     //   let isValid = [false,false,false]
     let isValid = false
-    if (typeof layer !== 'undefined') {
+    if (typeof layer !== 'undefined' && layer) {
       isValid = true
     }
 
@@ -458,7 +458,7 @@ class InitMaskImage extends ViewerImage {
       //false otherwise
       //   let isValid = [false,false,false]
       let isValid = false
-      if (typeof layer !== 'undefined') {
+      if (typeof layer !== 'undefined' && layer) {
         isValid = true
       }
   
