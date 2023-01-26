@@ -305,7 +305,11 @@ async def loadHistory(request: Request):
         
         print(f'{request}')
     
-    # return response
+    #reverse the order so that newer generated images path will be shown first
+    
+
+    history['image_paths'].reverse()
+    history['metadata_jsons'].reverse()  
     return {"image_paths":history['image_paths'], "metadata_jsons":history['metadata_jsons']}
 
 
