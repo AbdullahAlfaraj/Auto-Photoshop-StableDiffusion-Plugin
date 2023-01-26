@@ -152,19 +152,33 @@ class ViewerImage {
     }
   }
 
+
   addButtonHtml(){
     // Create new container element
     const container = document.createElement('div');
+    
+    
     container.className = "viewer-image-container";
+
+
+    const elem = document.getElementById('svg_sp_btn');
+
+    // Create a copy of it
+    const clone = elem.cloneNode(true);
+    const button = clone
+    button.style.display = null
+
     
     // Create button element
-    const button = document.createElement('button');
+    // const button = document.createElement('sp-button');
     button.className = "viewer-image-button";
-    button.innerHTML = "Button";
+    // button.innerHTML = "Button";
     
     // Append elements to container
     container.appendChild(this.img_html);
     container.appendChild(button);
+
+    
     
     this.img_html = container;
   }
