@@ -3189,7 +3189,7 @@ document.querySelector('#slInpaintingMaskWeight').addEventListener('change', asy
   // evt.target.value = inpainting_mask_weight * 100
   // document.getElementById('lInpaintingMaskWeight').innerHTML = `${inpainting_mask_weight}`
   console.log("inpainting_mask_weight: ", inpainting_mask_weight)
-  autoFillInInpaintMaskWeight(inpainting_mask_weight)
+  html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
 }catch(e){
   console.warn(e)
 }
