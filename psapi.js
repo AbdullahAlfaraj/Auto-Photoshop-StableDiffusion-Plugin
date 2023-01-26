@@ -788,7 +788,10 @@ async function cleanLayers(layers){
   console.log("cleanLayers() -> layers:",layers)
   for (layer of layers){
     try {
-      await executeAsModal(async ()=>{await layer.delete()})}
+      if(layer){
+
+        await executeAsModal(async ()=>{await layer.delete()})}
+      }
       catch(e){
         console.warn("warning attempting to a delete layer: ",e)  
         continue;
