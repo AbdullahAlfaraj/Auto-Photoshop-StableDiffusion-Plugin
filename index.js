@@ -2147,6 +2147,7 @@ document
 
   
   document.getElementById('btnSetInitImageViewer').addEventListener('click', async ()=>  {
+    //set init image event listener, use when settion is active
     const layer = await app.activeDocument.activeLayers[0]
     const image_name = await psapi.setInitImage(layer, random_session_id)
     const path = `./server/python_server/init_images/${image_name}`
@@ -2841,7 +2842,10 @@ async function loadViewerImages(){
         const output_image_obj = g_viewer_manager.addOutputImage(layer,path)
         lastOutputImage = output_image_obj
         output_image_obj.setImgHtml(img)
-        output_image_obj.addButtonHtml()
+        if(g_generation_session.mode !== generationMode['Txt2Img']){
+          //we don't need a button in txt2img mode
+          output_image_obj.addButtonHtml()
+        }
         output_image_container.appendChild(output_image_obj.img_html)
         //add on click event handler to the html img 
         await NewViewerImageClickHandler(img,output_image_obj)

@@ -167,13 +167,25 @@ class ViewerImage {
     const clone = elem.cloneNode(true);
     const button = clone
     button.style.display = null
-
+    button.setAttribute('title',"use this image to generate more variance like it")
     
     // Create button element
     // const button = document.createElement('sp-button');
     button.className = "viewer-image-button";
     // button.innerHTML = "Button";
     
+    button.addEventListener('click', async ()=>  {
+      //set init image event listener, use when settion is active
+      const layer = await app.activeDocument.activeLayers[0]
+      const image_name = await psapi.setInitImage(layer, random_session_id)
+      const path = `./server/python_server/init_images/${image_name}`
+      g_viewer_manager.addInitImageLayers(layer,path,false)
+       
+    })
+    
+
+
+
     // Append elements to container
     container.appendChild(this.img_html);
     container.appendChild(button);
@@ -270,6 +282,7 @@ class InitImage extends ViewerImage {
 
     this.path = path
     this.can_highlight = false
+    
     // if (this.autoDelete === false){
     //   this.state = ViewerObjState['Unlink']
     // }
@@ -292,9 +305,21 @@ class InitImage extends ViewerImage {
       if (this.isLayerValid(this.init_snapshot)) {
         this.init_snapshot.visible = visibleValues[1]
       }
+
       if (this.isLayerValid(this.solid_layer)) {
         this.solid_layer.visible = visibleValues[2]
       }
+
+      if(!this.autoDelete){
+        //means it's not the first init image
+        
+        
+        if (this.isLayerValid(this.solid_layer)) {
+          this.solid_layer.visible = false//turn it off sense the init group is above the output group, and the white solid will hide the init image reference located in the output group 
+        }
+      }
+
+
     }catch(e){
       console.warn(e)
     }
