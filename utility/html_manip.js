@@ -518,6 +518,44 @@ function setMaskContent(value){
   }
 
 
+  function addHistoryButtonsHtml (img_html) {
+    // Create new container element
+    const container = document.createElement('div')
+  
+    container.className = 'viewer-image-container'
+  
+    const elem = document.getElementById('svg_sp_btn')
+    // Create a copy of it
+    const clone = elem.cloneNode(true)
+    const button = clone
+    button.style.display = null
+    button.removeAttribute('id')
+  
+    button.setAttribute('title', 'place the image on the canvas')
+  
+    // Create button element
+    // const button = document.createElement('sp-button');
+    button.className = 'viewer-image-button'
+    // button.innerHTML = "Button";
+  
+    button.addEventListener('click', async ()=>  {
+      //set init image event listener, use when settion is active
+      let image_path = img_html.dataset.path
+      const image_path_escape = image_path.replace(/\o/g,"/o") //escape string "\o" in "\output"
+      await placeEmbedded(image_path_escape)
+      
+  
+    })
+  
+    // Append elements to container
+    container.appendChild(img_html)
+    container.appendChild(button)
+  
+    return container
+  }
+  
+
+
 ///end selection mode////
 module.exports = {
   getPrompt,
@@ -565,7 +603,7 @@ module.exports = {
   setCFG,
   getCFG,
   getMaskContent,
-  setMaskContent
-
+  setMaskContent,
+  addHistoryButtonsHtml
 
 }

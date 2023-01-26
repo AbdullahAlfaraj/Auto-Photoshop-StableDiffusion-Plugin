@@ -816,7 +816,7 @@ async function displayUpdate () {
     document.getElementById('slInpaintPadding').style.display = 'none' 
     document.getElementById("slMaskBlur").style.display = 'none'
     document.getElementById('chHiResFixs').style.display = 'none'
-    document.getElementById('slInpaintingMaskWeight').style.display = 'none' // hide inpainting conditional mask weight
+    // document.getElementById('slInpaintingMaskWeight').style.display = 'none' // hide inpainting conditional mask weight
   }
   if (g_sd_mode == 'inpaint' || g_sd_mode== 'outpaint') {
     ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring   
@@ -2941,16 +2941,23 @@ document.getElementById('btnLoadHistory').addEventListener('click',async functio
       img.dataset.path =`${output_dir_relative}/${image_path}`
       img.className = "history-image"
       img.dataset.metadata_json_string = JSON.stringify(metadata_jsons[i])
-      container.appendChild(img)
+      const img_container = html_manip.addHistoryButtonsHtml(img)
+      container.appendChild(img_container)
+      
+      // container.appendChild(img)
       img.addEventListener('click',async (e)=>{
+       //auto fill the ui with metadata
         const metadata_json = JSON.parse(e.target.dataset.metadata_json_string)
         console.log("metadata_json: ",metadata_json)
         // document.querySelector('#tiSeed').value = metadata_json.Seed
         document.querySelector('#historySeedLabel').textContent = metadata_json.Seed
         autoFillInSettings(metadata_json)
-        let image_path = img.dataset.path
-        const image_path_escape = image_path.replace(/\o/g,"/o") //escape string "\o" in "\output"
-        await placeEmbedded(image_path_escape)
+       
+        //load the image onto the canvas
+        // let image_path = img.dataset.path
+        // const image_path_escape = image_path.replace(/\o/g,"/o") //escape string "\o" in "\output"
+        // await placeEmbedded(image_path_escape)
+        
       })
       i++
     }

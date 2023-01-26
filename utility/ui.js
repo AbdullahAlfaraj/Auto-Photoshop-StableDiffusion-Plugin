@@ -1,6 +1,11 @@
 const { loadHistory } = require('../sdapi')
 const html_manip = require('./html_manip')
 const presets = require('./presets/preset')
+
+
+
+
+
 class UI {
   constructor () {}
 
@@ -242,6 +247,7 @@ UISettings,
 loadLatentNoiseSettings,
 loadFillSettings,
 
-loadedPresets
+loadedPresets,
+
 
 }
