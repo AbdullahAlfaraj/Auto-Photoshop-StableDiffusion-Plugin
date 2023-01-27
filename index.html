@@ -170,7 +170,10 @@
     left: 0;
     right: 0;
     bottom: 0;
-    overflow: auto;
+    /* overflow: auto; */
+    overflow-x: hidden;
+    overflow-y: scroll;
+
 
   }
 
@@ -270,15 +273,35 @@
   }
 
   .sp-tab-page {
-    display: none;
+    visibility: hidden;
+    /* display: none; */
     flex: 1 1 auto;
-    overflow: scroll;
+    /* overflow: scroll; */
+    overflow-y: scroll;
     padding: 12px 0;
     flex-direction: column;
   }
 
+  .sp-tab-page.visible-hack{
+    display: flex;
+    /* overflow: hidden; */
+    /* overflow-y: scroll; */
+    /* position: fixed; */
+    top: 25px;
+    visibility: visible;
+    max-width: 100%;
+    width: 100%;
+    /* margin: 0px; */
+    position: absolute;
+    width: 100%;
+    left: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
   .sp-tab-page.visible {
     display: flex;
+    
   }
 
   .sp-tab-page>* {
@@ -620,7 +643,7 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
           
     </div>
 
-    <div class="sp-tab-page visible" id="sp-stable-diffusion-ui-tab-page">
+    <div class="sp-tab-page visible-hack" id="sp-stable-diffusion-ui-tab-page">
       <div id="menu-bar-container">
         <sp-picker size="m" label="Selection type">
           <sp-menu id="mModelsMenu" slot="options">

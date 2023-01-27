@@ -173,9 +173,9 @@ Array.from(document.querySelectorAll(".sp-tab")).forEach(theTab => {
     });
     Array.from(document.querySelectorAll(".sp-tab-page")).forEach(tabPage => {
       if (tabPage.getAttribute("id").startsWith(theTab.getAttribute("id"))) {
-        tabPage.classList.add("visible");
+        tabPage.classList.add("visible-hack");
       } else {
-        tabPage.classList.remove("visible");
+        tabPage.classList.remove("visible-hack");
       }
     });
   }catch(e){

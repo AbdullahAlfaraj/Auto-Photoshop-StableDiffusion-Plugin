@@ -1,7 +1,7 @@
 {
   "id": "auto.photoshop.stable.diffusion.plugin",
   "name": "Auto Photoshop Stable Diffusion Plugin",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "host": [
     {
       "app": "PS",
@@ -29,9 +29,9 @@
       "type": "panel",
       "id": "vanilla",
       "label": {
-        "default": "Starter Panel",
-        "en-US": "Starter Panel",
-        "es-ES": "Starter Panel"
+        "default": "Auto-Photoshop-SD",
+        "en-US": "Auto-Photoshop-SD",
+        "es-ES": "Auto-Photoshop-SD"
       },
       "minimumSize": {
         "width": 400,

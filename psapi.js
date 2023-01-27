@@ -186,9 +186,12 @@ async function selectLayers (layers) {
   await unselectActiveLayers()
   for (layer of layers) {
     try {
-      const is_visible = layer.visible// don't change the visibility when selecting the layer 
-      layer.selected = true
-      layer.visible = is_visible
+      if(layer){
+
+        const is_visible = layer.visible// don't change the visibility when selecting the layer 
+        layer.selected = true
+        layer.visible = is_visible
+      }
     } catch (e) {
       console.warn(e)
     }
