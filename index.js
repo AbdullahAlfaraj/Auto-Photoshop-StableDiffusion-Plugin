@@ -2941,17 +2941,9 @@ document.getElementById('btnLoadHistory').addEventListener('click',async functio
       img.dataset.path =`${output_dir_relative}/${image_path}`
       img.className = "history-image"
       img.dataset.metadata_json_string = JSON.stringify(metadata_jsons[i])
-      container.appendChild(img)
-      img.addEventListener('click',async (e)=>{
-        const metadata_json = JSON.parse(e.target.dataset.metadata_json_string)
-        console.log("metadata_json: ",metadata_json)
-        // document.querySelector('#tiSeed').value = metadata_json.Seed
-        document.querySelector('#historySeedLabel').textContent = metadata_json.Seed
-        autoFillInSettings(metadata_json)
-        let image_path = img.dataset.path
-        const image_path_escape = image_path.replace(/\o/g,"/o") //escape string "\o" in "\output"
-        await placeEmbedded(image_path_escape)
-      })
+      img_container = viewer.Thumbnail.wrapImgInContainer(img, "thumbnail-image-container")
+      viewer.Thumbnail.addSPButtonToContainer(img_container, "svg_sp_btn_datadownload", "Copy Meta Data", loadMetaData, img)
+      container.appendChild(img_container)
       i++
     }
     
@@ -2960,6 +2952,19 @@ document.getElementById('btnLoadHistory').addEventListener('click',async functio
   }
 
 })
+
+async function loadMetaData(img){
+  debugger
+  const metadata_json = JSON.parse(img.dataset.metadata_json_string)
+  console.log("metadata_json: ",metadata_json)
+  // document.querySelector('#tiSeed').value = metadata_json.Seed
+  document.querySelector('#historySeedLabel').textContent = metadata_json.Seed
+  autoFillInSettings(metadata_json)
+  let image_path = img.dataset.path
+  const image_path_escape = image_path.replace(/\o/g,"/o") //escape string "\o" in "\output"
+  await placeEmbedded(image_path_escape)
+}
+
 
 document.getElementById('btnImageSearch').addEventListener('click',async function(){
   try{
