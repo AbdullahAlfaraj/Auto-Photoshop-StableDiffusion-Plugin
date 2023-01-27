@@ -87,7 +87,7 @@
     max-height:100%;
     max-width:100%;
   }
-  .viewer-image-button {
+  .thumbnail-image-button {
     display: none;
     /* background-color:  #495b79; */
     color: white;
@@ -102,16 +102,13 @@
     max-height:100%;
     max-width:100%;
   }
-  /* .viewer-image-button:hover {
-     background-color: #333f52;
-  } */
-  .viewer-image-container {
+  .thumbnail-image-container {
     position: relative;
     width: 100px;
     height: 100px;
     margin: 0;
   }
-  .viewer-image-container:hover .viewer-image-button {
+  .thumbnail-image-container:hover .thumbnail-image-button {
     display: flex;
   }  
   .viewer-container {
@@ -536,7 +533,7 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
       <button class="btnSquare" id="btnImageSearch">Image Search</button>
       <button class="btnSquare" id="btnLoadHistory">Load Previous Generations</button>
       </div>
-      <div class="" id="divHistoryImagesContainer">
+      <div class="viewer-container" id="divHistoryImagesContainer">
         <img  class="history-image" id="history_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' />
         
 
@@ -673,13 +670,13 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
         <div>
           
 
-          <!-- icon only svg button -->
-          <sp-action-button id ="svg_sp_btn" style="padding: 0; max-width: 32px; max-height: 32px; display:none;">
-            <div slot="icon" style="fill: currentColor">
-                <svg viewBox="0 0 36 36" style="width: 18px; height: 18px;">
-                    <path d="M33.567 8.2L27.8 2.432a1.215 1.215 0 0 0-.866-.353H26.9a1.371 1.371 0 0 0-.927.406L5.084 23.372a.99.99 0 0 0-.251.422L2.055 33.1c-.114.377.459.851.783.851a.251.251 0 0 0 .062-.007c.276-.063 7.866-2.344 9.311-2.778a.972.972 0 0 0 .414-.249l20.888-20.889a1.372 1.372 0 0 0 .4-.883 1.221 1.221 0 0 0-.346-.945zM11.4 29.316c-2.161.649-4.862 1.465-6.729 2.022l2.009-6.73z"/>
-                </svg>
-            </div>
+        <!-- icon only svg button -->
+        <sp-action-button id ="svg_sp_btn" style="padding: 0; max-width: 32px; max-height: 32px; display:none;">
+          <div slot="icon" style="fill: currentColor">
+            <svg viewBox="0 0 36 36" style="width: 18px; height: 18px;">
+              <path d="M33.567 8.2L27.8 2.432a1.215 1.215 0 0 0-.866-.353H26.9a1.371 1.371 0 0 0-.927.406L5.084 23.372a.99.99 0 0 0-.251.422L2.055 33.1c-.114.377.459.851.783.851a.251.251 0 0 0 .062-.007c.276-.063 7.866-2.344 9.311-2.778a.972.972 0 0 0 .414-.249l20.888-20.889a1.372 1.372 0 0 0 .4-.883 1.221 1.221 0 0 0-.346-.945zM11.4 29.316c-2.161.649-4.862 1.465-6.729 2.022l2.009-6.73z"/>
+            </svg>
+          </div>
         </sp-action-button>
 
         <!-- icon with svg button -->
@@ -692,6 +689,16 @@ background: #f0f0f0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCA
             Edit Text
         </sp-action-button>
         
+        <sp-action-button id ="svg_sp_btn_datadownload" style="padding: 0; max-width: 32px; max-height: 32px; display:none;">
+          <div slot="icon" style="fill: currentColor">
+            <svg viewBox="0 0 18 18" style="width: 18px; height: 18px;">
+              <path d="M5.3885,12.5895a1.211,1.211,0,0,1-.314-.8C3.2305,11.478,1.509,10.942,1,10.135V14.5C1,15.8805,4.582,17,9,17c.1385,0,.2735-.0045.4105-.0065Z" />
+              <path d="M16.5,6.5V9.3635A1.18,1.18,0,0,0,17,8.5V5.135A5.06144,5.06144,0,0,1,14.3855,6.5Z" />
+              <path d="M6.315,10.5H8.5V7.13C5.953,7.059,1.8365,6.4625,1,5.135V8.5c0,.996,1.868,1.8535,4.565,2.255A1.21847,1.21847,0,0,1,6.315,10.5Z" />
+              <path d="M17.573,12.427A.25.25,0,0,0,17.3965,12H15V8H10v4H7.6035a.25.25,0,0,0-.1765.427L12.5,18Z" />
+            </svg>
+          </div>
+        </sp-action-button>
         <!-- <img width="15px" height="15px" src="./icon/ftcopy.svg">   -->
           
         </div>

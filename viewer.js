@@ -152,50 +152,26 @@ class ViewerImage {
     }
   }
 
+  AddButtonHtml(){
 
-  addButtonHtml(){
-    // Create new container element
-    const container = document.createElement('div');
-    
-    
-    container.className = "viewer-image-container";
+    const container = Thumbnail.wrapImgInContainer(this.img_html, "thumbnail-image-container")
 
+    Thumbnail.addSPButtonToContainer(container, "svg_sp_btn", "use this image to generate more variance like it", addImageToLayer, this)
 
-    const elem = document.getElementById('svg_sp_btn');
-
-    // Create a copy of it
-    const clone = elem.cloneNode(true);
-    const button = clone
-    button.style.display = null
-    button.setAttribute('title',"use this image to generate more variance like it")
-    
-    // Create button element
-    // const button = document.createElement('sp-button');
-    button.className = "viewer-image-button";
-    // button.innerHTML = "Button";
-    
-    button.addEventListener('click', async ()=>  {
-      //set init image event listener, use when settion is active
-      const layer = await app.activeDocument.activeLayers[0]
-      const image_name = await psapi.setInitImage(layer, random_session_id)
-      const path = `./server/python_server/init_images/${image_name}`
-      g_viewer_manager.addInitImageLayers(layer,path,false)
-       
-    })
-    
-
-
-
-    // Append elements to container
-    container.appendChild(this.img_html);
-    container.appendChild(button);
-
-    
-    
     this.img_html = container;
   }
+
   
 }
+
+async function addImageToLayer(e){
+  //set init image event listener, use when settion is active
+  const layer = await app.activeDocument.activeLayers[0]
+  const image_name = await psapi.setInitImage(layer, random_session_id)
+  const path = `./server/python_server/init_images/${image_name}`
+  g_viewer_manager.addInitImageLayers(layer,path,false)
+}
+
 
 class OutputImage extends ViewerImage {
   constructor (layer, path) {
@@ -628,10 +604,34 @@ class InitMaskImage extends ViewerImage {
     }
   }
 
+  class Thumbnail{
+    static wrapImgInContainer(img, container_style_class){
+      const container = document.createElement('div');
+      container.className = container_style_class;
+      container.appendChild(img);
+      return container;
+    }
+    
+    static addSPButtonToContainer(container, button_id, title, callbackFunction, param1){
+      const elem = document.getElementById(button_id);
+      const clone = elem.cloneNode(true);
+      const button = clone
+      button.style.display = null
+      button.setAttribute('title',title)
+      
+      // Create button element
+      button.className = "thumbnail-image-button";
+      button.addEventListener('click', () => callbackFunction(param1))
+      container.appendChild(button)
+    }
+    
+  }
+
 module.exports = {
   OutputImage,
   InitImage,
   InitMaskImage,
   ViewerObjState,
-  ViewerManager
+  ViewerManager,
+  Thumbnail
 }
