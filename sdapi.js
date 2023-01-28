@@ -1,7 +1,7 @@
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
 async function getInitImage (init_image_name) {
   console.log('getInitImage(): get Init Image from the server :')
-  payload = {
+  const payload = {
     init_image_name: init_image_name
   }
 
@@ -33,90 +33,62 @@ async function getInitImage (init_image_name) {
 }
 
 async function requestTxt2Img (payload) {
-  // const url = "http://127.0.0.1:7860"
-  // const full_url =`${url}/sdapi/v1/txt2img`
+  try {
+    console.log('requestTxt2Img(): about to send a fetch request')
 
-  // payload = {
-  //     "prompt": "puppy dog",
-  //     "steps": 5
-  // }
+    const full_url = 'http://127.0.0.1:8000/txt2img/'
+    console.log(full_url)
 
-  //   payload = {
-  //     "prompt": "cute cat, kitten",
-  //     "steps": 10
-  //   }
+    let request = await fetch(full_url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+      // "body": payload
+    })
 
-  // response = requests.post(, json=payload)
+    let json = await request.json()
+    console.log('requestTxt2Img json:')
+    console.dir(json)
 
-  console.log('requestTxt2Img(): about to send a fetch request')
-
-  const full_url = 'http://127.0.0.1:8000/txt2img/'
-  console.log(full_url)
-
-  let request = await fetch(full_url, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-    // "body": payload
-  })
-
-  let json = await request.json()
-  console.log('json:')
-  console.dir(json)
-  
-
-
-
-
-  // base64data = json.images[0]
-  // let img = document.getElementById('img1')
-  // img.src = `data:image/png;base64, ${base64data}`
-  // console.log(img.src)
-
-  // let img_blob =  await (await fetch(img.src)).blob()
-  // console.log("img_blob:")
-  // console.dir(img_blob)
-
-  // try {
-  //   navigator.clipboard.write([
-  //       new ClipboardItem({
-  //           'image/png': img_blob
-  //       })
-  //   ]);
-  // } catch (error) {
-  //   console.error(error);
-  // }
-
-  //  request.data (data =>{
-  //     console.log(data);
-  // });
-  return json
+    return json
+  } catch (e) {
+    console.warn(e)
+    return {}
+  }
 }
 
-async function requestImg2Img (payload) {
-  console.log('requestTxt2Img(): about to send a fetch request')
 
-  const full_url = 'http://127.0.0.1:8000/img2img/'
-  console.log(full_url)
-  console.log('requestImg2Img payload is: ', payload)
-  let request = await fetch(full_url, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
+
+async function requestImg2Img (payload) {
+  console.log('requestImg2Img(): about to send a fetch request')
+  try{
+
+    const full_url = 'http://127.0.0.1:8000/img2img/'
+    console.log(full_url)
+    console.log('requestImg2Img payload is: ', payload)
+    let request = await fetch(full_url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(payload)
     // "body": payload
   })
-
+  
   let json = await request.json()
-  console.log('json:')
+  console.log('requestImg2Img json:')
   console.dir(json)
-
+  
   return json
+}
+catch(e){
+  console.warn(e)
+return {}
+}
 }
 
 async function requestProgress () {
@@ -365,6 +337,91 @@ async function savePromptShortcut (prompt_shortcut) {
 
   return json['prompt_shortcut']
 }
+async function setInpaintMaskWeight(value) {
+  const full_url = 'http://127.0.0.1:8000/sdapi/v1/options'
+ try {
+  payload = {
+    inpainting_mask_weight: value
+  }
+  await fetch(full_url, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+ } catch (e) {
+  console.warn(e)
+ }
+  
+}
+
+ async function requestGetConfig() {
+  console.log('requestGetConfig: ')
+  let json = []
+  const full_url = 'http://127.0.0.1:8000/config'
+  try{
+
+    let request = await fetch(full_url)
+    json = await request.json()
+    console.log('models json:')
+    console.dir(json)
+    
+  }catch(e){
+    console.warn(`issues requesting from ${full_url}`,e)
+  }
+    return json
+}
+async function requestGetOptions() {
+  console.log('requestGetOptions: ')
+  let json = []
+  const full_url = 'http://127.0.0.1:8000/sdapi/v1/options'
+  try{
+
+    let request = await fetch(full_url)
+    json = await request.json()
+    console.log('models json:')
+    console.dir(json)
+    
+  }catch(e){
+    console.warn(`issues requesting from ${full_url}`,e)
+  }
+    return json
+}
+
+
+async function imageSearch (keywords) {
+  
+  let json = {}
+  try {
+    payload = {
+      "keywords":keywords
+    }
+
+    const full_url = 'http://127.0.0.1:8000/search/image/'
+
+    let request = await fetch(full_url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    json = await request.json()
+    console.log('imageSearch:', json)
+    
+    return json['images']
+    
+  } catch (e) {
+    console.warn(e)
+  
+  }
+    return []
+}
 
 module.exports = {
   requestTxt2Img,
@@ -379,5 +436,9 @@ module.exports = {
   changeSdUrl,
   loadPromptShortcut,
   savePromptShortcut,
-  loadHistory
+  loadHistory,
+  setInpaintMaskWeight,
+  requestGetConfig,
+  requestGetOptions,
+  imageSearch
 }

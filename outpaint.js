@@ -3,17 +3,6 @@ const app = window.require('photoshop').app
 const batchPlay = require('photoshop').action.batchPlay
 const psapi = require('./psapi')
 
-// async function createGroup () {
-//   const { executeAsModal } = require('photoshop').core
-
-//   const result = await executeAsModal(async () => {
-//     const options = { name: 'myGroup', opacity: 100 }
-//     await app.activeDocument.createLayerGroup(options)
-//   })
-//   const group_id = app.activeDocument.activeLayers[0].id
-//   console.log('new group: ', group_id)
-//   return group_id
-// }
 
 // async function moveToGroupCommand (to_index, layerIDs) {
 //   const batchPlay = require('photoshop').action.batchPlay
@@ -59,32 +48,9 @@ async function moveLayersToGroup (group_id) {
   })
 }
 
-// function unselectActiveLayers(){
 
-//     const layers = app.activeDocument.activeLayers
-//     for (layer of layers){
-//         layer.selected = false
-//     }
-// }
 
-// function selectLayers(layers){
 
-//     unselectActiveLayers()
-//     for (layer of layers){
-//         layer.selected = true
-//     }
-// }
-
-// function selectGroup(layer){
-//     unselectActiveLayers()
-//     layer.parent.selected = true
-
-// }
-
-// async function mergeGroup(layer){
-//     selectGroup(layer)
-//     await app.activeDocument.activeLayers[0].merge()
-// }
 
 async function createSnapshot () {
   const { executeAsModal } = require('photoshop').core
@@ -178,41 +144,7 @@ function executeCommand (batchPlayCommandFunc) {
 }
 
 
-async function outpaintExe(){
-//create a snapshot of canvas
-//select opaque pixel and create black fill layer
-//create a snapshot of mask
-//set initial image
-//set mask image
 
-try{
-    executeAsModal(async ()=>{
-
-        const selectionInfo = await psapi.getSelectionInfoExe()
-        // await psapi.unSelectMarqueeExe()
-
-        //create a snapshot of canvas
-        let [snapshotLayer,snapshotGroup] =  await createSnapshot()
-        console.log("[snapshotLayer,snapshotGroup]:",[snapshotLayer,snapshotGroup])
-        //select opaque pixel and create black fill layer
-        await psapi.selectLayers([snapshotLayer])
-        await psapi.selectLayerChannelCommand()
-        await psapi.createSolidLayer(0, 0, 0)
-        let solid_black_layer  = app.activeDocument.activeLayers[0]
-        //create a snapshot of mask
-        await psapi.reSelectMarqueeExe(selectionInfo)
-        let [snapshotMaskLayer,snapshotMaskGroup] = await createSnapshot()
-        await snapshotMaskGroup.moveAbove(snapshotGroup)
-        solid_black_layer.delete()
-        //set initial image
-        //set mask image
-        
-    })
-    
-}catch(e){
-console.warn(e)
-}
-}
 
 async function snapAndFillExe(session_id){
   //create a snapshot of canvas
@@ -230,14 +162,16 @@ async function snapAndFillExe(session_id){
   
           //create a snapshot of canvas
           // let [snapshotLayer,snapshotGroup] =  await createSnapshot()
-          await psapi.snapshot_layer()
+          await psapi.snapshot_layerExe()
           const snapshotLayer = await app.activeDocument.activeLayers[0]
           const snapshotGroup = await psapi.createEmptyGroup()
-          
+          snapshotLayer.name = "Init Image Snapshot -- temporary"
+          snapshotGroup.name = "Init Image Group -- temporary"
 
-          snapshotGroup.name = `${snapshotGroup.name}_init_image`
+          // snapshotGroup.name = `${snapshotGroup.name}_init_image`
           await psapi.createSolidLayer(255, 255, 255)
           const whiteSolidLayer = await app.activeDocument.activeLayers[0]
+          whiteSolidLayer.name = "Background Color -- temporary"
           snapshotLayer.moveAbove(whiteSolidLayer)
           console.log("[snapshotLayer,snapshotGroup]:",[snapshotLayer,snapshotGroup])
           
@@ -254,22 +188,24 @@ async function snapAndFillExe(session_id){
 
           
           snapAndFillLayers = [snapshotLayer,snapshotGroup,whiteSolidLayer]
-          // await setTimeout(saveAndHide,1000)
-          // g_mask_related_layers['mask_group'] = snapshotMaskGroup
-          // g_mask_related_layers['white_mark'] = snapshotMaskLayer
-          // // g_mask_related_layers['solid_black'] = blackSolidLayer
           
-          g_init_image_related_layers['init_image_group'] = snapshotGroup
-          g_init_image_related_layers['init_image_layer'] = snapshotLayer
-          g_init_image_related_layers['solid_white'] = whiteSolidLayer
+          // g_init_image_related_layers['init_image_group'] = snapshotGroup
+          // g_init_image_related_layers['init_image_layer'] = snapshotLayer
+          // g_init_image_related_layers['solid_white'] = whiteSolidLayer
 
-          await psapi.setInitImage(snapshotGroup,session_id)
+          
+          const image_name = await psapi.setInitImage(snapshotGroup,session_id)
+          const path = `./server/python_server/init_images/${image_name}`
+    
+          g_viewer_manager.initializeInitImage(snapshotGroup,snapshotLayer,whiteSolidLayer,path)//this will be called once a session and will add the first init image to th viewer manager
           
           
           for (layer of snapAndFillLayers){
             layer.visible = false 
           }
           await psapi.reSelectMarqueeExe(selectionInfo)
+          const util_layer = require('./utility/layer')
+          await util_layer.collapseFolderExe([snapshotGroup],false)
           
         //   function timeout(ms) {
         //     return new Promise(resolve => setTimeout(resolve, ms));
@@ -298,8 +234,9 @@ async function snapAndFillExe(session_id){
   }catch(e){
   console.error(`snapAndFill error: ${e}`)
 
-  // console.log("outpaintFasterExe error:", e)
+ 
   }
+  return []
 
   }
 
@@ -321,17 +258,20 @@ async function outpaintFasterExe(session_id){
   
           //create a snapshot of canvas
           // let [snapshotLayer,snapshotGroup] =  await createSnapshot()
-          await psapi.snapshot_layer()
+          await psapi.snapshot_layerExe()
           const snapshotLayer = await app.activeDocument.activeLayers[0]
+          snapshotLayer.name = "Init Image Snapshot -- temporary"
           const snapshotGroup = await psapi.createEmptyGroup()
-          snapshotGroup.name = `${snapshotGroup.name}_init_image`
+          // snapshotGroup.name = `${snapshotGroup.name}_init_image`
+          snapshotGroup.name = "Init Image Group -- temporary"
           await psapi.createSolidLayer(255, 255, 255)
           const whiteSolidLayer = await app.activeDocument.activeLayers[0]
+          whiteSolidLayer.name = "Background Color -- temporary"
           snapshotLayer.moveAbove(whiteSolidLayer)
           console.log("[snapshotLayer,snapshotGroup]:",[snapshotLayer,snapshotGroup])
           
           //select opaque pixel and create black fill layer
-          await psapi.selectLayers([snapshotLayer])
+          await psapi.selectLayersExe([snapshotLayer])
           await psapi.selectLayerChannelCommand()
           const snapshotMaskGroup = await psapi.createEmptyGroup()
 
@@ -340,51 +280,179 @@ async function outpaintFasterExe(session_id){
           //create a snapshot of mask
           await psapi.reSelectMarqueeExe(selectionInfo)
           // let [snapshotMaskLayer,snapshotMaskGroup] = await createSnapshot()
-          await psapi.snapshot_layer()
+          await psapi.snapshot_layerExe()
           const snapshotMaskLayer = await app.activeDocument.activeLayers[0]
+          snapshotMaskLayer.name = "Mask -- Paint White to Mask -- temporary"
           // const snapshotMaskGroup = await psapi.createEmptyGroup()
           
-          snapshotMaskGroup.name = `${snapshotMaskGroup.name}_mask` 
+          // snapshotMaskGroup.name = `${snapshotMaskGroup.name}_mask` 
+          snapshotMaskGroup.name = "Mask Group -- temporary" 
           snapshotMaskLayer.moveBelow(solid_black_layer)
           await snapshotMaskGroup.moveAbove(snapshotGroup)
-          solid_black_layer.delete()// should we await for the deletion?
+          await solid_black_layer.delete()// should we await for the deletion?
 
           
           await psapi.selectLayers([snapshotGroup])
           await psapi.reSelectMarqueeExe(selectionInfo)
           await psapi.createClippingMaskExe()
           await psapi.selectLayers([snapshotGroup])
-          await psapi.setInitImage(snapshotGroup,session_id)
+
+          const image_name = await psapi.setInitImage(snapshotGroup,session_id)
+          const path = `./server/python_server/init_images/${image_name}`
+
           await psapi.reSelectMarqueeExe(selectionInfo)
           
           await psapi.selectLayers([snapshotMaskGroup])
+          await psapi.reSelectMarqueeExe(selectionInfo)
+          await psapi.createClippingMaskExe()
+          await psapi.selectLayers([snapshotMaskGroup])
+          await psapi.reSelectMarqueeExe(selectionInfo)
+
           await psapi.setInitImageMask(snapshotMaskGroup,session_id)
           await psapi.reSelectMarqueeExe(selectionInfo)
           //set initial image
           //set mask image
         outpaintLayers = [snapshotMaskGroup,snapshotMaskLayer,snapshotLayer,snapshotGroup,whiteSolidLayer]
-        g_mask_related_layers['mask_group'] = snapshotMaskGroup
-        g_mask_related_layers['white_mark'] = snapshotMaskLayer
-        // g_mask_related_layers['solid_black'] = blackSolidLayer
+        // g_mask_related_layers['mask_group'] = snapshotMaskGroup
+        // g_mask_related_layers['white_mark'] = snapshotMaskLayer
+        // // g_mask_related_layers['solid_black'] = blackSolidLayer
+        g_viewer_manager.initializeMask(snapshotMaskGroup,snapshotMaskLayer,null,path)
+        // g_init_image_related_layers['init_image_group'] = snapshotGroup
+        // g_init_image_related_layers['init_image_layer'] = snapshotLayer
+        // g_init_image_related_layers['solid_white'] = whiteSolidLayer
         
-        g_init_image_related_layers['init_image_group'] = snapshotGroup
-        g_init_image_related_layers['init_image_layer'] = snapshotLayer
-        g_init_image_related_layers['solid_white'] = whiteSolidLayer
         
+        g_viewer_manager.initializeInitImage(snapshotGroup,snapshotLayer,whiteSolidLayer,path)//this will be called once a session and will add the first init image to th viewer manager
         for (layer of outpaintLayers){
           layer.visible = false 
         }
+
+        //collapse the folders
+        const util_layer = require('./utility/layer')
+        await util_layer.collapseFolderExe([snapshotGroup,snapshotMaskGroup],false)
+
       })
       console.log("outpaintLayers 2: ", outpaintLayers)
       return outpaintLayers
   }catch(e){
   console.error(`outpaintFasterExe error: ${e}`)
 
-  // console.log("outpaintFasterExe error:", e)
   }
+  return []
 
   }
+  async function addClippingMaskToLayer (layer, selectionInfo) {
+  await psapi.selectLayers([layer])//select the layer
+  await psapi.reSelectMarqueeExe(selectionInfo)//reselect the selection
+  await psapi.createClippingMaskExe()//this will create an cliping mask and select the mask of the layer
+  await psapi.selectLayers([layer])//reselect the layer instead of the mask
+  await psapi.reSelectMarqueeExe(selectionInfo)//reselect the selection
+  
+  ////test addClippingMaskToLayer
+  // await executeAsModal(
+  //   async ()=>{
+  //   await outpaint.addClippingMaskToLayer(await app.activeDocument.activeLayers[0],await psapi.getSelectionInfoExe()
+  //   )})
+}
 
+  async function outpaintExe(session_id){
+    //create a snapshot of canvas
+    //select opaque pixel and create black fill layer
+    //create a snapshot of mask
+    //set initial image
+    //set mask image
+    
+    try{
+      let outpaintLayers = []
+        await executeAsModal(async ()=>{
+    
+            const selectionInfo = await psapi.getSelectionInfoExe()
+            // await psapi.unSelectMarqueeExe()
+    
+            //create a snapshot of canvas
+            // let [snapshotLayer,snapshotGroup] =  await createSnapshot()
+            await psapi.snapshot_layerExe()
+            const snapshotLayer = await app.activeDocument.activeLayers[0]
+            snapshotLayer.name = "Init Image Snapshot -- temporary"
+            const snapshotGroup = await psapi.createEmptyGroup()
+            // snapshotGroup.name = `${snapshotGroup.name}_init_image`
+            snapshotGroup.name = "Init Image Group -- temporary"
+            await psapi.createSolidLayer(255, 255, 255)//solid white inside the Init Image Group
+            const whiteSolidLayer = await app.activeDocument.activeLayers[0]
+            whiteSolidLayer.name = "Background Color -- temporary"
+            snapshotLayer.moveAbove(whiteSolidLayer)//move the snapshot layer to be the first layer in "Init Image Group"
+            console.log("[snapshotLayer,snapshotGroup]:",[snapshotLayer,snapshotGroup])
+            
+            //select opaque pixel and create black fill layer
+            await psapi.selectLayers([snapshotLayer])
+            await psapi.selectLayerChannelCommand()
+            const snapshotMaskGroup = await psapi.createEmptyGroup()
+  
+            await psapi.createSolidLayer(0, 0, 0)
+            let solid_black_layer  = app.activeDocument.activeLayers[0]
+            //create a snapshot of mask
+            await psapi.reSelectMarqueeExe(selectionInfo)
+            // let [snapshotMaskLayer,snapshotMaskGroup] = await createSnapshot()
+            await psapi.snapshot_layerExe()
+            const snapshotMaskLayer = await app.activeDocument.activeLayers[0]
+            snapshotMaskLayer.name = "Mask -- Paint White to Mask -- temporary"
+            // const snapshotMaskGroup = await psapi.createEmptyGroup()
+            
+            // snapshotMaskGroup.name = `${snapshotMaskGroup.name}_mask` 
+            snapshotMaskGroup.name = "Mask Group -- temporary" 
+            snapshotMaskLayer.moveBelow(solid_black_layer)
+            await snapshotMaskGroup.moveAbove(snapshotGroup)
+            await solid_black_layer.delete()//
+  
+            
+            await addClippingMaskToLayer(snapshotGroup,selectionInfo)
+  
+            
+            const init_image_name = await psapi.setInitImage(snapshotGroup,session_id)
+            const init_path = `./server/python_server/init_images/${init_image_name}`
+            
+            await psapi.reSelectMarqueeExe(selectionInfo)
+            
+            await addClippingMaskToLayer(snapshotMaskGroup,selectionInfo)
+            
+            await psapi.reSelectMarqueeExe(selectionInfo)
+  
+            // await psapi.setInitImageMask(snapshotMaskGroup,session_id)
+            const mask_name = await psapi.setInitImageMask(snapshotMaskGroup,session_id)
+            const mask_path = `./server/python_server/init_images/${mask_name}`
+            await psapi.reSelectMarqueeExe(selectionInfo)
+            //set initial image
+            //set mask image
+          outpaintLayers = [snapshotMaskGroup,snapshotMaskLayer,snapshotLayer,snapshotGroup,whiteSolidLayer]
+          // g_mask_related_layers['mask_group'] = snapshotMaskGroup
+          // g_mask_related_layers['white_mark'] = snapshotMaskLayer
+          // // g_mask_related_layers['solid_black'] = blackSolidLayer
+          g_viewer_manager.initializeMask(snapshotMaskGroup,snapshotMaskLayer,null,mask_path)
+          // g_init_image_related_layers['init_image_group'] = snapshotGroup
+          // g_init_image_related_layers['init_image_layer'] = snapshotLayer
+          // g_init_image_related_layers['solid_white'] = whiteSolidLayer
+          g_viewer_manager.initializeInitImage(snapshotGroup,snapshotLayer,whiteSolidLayer,init_path)//this will be called once a session and will add the first init image to th viewer manager
+          
+          for (layer of outpaintLayers){
+            layer.visible = false 
+          }
+  
+          //collapse the folders
+          const util_layer = require('./utility/layer')
+          await util_layer.collapseFolderExe([snapshotGroup,snapshotMaskGroup],false)
+  
+        })
+        console.log("outpaintLayers 2: ", outpaintLayers)
+        return outpaintLayers
+    }catch(e){
+    console.error(`outpaintExe error: ${e}`)
+  
+    
+    }
+    return []
+  
+    }
+  
   async function inpaintFasterExe(session_id){
     //
     //create a snapshot of canvas
@@ -399,22 +467,37 @@ async function outpaintFasterExe(session_id){
             const selectionInfo = await psapi.getSelectionInfoExe()
             
             //hide the current white mark mask layer
-            const white_mark_layer = app.activeDocument.activeLayers[0]
+            const white_mark_layer = await app.activeDocument.activeLayers[0]
+            await psapi.selectLayers([white_mark_layer])
+            await psapi.reSelectMarqueeExe(selectionInfo)
+            await psapi.createClippingMaskExe()
+            await psapi.reSelectMarqueeExe(selectionInfo)
+            
             white_mark_layer.visible = false
+            white_mark_layer.name = "Mask -- Paint White to Mask -- temporary"
+            // white_mark_layer.visible = true
+
             
             //create a snapshot of canvas
 
             // let [snapshotLayer,snapshotGroup] =  await createSnapshot()
-            await psapi.snapshot_layer()
+            // await psapi.snapshot_layer()
+            await psapi.unselectActiveLayersExe()//invisible layer will cause problem with merging "command is not available" type of error
+            // await psapi.mergeVisibleExe()
+            await psapi.snapshot_layerExe()
+
+
             const snapshotLayer = await app.activeDocument.activeLayers[0]
-            
+            snapshotLayer.name = "Init Image Snapshot -- temporary"
             const snapshotGroup = await psapi.createEmptyGroup()
+            snapshotGroup.name = "Init Image Group -- temporary"
             await psapi.createSolidLayer(255, 255, 255)
             const whiteSolidLayer = await app.activeDocument.activeLayers[0]
-            snapshotLayer.moveAbove(whiteSolidLayer)
+            whiteSolidLayer.name = "Background Color -- temporary"
+            await snapshotLayer.moveAbove(whiteSolidLayer)
             
-            await psapi.reSelectMarqueeExe(selectionInfo)
             await psapi.selectLayers([snapshotGroup])
+            await psapi.reSelectMarqueeExe(selectionInfo)
             await psapi.createClippingMaskExe()
             await psapi.reSelectMarqueeExe(selectionInfo)
              
@@ -422,10 +505,13 @@ async function outpaintFasterExe(session_id){
 
 
             const maskGroup = await psapi.createEmptyGroup()
-            maskGroup.name = `${maskGroup.name}_mask`
+            // maskGroup.name = `${maskGroup.name}_mask`
+            
+            maskGroup.name = "Mask Group -- temporary" 
 
             await psapi.createSolidLayer(0, 0, 0)
             const blackSolidLayer = await app.activeDocument.activeLayers[0]
+            blackSolidLayer.name = "Don't Edit -- temporary" 
             // snapshotLayer.moveAbove(blackSolidLayer)
             white_mark_layer.moveAbove(blackSolidLayer)
             white_mark_layer.visible = true
@@ -460,34 +546,44 @@ async function outpaintFasterExe(session_id){
             // await psapi.selectLayers([snapshotGroup])
 
             await psapi.selectLayers([maskGroup])
-            await psapi.setInitImageMask(maskGroup,session_id)
+            // await psapi.setInitImageMask(maskGroup,session_id)
+            const mask_name = await psapi.setInitImageMask(maskGroup,session_id)
+            const mask_path = `./server/python_server/init_images/${mask_name}`
+
             await psapi.reSelectMarqueeExe(selectionInfo)
             await psapi.selectLayers([snapshotGroup])
-            await psapi.setInitImage(snapshotGroup,session_id)
+            
+            const image_name = await psapi.setInitImage(snapshotGroup,session_id)
+            const path = `./server/python_server/init_images/${image_name}`
+            
             await psapi.reSelectMarqueeExe(selectionInfo)
             // await psapi.selectLayers([snapshotMaskGroup])
             // await psapi.setInitImageMask(snapshotMaskGroup)
             // //set initial image
             // //set mask image
             
-            psapi.selectLayers([maskGroup])
+            await psapi.selectLayers([maskGroup])
             inpaintLayers = [maskGroup,white_mark_layer,blackSolidLayer,snapshotGroup,snapshotLayer,whiteSolidLayer]
-            g_mask_related_layers['mask_group'] = maskGroup
-            g_mask_related_layers['white_mark'] = white_mark_layer
-            g_mask_related_layers['solid_black'] = blackSolidLayer
-            
-            g_init_image_related_layers['init_image_group'] = snapshotGroup
-            g_init_image_related_layers['init_image_layer'] = snapshotLayer
-            g_init_image_related_layers['solid_white'] = whiteSolidLayer
-            
+            // g_mask_related_layers['mask_group'] = maskGroup
+            // g_mask_related_layers['white_mark'] = white_mark_layer
+            // g_mask_related_layers['solid_black'] = blackSolidLayer
+            g_viewer_manager.initializeMask(maskGroup,white_mark_layer,blackSolidLayer,mask_path)
+            // g_init_image_related_layers['init_image_group'] = snapshotGroup
+            // g_init_image_related_layers['init_image_layer'] = snapshotLayer
+            // g_init_image_related_layers['solid_white'] = whiteSolidLayer
+            g_viewer_manager.initializeInitImage(snapshotGroup,snapshotLayer,whiteSolidLayer,path)//this will be called once a session and will add the first init image to th viewer manager
             for (layer of inpaintLayers){
               layer.visible = false 
             }
+            const util_layer = require('./utility/layer')
+            
+            await util_layer.collapseFolderExe([snapshotGroup,maskGroup],false)
         })
         return inpaintLayers
     }catch(e){
     console.warn("inpaintFasterExe error:", e)
     }
+    return []
     }
 module.exports = {
   createSnapshot,
@@ -495,8 +591,9 @@ module.exports = {
   moveLayersToGroup,
   executeCommand,
   outpaintExe,
-  outpaintFasterExe,
+  // outpaintFasterExe,
   inpaintFasterExe,
-  snapAndFillExe
+  snapAndFillExe,
+  addClippingMaskToLayer
 }
 

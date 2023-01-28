@@ -1,7 +1,7 @@
 {
   "id": "auto.photoshop.stable.diffusion.plugin",
   "name": "Auto Photoshop Stable Diffusion Plugin",
-  "version": "1.0.22",
+  "version": "1.0.26",
   "host": [
     {
       "app": "PS",
@@ -9,18 +9,10 @@
     }
   ],
   "main": "index.html",
-  "manifestVersion": 4,
+  "manifestVersion": 5,
   "requiredPermissions": {
     "network": {
-      "domains": [
-        "https://source.unsplash.com",
-        "https://api.github.com/",
-        "http://127.0.0.1:3000",
-        "http://localhost:3000",
-        "http://127.0.0.1:8000",
-        "http://127.0.0.1",
-        "http://localhost"
-      ]
+      "domains": "all"
     },
     "launchProcess": {
       "schemes": ["http", "https", "mailto"],
@@ -37,13 +29,13 @@
       "type": "panel",
       "id": "vanilla",
       "label": {
-        "default": "Starter Panel",
-        "en-US": "Starter Panel",
-        "es-ES": "Starter Panel"
+        "default": "Auto-Photoshop-SD",
+        "en-US": "Auto-Photoshop-SD",
+        "es-ES": "Auto-Photoshop-SD"
       },
       "minimumSize": {
         "width": 400,
-        "height": 450
+        "height": 800
       },
       "maximumSize": {
         "width": 1200,
@@ -51,11 +43,11 @@
       },
       "preferredDockedSize": {
         "width": 150,
-        "height": 200
+        "height": 800
       },
       "preferredFloatingSize": {
         "width": 300,
-        "height": 200
+        "height": 800
       },
       "commands": [
         {

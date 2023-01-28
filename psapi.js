@@ -2,7 +2,8 @@ const app = window.require('photoshop').app
 const batchPlay = require('photoshop').action.batchPlay
 const { executeAsModal } = require('photoshop').core
 const export_png = require('./export_png')
-const { layerToSelection } = require('./helper')
+const { selectionToFinalWidthHeight } = require('./selection')
+// const { layerToSelection } = require('./helper')
 
 const storage = require('uxp').storage
 const fs = storage.localFileSystem
@@ -75,11 +76,12 @@ async function makeGroupCommand () {
 
   return result
 }
-async function createEmptyGroup () {
+async function createEmptyGroup (name = "New Group") {
   let groupLayer
   await executeAsModal(async () => {
     await makeGroupCommand()
     groupLayer = app.activeDocument.activeLayers[0]
+    groupLayer.name = name
   })
   console.log('groupLayer:', groupLayer)
   return groupLayer
@@ -169,8 +171,8 @@ async function getLayerIndex (layer_id) {
   }
 }
 
-function unselectActiveLayers () {
-  const layers = app.activeDocument.activeLayers
+async function unselectActiveLayers () {
+  const layers = await app.activeDocument.activeLayers
   for (layer of layers) {
     layer.selected = false
   }
@@ -180,23 +182,34 @@ async function unselectActiveLayersExe () {
     await unselectActiveLayers()
   })
 }
-function selectLayers (layers) {
-  unselectActiveLayers()
+async function selectLayers (layers) {
+  await unselectActiveLayers()
   for (layer of layers) {
-    layer.selected = true
+    try {
+      if(layer){
+
+        const is_visible = layer.visible// don't change the visibility when selecting the layer 
+        layer.selected = true
+        layer.visible = is_visible
+      }
+    } catch (e) {
+      console.warn(e)
+    }
   }
 }
+
 async function selectLayersExe(layers){
   await executeAsModal(async ()=>{
+
     await selectLayers(layers)
   })
 }
-function selectGroup (layer) {
-  unselectActiveLayers()
+async function selectGroup (layer) {
+  await unselectActiveLayers()
   layer.parent.selected = true
 }
 async function collapseGroup (layer) {
-  selectGroup(layer)
+  await selectGroup(layer)
   await app.activeDocument.activeLayers[0].merge()
 }
 
@@ -410,6 +423,18 @@ async function getSelectionInfoCommand () {
   return result
 }
 
+function isSelectionValid(selection){
+  if (selection && // check if the selection is defined 
+    selection.hasOwnProperty('left') &&
+    selection.hasOwnProperty('right') &&
+    selection.hasOwnProperty('top') &&
+    selection.hasOwnProperty('bottom')
+  ) {
+    return true
+  }
+  
+  return false
+  } 
 async function getSelectionInfoExe () {
   console.log('getSelectionInfo was called')
 
@@ -417,16 +442,19 @@ async function getSelectionInfoExe () {
     const selection = (await executeAsModal(getSelectionInfoCommand))[0]
       .selection
 
-    let selection_info = {
-      left: selection.left._value,
-      right: selection.right._value,
-      bottom: selection.bottom._value,
-      top: selection.top._value,
-      height: selection.bottom._value - selection.top._value,
-      width: selection.right._value - selection.left._value
-    }
-    // console.dir({selection_info})
-    return selection_info
+      if(isSelectionValid(selection)){
+
+        let selection_info = {
+          left: selection.left._value,
+          right: selection.right._value,
+          bottom: selection.bottom._value,
+          top: selection.top._value,
+          height: selection.bottom._value - selection.top._value,
+          width: selection.right._value - selection.left._value
+        }
+        // console.dir({selection_info})
+        return selection_info
+      }
   } catch (e) {
     console.warn('selection info error', e)
   }
@@ -475,14 +503,15 @@ async function reSelectMarqueeCommand (selectionInfo) {
 }
 async function reSelectMarqueeExe (selectionInfo) {
   await executeAsModal(async () => {
-    reSelectMarqueeCommand(selectionInfo)
+    await reSelectMarqueeCommand(selectionInfo)
   })
 }
 
 async function snapshot_layer () {
-  let result
+  
   let psAction = require('photoshop').action
-  ids = app.activeDocument.activeLayers.map(layer => layer.id)
+  // const ids = (await app.activeDocument.activeLayers).map(layer => layer.id)
+  const ids = await app.activeDocument.layers.map(layer => layer.id)
   let command = [
     // Select All Layers current layer
     {
@@ -495,7 +524,7 @@ async function snapshot_layer () {
       ID: ids,
       _obj: 'duplicate',
       _target: [{ _enum: 'ordinal', _ref: 'layer', _value: 'targetEnum' }],
-      version: 5
+      // version: 5
     },
 
     // Merge Layers
@@ -514,15 +543,21 @@ async function snapshot_layer () {
       to: { _enum: 'ordinal', _ref: 'channel', _value: 'targetEnum' }
     }
   ]
-  result = await psAction.batchPlay(command, {   "synchronousExecution": true,
+  const result = await psAction.batchPlay(command, {   "synchronousExecution": true,
   "modalBehavior": "execute"})
+  console.log("snapshot_layer: result: ",result)
   return result
 }
 
 async function snapshot_layerExe () {
-  await require('photoshop').core.executeAsModal(snapshot_layer, {
-    commandName: 'Action Commands'
-  })
+  try{
+
+    await executeAsModal(async () => {await snapshot_layer()}, {
+      commandName: 'Action Commands'
+    })
+  }catch(e){
+    console.error(e)
+  }
 }
 
 // await runModalFunction();
@@ -666,32 +701,37 @@ async function exportPng (session_id) {
 async function setInitImage (layer, session_id) {
  try{
 
-  const html_manip = require('./html_manip') 
+  const html_manip = require('./utility/html_manip') 
   // const layer = await app.activeDocument.activeLayers[0]
   const old_name = layer.name 
   const sdapi = require('./sdapi')
   // await exportPng(session_id)
   // image_name = await app.activeDocument.activeLayers[0].name
   
-  // image_name = layerNameToFileName(old_name,layer.id,random_session_id)
+  //convert layer name to a file name
   image_name = layerNameToFileName(old_name,layer.id,session_id)
   image_name = `${image_name}.png`
+
+  //the width and height of the exported image
   const width = html_manip.getWidth()
   const height = html_manip.getHeight()
   await newExportPng(layer,image_name,width,height)
 
   g_init_image_name = image_name
   console.log(image_name)
+  
   const image_src = await sdapi.getInitImage(g_init_image_name)
   let ini_image_element = document.getElementById('init_image')
   ini_image_element.src = image_src
+  
+  return image_name
 } catch (e) {
   console.error(`psapi.js setInitImage error:, ${e}`)
 }
 }
 async function setInitImageMask (layer, session_id) {
   try{
-    const html_manip = require('./html_manip')
+    const html_manip = require('./utility/html_manip')
 
   
   // const layer = await app.activeDocument.activeLayers[0]
@@ -716,6 +756,8 @@ async function setInitImageMask (layer, session_id) {
   ini_image_mask_element.src = image_src
   ini_image_mask_element.dataset.layer_id = layer.id
 
+  //create viewer init image obj
+  return image_name
 } catch (e) {
   console.error(`psapi.js setInitImageMask error: `,e)
 }
@@ -743,13 +785,16 @@ async function setInitImageMask (layer, session_id) {
 // }
 
 async function cleanLayers(layers){
-  g_init_image_related_layers = {}
-  g_mask_related_layers = {}
-  await loadViewerImages()// we should move loadViewerImages to a new file viewer.js
+  // g_init_image_related_layers = {}
+  // g_mask_related_layers = {}
+  // await loadViewerImages()// we should move loadViewerImages to a new file viewer.js
   console.log("cleanLayers() -> layers:",layers)
   for (layer of layers){
     try {
-      await executeAsModal(async ()=>{await layer.delete()})}
+      if(layer){
+
+        await executeAsModal(async ()=>{await layer.delete()})}
+      }
       catch(e){
         console.warn("warning attempting to a delete layer: ",e)  
         continue;
@@ -821,14 +866,19 @@ async function createClippingMaskExe () {
   }
 
   await executeAsModal(async () => {
-    createClippingMaskCommand()
+    await createClippingMaskCommand()
   })
 }
 
 async function checkIfSelectionAreaIsActive()
 {
-  let isSelectionAreaValid = getSelectionInfoExe()
-return isSelectionAreaValid
+  try{
+
+    let isSelectionAreaValid = await getSelectionInfoExe()
+    return isSelectionAreaValid
+  }catch(e){
+    console.warn(e)
+  }
 }
 async function saveUniqueDocumentIdExe (new_id) {
   const batchPlay = require('photoshop').action.batchPlay
@@ -869,7 +919,7 @@ async function saveUniqueDocumentIdExe (new_id) {
   }
 
   await executeAsModal(async () => {
-    saveUniqueDocumentIdCommand()
+    await saveUniqueDocumentIdCommand()
   })
 }
 
@@ -1056,7 +1106,8 @@ async function newExportPng (layer,image_name,width,height) {
         await selectLayers([dupLayer])
         // await selectLayerChannelCommand()
         await selectCanvasExe()
-        await layerToSelection()
+        const canvas_selection_info = await getSelectionInfoExe()
+        await layerToSelection(canvas_selection_info)
         // const selection_info = await getSelectionInfoExe()
         // await exportDoc.crop(selection_info)
         // export_image_name = `${layer.name}.png`
@@ -1068,8 +1119,115 @@ async function newExportPng (layer,image_name,width,height) {
     console.error(`newExportPng error: ,${e}`)
   }
 }
+async function mergeVisibleCommand () {
+  const result = await batchPlay(
+    [
+      {
+          "_obj": "mergeVisible",
+          "duplicate": true,
+          "_isCommand": true
+          // "_options": {
+          //   // "dialogOptions": "dontDisplay"
+          // }
+      }
+    ],{
+      "synchronousExecution": true,
+      "modalBehavior": "execute"
+    });
+
+  return result
+}
+
+async function mergeVisibleExe () {
+  await executeAsModal(async () => {
+    await mergeVisibleCommand()
+  })
+}
+
+async function layerToSelection (selection_info) {
+  //store active layer for later
 
 
+  try {
+    //Store selection info
+    //unSelect
+    //move layer
+    //scale layer
+    //Select from selection info
+    // let selection_info = await getSelectionInfo()
+    
+
+    console.log('selection_info:',selection_info)
+    
+
+    console.log('unSelect')
+
+    
+    function getLayerSize (layer) {
+      console.log('layer.bounds:')
+      console.dir(layer.bounds)
+      const bounds = layer.bounds
+      const height = bounds.bottom - bounds.top
+      const width = bounds.right - bounds.left
+      return {
+        height: height,
+        width: width,
+        left: bounds.left,
+        right: bounds.right,
+        top: bounds.top,
+        bottom: bounds.bottom
+      }
+    }
+     //scale layer
+     async function scaleLayer (layer,selection_info) {
+        console.log('scaleLayer got called')
+        // const activeLayer = getActiveLayer()
+        // const activeLayer = await app.activeDocument.activeLayers[0]
+
+        let layer_info = getLayerSize(layer)
+        scale_x_ratio = (selection_info.width / layer_info.width) * 100
+        scale_y_ratio = (selection_info.height / layer_info.height) * 100
+        console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
+        await layer.scale(scale_x_ratio, scale_y_ratio)
+      }
+      
+      
+
+    async function moveLayerExe (layerToMove, selection_info) {
+        
+        let layer_info = getLayerSize(layerToMove)
+      top_dist = layer_info.top - selection_info.top
+      left_dist = layer_info.left - selection_info.left
+      await layerToMove.translate(-left_dist, -top_dist)
+    }
+    // const activeLayer = await getActiveLayer()
+    
+    //store all active layers
+    const activeLayers = await app.activeDocument.activeLayers
+    await unSelectMarqueeExe()
+    // await executeAsModal(unSelect,  {'commandName': 'unSelect'})
+    // await executeAsModal(scaleLayer,  {'commandName': 'scaleLayer'})
+    
+    
+    
+
+
+    await executeAsModal(async () => {
+      
+      for (let layer of activeLayers){
+        await selectLayers([layer])// make sure only one layer is selected  
+        await scaleLayer(layer,selection_info)//scale to selection size
+        await moveLayerExe(layer, selection_info)//move to selection
+      }
+    },  {'commandName': 'moveLayerExe'})
+
+    // await reselect(selection_info)
+  } catch (e) {
+    console.warn(e)
+  }
+
+  
+}
 
 module.exports = {
   createSolidLayer,
@@ -1107,5 +1265,10 @@ module.exports = {
   promptForMarqueeTool,
   saveUniqueDocumentIdExe,
   readUniqueDocumentIdExe,
-  newExportPng
+  newExportPng,
+  mergeVisibleExe,
+  selectCanvasExe,
+  layerToSelection,
+  isSelectionValid
+
 }

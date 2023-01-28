@@ -24,11 +24,13 @@ import serverHelper
 import metadata_to_json
 
 from PIL import Image, ImageFilter
-def applyDilation(img):
+def applyDilation(img,iteration=20,max_filter=3):
     # img = Image.open("test_image_2.png")
     dilation_img = img
-    for i in range(20):
-        dilation_img = dilation_img.filter(ImageFilter.MaxFilter(3))
+    # for i in range(20):
+    #     dilation_img = dilation_img.filter(ImageFilter.MaxFilter(3))
+    for i in range(iteration):
+        dilation_img = dilation_img.filter(ImageFilter.MaxFilter(max_filter))
     return dilation_img
 
 
@@ -59,7 +61,11 @@ async def img2ImgRequest(sd_url,payload):
     #only if image exist then try to open it
     if(len(init_img_mask_name) > 0):
         init_img_mask = Image.open(f"{init_img_dir}/{init_img_mask_name}")
-        init_img_mask = applyDilation(init_img_mask)
+        
+        if(payload['use_sharp_mask'] == False):# use blurry mask 
+            iteration = payload['mask_expansion']
+            init_img_mask = applyDilation(init_img_mask,iteration)
+
         init_img_mask_str = img_2_b64(init_img_mask) 
         payload['mask'] = init_img_mask_str #there is only one mask, unlike 'init_images' which is of type array
 

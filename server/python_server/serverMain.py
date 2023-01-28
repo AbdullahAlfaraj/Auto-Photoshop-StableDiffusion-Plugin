@@ -12,7 +12,9 @@ import time
 import serverHelper
 import prompt_shortcut
 import metadata_to_json
+import search
 sd_url = os.environ.get('SD_URL', 'http://127.0.0.1:7860')
+
 
 async def txt2ImgRequest(payload):
     # payload = { 
@@ -201,11 +203,28 @@ async def getInitImageHandle(request:Request):
     
     return {"payload": payload,"init_image_str":init_img_str}
 
+@app.get('/config')
+async def sdapi(request: Request, response: Response):
+    try:
+        
+        resp = requests.get(url=f'{sd_url}/config', params=request.query_params)
+        response.status_code = resp.status_code
+        response.body = resp.content
+    except:
+        print(f'exception: fail to send request to {sd_url}/config')
+        print(f'{request}')
+    return response
+
 @app.get('/sdapi/v1/{path:path}')
 async def sdapi(path: str, request: Request, response: Response):
-    resp = requests.get(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params)
-    response.status_code = resp.status_code
-    response.body = resp.content
+    try:
+        
+        resp = requests.get(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params)
+        response.status_code = resp.status_code
+        response.body = resp.content
+    except:
+        print(f'exception: fail to send request to {sd_url}/sdapi/v1/{path}')
+        print(f'{request}')
     return response
 
 @app.post('/sdapi/v1/{path:path}')
@@ -231,6 +250,30 @@ async def sdapi(path: str, request: Request, response: Response):
     return response
 
 
+
+
+@app.post('/search/image/')
+async def searchImage(request:Request):
+    try:
+        json = await request.json()
+    except: 
+        json = {}
+    
+
+    try:
+        keywords = json.get('keywords','cute dogs') 
+        images = await search.imageSearch(keywords)
+        print(images)
+        
+        
+        return {"images":images}
+    except:
+        print("keywords",keywords)
+        # print(f'{request}')
+    return {"error": "error message: can't preform an image search"}
+
+
+    # return response
 @app.post('/history/load')
 async def loadHistory(request: Request):
     # {'image_paths','metadata_setting'}
@@ -249,9 +292,12 @@ async def loadHistory(request: Request):
         image_paths = glob.glob(f'./output/{uniqueDocumentId}/*.png')
         settings_paths = glob.glob(f'./output/{uniqueDocumentId}/*.json')#note: why is we are not using settings_paths?
         print("loadHistory: image_paths:", image_paths)
+        
+
         history['image_paths'] = image_paths
         history['metadata_jsons'] = []
         for image_path in image_paths:
+            print("image_path: ", image_path)
             metadata_dict = metadata_to_json.createMetadataJsonFileIfNotExist(image_path)
             history['metadata_jsons'].append(metadata_dict)  
         
@@ -259,7 +305,11 @@ async def loadHistory(request: Request):
         
         print(f'{request}')
     
-    # return response
+    #reverse the order so that newer generated images path will be shown first
+    
+
+    history['image_paths'].reverse()
+    history['metadata_jsons'].reverse()  
     return {"image_paths":history['image_paths'], "metadata_jsons":history['metadata_jsons']}
 
 
