@@ -14,8 +14,8 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 - [Demo:](#demo)
 - [Instructional Tutorial (outpaint, inpaint, img2img and txt2img):](#instructional-tutorial-outpaint-inpaint-img2img-and-txt2img)
 - [How to install:](#how-to-install)
-	- [First time runing the plugin (local Automatic1111):](#first-time-runing-the-plugin-local-automatic1111)
-	- [First time runing the plugin (remote Automatic1111):](#first-time-runing-the-plugin-remote-automatic1111)
+	- [First time running the plugin (local Automatic1111):](#first-time-running-the-plugin-local-automatic1111)
+	- [First time running the plugin (remote Automatic1111):](#first-time-running-the-plugin-remote-automatic1111)
 	- [Steps to run the plugin for second time and onward:](#steps-to-run-the-plugin-for-second-time-and-onward)
 - [How to Use the Plugin:](#how-to-use-the-plugin)
 	- [How to Videos:](#how-to-videos)
@@ -42,7 +42,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 [![Click Here to Watch Tutorial](http://i3.ytimg.com/vi/evjSIfYIQq0/hqdefault.jpg)](https://www.youtube.com/watch?v=evjSIfYIQq0&ab_channel=Abdsart "Tutorial - Auto Photoshop Stable Diffusion Plugin")
 
 # How to install:
-## First time runing the plugin (local Automatic1111):
+## First time running the plugin (local Automatic1111):
 1) download the plugin:
 ```
 git clone https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin.git
@@ -68,7 +68,7 @@ that will allow the plugin to communicate with the automatic1111 project. After 
 7) select the plugin and click on Actions -> Load Selected
 that's it.
 
-## First time runing the plugin (remote Automatic1111):
+## First time running the plugin (remote Automatic1111):
 __The remote webui must have api access enabled for this to work. You can check if api access is enabled by appending "/docs#" to the end of the url. If the documentation for the api appears then api access is enabled.__
 
 1) download the plugin:
