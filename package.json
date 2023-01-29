@@ -6,5 +6,24 @@
   "license": "Apache-2.0",
   "dependencies": {
     "fastify": "^4.10.2"
-  }
+  },
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {
+    "prettier": "2.8.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/issues"
+  },
+  "homepage": "https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin#readme"
 }
