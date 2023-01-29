@@ -816,7 +816,7 @@ async function displayUpdate () {
     document.getElementById('slInpaintPadding').style.display = 'none' 
     document.getElementById("slMaskBlur").style.display = 'none'
     document.getElementById('chHiResFixs').style.display = 'none'
-    // document.getElementById('slInpaintingMaskWeight').style.display = 'none' // hide inpainting conditional mask weight
+    document.getElementById('slInpaintingMaskWeight').style.display = 'block' // hide inpainting conditional mask weight
   }
   if (g_sd_mode == 'inpaint' || g_sd_mode== 'outpaint') {
     ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring   
