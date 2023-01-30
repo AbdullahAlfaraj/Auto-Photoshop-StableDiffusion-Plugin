@@ -12,6 +12,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 - [Auto-Photoshop-StableDiffusion-Plugin](#auto-photoshop-stablediffusion-plugin)
 - [Table of Contents](#table-of-contents)
 - [Demo:](#demo)
+- [How To Install Video Tutorial](#how-to-install-video-tutorial)
 - [Instructional Tutorial (outpaint, inpaint, img2img and txt2img):](#instructional-tutorial-outpaint-inpaint-img2img-and-txt2img)
 - [How to install:](#how-to-install)
 	- [First time running the plugin (local Automatic1111):](#first-time-running-the-plugin-local-automatic1111)
@@ -37,6 +38,8 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 
 # Demo:
 [![Click Here to Watch Demo](https://i3.ytimg.com/vi/VL_gbQai79E/maxresdefault.jpg)](https://youtu.be/VL_gbQai79E "Stable diffusion AI Photoshop Plugin Free and Open Source")
+# How to install Video Tutorial:
+[![Click Here to Watch How To Install Tutorial](https://user-images.githubusercontent.com/7842232/215471551-2d39c6c2-a765-4eca-bc54-7b386aa25662.png)](https://youtu.be/BNzdhEpFHrg "How To Install Auto Photoshop Stable Diffusion Plugin")
 
 # Instructional Tutorial (outpaint, inpaint, img2img and txt2img):
 [![Click Here to Watch Tutorial](http://i3.ytimg.com/vi/evjSIfYIQq0/hqdefault.jpg)](https://www.youtube.com/watch?v=evjSIfYIQq0&ab_channel=Abdsart "Tutorial - Auto Photoshop Stable Diffusion Plugin")
