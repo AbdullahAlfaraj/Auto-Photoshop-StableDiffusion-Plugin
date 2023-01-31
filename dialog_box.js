@@ -1,54 +1,54 @@
-async function prompt (
+async function prompt(
   heading,
   body,
-  buttons = ['Cancel', 'Ok'],
+  buttons = ["Cancel", "Ok"],
   options = { title: heading, size: { width: 360, height: 280 } }
 ) {
   const [dlgEl, formEl, headingEl, dividerEl, bodyEl, footerEl] = [
-    'dialog',
-    'form',
-    'sp-heading',
-    'sp-divider',
-    'sp-body',
-    'footer'
-  ].map(tag => document.createElement(tag))
-  ;[headingEl, dividerEl, bodyEl, footerEl].forEach(el => {
-    el.style.margin = '6px'
-    el.style.width = 'calc(100% - 12px)'
-  })
+    "dialog",
+    "form",
+    "sp-heading",
+    "sp-divider",
+    "sp-body",
+    "footer",
+  ].map((tag) => document.createElement(tag));
+  [headingEl, dividerEl, bodyEl, footerEl].forEach((el) => {
+    el.style.margin = "6px";
+    el.style.width = "calc(100% - 12px)";
+  });
 
-  formEl.setAttribute('method', 'dialog')
-  formEl.addEventListener('submit', () => dlgEl.close())
+  formEl.setAttribute("method", "dialog");
+  formEl.addEventListener("submit", () => dlgEl.close());
 
-  footerEl.style.marginTop = '26px'
+  footerEl.style.marginTop = "26px";
 
-  dividerEl.setAttribute('size', 'large')
+  dividerEl.setAttribute("size", "large");
 
-  headingEl.textContent = heading
+  headingEl.textContent = heading;
 
-  bodyEl.textContent = body
+  bodyEl.textContent = body;
 
   buttons.forEach((btnText, idx) => {
-    const btnEl = document.createElement('sp-button')
+    const btnEl = document.createElement("sp-button");
     btnEl.setAttribute(
-      'variant',
-      idx === buttons.length - 1 ? btnText.variant || 'cta' : 'secondary'
-    )
-    if (idx === buttons.length - 1) btnEl.setAttribute('autofocus', 'autofocus')
-    if (idx < buttons.length - 1) btnEl.setAttribute('quiet')
-    btnEl.textContent = btnText.text || btnText
-    btnEl.style.marginLeft = '12px'
-    btnEl.addEventListener('click', () => dlgEl.close(btnText.text || btnText))
-    footerEl.appendChild(btnEl)
-  })
-
-  ;[headingEl, dividerEl, bodyEl, footerEl].forEach(el =>
+      "variant",
+      idx === buttons.length - 1 ? btnText.variant || "cta" : "secondary"
+    );
+    if (idx === buttons.length - 1)
+      btnEl.setAttribute("autofocus", "autofocus");
+    if (idx < buttons.length - 1) btnEl.setAttribute("quiet");
+    btnEl.textContent = btnText.text || btnText;
+    btnEl.style.marginLeft = "12px";
+    btnEl.addEventListener("click", () => dlgEl.close(btnText.text || btnText));
+    footerEl.appendChild(btnEl);
+  });
+  [headingEl, dividerEl, bodyEl, footerEl].forEach((el) =>
     formEl.appendChild(el)
-  )
-  dlgEl.appendChild(formEl)
-  document.body.appendChild(dlgEl)
+  );
+  dlgEl.appendChild(formEl);
+  document.body.appendChild(dlgEl);
 
-  return dlgEl.uxpShowModal(options)
+  return dlgEl.uxpShowModal(options);
 }
 
 // const r1 = await prompt(
@@ -73,4 +73,4 @@ async function prompt (
 //   /* Do the delete */
 // }
 
-module.exports = { prompt }
+module.exports = { prompt };

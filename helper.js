@@ -1,112 +1,110 @@
-const { unselectActiveLayers } = require('./psapi')
+const { unselectActiveLayers } = require("./psapi");
 
-const app = window.require('photoshop').app
+const app = window.require("photoshop").app;
 
-function getActiveLayer () {
-  let activeLayers = app.activeDocument.activeLayers
+function getActiveLayer() {
+  let activeLayers = app.activeDocument.activeLayers;
   // console.dir(getSize())
   for (const layer of activeLayers) {
-    console.dir({ layer })
-    const name = layer.name
-    console.dir({ name })
-    let layer_size = getLayerSize(layer)
-    console.dir({ layer_size })
+    console.dir({ layer });
+    const name = layer.name;
+    console.dir({ name });
+    let layer_size = getLayerSize(layer);
+    console.dir({ layer_size });
   }
 
-  return activeLayers[0]
+  return activeLayers[0];
 }
 
-
-function getSize () {
-  let doc = app.activeDocument
-  return { height: doc.height, width: doc.width }
+function getSize() {
+  let doc = app.activeDocument;
+  return { height: doc.height, width: doc.width };
 }
 
+const { batchPlay } = require("photoshop").action;
+const { executeAsModal } = require("photoshop").core;
 
-
-const { batchPlay } = require('photoshop').action
-const { executeAsModal } = require('photoshop').core
-
-async function reselectBatchPlay(selectionInfo){
+async function reselectBatchPlay(selectionInfo) {
   const result = await batchPlay(
     [
       {
-        _obj: 'set',
+        _obj: "set",
         _target: [
           {
-            _ref: 'channel',
-            _property: 'selection'
-          }
+            _ref: "channel",
+            _property: "selection",
+          },
         ],
         to: {
-          _obj: 'rectangle',
+          _obj: "rectangle",
           top: {
-            _unit: 'pixelsUnit',
-            _value: selectionInfo.top
+            _unit: "pixelsUnit",
+            _value: selectionInfo.top,
           },
           left: {
-            _unit: 'pixelsUnit',
-            _value: selectionInfo.left
+            _unit: "pixelsUnit",
+            _value: selectionInfo.left,
           },
           bottom: {
-            _unit: 'pixelsUnit',
-            _value: selectionInfo.bottom
+            _unit: "pixelsUnit",
+            _value: selectionInfo.bottom,
           },
           right: {
-            _unit: 'pixelsUnit',
-            _value: selectionInfo.right
-          }
+            _unit: "pixelsUnit",
+            _value: selectionInfo.right,
+          },
         },
         _options: {
-          dialogOptions: 'dontDisplay'
-        }
-      }
+          dialogOptions: "dontDisplay",
+        },
+      },
     ],
     {
       synchronousExecution: true,
-      modalBehavior: 'execute'
+      modalBehavior: "execute",
     }
-  )
+  );
 }
 
-async function reselect(selectionInfo){
-await executeAsModal(async () => {
-  reselectBatchPlay(selectionInfo)
-},  {'commandName': 'reselect'})
-
+async function reselect(selectionInfo) {
+  await executeAsModal(
+    async () => {
+      reselectBatchPlay(selectionInfo);
+    },
+    { commandName: "reselect" }
+  );
 }
-
 
 //unselect the rectangular marquee selection area
-async function unSelect () {
-  const batchPlay = require('photoshop').action.batchPlay
+async function unSelect() {
+  const batchPlay = require("photoshop").action.batchPlay;
 
   const result = await batchPlay(
     [
       {
-        _obj: 'set',
+        _obj: "set",
         _target: [
           {
-            _ref: 'channel',
-            _property: 'selection'
-          }
+            _ref: "channel",
+            _property: "selection",
+          },
         ],
         to: {
-          _enum: 'ordinal',
-          _value: 'none'
+          _enum: "ordinal",
+          _value: "none",
         },
         _options: {
-          dialogOptions: 'dontDisplay'
-        }
-      }
+          dialogOptions: "dontDisplay",
+        },
+      },
     ],
     {
       synchronousExecution: true,
-      modalBehavior: 'execute'
+      modalBehavior: "execute",
     }
-  )
+  );
 
-  return result
+  return result;
 }
 
 // async function layerToSelectionHelper () {
@@ -157,10 +155,8 @@ async function unSelect () {
 //     //scale layer
 //     //Select from selection info
 //     // let selection_info = await getSelectionInfo()
-    
 
 //     console.log('selection_info:',selection_info)
-    
 
 //     console.log('unSelect')
 
@@ -180,9 +176,8 @@ async function unSelect () {
 //       }
 //       await executeAsModal(scaleLayer,  {'commandName': 'scaleLayer'})
 
-
 //     async function moveLayerExe (layerToMove, selection_info) {
-        
+
 //         let layer_info = getLayerSize(layerToMove)
 //       top_dist = layer_info.top - selection_info.top
 //       left_dist = layer_info.left - selection_info.left
@@ -192,11 +187,10 @@ async function unSelect () {
 //     //store all active layers
 //     const activeLayers = await app.activeDocument.activeLayers
 
-
 //     await executeAsModal(async () => {
-      
+
 //       for (let layer of activeLayers){
-//         await psapi.selectLayers([layer])  
+//         await psapi.selectLayers([layer])
 //         await moveLayerExe(layer, selection_info)
 //       }
 //     },  {'commandName': 'moveLayerExe'})
@@ -206,9 +200,8 @@ async function unSelect () {
 //     console.warn(e)
 //   }
 
-  
 // }
 
 module.exports = {
   // layerToSelection
-}
+};
