@@ -67,8 +67,8 @@ async def txt2ImgRequest(payload):
             metadata_json = metadata_to_json.convertMetadataToJson(metadata_info)
             metadata.append(metadata_json)
             print("metadata_json: ", metadata_json)
-
-        return dirName,image_paths,metadata
+        base64_images = r['images']
+        return dirName,image_paths,metadata,base64_images
 
 import base64
 from io import BytesIO
@@ -156,9 +156,9 @@ async def changeSdUrl(request:Request):
 async def txt2ImgHandle(request:Request):
     print("txt2ImgHandle: \n")
     payload = await request.json() 
-    dir_name,image_paths,metadata = await txt2ImgRequest(payload)
+    dir_name,image_paths,metadata,base64_images = await txt2ImgRequest(payload)
     # return {"prompt":payload.prompt,"images": ""}
-    return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths,"metadata":metadata}
+    return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths,"metadata":metadata,"base64_images":base64_images}
 
 @app.post("/img2img/")
 async def img2ImgHandle(request:Request):
