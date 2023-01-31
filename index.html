@@ -1,1033 +1,1095 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <script src="index.js"></script>
-  </head>
-  <style>
-    sp-textarea,
-    textarea {
-      width: 100%;
-      height: 100px;
-    }
+    <head>
+        <script src="index.js"></script>
+    </head>
+    <style>
+        sp-textarea,
+        textarea {
+            width: 100%;
+            height: 100px;
+        }
 
-    #taPromptShortcut {
-      height: 300px;
-      margin: 3px auto;
-    }
+        #taPromptShortcut {
+            height: 300px;
+            margin: 3px auto;
+        }
 
-    #taPrompt {
-      box-sizing: border-box;
-      background: rgb(37, 37, 37);
-    }
+        #taPrompt {
+            box-sizing: border-box;
+            background: rgb(37, 37, 37);
+        }
 
-    .container {
-      width: 100%;
-      padding-left: 3%;
-      padding-right: 3%;
-    }
+        .container {
+            width: 100%;
+            padding-left: 3%;
+            padding-right: 3%;
+        }
 
-    sp-progressbar {
-      margin-bottom: 3px;
-      margin-top: 3px;
-    }
+        sp-progressbar {
+            margin-bottom: 3px;
+            margin-top: 3px;
+        }
 
-    .prompt-container {
-      width: 100%;
-      padding-left: 5%;
-      padding-right: 5%;
-    }
+        .prompt-container {
+            width: 100%;
+            padding-left: 5%;
+            padding-right: 5%;
+        }
 
-    #collapsible {
-      background-color: #777;
-      color: white;
-      cursor: pointer;
-      padding: 5px;
-      width: 100%;
-      border: none;
-      text-align: left;
-      outline: none;
-      font-size: 15px;
-    }
+        #collapsible {
+            background-color: #777;
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+        }
 
-    #collapsible:hover {
-      background-color: #333;
-    }
+        #collapsible:hover {
+            background-color: #333;
+        }
 
-    .content {
-      padding: 0 18px;
-      display: none;
-      overflow: hidden;
-    }
+        .content {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+        }
 
-    .grid-container {
-      display: inline-flex;
-      grid-template-columns: auto auto auto;
-    }
+        .grid-container {
+            display: inline-flex;
+            grid-template-columns: auto auto auto;
+        }
 
-    .column-item-image {
-      width: 100px;
-      height: 100px;
-      margin: 0;
-    }
-    .viewer-image,
-    .history-image,
-    .image-search {
-      width: 100px;
-      height: 100px;
-      margin: 0;
-      position: relative;
-      max-height: 100%;
-      max-width: 100%;
-    }
-    .thumbnail-image-button {
-      display: none;
-      /* background-color:  #495b79; */
-      color: white;
-      border: none;
-      cursor: pointer;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      /* height: 20px; */
-      margin: 0;
-      max-height: 100%;
-      max-width: 100%;
-    }
-    .thumbnail-image-container {
-      position: relative;
-      width: 100px;
-      height: 100px;
-      margin: 0;
-    }
-    .thumbnail-image-container:hover .thumbnail-image-button {
-      display: flex;
-    }
-    .viewer-container {
-      display: flex;
-      flex-wrap: wrap;
-    }
-    .column-item {
-      margin: 0;
-    }
+        .column-item-image {
+            width: 100px;
+            height: 100px;
+            margin: 0;
+        }
+        .viewer-image,
+        .history-image,
+        .image-search {
+            width: 100px;
+            height: 100px;
+            margin: 0;
+            position: relative;
+            max-height: 100%;
+            max-width: 100%;
+        }
+        .thumbnail-image-button {
+            display: none;
+            /* background-color:  #495b79; */
+            color: white;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            /* height: 20px; */
+            margin: 0;
+            max-height: 100%;
+            max-width: 100%;
+        }
+        .thumbnail-image-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0;
+        }
+        .thumbnail-image-container:hover .thumbnail-image-button {
+            display: flex;
+        }
+        .viewer-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .column-item {
+            margin: 0;
+        }
 
-    .button-style {
-      background-color: #777;
-      color: white;
-      cursor: pointer;
-      width: 100px;
-      border: none;
-      text-align: left;
-      outline: none;
-      font-size: 15px;
-      margin: 0;
-    }
+        .button-style {
+            background-color: #777;
+            color: white;
+            cursor: pointer;
+            width: 100px;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+            margin: 0;
+        }
 
-    .btnSquare,
-    #btnRefreshModels {
-      background-color: #777;
-      color: white;
-      cursor: pointer;
+        .btnSquare,
+        #btnRefreshModels {
+            background-color: #777;
+            color: white;
+            cursor: pointer;
 
-      border: none;
+            border: none;
 
-      text-align: left;
-      outline: none;
-      font-size: 15px;
-      margin: 0;
-    }
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+            margin: 0;
+        }
 
-    .button-style2 {
-      background-color: #777;
-      color: white;
-      cursor: pointer;
+        .button-style2 {
+            background-color: #777;
+            color: white;
+            cursor: pointer;
 
-      border: 1px;
+            border: 1px;
 
-      text-align: left;
-      outline-style: solid;
-      outline: solid;
-      font-size: 15px;
-      margin: 10px;
-    }
+            text-align: left;
+            outline-style: solid;
+            outline: solid;
+            font-size: 15px;
+            margin: 10px;
+        }
 
-    .wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      overflow: auto;
-    }
+        .wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: auto;
+        }
 
-    #progressContainer {
-      display: flex;
-      justify-content: space-between;
-    }
+        #progressContainer {
+            display: flex;
+            justify-content: space-between;
+        }
 
-    #lVersionNumber {
-      display: flex;
-      margin-left: auto;
-    }
-    .flexContainer {
-      flex: 0 0 auto;
-      display: flex;
-      flex-direction: row;
-    }
-    #historySeedLabelContainer {
-      display: flex;
-      margin-left: auto;
-    }
-    #menu-bar-container {
-      width: 100%;
-      display: flex;
-      /* justify-content: space-between; */
-      margin: 3px auto;
-    }
+        #lVersionNumber {
+            display: flex;
+            margin-left: auto;
+        }
+        .flexContainer {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: row;
+        }
+        #historySeedLabelContainer {
+            display: flex;
+            margin-left: auto;
+        }
+        #menu-bar-container {
+            width: 100%;
+            display: flex;
+            /* justify-content: space-between; */
+            margin: 3px auto;
+        }
 
-    #sdBtnContainer {
-      display: flex;
-      flex: 0 0 auto;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-    }
-    .labelNumber {
-      color: aliceblue;
-    }
+        #sdBtnContainer {
+            display: flex;
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        .labelNumber {
+            color: aliceblue;
+        }
 
-    #lNameInpaintPdding {
-      margin-right: 10px;
-    }
+        #lNameInpaintPdding {
+            margin-right: 10px;
+        }
 
-    /* tabs */
-    .sp-tabs {
-      flex: 0 0 auto;
-      display: flex;
-      flex-direction: row;
-      border-bottom: 2px solid #3e3e3e;
-    }
+        /* tabs */
+        .sp-tabs {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: row;
+            border-bottom: 2px solid #3e3e3e;
+        }
 
-    .sp-tab {
-      margin-right: 12px;
-    }
+        .sp-tab {
+            margin-right: 12px;
+        }
 
-    .sp-tab sp-label {
-      color: rgba(255, 255, 255, 0.75);
-    }
+        .sp-tab sp-label {
+            color: rgba(255, 255, 255, 0.75);
+        }
 
-    .sp-tab:hover sp-label {
-      color: white;
-    }
+        .sp-tab:hover sp-label {
+            color: white;
+        }
 
-    .sp-tab.selected {
-      border-bottom: 2px solid white;
-      margin-bottom: -2px;
-    }
+        .sp-tab.selected {
+            border-bottom: 2px solid white;
+            margin-bottom: -2px;
+        }
 
-    .sp-tab.selected sp-label {
-      color: white;
-    }
+        .sp-tab.selected sp-label {
+            color: white;
+        }
 
-    @media (prefers-color-scheme: light), (prefers-color-scheme: lightest) {
-      .sp-tabs {
-        border-bottom: 2px solid #b8b8b8;
-      }
+        @media (prefers-color-scheme: light), (prefers-color-scheme: lightest) {
+            .sp-tabs {
+                border-bottom: 2px solid #b8b8b8;
+            }
 
-      .sp-tab sp-label {
-        color: rgba(0, 0, 0, 0.66);
-      }
+            .sp-tab sp-label {
+                color: rgba(0, 0, 0, 0.66);
+            }
 
-      .sp-tab:hover sp-label {
-        color: black;
-      }
+            .sp-tab:hover sp-label {
+                color: black;
+            }
 
-      .sp-tab.selected {
-        border-bottom: 2px solid black;
-      }
+            .sp-tab.selected {
+                border-bottom: 2px solid black;
+            }
 
-      .sp-tab.selected sp-label {
-        color: black;
-      }
-    }
+            .sp-tab.selected sp-label {
+                color: black;
+            }
+        }
 
-    .sp-tab-page {
-      display: none;
-      flex: 1 1 auto;
-      overflow: scroll;
-      padding: 12px 0;
-      flex-direction: column;
-    }
+        .sp-tab-page {
+            display: none;
+            flex: 1 1 auto;
+            overflow: scroll;
+            padding: 12px 0;
+            flex-direction: column;
+        }
 
-    .sp-tab-page.visible {
-      display: flex;
-    }
+        .sp-tab-page.visible {
+            display: flex;
+        }
 
-    .sp-tab-page > * {
-      flex: 0 0 auto;
-    }
+        .sp-tab-page > * {
+            flex: 0 0 auto;
+        }
 
-    .viewerImgSelected {
-      border: 3px solid #6db579;
-    }
-    .viewerImgActive {
-      border: 3px solid #fb9700;
-    }
+        .viewerImgSelected {
+            border: 3px solid #6db579;
+        }
+        .viewerImgActive {
+            border: 3px solid #fb9700;
+        }
 
-    .generate-more {
-      background-color: #6db579;
-    }
-    .generate {
-      background-color: #ff595e;
-    }
-    .connected {
-      color: #6db579;
-    }
-    .disconnected {
-      color: #ff595e;
-    }
-    #slWidth {
-      width: 50%;
-      margin-right: 10px;
-    }
-    #slHeight {
-      width: 50%;
-      margin-left: 10px;
-    }
-    #hrWidth {
-      width: 33%;
-      margin-right: 10px;
-    }
-    #hrHeight {
-      width: 33%;
-      margin-left: 10px;
-    }
-    #hrDenoisingStrength {
-      width: 33%;
-      margin-left: 10px;
-    }
-    #tiNumberOfSteps {
-      width: 50%;
-    }
-    #tiNumberOfSteps {
-      width: auto;
-    }
-    .rbMaskContent {
-      font-size: 1.1em;
-    }
-    #rbSelectionModeLabel,
-    .rbSelectionMode {
-      font-size: 1em;
-      margin-right: 12px;
-    }
-    .checkbox {
-      font-size: 1em;
-      margin-right: 10px;
-    }
-    #slCfgScale {
-      width: 50%;
-      margin-right: 10px;
-    }
-    #slDenoisingStrength {
-      width: 50%;
-      margin-left: 10px;
-    }
+        .generate-more {
+            background-color: #6db579;
+        }
+        .generate {
+            background-color: #ff595e;
+        }
+        .connected {
+            color: #6db579;
+        }
+        .disconnected {
+            color: #ff595e;
+        }
+        #slWidth {
+            width: 50%;
+            margin-right: 10px;
+        }
+        #slHeight {
+            width: 50%;
+            margin-left: 10px;
+        }
+        #hrWidth {
+            width: 33%;
+            margin-right: 10px;
+        }
+        #hrHeight {
+            width: 33%;
+            margin-left: 10px;
+        }
+        #hrDenoisingStrength {
+            width: 33%;
+            margin-left: 10px;
+        }
+        #tiNumberOfSteps {
+            width: 50%;
+        }
+        #tiNumberOfSteps {
+            width: auto;
+        }
+        .rbMaskContent {
+            font-size: 1.1em;
+        }
+        #rbSelectionModeLabel,
+        .rbSelectionMode {
+            font-size: 1em;
+            margin-right: 12px;
+        }
+        .checkbox {
+            font-size: 1em;
+            margin-right: 10px;
+        }
+        #slCfgScale {
+            width: 50%;
+            margin-right: 10px;
+        }
+        #slDenoisingStrength {
+            width: 50%;
+            margin-left: 10px;
+        }
 
-    #slInpaintingMaskWeight {
-      width: 100%;
-      margin-left: 10px;
-    }
-    .disabled-btn {
-      opacity: 0.65;
-      cursor: not-allowed;
-    }
-    .buttonImage {
-      padding: 8px 8px 8px 32px;
-      font-family: Arial, Verdana;
-      background: #f0f0f0
-        url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABfUlEQVQ4y42TP2tUQRTFf3PnPYiLIAiKiKhIsLbxS9hZaykWNmKjgqT0A6SxslRIFRsRv0QwdZB1YyGipImbzWbfnHst3sZdZF92Bw7D/LmH37nDpL1NAyAlHgDXWW18j+A9QBXTnQhu3H704TXS2aU5s/f2/qvTZeXx78goDdE0Z9anusYDmxn4zMAlYglBMsN9zkAzgxwrGGCGnLzIwELCVZbUG+oicDWoLOtBhZwcAQFUZd6gCC/dBPW5Hr+/7VPaCHci2DU5TJVDBe+Q5cyvwT4ucfdleS7noQdURfMEDd4Rwc04OvzDtfWbjCYTitpG/hehoI4IZhmpjTgcj09jUGmeQAVXB4EypbRxjk5O0JTAvgygOBSnap9xsUJC0/nx4BLFW3p78c7Z6SeOJ2ktvL2wUC7G4zHh4uBgxPEkre30Ewb0NrZ0+XDEeUtGXdULZckYDodYMp59vLD9eZftjS31EnARuPr0Xn6yfoVbq/zlrz/pb37SG+DHXyrMGdFXikHpAAAAAElFTkSuQmCC);
-      background-position: 8px 8px;
-      background-repeat: no-repeat;
-    }
-    .acceptAllImgBtn {
-      font-family: Arial, Verdana;
-      background-image: url(./icon/accept_all.png);
-      background-color: transparent;
-      background-size: 30px;
-      width: 30px;
-      height: 30px;
-      background-repeat: no-repeat;
-    }
-    .acceptSelectedImgBtn {
-      font-family: Arial, Verdana;
-      background-image: url(./icon/accept_selected.png);
-      background-color: transparent;
-      background-size: 30px;
-      width: 30px;
-      height: 30px;
-      background-repeat: no-repeat;
-    }
-    .discardAllImgBtn {
-      font-family: Arial, Verdana;
-      background-image: url(./icon/discard_all_border.png);
-      background-color: transparent;
-      background-size: 30px;
-      width: 30px;
-      height: 30px;
-      background-repeat: no-repeat;
-    }
-    .discardSelectedImgBtn {
-      font-family: Arial, Verdana;
-      background-image: url(./icon/discard_selected_border.png);
-      background-color: transparent;
-      background-size: 24px;
-      width: 30px;
-      height: 30px;
-      background-repeat: no-repeat;
-    }
+        #slInpaintingMaskWeight {
+            width: 100%;
+            margin-left: 10px;
+        }
+        .disabled-btn {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+        .buttonImage {
+            padding: 8px 8px 8px 32px;
+            font-family: Arial, Verdana;
+            background: #f0f0f0
+                url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABfUlEQVQ4y42TP2tUQRTFf3PnPYiLIAiKiKhIsLbxS9hZaykWNmKjgqT0A6SxslRIFRsRv0QwdZB1YyGipImbzWbfnHst3sZdZF92Bw7D/LmH37nDpL1NAyAlHgDXWW18j+A9QBXTnQhu3H704TXS2aU5s/f2/qvTZeXx78goDdE0Z9anusYDmxn4zMAlYglBMsN9zkAzgxwrGGCGnLzIwELCVZbUG+oicDWoLOtBhZwcAQFUZd6gCC/dBPW5Hr+/7VPaCHci2DU5TJVDBe+Q5cyvwT4ucfdleS7noQdURfMEDd4Rwc04OvzDtfWbjCYTitpG/hehoI4IZhmpjTgcj09jUGmeQAVXB4EypbRxjk5O0JTAvgygOBSnap9xsUJC0/nx4BLFW3p78c7Z6SeOJ2ktvL2wUC7G4zHh4uBgxPEkre30Ewb0NrZ0+XDEeUtGXdULZckYDodYMp59vLD9eZftjS31EnARuPr0Xn6yfoVbq/zlrz/pb37SG+DHXyrMGdFXikHpAAAAAElFTkSuQmCC);
+            background-position: 8px 8px;
+            background-repeat: no-repeat;
+        }
+        .acceptAllImgBtn {
+            font-family: Arial, Verdana;
+            background-image: url(./icon/accept_all.png);
+            background-color: transparent;
+            background-size: 30px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
+        }
+        .acceptSelectedImgBtn {
+            font-family: Arial, Verdana;
+            background-image: url(./icon/accept_selected.png);
+            background-color: transparent;
+            background-size: 30px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
+        }
+        .discardAllImgBtn {
+            font-family: Arial, Verdana;
+            background-image: url(./icon/discard_all_border.png);
+            background-color: transparent;
+            background-size: 30px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
+        }
+        .discardSelectedImgBtn {
+            font-family: Arial, Verdana;
+            background-image: url(./icon/discard_selected_border.png);
+            background-color: transparent;
+            background-size: 24px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
+        }
 
-    .resetButton {
-      font-family: Arial, Verdana;
-      background-image: url(./icon/reset_settings.png);
-      background-color: transparent;
-      background-size: 30px;
-      width: 30px;
-      height: 30px;
-      background-repeat: no-repeat;
-    }
-    .snapshotButton {
-      font-family: Arial, Verdana;
-      background-image: url(./icon/camera_icon.png);
-      background-color: transparent;
-      background-size: 30px;
-      width: 30px;
-      height: 30px;
-      background-repeat: no-repeat;
-    }
-  </style>
+        .resetButton {
+            font-family: Arial, Verdana;
+            background-image: url(./icon/reset_settings.png);
+            background-color: transparent;
+            background-size: 30px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
+        }
+        .snapshotButton {
+            font-family: Arial, Verdana;
+            background-image: url(./icon/camera_icon.png);
+            background-color: transparent;
+            background-size: 30px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
+        }
+    </style>
 
-  <body>
-    <!-- <sp-textarea id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-textarea> -->
-    <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
+    <body>
+        <!-- <sp-textarea id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-textarea> -->
+        <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
 
-    <div class="container wrapper">
-      <div class="sp-tabs">
-        <div class="sp-tab selected" id="sp-stable-diffusion-ui-tab">
-          <sp-label>Stable Diffusion UI</sp-label>
-        </div>
-        <div class="sp-tab" id="sp-viewer-tab"><sp-label>Viewer</sp-label></div>
-        <div class="sp-tab" id="sp-history-tab">
-          <sp-label>History</sp-label>
-        </div>
-        <div class="sp-tab" id="sp-prompts-library-tab">
-          <sp-label>Prompts library</sp-label>
-        </div>
-        <div class="sp-tab" id="sp-horde-tab"><sp-label>Horde</sp-label></div>
-        <div class="sp-tab" id="sp-settings-tab">
-          <sp-label>Settings</sp-label>
-        </div>
-        <div>
-          <span
-            class="disconnected"
-            id="automaticStatus"
-            title="'A' for Automatic1111 server (webui-user.bat), Green is connected. Red Means there is a problem with your Automatic1111. Run 'webui-user.bat' and hit 'Refresh' button "
-            >A</span
-          >
-          <span
-            class="disconnected"
-            id="proxyServerStatus"
-            title="'P' for proxy server (start_server.bat), Green is connected. Red means you need to run 'start_server.bat' or hit Refresh button"
-            >P</span
-          >
-        </div>
-        <sp-label slot="label" id="lVersionNumber">v0.0.0</sp-label>
-      </div>
+        <div class="container wrapper">
+            <div class="sp-tabs">
+                <div class="sp-tab selected" id="sp-stable-diffusion-ui-tab">
+                    <sp-label>Stable Diffusion UI</sp-label>
+                </div>
+                <div class="sp-tab" id="sp-viewer-tab">
+                    <sp-label>Viewer</sp-label>
+                </div>
+                <div class="sp-tab" id="sp-history-tab">
+                    <sp-label>History</sp-label>
+                </div>
+                <div class="sp-tab" id="sp-prompts-library-tab">
+                    <sp-label>Prompts library</sp-label>
+                </div>
+                <div class="sp-tab" id="sp-horde-tab">
+                    <sp-label>Horde</sp-label>
+                </div>
+                <div class="sp-tab" id="sp-settings-tab">
+                    <sp-label>Settings</sp-label>
+                </div>
+                <div>
+                    <span
+                        class="disconnected"
+                        id="automaticStatus"
+                        title="'A' for Automatic1111 server (webui-user.bat), Green is connected. Red Means there is a problem with your Automatic1111. Run 'webui-user.bat' and hit 'Refresh' button "
+                        >A</span
+                    >
+                    <span
+                        class="disconnected"
+                        id="proxyServerStatus"
+                        title="'P' for proxy server (start_server.bat), Green is connected. Red means you need to run 'start_server.bat' or hit Refresh button"
+                        >P</span
+                    >
+                </div>
+                <sp-label slot="label" id="lVersionNumber">v0.0.0</sp-label>
+            </div>
 
-      <div class="sp-tab-page" id="sp-viewer-tab-page">
-        <div class="flexContainer">
-          <sp-label slot="label"
-            >View your generated images on the canvas</sp-label
-          >
-        </div>
-        <div></div>
-        <div>
-          <button class="btnSquare" id="btnSetMaskViewer">Set Mask</button>
-          <button class="btnSquare" id="btnSetInitImageViewer">
-            Set Init Image
-          </button>
-          <button class="btnSquare btnGenerateClass" id="btnGenerate">
-            Generate txt2img
-          </button>
-          <button
-            class="btnSquare btnInterruptClass"
-            id="btnInterruptViewer"
-            style="display: none"
-          >
-            Interrupt
-          </button>
-          <button class="btnSquare" id="btnSelectionArea">
-            Selection Area
-          </button>
+            <div class="sp-tab-page" id="sp-viewer-tab-page">
+                <div class="flexContainer">
+                    <sp-label slot="label"
+                        >View your generated images on the canvas</sp-label
+                    >
+                </div>
+                <div></div>
+                <div>
+                    <button class="btnSquare" id="btnSetMaskViewer">
+                        Set Mask
+                    </button>
+                    <button class="btnSquare" id="btnSetInitImageViewer">
+                        Set Init Image
+                    </button>
+                    <button class="btnSquare btnGenerateClass" id="btnGenerate">
+                        Generate txt2img
+                    </button>
+                    <button
+                        class="btnSquare btnInterruptClass"
+                        id="btnInterruptViewer"
+                        style="display: none"
+                    >
+                        Interrupt
+                    </button>
+                    <button class="btnSquare" id="btnSelectionArea">
+                        Selection Area
+                    </button>
 
-          <div style="display: flex; justify-content: space-between">
-            <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
+                    <div style="display: flex; justify-content: space-between">
+                        <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
             <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button>
             <button class="btnSquare acceptSelectedClass acceptSelectedImgBtn"  style="display:none;">Accept Selected</button>
             <button class="btnSquare discardSelectedClass discardSelectedImgBtn"  style="display:none;">Discard Selected</button> -->
-            <button
-              title="Keep all generated images on the canvas"
-              class="btnSquare acceptClass acceptAllImgBtn"
-              style="display: none"
-            ></button>
-            <button
-              title="Delete all generated images from the canvas"
-              class="btnSquare discardClass discardAllImgBtn"
-              style="display: none"
-            ></button>
-            <button
-              title="Keep only the highlighted images"
-              class="btnSquare acceptSelectedClass acceptSelectedImgBtn"
-              style="display: none"
-            ></button>
-            <button
-              title="Delete only the highlighted images"
-              class="btnSquare discardSelectedClass discardSelectedImgBtn"
-              style="display: none"
-            ></button>
-          </div>
+                        <button
+                            title="Keep all generated images on the canvas"
+                            class="btnSquare acceptClass acceptAllImgBtn"
+                            style="display: none"
+                        ></button>
+                        <button
+                            title="Delete all generated images from the canvas"
+                            class="btnSquare discardClass discardAllImgBtn"
+                            style="display: none"
+                        ></button>
+                        <button
+                            title="Keep only the highlighted images"
+                            class="btnSquare acceptSelectedClass acceptSelectedImgBtn"
+                            style="display: none"
+                        ></button>
+                        <button
+                            title="Delete only the highlighted images"
+                            class="btnSquare discardSelectedClass discardSelectedImgBtn"
+                            style="display: none"
+                        ></button>
+                    </div>
 
-          <div style="display: inline-flex">
-            <div id="batchNumberViewerTabContainer">
-              <!-- we will append here batch number field here   -->
-              <!-- <sp-label>Images:</sp-label> -->
-              <!-- <sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
+                    <div style="display: inline-flex">
+                        <div id="batchNumberViewerTabContainer">
+                            <!-- we will append here batch number field here   -->
+                            <!-- <sp-label>Images:</sp-label> -->
+                            <!-- <sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
                 value="1"></sp-textfield> -->
-            </div>
-            <sp-progressbar
-              class="pProgressBars"
-              id="pViewerProgressBar"
-              max="100"
-              value="0"
-              style="margin-left: 10px; width: 100px"
-            >
-              <sp-label slot="label">Progress...</sp-label>
-            </sp-progressbar>
-          </div>
+                        </div>
+                        <sp-progressbar
+                            class="pProgressBars"
+                            id="pViewerProgressBar"
+                            max="100"
+                            value="0"
+                            style="margin-left: 10px; width: 100px"
+                        >
+                            <sp-label slot="label">Progress...</sp-label>
+                        </sp-progressbar>
+                    </div>
 
-          <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
-        </div>
-        <div class="" id="divInitImageViewerContainer">
-          <!-- <img  class="viewer-image" id="viewer_init_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
-        </div>
-        <hr />
-        <div class="" id="divInitMaskViewerContainer">
-          <!-- <img  class="viewer-image" id="viewer_mask_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
-        </div>
-        <hr />
-        <div class="viewer-container" id="divViewerImagesContainer">
-          <!-- <img  class="viewer-image" id="viewer_output_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
-        </div>
-      </div>
-
-      <div class="sp-tab-page" id="sp-history-tab-page">
-        <div class="flexContainer">
-          <sp-label slot="label"
-            >history of all the images you generated</sp-label
-          >
-          <div id="historySeedLabelContainer">
-            <sp-label slot="label">Seed:</sp-label
-            ><sp-label slot="label" id="historySeedLabel">00000000000</sp-label>
-          </div>
-        </div>
-        <div></div>
-        <div>
-          <sp-textfield
-            id="imageSearchField"
-            type="text"
-            placeholder="cute cats"
-            value=""
-            ><sp-label slot="label">Search:</sp-label></sp-textfield
-          >
-
-          <button class="btnSquare" id="btnImageSearch">Image Search</button>
-          <button class="btnSquare" id="btnLoadHistory">
-            Load Previous Generations
-          </button>
-        </div>
-        <div class="viewer-container" id="divHistoryImagesContainer">
-          <img
-            class="history-image"
-            id="history_image_test"
-            data-metadata_json_string='{"a":1}'
-            src="https://source.unsplash.com/random"
-          />
-        </div>
-      </div>
-
-      <div class="sp-tab-page" id="sp-prompts-library-tab-page">
-        <sp-label slot="label"
-          >Prompt Shortcut: a single word that represent a prompt</sp-label
-        >
-        <div class="">
-          <sp-label slot="label">Key for new prompt shortcut</sp-label>
-          <sp-textarea
-            id="KeyPromptShortcut"
-            placeholder="to be replaced"
-            value=""
-          ></sp-textarea>
-        </div>
-        <div class="">
-          <sp-label slot="label">Value for new prompt shortcut</sp-label>
-          <sp-textarea
-            id="ValuePromptShortcut"
-            placeholder="to be replaced with"
-            value=""
-          ></sp-textarea>
-          <button class="btnSquare" id="btnUpdatePromptShortcut">
-            Add to Prompt Shortcut
-          </button>
-        </div>
-        <div class="">
-          <sp-textarea
-            id="taPromptShortcut"
-            placeholder="prompt shortcut"
-            value=""
-          ></sp-textarea>
-        </div>
-        <div>
-          <sp-picker size="m" label="Selection a prompt">
-            <sp-menu id="mPromptShortcutMenu" slot="options">
-              <!-- <sp-menu-item> item </sp-menu-item> -->
-            </sp-menu>
-          </sp-picker>
-          <button class="btnSquare" id="btnRefreshPromptShortcutMenu">
-            Refresh Menu
-          </button>
-        </div>
-        <div>
-          <button class="btnSquare" id="btnLoadPromptShortcut">Load</button>
-          <button class="btnSquare" id="btnSavePromptShortcut">Save</button>
-        </div>
-      </div>
-      <div class="sp-tab-page" id="sp-horde-tab-page">
-        <!-- Horde tab page -->
-        <div></div>
-        <sp-checkbox id="chUseHorde">Use Stable Diffusion Horde</sp-checkbox>
-        <div id="menu-bar-container_horde" style="display: flex">
-          <sp-picker size="m" label="Selection type">
-            <sp-menu id="mModelsMenuHorde" slot="options">
-              <!-- <sp-menu-item> item </sp-menu-item> -->
-            </sp-menu>
-          </sp-picker>
-
-          <button class="btnSquare" id="btnRefreshModelsHorde">
-            Refresh Models
-          </button>
-          <!-- <sp-label slot="label"
-              id="lVersionNumber">v0.0.0</sp-label> -->
-        </div>
-        <div>
-          <sp-checkbox id="chUseNSFW">NSFW</sp-checkbox>
-          <sp-checkbox id="chUseSharedLaion">Share with LION</sp-checkbox>
-          <sp-slider
-            style="display: none"
-            show-value="true"
-            id="slSeedVariation"
-            min="1"
-            max="30"
-            value="1"
-          >
-            <sp-label slot="label">Seed variation:</sp-label>
-          </sp-slider>
-        </div>
-      </div>
-
-      <div class="sp-tab-page" id="sp-settings-tab-page">
-        <!-- settings tab page -->
-        <div>
-          <sp-label>SD Url:</sp-label
-          ><sp-textfield
-            id="tiSdUrl"
-            type="text"
-            placeholder="http://127.0.0.1:7860"
-            value=""
-          ></sp-textfield
-          ><button class="btnSquare" id="btnSdUrl">Submit</button>
-        </div>
-        <sp-checkbox id="chUseSharpMask">use sharp mask</sp-checkbox>
-        <sp-checkbox checked id="chUseSmartObject">Smart Object</sp-checkbox>
-        <sp-checkbox checked id="chUseSilentImport"
-          >Use Silent Import</sp-checkbox
-        >
-      </div>
-
-      <div class="sp-tab-page visible" id="sp-stable-diffusion-ui-tab-page">
-        <div id="menu-bar-container">
-          <sp-picker size="m" label="Selection type">
-            <sp-menu id="mModelsMenu" slot="options">
-              <!-- <sp-menu-item> item </sp-menu-item> -->
-            </sp-menu>
-          </sp-picker>
-
-          <button
-            title="Refresh the plugin, only fixes minor issues."
-            class=""
-            id="btnRefreshModels"
-          >
-            Refresh
-          </button>
-          <!-- <sp-label slot="label"
-          id="lVersionNumber">v0.0.0</sp-label> -->
-        </div>
-
-        <!-- stable diffusion tab page -->
-
-        <div id="sdBtnContainer">
-          <div style="display: inline-flex; justify-content: space-between">
-            <button
-              class="btnSquare"
-              id="btnLayerToSelection"
-              title="Move and reSize the highlighted layer to fit into the Selection Area "
-            >
-              L2S
-            </button>
-            <button class="btnSquare btnGenerateClass">Generate txt2img</button>
-            <button
-              class="btnSquare btnInterruptClass"
-              id="btnInterrupt"
-              style="display: none"
-            >
-              Interrupt
-            </button>
-          </div>
-          <!-- <button class="btnSquare btnInterruptClass" style="display:none;">Interrupt More</button> -->
-          <!-- <button class="btnSquare" id="btnCleanLayers">Clean Layers</button> -->
-          <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
-        <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button> -->
-
-          <div
-            style="
-              display: inline-flex;
-              justify-content: space-between;
-              width: 133px;
-            "
-          >
-            <button
-              class="btnSquare acceptClass acceptAllImgBtn"
-              style="display: none"
-            ></button>
-            <button
-              class="btnSquare discardClass discardAllImgBtn"
-              style="display: none"
-            ></button>
-            <!-- <button class="btnSquare customClass"  style="display:none;">Accept Selected</button> -->
-            <button
-              class="btnSquare snapshotButton"
-              id="btnSnapshot"
-              title="create a snapshot of what you see on the canvas and place on a new layer"
-            >
-              Snapshot
-            </button>
-            <button
-              class="btnSquare resetButton"
-              id="btnResetSettings"
-              title="reset the ui settings to their default values"
-            >
-              Reset Settings
-            </button>
-
-            <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
-          </div>
-        </div>
-
-        <div>
-          <div id="progressContainer" class="">
-            <sp-progressbar
-              class="pProgressBars"
-              id="pProgressBar"
-              max="100"
-              value="0"
-            >
-              <sp-label slot="label">Progress...</sp-label>
-            </sp-progressbar>
-            <sp-checkbox
-              title="use {keyword} form the prompts library"
-              id="chUsePromptShortcut"
-              checked
-              >prompt shortcut</sp-checkbox
-            >
-          </div>
-          <div>
-            <!-- icon only svg button -->
-            <sp-action-button
-              id="svg_sp_btn"
-              style="
-                padding: 0;
-                max-width: 32px;
-                max-height: 32px;
-                display: none;
-              "
-            >
-              <div slot="icon" style="fill: currentColor">
-                <svg viewBox="0 0 36 36" style="width: 18px; height: 18px">
-                  <path
-                    d="M33.567 8.2L27.8 2.432a1.215 1.215 0 0 0-.866-.353H26.9a1.371 1.371 0 0 0-.927.406L5.084 23.372a.99.99 0 0 0-.251.422L2.055 33.1c-.114.377.459.851.783.851a.251.251 0 0 0 .062-.007c.276-.063 7.866-2.344 9.311-2.778a.972.972 0 0 0 .414-.249l20.888-20.889a1.372 1.372 0 0 0 .4-.883 1.221 1.221 0 0 0-.346-.945zM11.4 29.316c-2.161.649-4.862 1.465-6.729 2.022l2.009-6.73z"
-                  />
-                </svg>
-              </div>
-            </sp-action-button>
-
-            <!-- icon with svg button -->
-            <sp-action-button style="display: none">
-              <div slot="icon" style="fill: currentColor">
-                <svg viewBox="0 0 36 36" style="width: 18px; height: 18px">
-                  <path
-                    d="M33.567 8.2L27.8 2.432a1.215 1.215 0 0 0-.866-.353H26.9a1.371 1.371 0 0 0-.927.406L5.084 23.372a.99.99 0 0 0-.251.422L2.055 33.1c-.114.377.459.851.783.851a.251.251 0 0 0 .062-.007c.276-.063 7.866-2.344 9.311-2.778a.972.972 0 0 0 .414-.249l20.888-20.889a1.372 1.372 0 0 0 .4-.883 1.221 1.221 0 0 0-.346-.945zM11.4 29.316c-2.161.649-4.862 1.465-6.729 2.022l2.009-6.73z"
-                  />
-                </svg>
-              </div>
-              Edit Text
-            </sp-action-button>
-
-            <sp-action-button
-              id="svg_sp_btn_datadownload"
-              style="
-                padding: 0;
-                max-width: 32px;
-                max-height: 32px;
-                display: none;
-              "
-            >
-              <div slot="icon" style="fill: currentColor">
-                <svg viewBox="0 0 18 18" style="width: 18px; height: 18px">
-                  <path
-                    d="M5.3885,12.5895a1.211,1.211,0,0,1-.314-.8C3.2305,11.478,1.509,10.942,1,10.135V14.5C1,15.8805,4.582,17,9,17c.1385,0,.2735-.0045.4105-.0065Z"
-                  />
-                  <path
-                    d="M16.5,6.5V9.3635A1.18,1.18,0,0,0,17,8.5V5.135A5.06144,5.06144,0,0,1,14.3855,6.5Z"
-                  />
-                  <path
-                    d="M6.315,10.5H8.5V7.13C5.953,7.059,1.8365,6.4625,1,5.135V8.5c0,.996,1.868,1.8535,4.565,2.255A1.21847,1.21847,0,0,1,6.315,10.5Z"
-                  />
-                  <path
-                    d="M17.573,12.427A.25.25,0,0,0,17.3965,12H15V8H10v4H7.6035a.25.25,0,0,0-.1765.427L12.5,18Z"
-                  />
-                </svg>
-              </div>
-            </sp-action-button>
-            <!-- <img width="15px" height="15px" src="./icon/ftcopy.svg">   -->
-          </div>
-          <div class="prompts">
-            <!-- <sp-label slot="label">Prompt</sp-label> -->
-            <div class="">
-              <sp-textarea
-                id="taPrompt"
-                placeholder="Prompt"
-                value="cute cat, {painterly_style_1}"
-              ></sp-textarea>
-              <!-- <textarea id="taPrompt" placeholder="Prompt" value="cute cat"></textarea> -->
+                    <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
+                </div>
+                <div class="" id="divInitImageViewerContainer">
+                    <!-- <img  class="viewer-image" id="viewer_init_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
+                </div>
+                <hr />
+                <div class="" id="divInitMaskViewerContainer">
+                    <!-- <img  class="viewer-image" id="viewer_mask_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
+                </div>
+                <hr />
+                <div class="viewer-container" id="divViewerImagesContainer">
+                    <!-- <img  class="viewer-image" id="viewer_output_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
+                </div>
             </div>
 
-            <div class="">
-              <sp-textarea
-                id="taNegativePrompt"
-                placeholder="Negative Prompt"
-                id="taNegativePrompt"
-                value="{ugly}"
-                multiline
-                grows
-              ></sp-textarea>
-            </div>
-          </div>
+            <div class="sp-tab-page" id="sp-history-tab-page">
+                <div class="flexContainer">
+                    <sp-label slot="label"
+                        >history of all the images you generated</sp-label
+                    >
+                    <div id="historySeedLabelContainer">
+                        <sp-label slot="label">Seed:</sp-label
+                        ><sp-label slot="label" id="historySeedLabel"
+                            >00000000000</sp-label
+                        >
+                    </div>
+                </div>
+                <div></div>
+                <div>
+                    <sp-textfield
+                        id="imageSearchField"
+                        type="text"
+                        placeholder="cute cats"
+                        value=""
+                        ><sp-label slot="label">Search:</sp-label></sp-textfield
+                    >
 
-          <sp-radio-group>
-            <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
-            <sp-radio
-              title="use this mode to generate images from text only"
-              class="rbMode"
-              checked
-              value="txt2img"
-              >txt2img</sp-radio
-            >
-            <sp-radio
-              title="use this mode to generate variation of an image"
-              class="rbMode"
-              value="img2img"
-              >img2img</sp-radio
-            >
-            <sp-radio
-              title="use this mode to generate variation of a small area of an image, while keeping the rest of the image intact"
-              class="rbMode"
-              value="inpaint"
-              >inpaint</sp-radio
-            >
-            <sp-radio
-              title="use this mode to (1) fill any missing area of an image,(2) expand an image"
-              class="rbMode"
-              id="rbOutpaintMode"
-              value="outpaint"
-              >outpaint</sp-radio
-            >
-            <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
-          </sp-radio-group>
-
-          <div id="image_viewer">
-            <div class="imgButton">
-              <!-- 
-            <button class="button-style2" id="btnInitInpaint">Init inpaint
-              Mask</button> -->
-              <!-- <button button class="button-style2" id="btnInitOutpaint">Init Outpaint
-              Mask</button> -->
-            </div>
-
-            <!-- <sp-detail>Image from Web:</sp-detail> -->
-
-            <!--       
-          <img id="init_image" src='' width="100" height="100">
-          <img id="init_image_mask" src='' width="100" height="100"> -->
-            <!-- <sp-checkbox id="chUseMaskImage">use mask image</sp-checkbox> -->
-            <table id="tableInitImageContainer">
-              <tr>
-                <td id="initImageColumn">
-                  <div id="init_image_container" class="imgContainer">
-                    <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
-
-                    <div>
-                      <img
-                        id="init_image"
-                        class="column-item-image"
+                    <button class="btnSquare" id="btnImageSearch">
+                        Image Search
+                    </button>
+                    <button class="btnSquare" id="btnLoadHistory">
+                        Load Previous Generations
+                    </button>
+                </div>
+                <div class="viewer-container" id="divHistoryImagesContainer">
+                    <img
+                        class="history-image"
+                        id="history_image_test"
+                        data-metadata_json_string='{"a":1}'
                         src="https://source.unsplash.com/random"
-                        width="300px"
-                        height="100px"
-                      />
-                    </div>
-                    <div class="imgButton">
-                      <button
-                        class="column-item button-style disabled-btn"
-                        disabled
-                        id="bSetInitImage"
-                      >
-                        Image
-                      </button>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <div id="init_image_mask_container" class="imgContainer">
-                    <div>
-                      <img
-                        id="init_image_mask"
-                        class="column-item-image"
-                        src="https://source.unsplash.com/random"
-                        width="100px"
-                        height="100px"
-                      />
-                    </div>
-                    <div class="imgButton">
-                      <button
-                        class="column-item button-style disabled-btn"
-                        disabled
-                        id="bSetInitImageMask"
-                      >
-                        Mask
-                      </button>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-        <div class="">
-          <div id="batchNumber-steps-container">
-            <div id="batchNumberUi">
-              <div style="display: flex">
-                <div id="batchNumberSdUiTabContainer">
-                  <sp-label>Images:</sp-label
-                  ><sp-textfield
-                    title="the number of images to generate at once.The larger the number more VRAM stable diffusion will use."
-                    id="tiNumberOfImages"
-                    type="number"
-                    placeholder="1"
-                    value="1"
-                  ></sp-textfield>
+                    />
+                </div>
+            </div>
+
+            <div class="sp-tab-page" id="sp-prompts-library-tab-page">
+                <sp-label slot="label"
+                    >Prompt Shortcut: a single word that represent a
+                    prompt</sp-label
+                >
+                <div class="">
+                    <sp-label slot="label"
+                        >Key for new prompt shortcut</sp-label
+                    >
+                    <sp-textarea
+                        id="KeyPromptShortcut"
+                        placeholder="to be replaced"
+                        value=""
+                    ></sp-textarea>
+                </div>
+                <div class="">
+                    <sp-label slot="label"
+                        >Value for new prompt shortcut</sp-label
+                    >
+                    <sp-textarea
+                        id="ValuePromptShortcut"
+                        placeholder="to be replaced with"
+                        value=""
+                    ></sp-textarea>
+                    <button class="btnSquare" id="btnUpdatePromptShortcut">
+                        Add to Prompt Shortcut
+                    </button>
+                </div>
+                <div class="">
+                    <sp-textarea
+                        id="taPromptShortcut"
+                        placeholder="prompt shortcut"
+                        value=""
+                    ></sp-textarea>
                 </div>
                 <div>
-                  <sp-label>Steps:</sp-label
-                  ><sp-textfield
-                    title="the higher the steps the longer it will take to generate an image"
-                    id="tiNumberOfSteps"
-                    type="number"
-                    placeholder="20"
-                    value="20"
-                  ></sp-textfield>
+                    <sp-picker size="m" label="Selection a prompt">
+                        <sp-menu id="mPromptShortcutMenu" slot="options">
+                            <!-- <sp-menu-item> item </sp-menu-item> -->
+                        </sp-menu>
+                    </sp-picker>
+                    <button class="btnSquare" id="btnRefreshPromptShortcutMenu">
+                        Refresh Menu
+                    </button>
                 </div>
-              </div>
+                <div>
+                    <button class="btnSquare" id="btnLoadPromptShortcut">
+                        Load
+                    </button>
+                    <button class="btnSquare" id="btnSavePromptShortcut">
+                        Save
+                    </button>
+                </div>
             </div>
-          </div>
-          <div id="selectionMode">
-            <div>
-              <sp-label id="rbSelectionModeLabel" slot="label"
-                >Selection Mode:</sp-label
-              >
+            <div class="sp-tab-page" id="sp-horde-tab-page">
+                <!-- Horde tab page -->
+                <div></div>
+                <sp-checkbox id="chUseHorde"
+                    >Use Stable Diffusion Horde</sp-checkbox
+                >
+                <div id="menu-bar-container_horde" style="display: flex">
+                    <sp-picker size="m" label="Selection type">
+                        <sp-menu id="mModelsMenuHorde" slot="options">
+                            <!-- <sp-menu-item> item </sp-menu-item> -->
+                        </sp-menu>
+                    </sp-picker>
+
+                    <button class="btnSquare" id="btnRefreshModelsHorde">
+                        Refresh Models
+                    </button>
+                    <!-- <sp-label slot="label"
+              id="lVersionNumber">v0.0.0</sp-label> -->
+                </div>
+                <div>
+                    <sp-checkbox id="chUseNSFW">NSFW</sp-checkbox>
+                    <sp-checkbox id="chUseSharedLaion"
+                        >Share with LION</sp-checkbox
+                    >
+                    <sp-slider
+                        style="display: none"
+                        show-value="true"
+                        id="slSeedVariation"
+                        min="1"
+                        max="30"
+                        value="1"
+                    >
+                        <sp-label slot="label">Seed variation:</sp-label>
+                    </sp-slider>
+                </div>
             </div>
 
-            <div id="menu-bar-container_preset" style="display: inline-flex">
-              <sp-radio-group id="selectionModeGroup" class="">
-                <sp-radio class="rbSelectionMode" checked value="ratio"
-                  >ratio</sp-radio
+            <div class="sp-tab-page" id="sp-settings-tab-page">
+                <!-- settings tab page -->
+                <div>
+                    <sp-label>SD Url:</sp-label
+                    ><sp-textfield
+                        id="tiSdUrl"
+                        type="text"
+                        placeholder="http://127.0.0.1:7860"
+                        value=""
+                    ></sp-textfield
+                    ><button class="btnSquare" id="btnSdUrl">Submit</button>
+                </div>
+                <sp-checkbox id="chUseSharpMask">use sharp mask</sp-checkbox>
+                <sp-checkbox checked id="chUseSmartObject"
+                    >Smart Object</sp-checkbox
                 >
-                <sp-radio
-                  title="use the selection area width and height to fill the width and height sliders"
-                  class="rbSelectionMode"
-                  value="precise"
-                  >precise</sp-radio
+                <sp-checkbox checked id="chUseSilentImport"
+                    >Use Silent Import</sp-checkbox
                 >
-                <sp-radio
-                  title="fill the width and height sliders manually"
-                  class="rbSelectionMode"
-                  value="ignore"
-                  >ignore</sp-radio
-                >
-              </sp-radio-group>
+            </div>
 
-              <sp-picker
-                title="auto fill the plugin with smart settings, to speed up your working process."
-                size="s"
-                label="Smart Preset"
-              >
-                <sp-menu id="mPresetMenu" slot="options">
-                  <!-- <sp-menu-item> item </sp-menu-item> -->
-                </sp-menu>
-              </sp-picker>
-            </div>
-            <div style="display: flex">
-              <sp-slider
-                show-value="false"
-                id="slWidth"
-                min="1"
-                max="32"
-                value="8"
-              >
-                <sp-label slot="label">Width:</sp-label>
-                <sp-label class="labelNumber" slot="label" id="lWidth"
-                  >512</sp-label
-                >
-              </sp-slider>
-              <sp-slider
-                show-value="false"
-                id="slHeight"
-                min="1"
-                max="32"
-                value="8"
-              >
-                <sp-label slot="label">Height:</sp-label>
-                <sp-label class="labelNumber" slot="label" id="lHeight"
-                  >512</sp-label
-                >
-              </sp-slider>
-            </div>
-            <!-- <div id='hi-res-sliders-container' style="display:none;">
+            <div
+                class="sp-tab-page visible"
+                id="sp-stable-diffusion-ui-tab-page"
+            >
+                <div id="menu-bar-container">
+                    <sp-picker size="m" label="Selection type">
+                        <sp-menu id="mModelsMenu" slot="options">
+                            <!-- <sp-menu-item> item </sp-menu-item> -->
+                        </sp-menu>
+                    </sp-picker>
+
+                    <button
+                        title="Refresh the plugin, only fixes minor issues."
+                        class=""
+                        id="btnRefreshModels"
+                    >
+                        Refresh
+                    </button>
+                    <!-- <sp-label slot="label"
+          id="lVersionNumber">v0.0.0</sp-label> -->
+                </div>
+
+                <!-- stable diffusion tab page -->
+
+                <div id="sdBtnContainer">
+                    <div
+                        style="
+                            display: inline-flex;
+                            justify-content: space-between;
+                        "
+                    >
+                        <button
+                            class="btnSquare"
+                            id="btnLayerToSelection"
+                            title="Move and reSize the highlighted layer to fit into the Selection Area "
+                        >
+                            L2S
+                        </button>
+                        <button class="btnSquare btnGenerateClass">
+                            Generate txt2img
+                        </button>
+                        <button
+                            class="btnSquare btnInterruptClass"
+                            id="btnInterrupt"
+                            style="display: none"
+                        >
+                            Interrupt
+                        </button>
+                    </div>
+                    <!-- <button class="btnSquare btnInterruptClass" style="display:none;">Interrupt More</button> -->
+                    <!-- <button class="btnSquare" id="btnCleanLayers">Clean Layers</button> -->
+                    <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
+        <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button> -->
+
+                    <div
+                        style="
+                            display: inline-flex;
+                            justify-content: space-between;
+                            width: 133px;
+                        "
+                    >
+                        <button
+                            class="btnSquare acceptClass acceptAllImgBtn"
+                            style="display: none"
+                        ></button>
+                        <button
+                            class="btnSquare discardClass discardAllImgBtn"
+                            style="display: none"
+                        ></button>
+                        <!-- <button class="btnSquare customClass"  style="display:none;">Accept Selected</button> -->
+                        <button
+                            class="btnSquare snapshotButton"
+                            id="btnSnapshot"
+                            title="create a snapshot of what you see on the canvas and place on a new layer"
+                        >
+                            Snapshot
+                        </button>
+                        <button
+                            class="btnSquare resetButton"
+                            id="btnResetSettings"
+                            title="reset the ui settings to their default values"
+                        >
+                            Reset Settings
+                        </button>
+
+                        <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
+                    </div>
+                </div>
+
+                <div>
+                    <div id="progressContainer" class="">
+                        <sp-progressbar
+                            class="pProgressBars"
+                            id="pProgressBar"
+                            max="100"
+                            value="0"
+                        >
+                            <sp-label slot="label">Progress...</sp-label>
+                        </sp-progressbar>
+                        <sp-checkbox
+                            title="use {keyword} form the prompts library"
+                            id="chUsePromptShortcut"
+                            checked
+                            >prompt shortcut</sp-checkbox
+                        >
+                    </div>
+                    <div>
+                        <!-- icon only svg button -->
+                        <sp-action-button
+                            id="svg_sp_btn"
+                            style="
+                                padding: 0;
+                                max-width: 32px;
+                                max-height: 32px;
+                                display: none;
+                            "
+                        >
+                            <div slot="icon" style="fill: currentColor">
+                                <svg
+                                    viewBox="0 0 36 36"
+                                    style="width: 18px; height: 18px"
+                                >
+                                    <path
+                                        d="M33.567 8.2L27.8 2.432a1.215 1.215 0 0 0-.866-.353H26.9a1.371 1.371 0 0 0-.927.406L5.084 23.372a.99.99 0 0 0-.251.422L2.055 33.1c-.114.377.459.851.783.851a.251.251 0 0 0 .062-.007c.276-.063 7.866-2.344 9.311-2.778a.972.972 0 0 0 .414-.249l20.888-20.889a1.372 1.372 0 0 0 .4-.883 1.221 1.221 0 0 0-.346-.945zM11.4 29.316c-2.161.649-4.862 1.465-6.729 2.022l2.009-6.73z"
+                                    />
+                                </svg>
+                            </div>
+                        </sp-action-button>
+
+                        <!-- icon with svg button -->
+                        <sp-action-button style="display: none">
+                            <div slot="icon" style="fill: currentColor">
+                                <svg
+                                    viewBox="0 0 36 36"
+                                    style="width: 18px; height: 18px"
+                                >
+                                    <path
+                                        d="M33.567 8.2L27.8 2.432a1.215 1.215 0 0 0-.866-.353H26.9a1.371 1.371 0 0 0-.927.406L5.084 23.372a.99.99 0 0 0-.251.422L2.055 33.1c-.114.377.459.851.783.851a.251.251 0 0 0 .062-.007c.276-.063 7.866-2.344 9.311-2.778a.972.972 0 0 0 .414-.249l20.888-20.889a1.372 1.372 0 0 0 .4-.883 1.221 1.221 0 0 0-.346-.945zM11.4 29.316c-2.161.649-4.862 1.465-6.729 2.022l2.009-6.73z"
+                                    />
+                                </svg>
+                            </div>
+                            Edit Text
+                        </sp-action-button>
+
+                        <sp-action-button
+                            id="svg_sp_btn_datadownload"
+                            style="
+                                padding: 0;
+                                max-width: 32px;
+                                max-height: 32px;
+                                display: none;
+                            "
+                        >
+                            <div slot="icon" style="fill: currentColor">
+                                <svg
+                                    viewBox="0 0 18 18"
+                                    style="width: 18px; height: 18px"
+                                >
+                                    <path
+                                        d="M5.3885,12.5895a1.211,1.211,0,0,1-.314-.8C3.2305,11.478,1.509,10.942,1,10.135V14.5C1,15.8805,4.582,17,9,17c.1385,0,.2735-.0045.4105-.0065Z"
+                                    />
+                                    <path
+                                        d="M16.5,6.5V9.3635A1.18,1.18,0,0,0,17,8.5V5.135A5.06144,5.06144,0,0,1,14.3855,6.5Z"
+                                    />
+                                    <path
+                                        d="M6.315,10.5H8.5V7.13C5.953,7.059,1.8365,6.4625,1,5.135V8.5c0,.996,1.868,1.8535,4.565,2.255A1.21847,1.21847,0,0,1,6.315,10.5Z"
+                                    />
+                                    <path
+                                        d="M17.573,12.427A.25.25,0,0,0,17.3965,12H15V8H10v4H7.6035a.25.25,0,0,0-.1765.427L12.5,18Z"
+                                    />
+                                </svg>
+                            </div>
+                        </sp-action-button>
+                        <!-- <img width="15px" height="15px" src="./icon/ftcopy.svg">   -->
+                    </div>
+                    <div class="prompts">
+                        <!-- <sp-label slot="label">Prompt</sp-label> -->
+                        <div class="">
+                            <sp-textarea
+                                id="taPrompt"
+                                placeholder="Prompt"
+                                value="cute cat, {painterly_style_1}"
+                            ></sp-textarea>
+                            <!-- <textarea id="taPrompt" placeholder="Prompt" value="cute cat"></textarea> -->
+                        </div>
+
+                        <div class="">
+                            <sp-textarea
+                                id="taNegativePrompt"
+                                placeholder="Negative Prompt"
+                                id="taNegativePrompt"
+                                value="{ugly}"
+                                multiline
+                                grows
+                            ></sp-textarea>
+                        </div>
+                    </div>
+
+                    <sp-radio-group>
+                        <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
+                        <sp-radio
+                            title="use this mode to generate images from text only"
+                            class="rbMode"
+                            checked
+                            value="txt2img"
+                            >txt2img</sp-radio
+                        >
+                        <sp-radio
+                            title="use this mode to generate variation of an image"
+                            class="rbMode"
+                            value="img2img"
+                            >img2img</sp-radio
+                        >
+                        <sp-radio
+                            title="use this mode to generate variation of a small area of an image, while keeping the rest of the image intact"
+                            class="rbMode"
+                            value="inpaint"
+                            >inpaint</sp-radio
+                        >
+                        <sp-radio
+                            title="use this mode to (1) fill any missing area of an image,(2) expand an image"
+                            class="rbMode"
+                            id="rbOutpaintMode"
+                            value="outpaint"
+                            >outpaint</sp-radio
+                        >
+                        <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
+                    </sp-radio-group>
+
+                    <div id="image_viewer">
+                        <div class="imgButton">
+                            <!-- 
+            <button class="button-style2" id="btnInitInpaint">Init inpaint
+              Mask</button> -->
+                            <!-- <button button class="button-style2" id="btnInitOutpaint">Init Outpaint
+              Mask</button> -->
+                        </div>
+
+                        <!-- <sp-detail>Image from Web:</sp-detail> -->
+
+                        <!--       
+          <img id="init_image" src='' width="100" height="100">
+          <img id="init_image_mask" src='' width="100" height="100"> -->
+                        <!-- <sp-checkbox id="chUseMaskImage">use mask image</sp-checkbox> -->
+                        <table id="tableInitImageContainer">
+                            <tr>
+                                <td id="initImageColumn">
+                                    <div
+                                        id="init_image_container"
+                                        class="imgContainer"
+                                    >
+                                        <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+
+                                        <div>
+                                            <img
+                                                id="init_image"
+                                                class="column-item-image"
+                                                src="https://source.unsplash.com/random"
+                                                width="300px"
+                                                height="100px"
+                                            />
+                                        </div>
+                                        <div class="imgButton">
+                                            <button
+                                                class="column-item button-style disabled-btn"
+                                                disabled
+                                                id="bSetInitImage"
+                                            >
+                                                Image
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div
+                                        id="init_image_mask_container"
+                                        class="imgContainer"
+                                    >
+                                        <div>
+                                            <img
+                                                id="init_image_mask"
+                                                class="column-item-image"
+                                                src="https://source.unsplash.com/random"
+                                                width="100px"
+                                                height="100px"
+                                            />
+                                        </div>
+                                        <div class="imgButton">
+                                            <button
+                                                class="column-item button-style disabled-btn"
+                                                disabled
+                                                id="bSetInitImageMask"
+                                            >
+                                                Mask
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="">
+                    <div id="batchNumber-steps-container">
+                        <div id="batchNumberUi">
+                            <div style="display: flex">
+                                <div id="batchNumberSdUiTabContainer">
+                                    <sp-label>Images:</sp-label
+                                    ><sp-textfield
+                                        title="the number of images to generate at once.The larger the number more VRAM stable diffusion will use."
+                                        id="tiNumberOfImages"
+                                        type="number"
+                                        placeholder="1"
+                                        value="1"
+                                    ></sp-textfield>
+                                </div>
+                                <div>
+                                    <sp-label>Steps:</sp-label
+                                    ><sp-textfield
+                                        title="the higher the steps the longer it will take to generate an image"
+                                        id="tiNumberOfSteps"
+                                        type="number"
+                                        placeholder="20"
+                                        value="20"
+                                    ></sp-textfield>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="selectionMode">
+                        <div>
+                            <sp-label id="rbSelectionModeLabel" slot="label"
+                                >Selection Mode:</sp-label
+                            >
+                        </div>
+
+                        <div
+                            id="menu-bar-container_preset"
+                            style="display: inline-flex"
+                        >
+                            <sp-radio-group id="selectionModeGroup" class="">
+                                <sp-radio
+                                    class="rbSelectionMode"
+                                    checked
+                                    value="ratio"
+                                    >ratio</sp-radio
+                                >
+                                <sp-radio
+                                    title="use the selection area width and height to fill the width and height sliders"
+                                    class="rbSelectionMode"
+                                    value="precise"
+                                    >precise</sp-radio
+                                >
+                                <sp-radio
+                                    title="fill the width and height sliders manually"
+                                    class="rbSelectionMode"
+                                    value="ignore"
+                                    >ignore</sp-radio
+                                >
+                            </sp-radio-group>
+
+                            <sp-picker
+                                title="auto fill the plugin with smart settings, to speed up your working process."
+                                size="s"
+                                label="Smart Preset"
+                            >
+                                <sp-menu id="mPresetMenu" slot="options">
+                                    <!-- <sp-menu-item> item </sp-menu-item> -->
+                                </sp-menu>
+                            </sp-picker>
+                        </div>
+                        <div style="display: flex">
+                            <sp-slider
+                                show-value="false"
+                                id="slWidth"
+                                min="1"
+                                max="32"
+                                value="8"
+                            >
+                                <sp-label slot="label">Width:</sp-label>
+                                <sp-label
+                                    class="labelNumber"
+                                    slot="label"
+                                    id="lWidth"
+                                    >512</sp-label
+                                >
+                            </sp-slider>
+                            <sp-slider
+                                show-value="false"
+                                id="slHeight"
+                                min="1"
+                                max="32"
+                                value="8"
+                            >
+                                <sp-label slot="label">Height:</sp-label>
+                                <sp-label
+                                    class="labelNumber"
+                                    slot="label"
+                                    id="lHeight"
+                                    >512</sp-label
+                                >
+                            </sp-slider>
+                        </div>
+                        <!-- <div id='hi-res-sliders-container' style="display:none;">
           <sp-slider show-value="false" id="hrWidth" min="1" max="32" value="8">
             <sp-label slot="label">Hi Res Width:</sp-label>
             <sp-label class="labelNumber" slot="label" id="hWidth">512</sp-label>
@@ -1041,235 +1103,297 @@
             <sp-label class="labelNumber" slot="label" id="hDenoisingStrength">0.7</sp-label>
           </sp-slider>
         </div> -->
-            <div style="display: flex">
-              <sp-slider
-                title="larger value will put more emphasis on the prompt"
-                show-value="true"
-                id="slCfgScale"
-                min="1"
-                max="30"
-                value="7"
-              >
-                <sp-label slot="label">CFG Scale:</sp-label>
-                <!-- <sp-label slot="label" id="lCfgScale">7</sp-label> -->
-              </sp-slider>
+                        <div style="display: flex">
+                            <sp-slider
+                                title="larger value will put more emphasis on the prompt"
+                                show-value="true"
+                                id="slCfgScale"
+                                min="1"
+                                max="30"
+                                value="7"
+                            >
+                                <sp-label slot="label">CFG Scale:</sp-label>
+                                <!-- <sp-label slot="label" id="lCfgScale">7</sp-label> -->
+                            </sp-slider>
 
-              <sp-slider
-                show-value="false"
-                id="slDenoisingStrength"
-                min="0"
-                max="100"
-                value="70"
-              >
-                <sp-label slot="label">Denoising Strength:</sp-label>
-                <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label>
-              </sp-slider>
-            </div>
+                            <sp-slider
+                                show-value="false"
+                                id="slDenoisingStrength"
+                                min="0"
+                                max="100"
+                                value="70"
+                            >
+                                <sp-label slot="label"
+                                    >Denoising Strength:</sp-label
+                                >
+                                <sp-label slot="label" id="lDenoisingStrength"
+                                    >0.7</sp-label
+                                >
+                            </sp-slider>
+                        </div>
 
-            <sp-slider
-              show-value="true"
-              id="slMaskBlur"
-              min="0"
-              max="64"
-              value="7"
-            >
-              <sp-label slot="label">Mask Blur:</sp-label>
-              <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
-            </sp-slider>
-            <sp-slider
-              show-value="true"
-              id="slMaskExpansion"
-              min="0"
-              max="64"
-              value="40"
-              title="the larger the value the more the mask will expand, '0' means use precise masking, use in combination with the mask blur"
-            >
-              <sp-label slot="label">Mask Expansion:</sp-label>
-              <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
-            </sp-slider>
+                        <sp-slider
+                            show-value="true"
+                            id="slMaskBlur"
+                            min="0"
+                            max="64"
+                            value="7"
+                        >
+                            <sp-label slot="label">Mask Blur:</sp-label>
+                            <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
+                        </sp-slider>
+                        <sp-slider
+                            show-value="true"
+                            id="slMaskExpansion"
+                            min="0"
+                            max="64"
+                            value="40"
+                            title="the larger the value the more the mask will expand, '0' means use precise masking, use in combination with the mask blur"
+                        >
+                            <sp-label slot="label">Mask Expansion:</sp-label>
+                            <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
+                        </sp-slider>
 
-            <div style="display: flex">
-              <sp-slider
-                show-value="false"
-                id="slInpaintingMaskWeight"
-                min="0"
-                max="100"
-                value="100"
-                title="0 will keep the composition; 1 will allow composition to change"
-              >
-                <sp-label slot="label"
-                  >Inpainting conditioning mask strength:</sp-label
-                >
-                <sp-label slot="label" id="lInpaintingMaskWeight">1</sp-label>
-              </sp-slider>
-            </div>
+                        <div style="display: flex">
+                            <sp-slider
+                                show-value="false"
+                                id="slInpaintingMaskWeight"
+                                min="0"
+                                max="100"
+                                value="100"
+                                title="0 will keep the composition; 1 will allow composition to change"
+                            >
+                                <sp-label slot="label"
+                                    >Inpainting conditioning mask
+                                    strength:</sp-label
+                                >
+                                <sp-label
+                                    slot="label"
+                                    id="lInpaintingMaskWeight"
+                                    >1</sp-label
+                                >
+                            </sp-slider>
+                        </div>
 
-            <div id="slInpainting_fill">
-              <sp-radio-group id="Inpainting_fill_group" class="">
-                <sp-label slot="label">Mask Content:</sp-label>
-                <sp-radio class="rbMaskContent" checked value="0"
-                  >fill</sp-radio
-                >
-                <sp-radio class="rbMaskContent" value="1">original</sp-radio>
-                <sp-radio class="rbMaskContent" value="2"
-                  >latent noise</sp-radio
-                >
-                <sp-radio class="rbMaskContent" value="3"
-                  >latent nothing</sp-radio
-                >
-              </sp-radio-group>
-            </div>
+                        <div id="slInpainting_fill">
+                            <sp-radio-group id="Inpainting_fill_group" class="">
+                                <sp-label slot="label">Mask Content:</sp-label>
+                                <sp-radio
+                                    class="rbMaskContent"
+                                    checked
+                                    value="0"
+                                    >fill</sp-radio
+                                >
+                                <sp-radio class="rbMaskContent" value="1"
+                                    >original</sp-radio
+                                >
+                                <sp-radio class="rbMaskContent" value="2"
+                                    >latent noise</sp-radio
+                                >
+                                <sp-radio class="rbMaskContent" value="3"
+                                    >latent nothing</sp-radio
+                                >
+                            </sp-radio-group>
+                        </div>
 
-            <div style="display: flex">
-              <sp-checkbox class="checkbox" id="chInpaintFullRes"
-                >Inpaint at Full Res</sp-checkbox
-              >
-              <sp-checkbox class="checkbox" id="chRestoreFaces"
-                >Restore Faces</sp-checkbox
-              >
-              <sp-checkbox class="checkbox" id="chHiResFixs"
-                >Hi Res Fix</sp-checkbox
-              >
-            </div>
-            <div id="HiResDiv" style="display: none">
-              <div style="display: flex">
-                <div>
-                  <sp-label>Upscaler: </sp-label>
-                  <sp-picker size="m" label="Upscaler Options">
-                    <sp-menu id="hrModelsMenu" slot="options">
-                      <!-- <sp-menu-item> item </sp-menu-item> -->
-                    </sp-menu>
-                  </sp-picker>
-                </div>
-                <div>
-                  <sp-label>Hi Res Steps:</sp-label
-                  ><sp-textfield
-                    id="hrNumberOfSteps"
-                    type="number"
-                    placeholder="20"
-                    value="20"
-                    style="margin-top: 3px; width: auto"
-                  ></sp-textfield>
-                </div>
-              </div>
-              <div id="hi-res-sliders-container" style="display: flex">
-                <sp-slider
-                  show-value="false"
-                  id="hrWidth"
-                  min="1"
-                  max="32"
-                  value="8"
-                >
-                  <sp-label slot="label">Hi Res Output Width:</sp-label>
-                  <sp-label class="labelNumber" slot="label" id="hWidth"
-                    >512</sp-label
-                  >
-                </sp-slider>
-                <sp-slider
-                  show-value="false"
-                  id="hrHeight"
-                  min="1"
-                  max="32"
-                  value="8"
-                >
-                  <sp-label slot="label">Hi Res Output Height:</sp-label>
-                  <sp-label class="labelNumber" slot="label" id="hHeight"
-                    >512</sp-label
-                  >
-                </sp-slider>
-                <sp-slider
-                  show-value="false"
-                  id="hrDenoisingStrength"
-                  min="0"
-                  max="100"
-                  value="70"
-                >
-                  <sp-label slot="label">
-                    High Res Denoising Strength:</sp-label
-                  >
-                  <sp-label slot="label" id="hDenoisingStrength">0.58</sp-label>
-                </sp-slider>
-              </div>
-            </div>
-            <sp-slider
-              show-value="false"
-              id="slInpaintPadding"
-              min="0"
-              max="64"
-              value="0"
-            >
-              <sp-label slot="label" id="lNameInpaintPdding"
-                >Inpaint Padding:</sp-label
-              >
-              <sp-label class="labelNumber" slot="label" id="lInpaintPadding"
-                >0</sp-label
-              >
-            </sp-slider>
-            <!-- <sp-slider id="slInpainting_fill" min="0" max="3" value="1">
+                        <div style="display: flex">
+                            <sp-checkbox class="checkbox" id="chInpaintFullRes"
+                                >Inpaint at Full Res</sp-checkbox
+                            >
+                            <sp-checkbox class="checkbox" id="chRestoreFaces"
+                                >Restore Faces</sp-checkbox
+                            >
+                            <sp-checkbox class="checkbox" id="chHiResFixs"
+                                >Hi Res Fix</sp-checkbox
+                            >
+                        </div>
+                        <div id="HiResDiv" style="display: none">
+                            <div style="display: flex">
+                                <div>
+                                    <sp-label>Upscaler: </sp-label>
+                                    <sp-picker
+                                        size="m"
+                                        label="Upscaler Options"
+                                    >
+                                        <sp-menu
+                                            id="hrModelsMenu"
+                                            slot="options"
+                                        >
+                                            <!-- <sp-menu-item> item </sp-menu-item> -->
+                                        </sp-menu>
+                                    </sp-picker>
+                                </div>
+                                <div>
+                                    <sp-label>Hi Res Steps:</sp-label
+                                    ><sp-textfield
+                                        id="hrNumberOfSteps"
+                                        type="number"
+                                        placeholder="20"
+                                        value="20"
+                                        style="margin-top: 3px; width: auto"
+                                    ></sp-textfield>
+                                </div>
+                            </div>
+                            <div
+                                id="hi-res-sliders-container"
+                                style="display: flex"
+                            >
+                                <sp-slider
+                                    show-value="false"
+                                    id="hrWidth"
+                                    min="1"
+                                    max="32"
+                                    value="8"
+                                >
+                                    <sp-label slot="label"
+                                        >Hi Res Output Width:</sp-label
+                                    >
+                                    <sp-label
+                                        class="labelNumber"
+                                        slot="label"
+                                        id="hWidth"
+                                        >512</sp-label
+                                    >
+                                </sp-slider>
+                                <sp-slider
+                                    show-value="false"
+                                    id="hrHeight"
+                                    min="1"
+                                    max="32"
+                                    value="8"
+                                >
+                                    <sp-label slot="label"
+                                        >Hi Res Output Height:</sp-label
+                                    >
+                                    <sp-label
+                                        class="labelNumber"
+                                        slot="label"
+                                        id="hHeight"
+                                        >512</sp-label
+                                    >
+                                </sp-slider>
+                                <sp-slider
+                                    show-value="false"
+                                    id="hrDenoisingStrength"
+                                    min="0"
+                                    max="100"
+                                    value="70"
+                                >
+                                    <sp-label slot="label">
+                                        High Res Denoising Strength:</sp-label
+                                    >
+                                    <sp-label
+                                        slot="label"
+                                        id="hDenoisingStrength"
+                                        >0.58</sp-label
+                                    >
+                                </sp-slider>
+                            </div>
+                        </div>
+                        <sp-slider
+                            show-value="false"
+                            id="slInpaintPadding"
+                            min="0"
+                            max="64"
+                            value="0"
+                        >
+                            <sp-label slot="label" id="lNameInpaintPdding"
+                                >Inpaint Padding:</sp-label
+                            >
+                            <sp-label
+                                class="labelNumber"
+                                slot="label"
+                                id="lInpaintPadding"
+                                >0</sp-label
+                            >
+                        </sp-slider>
+                        <!-- <sp-slider id="slInpainting_fill" min="0" max="3" value="1">
         <sp-label slot="label">Inpainting fill:</sp-label>
       </sp-slider> -->
-          </div>
-          <div>
-            <!-- <sp-checkbox id="chHiResFixs">Hi Res Fix</sp-checkbox> -->
-            <div style="display: flex">
-              <sp-label>Seed:</sp-label
-              ><sp-textfield
-                id="tiSeed"
-                placeholder="Seed"
-                value="-1"
-              ></sp-textfield>
-              <button
-                class="btnSquare"
-                id="btnRandomSeed"
-                style="margin-right: 3px; margin-left: 3px"
-              >
-                Random
-              </button>
-              <button class="btnSquare" id="btnLastSeed">Last</button>
+                    </div>
+                    <div>
+                        <!-- <sp-checkbox id="chHiResFixs">Hi Res Fix</sp-checkbox> -->
+                        <div style="display: flex">
+                            <sp-label>Seed:</sp-label
+                            ><sp-textfield
+                                id="tiSeed"
+                                placeholder="Seed"
+                                value="-1"
+                            ></sp-textfield>
+                            <button
+                                class="btnSquare"
+                                id="btnRandomSeed"
+                                style="margin-right: 3px; margin-left: 3px"
+                            >
+                                Random
+                            </button>
+                            <button class="btnSquare" id="btnLastSeed">
+                                Last
+                            </button>
+                        </div>
+                        <button type="button" id="collapsible">
+                            Show Samplers
+                        </button>
+                        <sp-radio-group id="sampler_group" class="content">
+                            <sp-label slot="label">Select Sampler:</sp-label>
+                            <sp-radio class="rbSampler" checked value="Euler a"
+                                >Euler a</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="Euler"
+                                >Euler</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="LMS"
+                                >LMS</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="Heun"
+                                >Heun</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="DPM2"
+                                >DPM2</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="DPM2 a"
+                                >DPM2 a</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="DPM++ 2S a"
+                                >DPM++ 2S a</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="DPM++ 2M"
+                                >DPM++ 2M</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="DPM++ SDE"
+                                >DPM++ SDE</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="DPM fast"
+                                >DPM fast</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="DPM adaptive"
+                                >DPM adaptive</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="LMS Karras"
+                                >LMS Karras</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="DPM2 Karras"
+                                >DPM2 Karras</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="DPM2 a Karras"
+                                >DPM2 a Karras</sp-radio
+                            >
+                            <sp-radio
+                                class="rbSampler"
+                                value="DPM++ 2S a Karras"
+                                >DPM++ 2S a Karras</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="DPM++ 2M Karras"
+                                >DPM++ 2M Karras</sp-radio
+                            >
+                            <sp-radio class="rbSampler" value="DPM++ SDE Karras"
+                                >DPM++ SDE Karras</sp-radio
+                            >
+                        </sp-radio-group>
+                    </div>
+                </div>
             </div>
-            <button type="button" id="collapsible">Show Samplers</button>
-            <sp-radio-group id="sampler_group" class="content">
-              <sp-label slot="label">Select Sampler:</sp-label>
-              <sp-radio class="rbSampler" checked value="Euler a"
-                >Euler a</sp-radio
-              >
-              <sp-radio class="rbSampler" value="Euler">Euler</sp-radio>
-              <sp-radio class="rbSampler" value="LMS">LMS</sp-radio>
-              <sp-radio class="rbSampler" value="Heun">Heun</sp-radio>
-              <sp-radio class="rbSampler" value="DPM2">DPM2</sp-radio>
-              <sp-radio class="rbSampler" value="DPM2 a">DPM2 a</sp-radio>
-              <sp-radio class="rbSampler" value="DPM++ 2S a"
-                >DPM++ 2S a</sp-radio
-              >
-              <sp-radio class="rbSampler" value="DPM++ 2M">DPM++ 2M</sp-radio>
-              <sp-radio class="rbSampler" value="DPM++ SDE">DPM++ SDE</sp-radio>
-              <sp-radio class="rbSampler" value="DPM fast">DPM fast</sp-radio>
-              <sp-radio class="rbSampler" value="DPM adaptive"
-                >DPM adaptive</sp-radio
-              >
-              <sp-radio class="rbSampler" value="LMS Karras"
-                >LMS Karras</sp-radio
-              >
-              <sp-radio class="rbSampler" value="DPM2 Karras"
-                >DPM2 Karras</sp-radio
-              >
-              <sp-radio class="rbSampler" value="DPM2 a Karras"
-                >DPM2 a Karras</sp-radio
-              >
-              <sp-radio class="rbSampler" value="DPM++ 2S a Karras"
-                >DPM++ 2S a Karras</sp-radio
-              >
-              <sp-radio class="rbSampler" value="DPM++ 2M Karras"
-                >DPM++ 2M Karras</sp-radio
-              >
-              <sp-radio class="rbSampler" value="DPM++ SDE Karras"
-                >DPM++ SDE Karras</sp-radio
-              >
-            </sp-radio-group>
-          </div>
         </div>
-      </div>
-    </div>
-    <!-- added a missing div, -->
-  </body>
+        <!-- added a missing div, -->
+    </body>
 </html>
