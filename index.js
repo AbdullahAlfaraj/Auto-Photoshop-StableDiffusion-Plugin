@@ -2866,7 +2866,7 @@ async function loadViewerImages() {
         // if(g_viewer_manager.g_init_image_related_layers.hasOwnProperty('init_image_group') )
         if (g_viewer_manager.initGroup) {
             //it means we are in an img2img related mode
-            // const path =  `./server/python_server/init_images/${g_init_image_name}`
+
             const paths = Object.keys(g_viewer_manager.initImageLayersJson)
             for (const path of paths) {
                 if (!g_viewer_manager.hasViewerImage(path)) {

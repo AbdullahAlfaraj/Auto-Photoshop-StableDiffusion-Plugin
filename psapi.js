@@ -632,72 +632,6 @@ function layerNameToFileName(layer_name, layer_id, session_id) {
     file_name = `${layer_name}_${layer_id}_${session_id}`
     return file_name
 }
-async function exportPngCommand(session_id) {
-    try {
-        // const result = await batchPlay { _obj: “exportSelectionAsFileTypePressed”}
-
-        // const destFolder = (await storage.localFileSystem.getDataFolder()).nativePath;
-        const storage = require('uxp').storage
-        const fs = storage.localFileSystem
-
-        let pluginFolder = await fs.getPluginFolder()
-        // await fs.getFolder("./init_images")
-        let init_images_dir = await pluginFolder.getEntry(
-            './server/python_server/init_images'
-        )
-        const layer = await app.activeDocument.activeLayers[0]
-        const old_name = layer.name
-        //change the name of layer to unique name
-        const file_name = layerToFileName(layer, session_id)
-        layer.name = file_name
-        const id = await app.activeDocument.activeLayers[0].id
-        const exportCommand = {
-            _obj: 'exportSelectionAsFileTypePressed',
-            // _target: { _ref: 'layer', _enum: 'ordinal', _value: 'targetEnum' },
-            _target: {
-                _ref: 'layer',
-                _enum: 'ordinal',
-                _value: 'targetEnum',
-                _id: id,
-            },
-
-            fileType: 'png',
-            quality: 32,
-            metadata: 0,
-            destFolder: init_images_dir.nativePath,
-            sRGB: true,
-            openWindow: false,
-            _options: { dialogOptions: 'dontDisplay' },
-        }
-        const result = await batchPlay([exportCommand], {
-            synchronousExecution: true,
-            modalBehavior: 'execute',
-        })
-
-        return result
-    } catch (e) {
-        console.error(`exportPngCommand error:, ${e}`)
-    }
-}
-
-async function exportPng(session_id) {
-    console.log('exportPng() -> session_id:', session_id)
-    try {
-        const old_name = await app.activeDocument.activeLayers[0].name
-        await executeAsModal(async () => {
-            await exportPngCommand(session_id)
-        })
-        setTimeout(async () => {
-            console.log('setTimeout() -> old_name: ', old_name)
-            await executeAsModal(async () => {
-                app.activeDocument.activeLayers[0].name = old_name
-            })
-        }, 3000)
-        //after export rename the layer to it's original name by remove the "_${id}" from the name
-    } catch (e) {
-        console.error(`exportPng error:, ${e}`)
-    }
-}
 
 // await runModalFunction();
 async function setInitImage(layer, session_id) {
@@ -706,7 +640,7 @@ async function setInitImage(layer, session_id) {
         // const layer = await app.activeDocument.activeLayers[0]
         const old_name = layer.name
         const sdapi = require('./sdapi')
-        // await exportPng(session_id)
+
         // image_name = await app.activeDocument.activeLayers[0].name
 
         //convert layer name to a file name
@@ -745,7 +679,7 @@ async function setInitImageMask(layer, session_id) {
         // const layer = await app.activeDocument.activeLayers[0]
         const old_name = layer.name
         const sdapi = require('./sdapi')
-        // await exportPng(session_id)
+
         //get the active layer name
         // image_name = await app.activeDocument.activeLayers[0].name
         // image_name = layerNameToFileName(old_name,layer.id,random_session_id)
@@ -1320,7 +1254,7 @@ module.exports = {
     fastSnapshot,
     setInitImage,
     setInitImageMask,
-    exportPng,
+
     layerToFileName,
     layerNameToFileName,
     // cleanLayersOutpaint,
