@@ -716,7 +716,15 @@ async function setInitImage(layer, session_id) {
         //the width and height of the exported image
         const width = html_manip.getWidth()
         const height = html_manip.getHeight()
-        await newExportPng(layer, image_name, width, height)
+        const image_buffer = await newExportPng(
+            layer,
+            image_name,
+            width,
+            height
+        )
+        base64_image = _arrayBufferToBase64(image_buffer) //convert the buffer to base64
+        //send the base64 to the server to save the file in the desired directory
+        await sdapi.requestSavePng(base64_image, image_name)
 
         g_init_image_name = image_name
         console.log(image_name)
@@ -745,11 +753,15 @@ async function setInitImageMask(layer, session_id) {
         image_name = `${image_name}.png`
         const width = html_manip.getWidth()
         const height = html_manip.getHeight()
-        await newExportPng(layer, image_name, width, height)
+        image_buffer = await newExportPng(layer, image_name, width, height)
         g_init_image_mask_name = image_name // this is the name we will send to the server
         // g_init_mask_layer = layer
         // g_mask_related_layers = {}
+
         console.log(image_name)
+        base64_image = _arrayBufferToBase64(image_buffer) //convert the buffer to base64
+        //send the base64 to the server to save the file in the desired directory
+        await sdapi.requestSavePng(base64_image, image_name)
 
         const image_src = await sdapi.getInitImage(g_init_image_mask_name) // we should replace this with getInitImagePath which return path to local disk
         const ini_image_mask_element =
@@ -980,18 +992,17 @@ async function readUniqueDocumentIdExe() {
 const readPng = async (image_name) => {
     // image_name = 'test.png'
     try {
+        let img_buffer
         await executeAsModal(
             async (control) => {
-                // const tempFolder = await fs.getTemporaryFolder() ;
-                const pluginFolder = await fs.getPluginFolder()
+                const folder = await fs.getTemporaryFolder()
+                // const pluginFolder = await fs.getPluginFolder()
 
-                let init_images_dir = await pluginFolder.getEntry(
-                    './server/python_server/init_images'
-                )
                 // let init_images_dir = await pluginFolder.getEntry(
-                //   './server/python_server/init_images'
+                //     './server/python_server/init_images'
                 // )
-                const file = await init_images_dir.createFile(image_name, {
+
+                const file = await folder.createFile(image_name, {
                     overwrite: true,
                 })
 
@@ -1005,12 +1016,15 @@ const readPng = async (image_name) => {
                     true
                 )
 
-                // const arrayBuffer = await file.read({format: formats.binary}) ;
+                const arrayBuffer = await file.read({ format: formats.binary })
                 // console.log(arrayBuffer, 'arrayBuffer') ;
+                img_buffer = arrayBuffer
             },
 
             { commandName: 'readPng' }
         )
+
+        return img_buffer
     } catch (e) {
         console.warn(e)
     }
@@ -1096,6 +1110,63 @@ async function newExportPng(layer, image_name, width, height) {
                 fill: 'transparent',
             })
         }
+        let image_buffer
+        await executeAsModal(
+            async () => {
+                // await app.documents.add()
+                await makeDoc()
+                exportDoc = app.activeDocument
+
+                console.log('exportDoc.id: ', exportDoc.id)
+                // for (layer of layersToExport) {
+
+                console.log(layer.id)
+                const dupLayer = await layer.duplicate(exportDoc)
+                await selectLayers([dupLayer])
+                // await selectLayerChannelCommand()
+                await selectCanvasExe()
+                const canvas_selection_info = await getSelectionInfoExe()
+                await layerToSelection(canvas_selection_info)
+                // const selection_info = await getSelectionInfoExe()
+                // await exportDoc.crop(selection_info)
+                // export_image_name = `${layer.name}.png`
+                image_buffer = await readPng(image_name)
+                await exportDoc.closeWithoutSaving()
+            },
+            { commandName: 'NewExportPng' }
+        )
+        return image_buffer
+        // }
+    } catch (e) {
+        console.error(`newExportPng error: ,${e}`)
+    }
+}
+
+async function tempExportPng(layer, image_name, width, height) {
+    //store layers we want to export in variables
+    // let layerToExports =
+    // create new document
+    // duplicate the layers to the new documnet
+    //select the layer channel selectLayerChannelCommand
+    //document.crop
+    //export using readPng()
+
+    try {
+        //get the active layers
+        // const layersToExport = app.activeDocument.activeLayers
+
+        //create new document
+        // let exportDoc = await executeAsModal(app.documents.add)
+        let exportDoc
+        const makeDoc = async () => {
+            let exportDoc = await app.documents.add({
+                width: width,
+                height: height,
+                resolution: 300,
+                mode: 'RGBColorMode',
+                fill: 'transparent',
+            })
+        }
         await executeAsModal(
             async () => {
                 // await app.documents.add()
@@ -1118,7 +1189,7 @@ async function newExportPng(layer, image_name, width, height) {
                 await readPng(image_name)
                 await exportDoc.closeWithoutSaving()
             },
-            { commandName: 'NewExportPng' }
+            { commandName: 'tempExportPng' }
         )
         // }
     } catch (e) {

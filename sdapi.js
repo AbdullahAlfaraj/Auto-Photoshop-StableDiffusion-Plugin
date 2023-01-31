@@ -31,7 +31,33 @@ async function getInitImage(init_image_name) {
     // console.log("img_blob:")
     // console.dir(img_blob)
 }
+async function requestSavePng(base64_image, image_name) {
+    try {
+        console.log('requestSavePng():')
+        payload = { base64: base64_image, image_name: image_name }
 
+        const full_url = 'http://127.0.0.1:8000/save/png/'
+        console.log(full_url)
+        console.log('payload:', payload)
+        let request = await fetch(full_url, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+            // "body": payload
+        })
+
+        let json = await request.json()
+        console.log('requestSavePng json:', json)
+
+        return json
+    } catch (e) {
+        console.warn(e)
+        return {}
+    }
+}
 async function requestTxt2Img(payload) {
     try {
         console.log('requestTxt2Img(): about to send a fetch request')
@@ -410,4 +436,5 @@ module.exports = {
     requestGetConfig,
     requestGetOptions,
     imageSearch,
+    requestSavePng,
 }

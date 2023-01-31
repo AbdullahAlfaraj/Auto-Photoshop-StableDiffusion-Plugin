@@ -254,6 +254,36 @@ async def sdapi(path: str, request: Request, response: Response):
 
 
 
+async def base64ToPng(base64_image,image_path):
+    base64_img_bytes = base64_image.encode('utf-8')
+    with open(image_path, 'wb') as file_to_save:
+        decoded_image_data = base64.decodebytes(base64_img_bytes)
+        file_to_save.write(decoded_image_data)
+
+
+@app.post('/save/png/')
+async def savePng(request:Request):
+    print("savePng()")
+    try:
+        json = await request.json()
+        
+    except: 
+        json = {}
+    
+    print("json:",json)
+    try:
+        folder = './init_images'
+        image_path = f"{folder}/{json['image_name']}"
+        await base64ToPng(json['base64'],image_path)
+        
+        
+        
+        
+        return {"status":f"{json['image_name']} has been saved"}
+    except:
+        print(f'{request}')
+    return {"error": "error message: could not save the image file"}
+
 
 @app.post('/search/image/')
 async def searchImage(request:Request):
