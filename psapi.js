@@ -988,9 +988,10 @@ const readPng = async (image_name) => {
         const currentDocument = app.activeDocument;
         await currentDocument.saveAs.png(
           file,
-          {
-            compression: 6,
-          },
+          // {
+          //   compression: 6,
+          // },
+          null,
           true
         );
 
