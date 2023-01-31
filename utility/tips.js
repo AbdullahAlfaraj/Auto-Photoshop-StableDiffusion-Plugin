@@ -35,6 +35,6 @@ const tips_json = {
   mask_expansion:
     "the larger the value the more the mask will expand, '0' means use precise masking, use in combination with the mask blur",
   mask_content_fill: "",
-};
+}
 
-module.exports = { tips_json };
+module.exports = { tips_json }

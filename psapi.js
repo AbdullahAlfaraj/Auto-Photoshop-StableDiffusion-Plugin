@@ -1,12 +1,12 @@
-const app = window.require("photoshop").app;
-const batchPlay = require("photoshop").action.batchPlay;
-const { executeAsModal } = require("photoshop").core;
-const export_png = require("./export_png");
-const { selectionToFinalWidthHeight } = require("./selection");
+const app = window.require("photoshop").app
+const batchPlay = require("photoshop").action.batchPlay
+const { executeAsModal } = require("photoshop").core
+const export_png = require("./export_png")
+const { selectionToFinalWidthHeight } = require("./selection")
 // const { layerToSelection } = require('./helper')
 
-const storage = require("uxp").storage;
-const fs = storage.localFileSystem;
+const storage = require("uxp").storage
+const fs = storage.localFileSystem
 
 async function createSolidLayer(r, g, b) {
   await executeAsModal(async () => {
@@ -40,8 +40,8 @@ async function createSolidLayer(r, g, b) {
         synchronousExecution: true,
         modalBehavior: "execute",
       }
-    );
-  });
+    )
+  })
 }
 
 async function makeGroupCommand() {
@@ -66,27 +66,27 @@ async function makeGroupCommand() {
       synchronousExecution: true,
       modalBehavior: "execute",
     }
-  );
+  )
 
-  console.log("makeGroupCommand: ", result);
+  console.log("makeGroupCommand: ", result)
 
-  return result;
+  return result
 }
 async function createEmptyGroup(name = "New Group") {
-  let groupLayer;
+  let groupLayer
   await executeAsModal(async () => {
-    await makeGroupCommand();
-    groupLayer = app.activeDocument.activeLayers[0];
-    groupLayer.name = name;
-  });
-  console.log("groupLayer:", groupLayer);
-  return groupLayer;
+    await makeGroupCommand()
+    groupLayer = app.activeDocument.activeLayers[0]
+    groupLayer.name = name
+  })
+  console.log("groupLayer:", groupLayer)
+  return groupLayer
 }
 
 async function moveToGroupCommand(to_index, layerIDs) {
-  const batchPlay = require("photoshop").action.batchPlay;
-  console.log("to_index:", to_index);
-  console.log("layerIDs:", layerIDs);
+  const batchPlay = require("photoshop").action.batchPlay
+  console.log("to_index:", to_index)
+  console.log("layerIDs:", layerIDs)
 
   const result = await batchPlay(
     [
@@ -115,15 +115,15 @@ async function moveToGroupCommand(to_index, layerIDs) {
       synchronousExecution: true,
       modalBehavior: "execute",
     }
-  );
+  )
 }
 function MoveToGroupExe(toIndex, layerIDs) {
   try {
     executeAsModal(async () => {
-      await moveToGroupCommand(toIndex, layerIDs);
-    });
+      await moveToGroupCommand(toIndex, layerIDs)
+    })
   } catch (e) {
-    console.warn("executeCommand error:", e);
+    console.warn("executeCommand error:", e)
   }
 }
 
@@ -148,65 +148,65 @@ async function getIndexCommand(layer_id) {
       },
     ],
     { synchronousExecution: true }
-  )[0]["itemIndex"];
-  console.log("index:", idx);
-  return idx;
+  )[0]["itemIndex"]
+  console.log("index:", idx)
+  return idx
 }
 
 async function getLayerIndex(layer_id) {
-  const { executeAsModal } = require("photoshop").core;
+  const { executeAsModal } = require("photoshop").core
   try {
-    let index;
+    let index
     await executeAsModal(async () => {
-      index = await getIndexCommand(layer_id);
-      console.log("getIndex: ", index);
-    });
-    return index;
+      index = await getIndexCommand(layer_id)
+      console.log("getIndex: ", index)
+    })
+    return index
   } catch (e) {
-    console.warn("getIndex error:", e);
+    console.warn("getIndex error:", e)
   }
 }
 
 async function unselectActiveLayers() {
-  const layers = await app.activeDocument.activeLayers;
+  const layers = await app.activeDocument.activeLayers
   for (layer of layers) {
-    layer.selected = false;
+    layer.selected = false
   }
 }
 async function unselectActiveLayersExe() {
   await executeAsModal(async () => {
-    await unselectActiveLayers();
-  });
+    await unselectActiveLayers()
+  })
 }
 async function selectLayers(layers) {
-  await unselectActiveLayers();
+  await unselectActiveLayers()
   for (layer of layers) {
     try {
-      const is_visible = layer.visible; // don't change the visibility when selecting the layer
-      layer.selected = true;
-      layer.visible = is_visible;
+      const is_visible = layer.visible // don't change the visibility when selecting the layer
+      layer.selected = true
+      layer.visible = is_visible
     } catch (e) {
-      console.warn(e);
+      console.warn(e)
     }
   }
 }
 
 async function selectLayersExe(layers) {
   await executeAsModal(async () => {
-    await selectLayers(layers);
-  });
+    await selectLayers(layers)
+  })
 }
 async function selectGroup(layer) {
-  await unselectActiveLayers();
-  layer.parent.selected = true;
+  await unselectActiveLayers()
+  layer.parent.selected = true
 }
 async function collapseGroup(layer) {
-  await selectGroup(layer);
-  await app.activeDocument.activeLayers[0].merge();
+  await selectGroup(layer)
+  await app.activeDocument.activeLayers[0].merge()
 }
 
 async function createMaskCommand() {
-  const batchPlay = require("photoshop").action.batchPlay;
+  const batchPlay = require("photoshop").action.batchPlay
 
   const result = await batchPlay(
     [
@@ -233,17 +233,17 @@ async function createMaskCommand() {
       synchronousExecution: true,
       modalBehavior: "execute",
     }
-  );
+  )
 }
 
 async function createMaskExe() {
-  const { executeAsModal } = require("photoshop").core;
-  await executeAsModal(createMaskCommand);
+  const { executeAsModal } = require("photoshop").core
+  await executeAsModal(createMaskCommand)
 }
 
 //unselect the rectangular marquee selection area
 async function unSelectMarqueeCommand() {
-  const batchPlay = require("photoshop").action.batchPlay;
+  const batchPlay = require("photoshop").action.batchPlay
 
   const result = await batchPlay(
     [
@@ -268,12 +268,12 @@ async function unSelectMarqueeCommand() {
       synchronousExecution: true,
       modalBehavior: "execute",
     }
-  );
+  )
 
-  return result;
+  return result
 }
 async function unSelectMarqueeExe() {
-  await executeAsModal(unSelectMarqueeCommand);
+  await executeAsModal(unSelectMarqueeCommand)
 }
 ////selection:
 async function selectMarqueeRectangularToolExe() {
@@ -296,30 +296,30 @@ async function selectMarqueeRectangularToolExe() {
         synchronousExecution: true,
         modalBehavior: "execute",
       }
-    );
-    return result;
+    )
+    return result
   }
   await executeAsModal(async () => {
-    await selectMarqueeRectangularToolCommand();
-  });
+    await selectMarqueeRectangularToolCommand()
+  })
 }
 
 async function promptForMarqueeTool() {
-  (async () => {
+  ;(async () => {
     const r1 = await dialog_box.prompt(
       "Please Select a Rectangular Area",
       "You Forgot to select a Rectangular Area",
       ["Cancel", "Rectangular Marquee"]
-    );
+    )
     if ((r1 || "Rectangular Marquee") !== "Rectangular Marquee") {
       /* cancelled or No */
-      console.log("cancel");
+      console.log("cancel")
     } else {
       /* Yes */
-      console.log("Rectangular Marquee");
-      selectMarqueeRectangularToolExe();
+      console.log("Rectangular Marquee")
+      selectMarqueeRectangularToolExe()
     }
-  })();
+  })()
 }
 
 async function selectLayerChannelCommand() {
@@ -356,7 +356,7 @@ async function selectLayerChannelCommand() {
   //       modalBehavior: 'execute'
   //     }
   //   )
-  const batchPlay = require("photoshop").action.batchPlay;
+  const batchPlay = require("photoshop").action.batchPlay
 
   const result = await batchPlay(
     [
@@ -382,7 +382,7 @@ async function selectLayerChannelCommand() {
       synchronousExecution: true,
       modalBehavior: "execute",
     }
-  );
+  )
 }
 
 async function getSelectionInfoCommand() {
@@ -408,9 +408,9 @@ async function getSelectionInfoCommand() {
       synchronousExecution: true,
       modalBehavior: "execute",
     }
-  );
+  )
 
-  return result;
+  return result
 }
 
 function isSelectionValid(selection) {
@@ -421,17 +421,17 @@ function isSelectionValid(selection) {
     selection.hasOwnProperty("top") &&
     selection.hasOwnProperty("bottom")
   ) {
-    return true;
+    return true
   }
 
-  return false;
+  return false
 }
 async function getSelectionInfoExe() {
-  console.log("getSelectionInfo was called");
+  console.log("getSelectionInfo was called")
 
   try {
     const selection = (await executeAsModal(getSelectionInfoCommand))[0]
-      .selection;
+      .selection
 
     if (isSelectionValid(selection)) {
       let selection_info = {
@@ -441,12 +441,12 @@ async function getSelectionInfoExe() {
         top: selection.top._value,
         height: selection.bottom._value - selection.top._value,
         width: selection.right._value - selection.left._value,
-      };
+      }
       // console.dir({selection_info})
-      return selection_info;
+      return selection_info
     }
   } catch (e) {
-    console.warn("selection info error", e);
+    console.warn("selection info error", e)
   }
 }
 
@@ -489,18 +489,18 @@ async function reSelectMarqueeCommand(selectionInfo) {
       synchronousExecution: true,
       modalBehavior: "execute",
     }
-  );
+  )
 }
 async function reSelectMarqueeExe(selectionInfo) {
   await executeAsModal(async () => {
-    await reSelectMarqueeCommand(selectionInfo);
-  });
+    await reSelectMarqueeCommand(selectionInfo)
+  })
 }
 
 async function snapshot_layer() {
-  let psAction = require("photoshop").action;
+  let psAction = require("photoshop").action
   // const ids = (await app.activeDocument.activeLayers).map(layer => layer.id)
-  const ids = await app.activeDocument.layers.map((layer) => layer.id);
+  const ids = await app.activeDocument.layers.map((layer) => layer.id)
   let command = [
     // Select All Layers current layer
     {
@@ -531,35 +531,35 @@ async function snapshot_layer() {
       _target: [{ _property: "selection", _ref: "channel" }],
       to: { _enum: "ordinal", _ref: "channel", _value: "targetEnum" },
     },
-  ];
+  ]
   const result = await psAction.batchPlay(command, {
     synchronousExecution: true,
     modalBehavior: "execute",
-  });
-  console.log("snapshot_layer: result: ", result);
-  return result;
+  })
+  console.log("snapshot_layer: result: ", result)
+  return result
 }
 
 async function snapshot_layerExe() {
   try {
     await executeAsModal(
       async () => {
-        await snapshot_layer();
+        await snapshot_layer()
       },
       {
         commandName: "Action Commands",
       }
-    );
+    )
   } catch (e) {
-    console.error(e);
+    console.error(e)
   }
 }
 
 // await runModalFunction();
 
 async function fillAndGroup() {
-  let result;
-  let psAction = require("photoshop").action;
+  let result
+  let psAction = require("photoshop").action
 
   // let newCommand =[
   //   // snapshotLayer
@@ -590,13 +590,13 @@ async function fillAndGroup() {
     // {"_obj":"select","_target":[{"_name":"Layer 4 copy","_ref":"layer"}],"layerID":[17,15],"makeVisible":false,"selectionModifier":{"_enum":"selectionModifierType","_value":"addToSelectionContinuous"}},
     // Make Group
     // {"_obj":"make","_target":[{"_ref":"layerSection"}],"from":{"_enum":"ordinal","_ref":"layer","_value":"targetEnum"},"layerSectionEnd":19,"layerSectionStart":18,"name":"Group 1"}
-  ];
-  const snapshotLayer = await app.activeDocument.activeLayers[0];
-  await makeGroupCommand();
-  const groupLayer = app.activeDocument.activeLayers[0];
-  result = await psAction.batchPlay(command, {});
-  const fillLayer = app.activeDocument.activeLayers[0];
-  snapshotLayer.moveAbove(fillLayer);
+  ]
+  const snapshotLayer = await app.activeDocument.activeLayers[0]
+  await makeGroupCommand()
+  const groupLayer = app.activeDocument.activeLayers[0]
+  result = await psAction.batchPlay(command, {})
+  const fillLayer = app.activeDocument.activeLayers[0]
+  snapshotLayer.moveAbove(fillLayer)
   // await app.activeDocument.activeLayers[0].moveAbove()
   // const layerIDs = []
   // const to_index = await getIndexCommand(groupLayer.id)
@@ -606,40 +606,40 @@ async function fillAndGroup() {
 async function fillAndGroupExe() {
   await require("photoshop").core.executeAsModal(fillAndGroup, {
     commandName: "Action Commands",
-  });
+  })
 }
 async function fastSnapshot() {
-  await snapshot_layerExe();
-  await fillAndGroupExe();
+  await snapshot_layerExe()
+  await fillAndGroupExe()
 }
 
 function layerToFileName(layer, session_id) {
-  file_name = `${layer.name}_${layer.id}_${session_id}`;
-  return file_name;
+  file_name = `${layer.name}_${layer.id}_${session_id}`
+  return file_name
 }
 function layerNameToFileName(layer_name, layer_id, session_id) {
-  file_name = `${layer_name}_${layer_id}_${session_id}`;
-  return file_name;
+  file_name = `${layer_name}_${layer_id}_${session_id}`
+  return file_name
 }
 async function exportPngCommand(session_id) {
   try {
     // const result = await batchPlay { _obj: “exportSelectionAsFileTypePressed”}
 
     // const destFolder = (await storage.localFileSystem.getDataFolder()).nativePath;
-    const storage = require("uxp").storage;
-    const fs = storage.localFileSystem;
+    const storage = require("uxp").storage
+    const fs = storage.localFileSystem
 
-    let pluginFolder = await fs.getPluginFolder();
+    let pluginFolder = await fs.getPluginFolder()
     // await fs.getFolder("./init_images")
     let init_images_dir = await pluginFolder.getEntry(
       "./server/python_server/init_images"
-    );
-    const layer = await app.activeDocument.activeLayers[0];
-    const old_name = layer.name;
+    )
+    const layer = await app.activeDocument.activeLayers[0]
+    const old_name = layer.name
     //change the name of layer to unique name
-    const file_name = layerToFileName(layer, session_id);
-    layer.name = file_name;
-    const id = await app.activeDocument.activeLayers[0].id;
+    const file_name = layerToFileName(layer, session_id)
+    layer.name = file_name
+    const id = await app.activeDocument.activeLayers[0].id
     const exportCommand = {
       _obj: "exportSelectionAsFileTypePressed",
       // _target: { _ref: 'layer', _enum: 'ordinal', _value: 'targetEnum' },
@@ -657,98 +657,98 @@ async function exportPngCommand(session_id) {
       sRGB: true,
       openWindow: false,
       _options: { dialogOptions: "dontDisplay" },
-    };
+    }
     const result = await batchPlay([exportCommand], {
       synchronousExecution: true,
       modalBehavior: "execute",
-    });
+    })
 
-    return result;
+    return result
   } catch (e) {
-    console.error(`exportPngCommand error:, ${e}`);
+    console.error(`exportPngCommand error:, ${e}`)
   }
 }
 
 async function exportPng(session_id) {
-  console.log("exportPng() -> session_id:", session_id);
+  console.log("exportPng() -> session_id:", session_id)
   try {
-    const old_name = await app.activeDocument.activeLayers[0].name;
+    const old_name = await app.activeDocument.activeLayers[0].name
     await executeAsModal(async () => {
-      await exportPngCommand(session_id);
-    });
+      await exportPngCommand(session_id)
+    })
     setTimeout(async () => {
-      console.log("setTimeout() -> old_name: ", old_name);
+      console.log("setTimeout() -> old_name: ", old_name)
       await executeAsModal(async () => {
-        app.activeDocument.activeLayers[0].name = old_name;
-      });
-    }, 3000);
+        app.activeDocument.activeLayers[0].name = old_name
+      })
+    }, 3000)
     //after export rename the layer to it's original name by remove the "_${id}" from the name
   } catch (e) {
-    console.error(`exportPng error:, ${e}`);
+    console.error(`exportPng error:, ${e}`)
   }
 }
 
 // await runModalFunction();
 async function setInitImage(layer, session_id) {
   try {
-    const html_manip = require("./utility/html_manip");
+    const html_manip = require("./utility/html_manip")
     // const layer = await app.activeDocument.activeLayers[0]
-    const old_name = layer.name;
-    const sdapi = require("./sdapi");
+    const old_name = layer.name
+    const sdapi = require("./sdapi")
     // await exportPng(session_id)
     // image_name = await app.activeDocument.activeLayers[0].name
 
     //convert layer name to a file name
-    image_name = layerNameToFileName(old_name, layer.id, session_id);
-    image_name = `${image_name}.png`;
+    image_name = layerNameToFileName(old_name, layer.id, session_id)
+    image_name = `${image_name}.png`
 
     //the width and height of the exported image
-    const width = html_manip.getWidth();
-    const height = html_manip.getHeight();
-    await newExportPng(layer, image_name, width, height);
+    const width = html_manip.getWidth()
+    const height = html_manip.getHeight()
+    await newExportPng(layer, image_name, width, height)
 
-    g_init_image_name = image_name;
-    console.log(image_name);
+    g_init_image_name = image_name
+    console.log(image_name)
 
-    const image_src = await sdapi.getInitImage(g_init_image_name);
-    let ini_image_element = document.getElementById("init_image");
-    ini_image_element.src = image_src;
+    const image_src = await sdapi.getInitImage(g_init_image_name)
+    let ini_image_element = document.getElementById("init_image")
+    ini_image_element.src = image_src
 
-    return image_name;
+    return image_name
   } catch (e) {
-    console.error(`psapi.js setInitImage error:, ${e}`);
+    console.error(`psapi.js setInitImage error:, ${e}`)
   }
 }
 async function setInitImageMask(layer, session_id) {
   try {
-    const html_manip = require("./utility/html_manip");
+    const html_manip = require("./utility/html_manip")
 
     // const layer = await app.activeDocument.activeLayers[0]
-    const old_name = layer.name;
-    const sdapi = require("./sdapi");
+    const old_name = layer.name
+    const sdapi = require("./sdapi")
     // await exportPng(session_id)
     //get the active layer name
     // image_name = await app.activeDocument.activeLayers[0].name
     // image_name = layerNameToFileName(old_name,layer.id,random_session_id)
-    image_name = layerNameToFileName(old_name, layer.id, session_id);
-    image_name = `${image_name}.png`;
-    const width = html_manip.getWidth();
-    const height = html_manip.getHeight();
-    await newExportPng(layer, image_name, width, height);
-    g_init_image_mask_name = image_name; // this is the name we will send to the server
+    image_name = layerNameToFileName(old_name, layer.id, session_id)
+    image_name = `${image_name}.png`
+    const width = html_manip.getWidth()
+    const height = html_manip.getHeight()
+    await newExportPng(layer, image_name, width, height)
+    g_init_image_mask_name = image_name // this is the name we will send to the server
     // g_init_mask_layer = layer
     // g_mask_related_layers = {}
-    console.log(image_name);
+    console.log(image_name)
 
-    const image_src = await sdapi.getInitImage(g_init_image_mask_name); // we should replace this with getInitImagePath which return path to local disk
-    const ini_image_mask_element = document.getElementById("init_image_mask");
-    ini_image_mask_element.src = image_src;
-    ini_image_mask_element.dataset.layer_id = layer.id;
+    const image_src = await sdapi.getInitImage(g_init_image_mask_name) // we should replace this with getInitImagePath which return path to local disk
+    const ini_image_mask_element = document.getElementById("init_image_mask")
+    ini_image_mask_element.src = image_src
+    ini_image_mask_element.dataset.layer_id = layer.id
 
     //create viewer init image obj
-    return image_name;
+    return image_name
   } catch (e) {
-    console.error(`psapi.js setInitImageMask error: `, e);
+    console.error(`psapi.js setInitImageMask error: `, e)
   }
 }
 
@@ -775,18 +775,18 @@ async function cleanLayers(layers) {
   // g_init_image_related_layers = {}
   // g_mask_related_layers = {}
   // await loadViewerImages()// we should move loadViewerImages to a new file viewer.js
-  console.log("cleanLayers() -> layers:", layers);
+  console.log("cleanLayers() -> layers:", layers)
   for (layer of layers) {
     try {
       await executeAsModal(async () => {
-        await layer.delete();
-      });
+        await layer.delete()
+      })
     } catch (e) {
-      console.warn("warning attempting to a delete layer: ", e);
-      continue;
+      console.warn("warning attempting to a delete layer: ", e)
+      continue
     }
   }
-  return [];
+  return []
 }
 
 // async function cleanLayersOutpaint(layers){
@@ -819,7 +819,7 @@ async function cleanLayers(layers) {
 // return []
 // }
 async function createClippingMaskExe() {
-  const batchPlay = require("photoshop").action.batchPlay;
+  const batchPlay = require("photoshop").action.batchPlay
 
   async function createClippingMaskCommand() {
     const result = await batchPlay(
@@ -847,27 +847,27 @@ async function createClippingMaskExe() {
         synchronousExecution: true,
         modalBehavior: "execute",
       }
-    );
+    )
   }
 
   await executeAsModal(async () => {
-    await createClippingMaskCommand();
-  });
+    await createClippingMaskCommand()
+  })
 }
 
 async function checkIfSelectionAreaIsActive() {
   try {
-    let isSelectionAreaValid = await getSelectionInfoExe();
-    return isSelectionAreaValid;
+    let isSelectionAreaValid = await getSelectionInfoExe()
+    return isSelectionAreaValid
   } catch (e) {
-    console.warn(e);
+    console.warn(e)
   }
 }
 async function saveUniqueDocumentIdExe(new_id) {
-  const batchPlay = require("photoshop").action.batchPlay;
+  const batchPlay = require("photoshop").action.batchPlay
 
   async function saveUniqueDocumentIdCommand() {
-    const batchPlay = require("photoshop").action.batchPlay;
+    const batchPlay = require("photoshop").action.batchPlay
 
     const result = await batchPlay(
       [
@@ -898,19 +898,19 @@ async function saveUniqueDocumentIdExe(new_id) {
         synchronousExecution: true,
         modalBehavior: "execute",
       }
-    );
+    )
   }
 
   await executeAsModal(async () => {
-    await saveUniqueDocumentIdCommand();
-  });
+    await saveUniqueDocumentIdCommand()
+  })
 }
 
 async function readUniqueDocumentIdExe() {
-  const batchPlay = require("photoshop").action.batchPlay;
+  const batchPlay = require("photoshop").action.batchPlay
 
   async function readUniqueDocumentIdCommand() {
-    const batchPlay = require("photoshop").action.batchPlay;
+    const batchPlay = require("photoshop").action.batchPlay
 
     const result = await batchPlay(
       [
@@ -941,26 +941,26 @@ async function readUniqueDocumentIdExe() {
         synchronousExecution: true,
         modalBehavior: "execute",
       }
-    );
-    console.log("readUniqueDocumentIdCommand: result ", result);
-    return result;
+    )
+    console.log("readUniqueDocumentIdCommand: result ", result)
+    return result
   }
 
-  let uniqueDocumentId = "";
+  let uniqueDocumentId = ""
   try {
     await executeAsModal(async () => {
       uniqueDocumentId = (await readUniqueDocumentIdCommand())[0].fileInfo
-        .caption;
+        .caption
       if (typeof uniqueDocumentId === "string") {
-        uniqueDocumentId = uniqueDocumentId.trim();
+        uniqueDocumentId = uniqueDocumentId.trim()
       }
-    });
+    })
   } catch (e) {
-    console.warn("readUniqueDocumentIdExe: ", e);
-    uniqueDocumentId = "";
+    console.warn("readUniqueDocumentIdExe: ", e)
+    uniqueDocumentId = ""
   }
 
-  return uniqueDocumentId;
+  return uniqueDocumentId
 }
 
 const readPng = async (image_name) => {
@@ -969,37 +969,37 @@ const readPng = async (image_name) => {
     await executeAsModal(
       async (control) => {
         // const tempFolder = await fs.getTemporaryFolder() ;
-        const pluginFolder = await fs.getPluginFolder();
+        const pluginFolder = await fs.getPluginFolder()
 
         let init_images_dir = await pluginFolder.getEntry(
           "./server/python_server/init_images"
-        );
+        )
         // let init_images_dir = await pluginFolder.getEntry(
         //   './server/python_server/init_images'
         // )
         const file = await init_images_dir.createFile(image_name, {
           overwrite: true,
-        });
+        })
 
-        const currentDocument = app.activeDocument;
+        const currentDocument = app.activeDocument
         await currentDocument.saveAs.png(
           file,
           {
             compression: 6,
           },
           true
-        );
+        )
 
         // const arrayBuffer = await file.read({format: formats.binary}) ;
         // console.log(arrayBuffer, 'arrayBuffer') ;
       },
 
       { commandName: "readPng" }
-    );
+    )
   } catch (e) {
-    console.warn(e);
+    console.warn(e)
   }
-};
+}
 
 async function selectCanvasCommand() {
   // const result = await batchPlay(
@@ -1044,17 +1044,17 @@ async function selectCanvasCommand() {
       synchronousExecution: true,
       modalBehavior: "execute",
     }
-  );
+  )
 
-  return result;
+  return result
 }
 async function selectCanvasExe() {
   await executeAsModal(
     async () => {
-      await selectCanvasCommand();
+      await selectCanvasCommand()
     },
     { commandName: "selectCanvasExe" }
-  );
+  )
 }
 async function newExportPng(layer, image_name, width, height) {
   //store layers we want to export in variables
@@ -1071,7 +1071,7 @@ async function newExportPng(layer, image_name, width, height) {
 
     //create new document
     // let exportDoc = await executeAsModal(app.documents.add)
-    let exportDoc;
+    let exportDoc
     const makeDoc = async () => {
       let exportDoc = await app.documents.add({
         width: width,
@@ -1079,35 +1079,35 @@ async function newExportPng(layer, image_name, width, height) {
         resolution: 300,
         mode: "RGBColorMode",
         fill: "transparent",
-      });
-    };
+      })
+    }
     await executeAsModal(
       async () => {
         // await app.documents.add()
-        await makeDoc();
-        exportDoc = app.activeDocument;
+        await makeDoc()
+        exportDoc = app.activeDocument
 
-        console.log("exportDoc.id: ", exportDoc.id);
+        console.log("exportDoc.id: ", exportDoc.id)
         // for (layer of layersToExport) {
 
-        console.log(layer.id);
-        const dupLayer = await layer.duplicate(exportDoc);
-        await selectLayers([dupLayer]);
+        console.log(layer.id)
+        const dupLayer = await layer.duplicate(exportDoc)
+        await selectLayers([dupLayer])
         // await selectLayerChannelCommand()
-        await selectCanvasExe();
-        const canvas_selection_info = await getSelectionInfoExe();
-        await layerToSelection(canvas_selection_info);
+        await selectCanvasExe()
+        const canvas_selection_info = await getSelectionInfoExe()
+        await layerToSelection(canvas_selection_info)
         // const selection_info = await getSelectionInfoExe()
         // await exportDoc.crop(selection_info)
         // export_image_name = `${layer.name}.png`
-        await readPng(image_name);
-        await exportDoc.closeWithoutSaving();
+        await readPng(image_name)
+        await exportDoc.closeWithoutSaving()
       },
       { commandName: "NewExportPng" }
-    );
+    )
     // }
   } catch (e) {
-    console.error(`newExportPng error: ,${e}`);
+    console.error(`newExportPng error: ,${e}`)
   }
 }
 async function mergeVisibleCommand() {
@@ -1126,15 +1126,15 @@ async function mergeVisibleCommand() {
       synchronousExecution: true,
       modalBehavior: "execute",
     }
-  );
+  )
 
-  return result;
+  return result
 }
 
 async function mergeVisibleExe() {
   await executeAsModal(async () => {
-    await mergeVisibleCommand();
-  });
+    await mergeVisibleCommand()
+  })
 }
 
 async function layerToSelection(selection_info) {
@@ -1148,16 +1148,16 @@ async function layerToSelection(selection_info) {
     //Select from selection info
     // let selection_info = await getSelectionInfo()
 
-    console.log("selection_info:", selection_info);
+    console.log("selection_info:", selection_info)
 
-    console.log("unSelect");
+    console.log("unSelect")
 
     function getLayerSize(layer) {
-      console.log("layer.bounds:");
-      console.dir(layer.bounds);
-      const bounds = layer.bounds;
-      const height = bounds.bottom - bounds.top;
-      const width = bounds.right - bounds.left;
+      console.log("layer.bounds:")
+      console.dir(layer.bounds)
+      const bounds = layer.bounds
+      const height = bounds.bottom - bounds.top
+      const width = bounds.right - bounds.left
       return {
         height: height,
         width: width,
@@ -1165,49 +1165,49 @@ async function layerToSelection(selection_info) {
         right: bounds.right,
         top: bounds.top,
         bottom: bounds.bottom,
-      };
+      }
     }
     //scale layer
     async function scaleLayer(layer, selection_info) {
-      console.log("scaleLayer got called");
+      console.log("scaleLayer got called")
       // const activeLayer = getActiveLayer()
       // const activeLayer = await app.activeDocument.activeLayers[0]
 
-      let layer_info = getLayerSize(layer);
-      scale_x_ratio = (selection_info.width / layer_info.width) * 100;
-      scale_y_ratio = (selection_info.height / layer_info.height) * 100;
-      console.log("scale_x_y_ratio:", scale_x_ratio, scale_y_ratio);
-      await layer.scale(scale_x_ratio, scale_y_ratio);
+      let layer_info = getLayerSize(layer)
+      scale_x_ratio = (selection_info.width / layer_info.width) * 100
+      scale_y_ratio = (selection_info.height / layer_info.height) * 100
+      console.log("scale_x_y_ratio:", scale_x_ratio, scale_y_ratio)
+      await layer.scale(scale_x_ratio, scale_y_ratio)
     }
 
     async function moveLayerExe(layerToMove, selection_info) {
-      let layer_info = getLayerSize(layerToMove);
-      top_dist = layer_info.top - selection_info.top;
-      left_dist = layer_info.left - selection_info.left;
-      await layerToMove.translate(-left_dist, -top_dist);
+      let layer_info = getLayerSize(layerToMove)
+      top_dist = layer_info.top - selection_info.top
+      left_dist = layer_info.left - selection_info.left
+      await layerToMove.translate(-left_dist, -top_dist)
     }
     // const activeLayer = await getActiveLayer()
 
     //store all active layers
-    const activeLayers = await app.activeDocument.activeLayers;
-    await unSelectMarqueeExe();
+    const activeLayers = await app.activeDocument.activeLayers
+    await unSelectMarqueeExe()
     // await executeAsModal(unSelect,  {'commandName': 'unSelect'})
     // await executeAsModal(scaleLayer,  {'commandName': 'scaleLayer'})
 
     await executeAsModal(
       async () => {
         for (let layer of activeLayers) {
-          await selectLayers([layer]); // make sure only one layer is selected
-          await scaleLayer(layer, selection_info); //scale to selection size
-          await moveLayerExe(layer, selection_info); //move to selection
+          await selectLayers([layer]) // make sure only one layer is selected
+          await scaleLayer(layer, selection_info) //scale to selection size
+          await moveLayerExe(layer, selection_info) //move to selection
         }
       },
       { commandName: "moveLayerExe" }
-    );
+    )
 
     // await reselect(selection_info)
   } catch (e) {
-    console.warn(e);
+    console.warn(e)
   }
 }
 
@@ -1252,4 +1252,4 @@ module.exports = {
   selectCanvasExe,
   layerToSelection,
   isSelectionValid,
-};
+}
