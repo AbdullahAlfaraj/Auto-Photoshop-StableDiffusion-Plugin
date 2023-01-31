@@ -20,7 +20,7 @@ let settings = {
   seed: null,
   samplers: null,
   mask_content: null,
-};
+}
 
 let LatentNoiseSettings = {
   model: null,
@@ -44,7 +44,7 @@ let LatentNoiseSettings = {
   seed: null,
   samplers: null,
   mask_content: "2",
-};
+}
 
 let FillSettings = {
   model: null,
@@ -68,7 +68,7 @@ let FillSettings = {
   seed: null,
   samplers: null,
   mask_content: "0",
-};
+}
 let OriginalSettings = {
   model: null,
   prompt_shortcut: null,
@@ -91,7 +91,7 @@ let OriginalSettings = {
   seed: null,
   samplers: null,
   mask_content: "1",
-};
+}
 
 function nullAllSettings() {}
 
@@ -106,4 +106,4 @@ module.exports = {
   LatentNoiseSettings,
   FillSettings,
   OriginalSettings,
-};
+}

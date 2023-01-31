@@ -1,28 +1,28 @@
-const { unselectActiveLayers } = require("./psapi");
+const { unselectActiveLayers } = require("./psapi")
 
-const app = window.require("photoshop").app;
+const app = window.require("photoshop").app
 
 function getActiveLayer() {
-  let activeLayers = app.activeDocument.activeLayers;
+  let activeLayers = app.activeDocument.activeLayers
   // console.dir(getSize())
   for (const layer of activeLayers) {
-    console.dir({ layer });
-    const name = layer.name;
-    console.dir({ name });
-    let layer_size = getLayerSize(layer);
-    console.dir({ layer_size });
+    console.dir({ layer })
+    const name = layer.name
+    console.dir({ name })
+    let layer_size = getLayerSize(layer)
+    console.dir({ layer_size })
   }
 
-  return activeLayers[0];
+  return activeLayers[0]
 }
 
 function getSize() {
-  let doc = app.activeDocument;
-  return { height: doc.height, width: doc.width };
+  let doc = app.activeDocument
+  return { height: doc.height, width: doc.width }
 }
 
-const { batchPlay } = require("photoshop").action;
-const { executeAsModal } = require("photoshop").core;
+const { batchPlay } = require("photoshop").action
+const { executeAsModal } = require("photoshop").core
 
 async function reselectBatchPlay(selectionInfo) {
   const result = await batchPlay(
@@ -63,21 +63,21 @@ async function reselectBatchPlay(selectionInfo) {
       synchronousExecution: true,
       modalBehavior: "execute",
     }
-  );
+  )
 }
 
 async function reselect(selectionInfo) {
   await executeAsModal(
     async () => {
-      reselectBatchPlay(selectionInfo);
+      reselectBatchPlay(selectionInfo)
     },
     { commandName: "reselect" }
-  );
+  )
 }
 
 //unselect the rectangular marquee selection area
 async function unSelect() {
-  const batchPlay = require("photoshop").action.batchPlay;
+  const batchPlay = require("photoshop").action.batchPlay
 
   const result = await batchPlay(
     [
@@ -102,9 +102,9 @@ async function unSelect() {
       synchronousExecution: true,
       modalBehavior: "execute",
     }
-  );
+  )
 
-  return result;
+  return result
 }
 
 // async function layerToSelectionHelper () {
@@ -204,4 +204,4 @@ async function unSelect() {
 
 module.exports = {
   // layerToSelection
-};
+}
