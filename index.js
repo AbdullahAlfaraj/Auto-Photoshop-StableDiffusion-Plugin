@@ -23,6 +23,11 @@ const sd_config = require('./utility/sdapi/config')
 const session = require('./utility/session')
 const ui = require('./utility/ui')
 const script_horde = require('./utility/sd_scripts/horde')
+
+const formats = require('uxp').storage.formats
+const storage = require('uxp').storage
+const fs = storage.localFileSystem
+
 async function hasSessionSelectionChanged() {
     try {
         const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
@@ -2244,6 +2249,149 @@ async function placeEmbedded(image_path) {
         const image_name = names[length - 1]
         const project_name = names[length - 2]
         let pluginFolder = await fs.getPluginFolder()
+        const image_dir = `./server/python_server/output/${project_name}`
+        // image_path = "output/f027258e-71b8-430a-9396-0a19425f2b44/output- 1674323725.126322.png"
+
+        let img_dir = await pluginFolder.getEntry(image_dir)
+        // const file = await img_dir.createFile('output- 1674298902.0571606.png', {overwrite: true});
+
+        const file = await img_dir.createFile(image_name, { overwrite: true })
+
+        const img = await file.read({ format: formats.binary })
+        const token = await storage.localFileSystem.createSessionToken(file)
+        let place_event_result
+        await executeAsModal(async () => {
+            const result = await batchPlay(
+                [
+                    {
+                        _obj: 'placeEvent',
+                        ID: 6,
+                        null: {
+                            _path: token,
+                            _kind: 'local',
+                        },
+                        freeTransformCenterState: {
+                            _enum: 'quadCenterState',
+                            _value: 'QCSAverage',
+                        },
+                        offset: {
+                            _obj: 'offset',
+                            horizontal: {
+                                _unit: 'pixelsUnit',
+                                _value: 0,
+                            },
+                            vertical: {
+                                _unit: 'pixelsUnit',
+                                _value: 0,
+                            },
+                        },
+                        _isCommand: true,
+                        _options: {
+                            dialogOptions: 'dontDisplay',
+                        },
+                    },
+                ],
+                {
+                    synchronousExecution: true,
+                    modalBehavior: 'execute',
+                }
+            )
+            console.log('placeEmbedd batchPlay result: ', result)
+
+            place_event_result = result[0]
+        })
+
+        return place_event_result
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+function _base64ToArrayBuffer(base64) {
+    var binary_string = window.atob(base64)
+    var len = binary_string.length
+    var bytes = new Uint8Array(len)
+    for (var i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i)
+    }
+    return bytes.buffer
+}
+async function base64ToFile(b64Image) {
+    // const b64Image =
+    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
+
+    const img = _base64ToArrayBuffer(b64Image)
+
+    const img_name = 'output_image.png'
+
+    const folder = await storage.localFileSystem.getTemporaryFolder()
+    const file = await folder.createFile(img_name, { overwrite: true })
+
+    await file.write(img, { format: storage.formats.binary })
+
+    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
+
+    let place_event_result
+    await executeAsModal(async () => {
+        const result = await batchPlay(
+            [
+                {
+                    _obj: 'placeEvent',
+                    ID: 6,
+                    null: {
+                        _path: token,
+                        _kind: 'local',
+                    },
+                    freeTransformCenterState: {
+                        _enum: 'quadCenterState',
+                        _value: 'QCSAverage',
+                    },
+                    offset: {
+                        _obj: 'offset',
+                        horizontal: {
+                            _unit: 'pixelsUnit',
+                            _value: 0,
+                        },
+                        vertical: {
+                            _unit: 'pixelsUnit',
+                            _value: 0,
+                        },
+                    },
+                    _isCommand: true,
+                    _options: {
+                        dialogOptions: 'dontDisplay',
+                    },
+                },
+            ],
+            {
+                synchronousExecution: true,
+                modalBehavior: 'execute',
+            }
+        )
+        console.log('placeEmbedd batchPlay result: ', result)
+
+        place_event_result = result[0]
+    })
+
+    return place_event_result
+}
+
+async function placeImageB64ToLayer(image_path) {
+    //silent importer
+
+    try {
+        console.log('placeEmbedded(): image_path: ', image_path)
+
+        const formats = require('uxp').storage.formats
+        const storage = require('uxp').storage
+        const fs = storage.localFileSystem
+
+        const names = image_path.split('/')
+        const length = names.length
+        const image_name = names[length - 1]
+        const project_name = names[length - 2]
+        let pluginFolder = await fs.getPluginFolder()
+
         const image_dir = `./server/python_server/output/${project_name}`
         // image_path = "output/f027258e-71b8-430a-9396-0a19425f2b44/output- 1674323725.126322.png"
 
