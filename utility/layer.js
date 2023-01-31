@@ -1,110 +1,110 @@
-const { batchPlay } = require("photoshop").action
-const { executeAsModal } = require("photoshop").core
-const { cleanLayers, getLayerIndex, selectLayers } = require("../psapi")
+const { batchPlay } = require('photoshop').action
+const { executeAsModal } = require('photoshop').core
+const { cleanLayers, getLayerIndex, selectLayers } = require('../psapi')
 
 async function createNewLayerExe(layerName) {
-  await executeAsModal(async () => {
-    await createNewLayerCommand(layerName)
-  })
-  const new_layer = await app.activeDocument.activeLayers[0]
-  return new_layer
+    await executeAsModal(async () => {
+        await createNewLayerCommand(layerName)
+    })
+    const new_layer = await app.activeDocument.activeLayers[0]
+    return new_layer
 }
 
 async function createNewLayerCommand(layerName) {
-  return await app.activeDocument.createLayer({
-    name: layerName,
-    opacity: 100,
-    mode: "normal",
-  })
+    return await app.activeDocument.createLayer({
+        name: layerName,
+        opacity: 100,
+        mode: 'normal',
+    })
 }
 
 async function deleteLayers(layers) {
-  try {
-    await cleanLayers(layers)
-  } catch (e) {
-    console.warn(e)
-  }
+    try {
+        await cleanLayers(layers)
+    } catch (e) {
+        console.warn(e)
+    }
 }
 
 async function getIndexCommand() {
-  const command = {
-    _obj: "get",
-    _target: [
-      {
-        _property: "itemIndex",
-      },
-      {
-        _ref: "layer",
-        _enum: "ordinal",
-        _value: "targetEnum",
-      },
-    ],
-  }
-  const result = await batchPlay([command], {
-    synchronousExecution: true,
-    modalBehavior: "execute",
-  })
+    const command = {
+        _obj: 'get',
+        _target: [
+            {
+                _property: 'itemIndex',
+            },
+            {
+                _ref: 'layer',
+                _enum: 'ordinal',
+                _value: 'targetEnum',
+            },
+        ],
+    }
+    const result = await batchPlay([command], {
+        synchronousExecution: true,
+        modalBehavior: 'execute',
+    })
 
-  return result
+    return result
 }
 
 async function getIndexExe() {
-  let index
-  await executeAsModal(async () => {
-    index = await getIndexCommand()
-  })
+    let index
+    await executeAsModal(async () => {
+        index = await getIndexCommand()
+    })
 
-  return index
+    return index
 }
-const photoshop = require("photoshop")
+const photoshop = require('photoshop')
 
 const collapseFolderCommand = async (expand = false, recursive = false) => {
-  let result
-  try {
-    result = await batchPlay(
-      [
-        {
-          _obj: "set",
-          _target: {
-            _ref: [
-              { _property: "layerSectionExpanded" },
-              {
-                _ref: "layer",
-                _enum: "ordinal",
-                _value: "targetEnum",
-              },
+    let result
+    try {
+        result = await batchPlay(
+            [
+                {
+                    _obj: 'set',
+                    _target: {
+                        _ref: [
+                            { _property: 'layerSectionExpanded' },
+                            {
+                                _ref: 'layer',
+                                _enum: 'ordinal',
+                                _value: 'targetEnum',
+                            },
+                        ],
+                    },
+                    to: expand,
+                    recursive,
+                    _options: { dialogOptions: 'dontDisplay' },
+                },
             ],
-          },
-          to: expand,
-          recursive,
-          _options: { dialogOptions: "dontDisplay" },
-        },
-      ],
-      { synchronousExecution: true }
-    )
-  } catch (e) {
-    console.error(e.message)
-  }
-  return result
+            { synchronousExecution: true }
+        )
+    } catch (e) {
+        console.error(e.message)
+    }
+    return result
 }
 async function collapseFolderExe(layers, expand = false, recursive = false) {
-  for (let layer of layers) {
-    try {
-      await executeAsModal(async () => {
-        const is_visible = await layer.visible // don't change the visiblity of the layer when collapsing
-        await selectLayers([layer])
-        await collapseFolderCommand(expand, recursive)
-        layer.visible = is_visible
-      })
-    } catch (e) {
-      console.warn(e)
+    for (let layer of layers) {
+        try {
+            await executeAsModal(async () => {
+                const is_visible = await layer.visible // don't change the visiblity of the layer when collapsing
+                await selectLayers([layer])
+                await collapseFolderCommand(expand, recursive)
+                layer.visible = is_visible
+            })
+        } catch (e) {
+            console.warn(e)
+        }
     }
-  }
 }
 
 module.exports = {
-  createNewLayerExe,
-  deleteLayers,
-  getIndexExe,
-  collapseFolderExe,
+    createNewLayerExe,
+    deleteLayers,
+    getIndexExe,
+    collapseFolderExe,
 }
