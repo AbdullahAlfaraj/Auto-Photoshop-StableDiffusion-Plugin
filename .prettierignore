@@ -1,0 +1,3 @@
+server/python_server/output/*
+*.md
+manifest.json
