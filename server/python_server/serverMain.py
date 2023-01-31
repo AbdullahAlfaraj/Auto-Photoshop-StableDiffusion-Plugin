@@ -48,6 +48,7 @@ async def txt2ImgRequest(payload):
         image_paths = []
         #for each image store the prompt and settings in the meta data
         metadata = []
+        images_info = []
         for i in r['images']:
             image = Image.open(io.BytesIO(base64.b64decode(i.split(",",1)[0])))
 
@@ -66,9 +67,11 @@ async def txt2ImgRequest(payload):
             metadata_info = response2.json().get("info")
             metadata_json = metadata_to_json.convertMetadataToJson(metadata_info)
             metadata.append(metadata_json)
+            images_info.append({"base64":i,"path":image_path})
             print("metadata_json: ", metadata_json)
         base64_images = r['images']
-        return dirName,image_paths,metadata,base64_images
+        
+        return dirName,images_info,metadata
 
 import base64
 from io import BytesIO
@@ -156,9 +159,9 @@ async def changeSdUrl(request:Request):
 async def txt2ImgHandle(request:Request):
     print("txt2ImgHandle: \n")
     payload = await request.json() 
-    dir_name,image_paths,metadata,base64_images = await txt2ImgRequest(payload)
+    dir_name,images_info,metadata, = await txt2ImgRequest(payload)
     # return {"prompt":payload.prompt,"images": ""}
-    return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths,"metadata":metadata,"base64_images":base64_images}
+    return {"payload": payload,"dir_name": dir_name,"images_info":images_info,"metadata":metadata}
 
 @app.post("/img2img/")
 async def img2ImgHandle(request:Request):

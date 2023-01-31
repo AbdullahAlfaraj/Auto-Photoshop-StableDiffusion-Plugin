@@ -50,8 +50,7 @@ async function requestTxt2Img(payload) {
         })
 
         let json = await request.json()
-        console.log('requestTxt2Img json:')
-        console.dir(json)
+        console.log('requestTxt2Img json:', json)
 
         return json
     } catch (e) {

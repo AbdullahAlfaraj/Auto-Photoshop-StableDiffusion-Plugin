@@ -1378,9 +1378,6 @@ async function discard() {
         const random_img_src = 'https://source.unsplash.com/random'
         html_manip.setInitImageSrc(random_img_src)
         html_manip.setInitImageMaskSrc(random_img_src)
-        // const last_gen_layers = Object.keys(g_image_path_to_layer).map(
-        //   path => g_image_path_to_layer[path]
-        // )
 
         // psapi.cleanLayers(last_gen_layers)
         await deleteNoneSelected(g_viewer_manager.pathToViewerImage)
@@ -1943,7 +1940,8 @@ async function generate(settings) {
         toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
         g_can_request_progress = false
 
-        gImage_paths = json.image_paths
+        const images_info = json?.images_info
+        // gImage_paths = images_info.images_paths
         //open the generated images from disk and load them onto the canvas
         const b_use_silent_import =
             document.getElementById('chUseSilentImport').checked
@@ -1952,10 +1950,10 @@ async function generate(settings) {
 
             if (b_use_silent_import) {
                 g_image_path_to_layer = await silentImagesToLayersExe(
-                    gImage_paths
+                    images_info
                 )
             } else {
-                g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
+                // g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
             }
 
             g_number_generation_per_session = 1
@@ -1964,9 +1962,9 @@ async function generate(settings) {
             // generation session is active so we will generate more
             let last_images_paths
             if (b_use_silent_import) {
-                last_images_paths = await silentImagesToLayersExe(gImage_paths)
+                last_images_paths = await silentImagesToLayersExe(images_info)
             } else {
-                last_images_paths = await ImagesToLayersExe(gImage_paths)
+                // last_images_paths = await ImagesToLayersExe(gImage_paths)
             }
 
             g_image_path_to_layer = {
@@ -1982,53 +1980,6 @@ async function generate(settings) {
         console.error(`btnGenerate.click(): `, e)
     }
 }
-
-// async function generateMore(settings){
-
-//   try{
-//     //pre generation
-//     // toggleGenerateInterruptButton(true)
-//     // toggleTwoButtons(true,'btnGenerateMore','btnInterruptMore')
-//     toggleTwoButtonsByClass(false,'btnGenerateClass','btnInterruptClass')
-//     g_can_request_progress = true
-
-//     //wait 2 seconds till you check for progress
-//     setTimeout(function () {
-//       progressRecursive()
-
-//     }, 2000)
-
-//   console.log(settings)
-
-//   if (g_sd_mode == 'txt2img') {
-//     json = await generateTxt2Img(settings)
-//    }
-//    else if(g_sd_mode == 'img2img' || g_sd_mode =='inpaint' || g_sd_mode =='outpaint'){
-//      json = await sdapi.requestImg2Img(settings)
-
-//    }
-
-//   //post generation
-//   //get the updated metadata from json response
-//   g_metadatas = updateMetadata(json.metadata)
-//   //set button to generate
-//   // toggleGenerateInterruptButton(false)
-//   // toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
-//   toggleTwoButtonsByClass(false,'btnGenerateClass','btnInterruptClass')
-//   g_can_request_progress = false
-
-//   gImage_paths = json.image_paths
-//   //open the generated images from disk and load them onto the canvas
-//   const last_images_paths = await ImagesToLayersExe(gImage_paths)
-//   g_image_path_to_layer = {...g_image_path_to_layer, ...last_images_paths}
-//   //update the viewer
-//   loadViewerImages()
-
-// }catch(e){
-//   console.error(`btnGenerate.click(): `,e)
-
-// }
-// }
 
 Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
     (btn) => {
@@ -2522,23 +2473,21 @@ async function ImagesToLayersExe(images_paths) {
     return image_path_to_layer
 }
 
-async function silentImagesToLayersExe(images_paths) {
+async function silentbase64ImagesToLayersExe(base64_images) {
     try {
         g_generation_session.isLoadingActive = true
 
         await psapi.reSelectMarqueeExe(g_selection)
         image_path_to_layer = {}
-        console.log('silentImagesToLayersExe: images_paths: ', images_paths)
+
         // Returns a Promise that resolves after "ms" Milliseconds
         const timer = (ms) => new Promise((res) => setTimeout(res, ms))
 
-        for (image_path of images_paths) {
-            gCurrentImagePath = image_path
-            console.log(gCurrentImagePath)
+        for (base64_image of base64_images) {
             //unselect all layers so that the imported layer get place at the top of the document
             await psapi.unselectActiveLayersExe()
 
-            const placeEventResult = await placeEmbedded(image_path) //silent import into the document
+            const placeEventResult = await base64ToFile(base64_image) //silent import into the document
 
             let layer = await app.activeDocument.layers.filter(
                 (l) => l.id === placeEventResult?.ID
@@ -2550,6 +2499,7 @@ async function silentImagesToLayersExe(images_paths) {
             // let layer = await app.activeDocument.activeLayers[0]
             console.log('loaded layer: ', layer)
             console.log('placeEventResult?.ID: ', placeEventResult?.ID)
+
             while (!layer && timer_count <= 10000) {
                 await timer(100) // then the created Promise can be awaited
                 timer_count += 100
@@ -2590,6 +2540,91 @@ async function silentImagesToLayersExe(images_paths) {
             // })
 
             image_path_to_layer[image_path] = layer
+            // await reselect(selectionInfo)
+        }
+        return image_path_to_layer
+    } catch (e) {
+        console.warn(e)
+    }
+    g_generation_session.isLoadingActive = false
+}
+async function silentImagesToLayersExe(images_info) {
+    try {
+        g_generation_session.isLoadingActive = true
+
+        await psapi.reSelectMarqueeExe(g_selection)
+        image_path_to_layer = {}
+        console.log(
+            'silentImagesToLayersExe: images_info.images_paths: ',
+            images_info.images_paths
+        )
+        // Returns a Promise that resolves after "ms" Milliseconds
+        const timer = (ms) => new Promise((res) => setTimeout(res, ms))
+
+        for (image_info of images_info) {
+            console.log(gCurrentImagePath)
+            //unselect all layers so that the imported layer get place at the top of the document
+            await psapi.unselectActiveLayersExe()
+
+            let placeEventResult
+            // if (base64_images) {
+            //     placeEventResult = await base64ToFile(base64_images) //silent import into the document
+            // } else {
+            //     placeEventResult = await placeEmbedded(image_path) //silent import into the document
+            // }
+            placeEventResult = await base64ToFile(image_info.base64) //silent import into the document
+
+            let layer = await app.activeDocument.layers.filter(
+                (l) => l.id === placeEventResult?.ID
+            )[0]
+            // await openImageExe() //local image to new document
+            // await convertToSmartObjectExe() //convert the current image to smart object
+            let timer_count = 0
+
+            // let layer = await app.activeDocument.activeLayers[0]
+            console.log('loaded layer: ', layer)
+            console.log('placeEventResult?.ID: ', placeEventResult?.ID)
+
+            while (!layer && timer_count <= 10000) {
+                await timer(100) // then the created Promise can be awaited
+                timer_count += 100
+                // layer = await app.activeDocument.activeLayers[0]
+                layer = await app.activeDocument.layers.filter(
+                    (l) => l.id === placeEventResult?.ID
+                )[0]
+                const active_layer = await app.activeDocument.activeLayers[0]
+                console.log('active_layer.id: ', active_layer.id)
+                if (active_layer.id === placeEventResult?.ID) {
+                    layer = active_layer
+                }
+
+                console.log('timer_count: ', timer_count)
+                console.log('loaded layer: ', layer)
+                console.log('placeEventResult?.ID: ', placeEventResult?.ID)
+            }
+
+            if (g_b_use_smart_object === false) {
+                await executeAsModal(async () => {
+                    await layer.rasterize() //rastrize the active layer
+                })
+            }
+
+            await psapi.selectLayersExe([layer])
+            await psapi.layerToSelection(g_selection)
+
+            // await stackLayers() // move the smart object to the original/old document
+            // await psapi.layerToSelection(g_selection) //transform the new smart object layer to fit selection area
+            // layer = await app.activeDocument.activeLayers[0]
+            await g_generation_session.moveToTopOfOutputGroup(layer)
+            // const output_group_id = await g_generation_session.outputGroup.id
+            // let group_index = await psapi.getLayerIndex(output_group_id)
+            // const indexOffset = 1 //1 for background, 0 if no background exist
+            // await executeAsModal(async ()=>{
+            //   await psapi.moveToGroupCommand(group_index - indexOffset, layer.id)
+
+            // })
+
+            image_path_to_layer[image_info.path] = layer
             // await reselect(selectionInfo)
         }
         return image_path_to_layer
@@ -2818,7 +2853,6 @@ async function loadViewerImages() {
         let i = 0
 
         // const viewer_layers = []
-        // Object.keys(g_image_path_to_layer).map(path =>  new viewer.OutputImage(g_image_path_to_layer[path],path))
 
         // if(g_viewer_manager.g_init_image_related_layers.hasOwnProperty('init_image_group') )
         if (g_viewer_manager.initGroup) {
@@ -2901,8 +2935,6 @@ async function loadViewerImages() {
             if (!g_viewer_manager.hasViewerImage(path)) {
                 //create viewer object if it doesn't exist
 
-                // const viewer_obj =  new viewer.OutputImage(g_image_path_to_layer[image_path],image_path)
-
                 //create an html image element and attach it container, and link it to the viewer obj
 
                 const layer = g_image_path_to_layer[path]
@@ -2973,12 +3005,6 @@ async function deleteNoneSelected(viewer_objects) {
     } catch (e) {
         console.warn(e)
     }
-}
-
-async function deleteNoneSelectedAndReloadViewer() {
-    await deleteNoneSelected(g_viewer_manager.pathToViewerImage)
-    console.log('g_image_path_to_layer: ', g_image_path_to_layer)
-    await loadViewerImages() // maybe we should pass g_image_path_to_layer instead of it been global
 }
 
 // document.getElementById('btnLoadViewer').addEventListener('click', loadViewerImages)
