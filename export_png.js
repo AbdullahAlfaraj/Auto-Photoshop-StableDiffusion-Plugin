@@ -1,20 +1,20 @@
-const { executeAsModal } = require("photoshop").core;
-const storage = require("uxp").storage;
-const fs = storage.localFileSystem;
-const formats = require("uxp").storage.formats;
+const { executeAsModal } = require("photoshop").core
+const storage = require("uxp").storage
+const fs = storage.localFileSystem
+const formats = require("uxp").storage.formats
 async function exportPngCommand() {
-  const batchPlay = require("photoshop").action.batchPlay;
+  const batchPlay = require("photoshop").action.batchPlay
   // const result = await batchPlay { _obj: “exportSelectionAsFileTypePressed”}
 
   // const destFolder = (await storage.localFileSystem.getDataFolder()).nativePath;
-  const storage = require("uxp").storage;
-  const fs = storage.localFileSystem;
+  const storage = require("uxp").storage
+  const fs = storage.localFileSystem
 
-  let pluginFolder = await fs.getPluginFolder();
+  let pluginFolder = await fs.getPluginFolder()
   // await fs.getFolder("./init_images")
   let init_images_dir = await pluginFolder.getEntry(
     "./server/python_server/init_images"
-  );
+  )
 
   const exportCommand = {
     _obj: "exportSelectionAsFileTypePressed",
@@ -26,20 +26,20 @@ async function exportPngCommand() {
     sRGB: true,
     openWindow: false,
     _options: { dialogOptions: "dontDisplay" },
-  };
+  }
   const result = await batchPlay([exportCommand], {
     synchronousExecution: true,
     modalBehavior: "execute",
-  });
+  })
 
-  return result;
+  return result
 }
 async function exportPng() {
-  const { executeAsModal } = require("photoshop").core;
+  const { executeAsModal } = require("photoshop").core
   try {
-    await executeAsModal(exportPngCommand);
+    await executeAsModal(exportPngCommand)
   } catch (e) {
-    console.warn("exportPng error:", e);
+    console.warn("exportPng error:", e)
   }
 }
 
@@ -49,39 +49,39 @@ const readPng = async (image_name) => {
     await executeAsModal(
       async (control) => {
         // const tempFolder = await fs.getTemporaryFolder() ;
-        const pluginFolder = await fs.getPluginFolder();
+        const pluginFolder = await fs.getPluginFolder()
 
         let init_images_dir = await pluginFolder.getEntry(
           "./server/python_server/init_images"
-        );
+        )
         // let init_images_dir = await pluginFolder.getEntry(
         //   './server/python_server/init_images'
         // )
         const file = await init_images_dir.createFile(image_name, {
           overwrite: true,
-        });
+        })
 
-        const currentDocument = app.activeDocument;
+        const currentDocument = app.activeDocument
         await currentDocument.saveAs.png(
           file,
           {
             compression: 6,
           },
           true
-        );
+        )
 
         // const arrayBuffer = await file.read({format: formats.binary}) ;
         // console.log(arrayBuffer, 'arrayBuffer') ;
       },
 
       { commandName: "readPng" }
-    );
+    )
   } catch (e) {
-    console.warn(e);
+    console.warn(e)
   }
-};
+}
 
-const psapi = require("./psapi");
+const psapi = require("./psapi")
 async function newExportPng(layer, image_name) {
   //store layers we want to export in variables
   // let layerToExports =
@@ -97,24 +97,24 @@ async function newExportPng(layer, image_name) {
 
     //create new document
     let exportDoc = await executeAsModal(async () => {
-      return await app.documents.add;
-    });
+      return await app.documents.add
+    })
 
     // for (layer of layersToExport) {
     await executeAsModal(async () => {
-      console.log(layer.id);
-      const dupLayer = await layer.duplicate(exportDoc);
-      await psapi.selectLayers([dupLayer]);
-      await psapi.selectLayerChannelCommand();
-      const selection_info = await psapi.getSelectionInfoExe();
-      await exportDoc.crop(selection_info);
+      console.log(layer.id)
+      const dupLayer = await layer.duplicate(exportDoc)
+      await psapi.selectLayers([dupLayer])
+      await psapi.selectLayerChannelCommand()
+      const selection_info = await psapi.getSelectionInfoExe()
+      await exportDoc.crop(selection_info)
       // export_image_name = `${layer.name}.png`
-      await readPng(image_name);
+      await readPng(image_name)
       // await exportDoc.closeWithoutSaving()
-    });
+    })
     // }
   } catch (e) {
-    console.warn(e);
+    console.warn(e)
   }
 }
 
@@ -140,17 +140,17 @@ For the save function, if running UXP AP1 version 1 then use "wait" for modalBeh
 If running on UXP API version 2 then use "execute" for modalBahavior, or remove the options and use {} so the options go to default.
 */
 async function savePNG(saveDataTemp) {
-  const batchPlay = require("photoshop").action.batchPlay;
+  const batchPlay = require("photoshop").action.batchPlay
 
   async function savePNGCommand() {
     var saveFolder =
-      await require("uxp").storage.localFileSystem.getPluginFolder();
+      await require("uxp").storage.localFileSystem.getPluginFolder()
 
     // Again, my variable here is global and assigned earlier. The value is changed during a batch loop for each file.
-    var saveFile = await saveFolder.createFile("fileName.png");
+    var saveFile = await saveFolder.createFile("fileName.png")
 
     const saveData =
-      await require("uxp").storage.localFileSystem.createSessionToken(saveFile);
+      await require("uxp").storage.localFileSystem.createSessionToken(saveFile)
 
     const result = await batchPlay(
       [
@@ -190,11 +190,11 @@ async function savePNG(saveDataTemp) {
         synchronousExecution: true,
         modalBehavior: "execute",
       }
-    );
+    )
   }
   await executeAsModal(async () => {
-    savePNGCommand();
-  });
+    savePNGCommand()
+  })
 }
 
 ////////////////////End method 3////////////////////////////
@@ -204,4 +204,4 @@ module.exports = {
   readPng,
   savePNG,
   newExportPng,
-};
+}
