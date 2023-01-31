@@ -69,7 +69,7 @@ async def txt2ImgRequest(payload):
             metadata.append(metadata_json)
             images_info.append({"base64":i,"path":image_path})
             print("metadata_json: ", metadata_json)
-        base64_images = r['images']
+        
         
         return dirName,images_info,metadata
 
@@ -167,9 +167,9 @@ async def txt2ImgHandle(request:Request):
 async def img2ImgHandle(request:Request):
     print("img2ImgHandle: \n")
     payload = await request.json() 
-    dir_name,image_paths,metadata = await img2imgapi.img2ImgRequest(sd_url,payload)
+    dir_name,images_info,metadata = await img2imgapi.img2ImgRequest(sd_url,payload)
     # return {"prompt":payload.prompt,"images": ""}
-    return {"payload": payload,"dir_name": dir_name,"image_paths":image_paths,"metadata":metadata}
+    return {"payload": payload,"dir_name": dir_name,"images_info":images_info,"metadata":metadata}
 
 
 

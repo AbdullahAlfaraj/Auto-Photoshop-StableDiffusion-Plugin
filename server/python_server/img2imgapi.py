@@ -92,6 +92,7 @@ async def img2ImgRequest(sd_url,payload):
         serverHelper.createFolder(dir_fullpath)
         image_paths = []
         metadata = []
+        images_info = []
         #for each image store the prompt and settings in the meta data
         for i in r['images']:
             image = Image.open(io.BytesIO(base64.b64decode(i.split(",",1)[0])))
@@ -110,9 +111,10 @@ async def img2ImgRequest(sd_url,payload):
             metadata_info = response2.json().get("info")
             metadata_json = metadata_to_json.convertMetadataToJson(metadata_info)
             metadata.append(metadata_json)
+            images_info.append({"base64":i,"path":image_path})
             print("metadata_json: ", metadata_json)   
         
-        return dirName,image_paths,metadata
+        return dirName,images_info,metadata
 
 if __name__=="__main__":
     img2ImgRequest()
