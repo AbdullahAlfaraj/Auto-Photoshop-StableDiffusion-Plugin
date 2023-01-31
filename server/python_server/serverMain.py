@@ -329,11 +329,17 @@ async def loadHistory(request: Request):
 
         history['image_paths'] = image_paths
         history['metadata_jsons'] = []
+        history['base64_images'] = []
         for image_path in image_paths:
             print("image_path: ", image_path)
             metadata_dict = metadata_to_json.createMetadataJsonFileIfNotExist(image_path)
-            history['metadata_jsons'].append(metadata_dict)  
-        
+            history['metadata_jsons'].append(metadata_dict)
+            
+            
+            img = Image.open(image_path)
+            base64_image = img_2_b64(img)
+            history['base64_images'].append(base64_image)
+
     except:
         
         print(f'{request}')
@@ -342,8 +348,9 @@ async def loadHistory(request: Request):
     
 
     history['image_paths'].reverse()
-    history['metadata_jsons'].reverse()  
-    return {"image_paths":history['image_paths'], "metadata_jsons":history['metadata_jsons']}
+    history['metadata_jsons'].reverse()
+    history['base64_images'].reverse()    
+    return {"image_paths":history['image_paths'], "metadata_jsons":history['metadata_jsons'],"base64_images": history['base64_images']}
 
 
 @app.post('/prompt_shortcut/load')

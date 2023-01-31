@@ -1948,23 +1948,26 @@ async function generate(settings) {
         if (isFirstGeneration) {
             //this is new generation session
 
-            if (b_use_silent_import) {
-                g_image_path_to_layer = await silentImagesToLayersExe(
-                    images_info
-                )
-            } else {
-                // g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
+            g_image_path_to_layer = await silentImagesToLayersExe(images_info)
+
+            g_generation_session.base64OutputImages = {} //delete all previouse images, Note move this to session end ()
+            for (const image_info of images_info) {
+                const path = image_info['path']
+                const base64_image = image_info['base64']
+                g_generation_session.base64OutputImages[path] = base64_image
             }
 
             g_number_generation_per_session = 1
             g_generation_session.isFirstGeneration = false
         } else {
             // generation session is active so we will generate more
-            let last_images_paths
-            if (b_use_silent_import) {
-                last_images_paths = await silentImagesToLayersExe(images_info)
-            } else {
-                // last_images_paths = await ImagesToLayersExe(gImage_paths)
+
+            let last_images_paths = await silentImagesToLayersExe(images_info)
+
+            for (const image_info of images_info) {
+                const path = image_info['path']
+                const base64_image = image_info['base64']
+                g_generation_session.base64OutputImages[path] = base64_image
             }
 
             g_image_path_to_layer = {
@@ -2804,9 +2807,10 @@ async function NewViewerImageClickHandler(img, viewer_obj_owner) {
         console.warn(e)
     }
 }
-function createViewerImgHtml(output_dir_relative, image_path) {
+function createViewerImgHtml(output_dir_relative, image_path, base64_image) {
     const img = document.createElement('img')
-    img.src = `${output_dir_relative}/${image_path}`
+    // img.src = `${output_dir_relative}/${image_path}`
+    img.src = base64ToSrc(base64_image)
     img.className = 'viewer-image'
     console.log('image_path: ', image_path)
     // img.dataset.image_id = layer_id
@@ -2950,7 +2954,7 @@ async function loadViewerImages() {
                 const img = createViewerImgHtml(
                     output_dir_relative,
                     path,
-                    layer.id
+                    g_generation_session.base64OutputImages[path]
                 )
                 const output_image_obj = g_viewer_manager.addOutputImage(
                     layer,
@@ -3027,9 +3031,8 @@ document
                 'divHistoryImagesContainer'
             )
             const uniqueDocumentId = await getUniqueDocumentId()
-            const [image_paths, metadata_jsons] = await sdapi.loadHistory(
-                uniqueDocumentId
-            )
+            const [image_paths, metadata_jsons, base64_images] =
+                await sdapi.loadHistory(uniqueDocumentId)
 
             while (container.firstChild) {
                 container.removeChild(container.firstChild)
@@ -3038,7 +3041,10 @@ document
             let i = 0
             for (image_path of image_paths) {
                 const img = document.createElement('img')
-                img.src = `${output_dir_relative}/${image_path}`
+                // img.src = `${output_dir_relative}/${image_path}`
+                const image_src = `data:image/png;base64, ${base64_images[i]}`
+                img.src = image_src
+
                 img.dataset.path = `${output_dir_relative}/${image_path}`
                 img.className = 'history-image'
                 img.dataset.metadata_json_string = JSON.stringify(
@@ -3396,3 +3402,8 @@ document.getElementById('mPresetMenu').addEventListener('change', (evt) => {
         loader(g_ui_settings)
     }
 })
+
+function base64ToSrc(base64_image) {
+    const image_src = `data:image/png;base64, ${base64_image}`
+    return image_src
+}

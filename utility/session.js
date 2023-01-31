@@ -22,6 +22,9 @@ class GenerationSession {
         this.outputGroup
         this.prevOutputGroup
         this.isLoadingActive = false
+        this.base64OutputImages = {} //image_id/path => base64_image
+        this.base64initImages = []
+        this.base64maskImage = []
     }
     isActive() {
         return this.state === SessionState['Active']

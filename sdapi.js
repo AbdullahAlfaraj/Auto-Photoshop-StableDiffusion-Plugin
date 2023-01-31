@@ -287,7 +287,7 @@ async function loadHistory(uniqueDocumentId) {
         console.warn(e)
     }
 
-    return [json['image_paths'], json['metadata_jsons']]
+    return [json['image_paths'], json['metadata_jsons'], json['base64_images']]
 }
 async function loadPromptShortcut() {
     // console.log('loadPromptShortcut:')
