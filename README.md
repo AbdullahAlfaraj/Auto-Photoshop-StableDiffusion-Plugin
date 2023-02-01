@@ -36,6 +36,12 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 	- [Exception in ASGI application / Expecting value: line 1 column 1](#exception-in-asgi-application--expecting-value-line-1-column-1)
 	- [No Generations and Plugin Server doesn't send messages. (Remote setup)](#no-generations-and-plugin-server-doesnt-send-messages-remote-setup)
 	- [Issues with img2img, inpaint or outpaint:](#issues-with-img2img-inpaint-or-outpaint)
+- [No GPU Options](#no-gpu-options)
+	- [Stable Horde](#stable-horde)
+	- [Colab](#colab)
+	
+	
+ 		
 
 # Demo:
 [![Click Here to Watch Demo](https://i3.ytimg.com/vi/VL_gbQai79E/maxresdefault.jpg)](https://youtu.be/VL_gbQai79E "Stable diffusion AI Photoshop Plugin Free and Open Source")
@@ -226,3 +232,11 @@ However if nothing happen then you will need to restart photoshop and try the ex
 if it work then you could procced to use the plugin.
 
 until you get it to work the img2img, inpaint and outpaint will not function correctly. 
+# No GPU Options:
+we provide two options to use the auto-photoshp plugin without GPU.
+## Stable Horde
+This is an awesome free crowdsourced distributed cluster of Stable Diffusion workers. If you like this service, consider joining the horde yourself!
+the horde is enabled completely by the generosity of volunteers so make sure you don't overwhelm the service and help join the cause if can.
+read more on their [github page](https://github.com/db0/AI-Horde)
+## Colab:
+we link to this [Colab](https://colab.research.google.com/drive/1nbcx_WOneRmYv9idBO33pN5CbxXrqZHu?usp=sharing#scrollTo=Y4ebYsPqTrGb) directly inside plugin find it in the settings tab. you only need to run it. no need to change any of the settings. copy the gradio.live url the colab will generate and paste it into ```sd url``` field in the settings tab.
