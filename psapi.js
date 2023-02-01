@@ -644,7 +644,7 @@ async function setInitImage(layer, session_id) {
         // image_name = await app.activeDocument.activeLayers[0].name
 
         //convert layer name to a file name
-        image_name = layerNameToFileName(old_name, layer.id, session_id)
+        let image_name = layerNameToFileName(old_name, layer.id, session_id)
         image_name = `${image_name}.png`
 
         //the width and height of the exported image
@@ -656,7 +656,7 @@ async function setInitImage(layer, session_id) {
             width,
             height
         )
-        base64_image = _arrayBufferToBase64(image_buffer) //convert the buffer to base64
+        const base64_image = _arrayBufferToBase64(image_buffer) //convert the buffer to base64
         //send the base64 to the server to save the file in the desired directory
         await sdapi.requestSavePng(base64_image, image_name)
 
@@ -666,8 +666,11 @@ async function setInitImage(layer, session_id) {
         const image_src = await sdapi.getInitImage(g_init_image_name)
         let ini_image_element = document.getElementById('init_image')
         ini_image_element.src = image_src
+        const path = `${g_init_images_dir}/${image_name}`
 
-        return image_name
+        g_generation_session.base64initImages[path] = base64_image
+
+        return (image_info = { name: image_name, base64: base64_image })
     } catch (e) {
         console.error(`psapi.js setInitImage error:, ${e}`)
     }
@@ -703,8 +706,13 @@ async function setInitImageMask(layer, session_id) {
         ini_image_mask_element.src = image_src
         ini_image_mask_element.dataset.layer_id = layer.id
 
+        const path = `${g_init_images_dir}/${image_name}`
+        g_generation_session.base64maskImage[path] = base64_image
         //create viewer init image obj
-        return image_name
+        {
+        }
+        // return image_name
+        return (image_info = { name: image_name, base64: base64_image })
     } catch (e) {
         console.error(`psapi.js setInitImageMask error: `, e)
     }

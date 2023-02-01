@@ -509,7 +509,7 @@ function autoFillInSettings(metadata_json) {
 let prompt_dir_name = ''
 let gImage_paths = []
 let g_image_path_to_layer = {}
-
+let g_init_images_dir = './server/python_server/init_images'
 gCurrentImagePath = ''
 let g_init_image_name = ''
 // let g_init_mask_layer;
@@ -2036,7 +2036,8 @@ document
     .addEventListener('click', async () => {
         //set init image event listener, use when settion is active
         const layer = await app.activeDocument.activeLayers[0]
-        const image_name = await psapi.setInitImage(layer, random_session_id)
+        const image_info = await psapi.setInitImage(layer, random_session_id)
+        const image_name = image_info['name']
         const path = `./server/python_server/init_images/${image_name}`
         g_viewer_manager.addInitImageLayers(layer, path, false)
     })
@@ -2052,29 +2053,35 @@ document
             })
             const layer = g_viewer_manager.maskGroup
             // const layer = await app.activeDocument.activeLayers[0]
-            const image_name = await psapi.setInitImageMask(
+            const mask_info = await psapi.setInitImageMask(
                 layer,
                 random_session_id
             )
+            const image_name = mask_info['name']
             const path = `./server/python_server/init_images/${image_name}`
-            g_viewer_manager.addMaskLayers(layer, path, false) //can be autodeleted?
+            g_viewer_manager.addMaskLayers(
+                layer,
+                path,
+                false,
+                mask_info['base64']
+            ) //can be autodeleted?
             await psapi.unselectActiveLayersExe()
         } catch (e) {
             console.warn(e)
         }
     })
 
-document.getElementById('bSetInitImage').addEventListener('click', async () => {
-    const layer = await app.activeDocument.activeLayers[0]
-    await psapi.setInitImage(layer, random_session_id)
-})
+// document.getElementById('bSetInitImage').addEventListener('click', async () => {
+//     const layer = await app.activeDocument.activeLayers[0]
+//     await psapi.setInitImage(layer, random_session_id)
+// })
 
-document
-    .getElementById('bSetInitImageMask')
-    .addEventListener('click', async () => {
-        const layer = await app.activeDocument.activeLayers[0]
-        await psapi.setInitImageMask(layer, random_session_id)
-    })
+// document
+//     .getElementById('bSetInitImageMask')
+//     .addEventListener('click', async () => {
+//         const layer = await app.activeDocument.activeLayers[0]
+//         await psapi.setInitImageMask(layer, random_session_id)
+//     })
 function moveElementToAnotherTab(elementId, newParentId) {
     const element = document.getElementById(elementId)
     document.getElementById(newParentId).appendChild(element)
@@ -2894,10 +2901,12 @@ async function loadViewerImages() {
                         path,
                         auto_delete
                     )
-
+                    const base64_image =
+                        g_generation_session.base64initImages[path]
                     const init_img_html = createViewerImgHtml(
                         './server/python_server/init_images/',
-                        g_init_image_name
+                        path,
+                        base64_image
                     )
                     init_image_container.appendChild(init_img_html)
                     initImage.setImgHtml(init_img_html)
@@ -2929,7 +2938,8 @@ async function loadViewerImages() {
 
                 const mask_img_html = createViewerImgHtml(
                     './server/python_server/init_images/',
-                    g_init_image_mask_name
+                    g_init_image_mask_name,
+                    g_generation_session.base64maskImage[path]
                 )
 
                 mask_container.appendChild(mask_img_html)

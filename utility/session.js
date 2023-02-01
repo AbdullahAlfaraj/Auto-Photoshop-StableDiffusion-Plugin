@@ -23,7 +23,7 @@ class GenerationSession {
         this.prevOutputGroup
         this.isLoadingActive = false
         this.base64OutputImages = {} //image_id/path => base64_image
-        this.base64initImages = []
+        this.base64initImages = {} //init_image_path => base64
         this.base64maskImage = []
     }
     isActive() {
