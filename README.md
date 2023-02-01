@@ -29,6 +29,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 	- [Rule of thumbs:](#rule-of-thumbs)
 - [FAQ and Known Issues](#faq-and-known-issues)
 	- [What Photoshop version do I need to run the plugin?](#what-photoshop-version-do-i-need-to-run-the-plugin) 
+	- [Path Doesn't Exist](#path-doesnt-exist)
 	- [Plugin Load Failed](#plugin-load-failed)
 		- [No application are connected to the service](#no-application-are-connected-to-the-service)
 		- [Load command failed in App with ID PS and Version X.X.X](#load-command-failed-in-app-with-id-ps-and-version-xxx)
@@ -174,6 +175,19 @@ as long as you have defined the relationsip in the prompt library tab
 ## What Photoshop version do I need to run the plugin?
 The minimum Photoshop version that the plugin supports is Photoshop v24
 
+## Path Doesn't Exist
+If you get "path doesn't exist" error messeage when running ```start_server.bat```
+you will need to add ```python``` to your system path.
+
+Another option is to point to python useing fullpath as shown here:
+replace this line in ```start_server.bat```:
+```
+python -m venv server_env
+```
+find the path for python on your machine and replace the upove line something like this: 
+```
+C:\Users\abdul\AppData\Local\Programs\Python\Python310\python.exe -m venv server_env
+```
 ## Plugin Load Failed
 There are a few issues that can result in this error, please follow the instructions for the corresponding error message in the UDT logs
 
