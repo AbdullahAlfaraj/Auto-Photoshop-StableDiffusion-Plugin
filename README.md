@@ -79,7 +79,7 @@ that will allow the plugin to communicate with the automatic1111 project. After 
 that's it.
 
 ## First time running the plugin (remote Automatic1111):
-__The remote webui must have api access enabled for this to work. You can check if api access is enabled by appending "/docs#" to the end of the url. If the documentation for the api appears then api access is enabled.__
+__The remote webui must also have `--api` set in `COMMANDLINE_ARGS`. You can check if api access is enabled by appending "/docs#" to the end of the url. If the documentation includes `/sdapi/v1/samplers` then api access is enabled.__
 
 1) download the plugin:
 ```
