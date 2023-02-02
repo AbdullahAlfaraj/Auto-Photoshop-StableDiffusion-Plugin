@@ -1,9 +1,11 @@
 // import {helloHelper} from 'helper.js'
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
+// let g_sdapi_path = 'sdapi'
+let g_sdapi_path = 'sdapi_py_re'
 
 const helper = require('./helper')
-const sdapi = require('./sdapi')
+const sdapi = require(`./${g_sdapi_path}`)
 const exportHelper = require('./export_png')
 const outpaint = require('./outpaint')
 const psapi = require('./psapi')
@@ -1669,6 +1671,7 @@ async function getSettings() {
             payload['init_image_mask_name'] = g_init_image_mask_name
             payload['inpainting_fill'] = html_manip.getMaskContent()
             payload['mask_expansion'] = mask_expansion
+            payload['mask'] = g_generation_session.activeBase64MaskImage
         } else if (mode == 'img2img') {
             var g_use_mask_image = false
             delete payload['inpaint_full_res'] //  inpaint full res is not available in img2img mode
@@ -1687,6 +1690,10 @@ async function getSettings() {
             denoising_strength = html_manip.getDenoisingStrength()
             payload['denoising_strength'] = denoising_strength
             payload['init_image_name'] = g_init_image_name
+
+            payload['init_images'] = [
+                g_generation_session.activeBase64InitImage,
+            ]
         }
 
         if (hi_res_fix && width > 512 && height > 512) {

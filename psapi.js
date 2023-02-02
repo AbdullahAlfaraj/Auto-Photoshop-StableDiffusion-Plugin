@@ -639,7 +639,7 @@ async function setInitImage(layer, session_id) {
         const html_manip = require('./utility/html_manip')
         // const layer = await app.activeDocument.activeLayers[0]
         const old_name = layer.name
-        const sdapi = require('./sdapi')
+        const sdapi = require(`./${g_sdapi_path}`)
 
         // image_name = await app.activeDocument.activeLayers[0].name
 
@@ -669,6 +669,8 @@ async function setInitImage(layer, session_id) {
         const path = `${g_init_images_dir}/${image_name}`
 
         g_generation_session.base64initImages[path] = base64_image
+        g_generation_session.activeBase64InitImage =
+            g_generation_session.base64initImages[path]
 
         return (image_info = { name: image_name, base64: base64_image })
     } catch (e) {
@@ -681,7 +683,7 @@ async function setInitImageMask(layer, session_id) {
 
         // const layer = await app.activeDocument.activeLayers[0]
         const old_name = layer.name
-        const sdapi = require('./sdapi')
+        const sdapi = require(`./${g_sdapi_path}`)
 
         //get the active layer name
         // image_name = await app.activeDocument.activeLayers[0].name
@@ -708,6 +710,8 @@ async function setInitImageMask(layer, session_id) {
 
         const path = `${g_init_images_dir}/${image_name}`
         g_generation_session.base64maskImage[path] = base64_image
+        g_generation_session.activeBase64MaskImage =
+            g_generation_session.base64maskImage[path]
         //create viewer init image obj
         {
         }
