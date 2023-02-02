@@ -59,6 +59,10 @@ async function requestSavePng(base64_image, image_name) {
         // // console.log('requestSavePng json:', json)
 
         // return json
+        const uniqueDocumentId = await getUniqueDocumentId()
+        const folder = `${uniqueDocumentId}/init_images`
+        const init_entery = getInitImagesDir()
+        saveFileInSubFolder(base64_image, folder, image_name)
         console.warn('this function is deprecated')
     } catch (e) {
         console.warn(e)
@@ -110,7 +114,7 @@ async function requestImg2Img(payload) {
         // })
 
         // let json = await request.json()
-        let json = await py_re.img2ImgRequest(py_re.sd_url, payload)
+        let json = await py_re.img2ImgRequest(g_sd_url, payload)
         console.log('requestImg2Img json:')
         console.dir(json)
 
@@ -124,7 +128,7 @@ async function requestImg2Img(payload) {
 async function requestProgress() {
     console.log('requestProgress: ')
 
-    const full_url = `${py_re.sd_url}/sdapi/v1/progress?skip_current_image=false`
+    const full_url = `${g_sd_url}/sdapi/v1/progress?skip_current_image=false`
     let request = await fetch(full_url)
     let json = await request.json()
     console.log('progress json:')
@@ -136,7 +140,7 @@ async function requestProgress() {
 async function requestGetModels() {
     console.log('requestGetModels: ')
     let json = []
-    const full_url = `${py_re.sd_url}/sdapi/v1/sd-models`
+    const full_url = `${g_sd_url}/sdapi/v1/sd-models`
     try {
         let request = await fetch(full_url)
         json = await request.json()
@@ -151,7 +155,7 @@ async function requestGetModels() {
 async function requestGetSamplers() {
     console.log('requestGetSamplers: ')
 
-    const full_url = `${py_re.sd_url}/sdapi/v1/samplers`
+    const full_url = `${g_sd_url}/sdapi/v1/samplers`
     let request = await fetch(full_url)
     let json = await request.json()
     console.log('samplers json:')
@@ -164,7 +168,7 @@ async function requestSwapModel(model_title) {
     console.log('requestSwapModel: ')
     // const full_url = 'http://127.0.0.1:8000/swapModel'
 
-    const full_url = `${py_re.sd_url}/sdapi/v1/options`
+    const full_url = `${g_sd_url}/sdapi/v1/options`
     payload = {
         sd_model_checkpoint: model_title,
     }
@@ -187,7 +191,7 @@ async function requestSwapModel(model_title) {
 }
 
 async function requestInterrupt(model_title) {
-    const full_url = `${py_re.sd_url}/sdapi/v1/interrupt`
+    const full_url = `${g_sd_url}/sdapi/v1/interrupt`
     try {
         console.log('requestInterrupt: ')
         // const full_url = 'http://127.0.0.1:8000/swapModel'
@@ -247,20 +251,19 @@ async function changeSdUrl(new_sd_url) {
             sd_url: new_sd_url,
         }
 
-        const full_url = 'http://127.0.0.1:8000/sd_url/'
-        console.log('changeSdUrl: payload: ', payload)
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        })
+        // const full_url = `${g_sd_url}/sd_url/`
+        // console.log('changeSdUrl: payload: ', payload)
+        // let request = await fetch(full_url, {
+        //     method: 'POST',
+        //     headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(payload),
+        // })
 
-        // let json = await request.json()
-        // console.log('changeSdUrl:',json)
-        console.log('changeSdUrl: request: ', request)
+        g_sd_url = new_sd_url
+        // console.log('changeSdUrl: request: ', request)
     } catch (e) {
         console.warn(e)
     }
@@ -278,20 +281,21 @@ async function loadHistory(uniqueDocumentId) {
         payload = {
             uniqueDocumentId: uniqueDocumentId,
         }
+        json = await py_re.loadHistory(payload)
+        // const full_url = 'http://127.0.0.1:8000/history/load'
 
-        const full_url = 'http://127.0.0.1:8000/history/load'
+        // let request = await fetch(full_url, {
+        //     method: 'POST',
+        //     headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(payload),
+        // })
 
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        })
+        // json = await request.json()
+        // console.log('loadHistory:', json)
 
-        json = await request.json()
-        console.log('loadHistory:', json)
         // console.log('loadPromptShortcut: request: ',request)
     } catch (e) {
         console.warn(e)
@@ -374,7 +378,7 @@ async function setInpaintMaskWeight(value) {
 async function requestGetConfig() {
     console.log('requestGetConfig: ')
     let json = []
-    const full_url = `${py_re.sd_url}/config`
+    const full_url = `${g_sd_url}/config`
     try {
         let request = await fetch(full_url)
         json = await request.json()
@@ -388,7 +392,7 @@ async function requestGetConfig() {
 async function requestGetOptions() {
     console.log('requestGetOptions: ')
     let json = []
-    const full_url = `${py_re.sd_url}/sdapi/v1/options`
+    const full_url = `${g_sd_url}/sdapi/v1/options`
     try {
         let request = await fetch(full_url)
         json = await request.json()

@@ -3,7 +3,7 @@
 // for organizational proposes
 // let g_sdapi_path = 'sdapi'
 let g_sdapi_path = 'sdapi_py_re'
-
+let g_sd_url = 'http://127.0.0.1:7860'
 const helper = require('./helper')
 const sdapi = require(`./${g_sdapi_path}`)
 const exportHelper = require('./export_png')
@@ -116,7 +116,7 @@ require('photoshop').action.addNotificationListener(
 
 async function getUniqueDocumentId() {
     try {
-        uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
+        let uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
 
         console.log(
             'getUniqueDocumentId():  uniqueDocumentId: ',
@@ -138,10 +138,10 @@ async function getUniqueDocumentId() {
             await psapi.saveUniqueDocumentIdExe(uuid)
             uniqueDocumentId = uuid
         }
+        return uniqueDocumentId
     } catch (e) {
         console.warn('warning Document Id may not be valid', e)
     }
-    return uniqueDocumentId
 }
 
 // document
@@ -1952,6 +1952,7 @@ async function generate(settings) {
         //open the generated images from disk and load them onto the canvas
         const b_use_silent_import =
             document.getElementById('chUseSilentImport').checked
+
         if (isFirstGeneration) {
             //this is new generation session
 
@@ -1962,6 +1963,10 @@ async function generate(settings) {
                 const path = image_info['path']
                 const base64_image = image_info['base64']
                 g_generation_session.base64OutputImages[path] = base64_image
+                const [document_name, image_name] = path.split('/')
+                saveFileInSubFolder(base64_image, document_name, image_name) //save the output image
+                const json_file_name = `${image_name.split('.')[0]}.json`
+                saveJsonFileInSubFolder(settings, document_name, json_file_name) //save the settings
             }
 
             g_number_generation_per_session = 1
@@ -1975,6 +1980,10 @@ async function generate(settings) {
                 const path = image_info['path']
                 const base64_image = image_info['base64']
                 g_generation_session.base64OutputImages[path] = base64_image
+                const [document_name, image_name] = path.split('/')
+                saveFileInSubFolder(base64_image, document_name, image_name)
+                const json_file_name = `${image_name.split('.')[0]}.json`
+                saveJsonFileInSubFolder(settings, document_name, json_file_name) //save the settings
             }
 
             g_image_path_to_layer = {
@@ -2293,6 +2302,100 @@ function _arrayBufferToBase64(buffer) {
     }
     return window.btoa(binary)
 }
+
+async function getDocFolder(doc_id) {
+    try {
+        // const uuid = await getUniqueDocumentId()
+        const data_folder = await storage.localFileSystem.getDataFolder()
+
+        let doc_folder
+        try {
+            doc_folder = await data_folder.getEntry(doc_id)
+        } catch (e) {
+            console.warn(e)
+            //create document folder
+            doc_folder = await data_folder.createFolder(doc_id)
+        }
+
+        return doc_folder
+    } catch (e) {
+        console.warn(e)
+    }
+}
+async function getInitImagesDir() {
+    const uuid = await getUniqueDocumentId()
+
+    let doc_folder = await getDocFolder(uuid)
+    let init_folder
+    try {
+        init_folder = await doc_folder.getEntry('init_images')
+    } catch (e) {
+        console.warn(e)
+        //create document folder
+        init_folder = await doc_folder.createFolder('init_images')
+    }
+    return init_folder
+}
+async function saveFileInSubFolder(b64Image, sub_folder_name, file_name) {
+    // const b64Image =
+    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
+
+    const img = _base64ToArrayBuffer(b64Image)
+
+    // const img_name = 'temp_output_image.png'
+    const img_name = file_name
+    const folder = await storage.localFileSystem.getDataFolder()
+    const documentFolderName = sub_folder_name
+    let documentFolder
+    try {
+        documentFolder = await folder.getEntry(documentFolderName)
+    } catch (e) {
+        console.warn(e)
+        //create document folder
+        documentFolder = await folder.createFolder(documentFolderName)
+    }
+
+    console.log('documentFolder.nativePath: ', documentFolder.nativePath)
+    const file = await documentFolder.createFile(img_name, { overwrite: true })
+
+    await file.write(img, { format: storage.formats.binary })
+
+    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
+}
+async function saveJsonFileInSubFolder(json, sub_folder_name, file_name) {
+    // const b64Image =
+    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
+
+    // const img_name = 'temp_output_image.png'
+
+    const json_file_name = file_name
+
+    const folder = await storage.localFileSystem.getDataFolder()
+    const documentFolderName = sub_folder_name
+    let documentFolder
+    try {
+        documentFolder = await folder.getEntry(documentFolderName)
+    } catch (e) {
+        console.warn(e)
+        //create document folder
+        documentFolder = await folder.createFolder(documentFolderName)
+    }
+
+    console.log('documentFolder.nativePath: ', documentFolder.nativePath)
+    const file = await documentFolder.createFile(json_file_name, {
+        type: storage.types.file,
+        overwrite: true,
+    })
+
+    const JSONInPrettyFormat = JSON.stringify(json, undefined, 4)
+    await file.write(JSONInPrettyFormat, {
+        format: storage.formats.utf8,
+        append: false,
+    })
+
+    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
+}
+
 async function base64ToFile(b64Image) {
     // const b64Image =
     //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
@@ -3080,7 +3183,8 @@ document
                     // document.querySelector('#tiSeed').value = metadata_json.Seed
                     document.querySelector('#historySeedLabel').textContent =
                         metadata_json.Seed
-                    autoFillInSettings(metadata_json)
+                    // autoFillInSettings(metadata_json)
+                    g_ui_settings.autoFillInSettings(metadata_json)
 
                     //load the image onto the canvas
                     // let image_path = img.dataset.path

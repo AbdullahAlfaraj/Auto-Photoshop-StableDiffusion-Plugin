@@ -1,4 +1,4 @@
-const { loadHistory } = require(`../${g_sdapi_path}`)
+// const { loadHistory } = require(`../${g_sdapi_path}`)
 const html_manip = require('./html_manip')
 const presets = require('./presets/preset')
 
@@ -219,6 +219,22 @@ class UISettings {
                 )
                 //set the value
                 this.uiElements[name].setValue(value)
+            }
+        }
+    }
+    saveAsJson(json_file_name, settings) {
+        for (const [name, value] of Object.entries(settings)) {
+            if (this.uiElements.hasOwnProperty(name) && value) {
+                //get the values for debugging
+                const old_value = this.uiElements[name].getValue()
+                console.log(
+                    '(name,old_value) => newValue:',
+                    name,
+                    old_value,
+                    value
+                )
+
+                //set the value
             }
         }
     }

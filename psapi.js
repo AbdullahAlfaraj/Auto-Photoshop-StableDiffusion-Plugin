@@ -639,7 +639,7 @@ async function setInitImage(layer, session_id) {
         const html_manip = require('./utility/html_manip')
         // const layer = await app.activeDocument.activeLayers[0]
         const old_name = layer.name
-        const sdapi = require(`./${g_sdapi_path}`)
+        // const sdapi = require(`./${g_sdapi_path}`)
 
         // image_name = await app.activeDocument.activeLayers[0].name
 
@@ -683,7 +683,7 @@ async function setInitImageMask(layer, session_id) {
 
         // const layer = await app.activeDocument.activeLayers[0]
         const old_name = layer.name
-        const sdapi = require(`./${g_sdapi_path}`)
+        // const sdapi = require(`./${g_sdapi_path}`)
 
         //get the active layer name
         // image_name = await app.activeDocument.activeLayers[0].name
@@ -936,6 +936,7 @@ async function readUniqueDocumentIdExe() {
 }
 
 const readPng = async (image_name) => {
+    //it will save the document then read it. store it in memory
     // image_name = 'test.png'
     try {
         let img_buffer

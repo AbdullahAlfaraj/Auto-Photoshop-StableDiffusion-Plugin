@@ -1,4 +1,4 @@
-const sdapi = require(`../../${g_sdapi_path}`)
+// const sdapi = require(`../../${g_sdapi_path}`)
 
 class SdConfig {
     constructor() {

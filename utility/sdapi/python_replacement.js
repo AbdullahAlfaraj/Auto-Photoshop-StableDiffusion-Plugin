@@ -1,5 +1,4 @@
 //how to get environment variable in javascript
-const sd_url = 'http://127.0.0.1:7860'
 
 function newOutputImageName() {
     const random_id = Math.floor(Math.random() * 100000000000 + 1) // Date.now() doesn't have enough resolution to avoid duplicate
@@ -23,7 +22,7 @@ async function txt2ImgRequest(payload) {
     try {
         console.log('txt2ImgRequest(): about to send a fetch request')
 
-        const full_url = `${sd_url}/${endpoint}`
+        const full_url = `${g_sd_url}/${endpoint}`
         console.log(full_url)
 
         let request = await fetch(full_url, {
@@ -181,8 +180,73 @@ async function img2ImgRequest(sd_url, payload) {
     }
 }
 
+async function getOutputImagesEntries(doc_entry) {
+    let entries = await doc_entry.getEntries()
+    const output_images_entries = entries.filter(
+        (e) => e.isFile && e.name.toLowerCase().includes('.png') // must be a file and has the of the type .png
+    )
+    console.log('output_images_entries: ', output_images_entries)
+    // .forEach((e) => console.log(e.name))
+    return output_images_entries
+}
+async function loadHistory(payload) {
+    //  {'image_paths','metadata_setting'}
+    const history = {}
+
+    // const uniqueDocumentId = payload['uniqueDocumentId']
+    // const uniqueDocumentId = await getUniqueDocumentId()
+
+    const uuid = await getUniqueDocumentId()
+    const doc_entry = await getDocFolder(uuid)
+    const output_images_entries = await getOutputImagesEntries(doc_entry)
+    history['image_paths'] = []
+    history['metadata_jsons'] = []
+    history['base64_images'] = []
+    for (output_entry of output_images_entries) {
+        history['image_paths'].push(output_entry.name)
+        history['metadata_jsons'].push({})
+
+        const arrayBuffer = await output_entry.read({ format: formats.binary })
+        const base64_image = _arrayBufferToBase64(arrayBuffer) //convert the buffer to base64
+
+        // const base64 =
+        history['base64_images'].push(base64_image)
+    }
+
+    //     image_paths = glob.glob(f'./output/{uniqueDocumentId}/*.png')
+    //     settings_paths = glob.glob(f'./output/{uniqueDocumentId}/*.json')#note: why is we are not using settings_paths?
+    //     print("loadHistory: image_paths:", image_paths)
+
+    //     history['image_paths'] = image_paths
+    //     history['metadata_jsons'] = []
+    //     history['base64_images'] = []
+    //     for image_path in image_paths:
+    //         print("image_path: ", image_path)
+    //         metadata_dict = metadata_to_json.createMetadataJsonFileIfNotExist(image_path)
+    //         history['metadata_jsons'].append(metadata_dict)
+
+    //         img = Image.open(image_path)
+    //         base64_image = img_2_b64(img)
+    //         history['base64_images'].append(base64_image)
+
+    // except:
+
+    //     print(f'{request}')
+
+    // #reverse the order so that newer generated images path will be shown first
+
+    // history['image_paths'].reverse()
+    // history['metadata_jsons'].reverse()
+    // history['base64_images'].reverse()
+    return {
+        image_paths: history['image_paths'],
+        metadata_jsons: history['metadata_jsons'],
+        base64_images: history['base64_images'],
+    }
+}
+
 module.exports = {
     txt2ImgRequest,
     img2ImgRequest,
-    sd_url,
+    loadHistory,
 }
