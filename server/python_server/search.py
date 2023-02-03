@@ -1,4 +1,11 @@
-from duckduckgo_search import ddg_images
+
+try:
+    from duckduckgo_search import ddg_images
+except ImportError:
+    raise ImportError(
+        "duckduckgo_search is required to image search. Please install it with `pip install duckduckgo_search`."
+    )
+
 
 
 async def imageSearch(keywords = 'cute cats'):

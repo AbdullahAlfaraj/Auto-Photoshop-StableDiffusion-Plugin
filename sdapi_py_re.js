@@ -406,7 +406,9 @@ async function requestGetOptions() {
 
 async function imageSearch(keywords) {
     let json = {}
-    const full_url = 'http://127.0.0.1:8000/search/image/'
+
+    
+    const full_url = `${g_sd_url}/sdapi/auto-photoshop-sd/search/image/`
     try {
         payload = {
             keywords: keywords,
