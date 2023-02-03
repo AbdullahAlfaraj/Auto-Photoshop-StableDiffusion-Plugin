@@ -1,0 +1,1 @@
+print("hello world auto-photoshop-sd plugin")
