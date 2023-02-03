@@ -2,6 +2,7 @@
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
 // let g_sdapi_path = 'sdapi'
+let g_version = 'v1.1.2'
 let g_sdapi_path = 'sdapi_py_re'
 let g_sd_url = 'http://127.0.0.1:7860'
 const helper = require('./helper')
@@ -25,7 +26,7 @@ const sd_config = require('./utility/sdapi/config')
 const session = require('./utility/session')
 const ui = require('./utility/ui')
 const script_horde = require('./utility/sd_scripts/horde')
-
+const prompt_shortcut = require('./utility/sdapi/prompt_shortcut')
 const formats = require('uxp').storage.formats
 const storage = require('uxp').storage
 const fs = storage.localFileSystem

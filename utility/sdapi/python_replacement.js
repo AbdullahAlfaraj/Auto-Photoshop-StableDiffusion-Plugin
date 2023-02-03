@@ -10,14 +10,19 @@ function newOutputImageName() {
 async function txt2ImgRequest(payload) {
     console.log('payload:', payload)
 
-    // if(payload['use_prompt_shortcut']){
-
-    //     const prompt_shortcut_dict = prompt_shortcut.load()
-    //     prompt_shortcut_dict.update(payload["prompt_shortcut_ui_dict"])
-    //     payload['prompt'] = prompt_shortcut.replaceShortcut(payload['prompt'],prompt_shortcut_dict)
-    //     # edit negative prompt, replaceShortcut(negative_prompt)
-    //     payload['negative_prompt'] = prompt_shortcut.replaceShortcut(payload['negative_prompt'],prompt_shortcut_dict)
-    // }
+    if (payload['use_prompt_shortcut']) {
+        //     const prompt_shortcut_dict = prompt_shortcut.load()
+        //     prompt_shortcut_dict.update(payload["prompt_shortcut_ui_dict"])
+        payload['prompt'] = prompt_shortcut.replaceShortcut(
+            payload['prompt'],
+            payload['prompt_shortcut_ui_dict']
+        )
+        // # edit negative prompt, replaceShortcut(negative_prompt)
+        payload['negative_prompt'] = prompt_shortcut.replaceShortcut(
+            payload['negative_prompt'],
+            payload['prompt_shortcut_ui_dict']
+        )
+    }
     const endpoint = 'sdapi/v1/txt2img'
     try {
         console.log('txt2ImgRequest(): about to send a fetch request')
@@ -189,6 +194,27 @@ async function getOutputImagesEntries(doc_entry) {
     // .forEach((e) => console.log(e.name))
     return output_images_entries
 }
+
+async function getMetaDataForOutputEntry(doc_entry, output_entry) {
+    const json_file_name = `${output_entry.name.split('.')[0]}.json`
+
+    try {
+        const json_entry = await doc_entry.getEntry(json_file_name)
+        if (json_entry) {
+            // await json_entry.read()
+
+            const json = JSON.parse(
+                await json_entry.read({
+                    format: storage.formats.utf8,
+                })
+            )
+            return json
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+    return {}
+}
 async function loadHistory(payload) {
     //  {'image_paths','metadata_setting'}
     const history = {}
@@ -202,9 +228,13 @@ async function loadHistory(payload) {
     history['image_paths'] = []
     history['metadata_jsons'] = []
     history['base64_images'] = []
-    for (output_entry of output_images_entries) {
+    for (const output_entry of output_images_entries) {
         history['image_paths'].push(output_entry.name)
-        history['metadata_jsons'].push({})
+        const metadata_json = await getMetaDataForOutputEntry(
+            doc_entry,
+            output_entry
+        )
+        history['metadata_jsons'].push(metadata_json)
 
         const arrayBuffer = await output_entry.read({ format: formats.binary })
         const base64_image = _arrayBufferToBase64(arrayBuffer) //convert the buffer to base64

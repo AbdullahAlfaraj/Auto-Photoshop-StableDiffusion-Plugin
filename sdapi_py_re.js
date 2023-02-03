@@ -225,7 +225,7 @@ async function requestInterrupt(model_title) {
 async function getVersionRequest() {
     // version = "v0.0.0"
     console.log('requestGetSamplers: ')
-    const current_version = 'v1.1.1'
+    const current_version = g_version
     // try {
     //     const full_url = 'http://127.0.0.1:8000/version'
     //     let request = await fetch(full_url)
