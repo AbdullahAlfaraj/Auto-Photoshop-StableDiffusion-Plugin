@@ -1,0 +1,12 @@
+{
+    "painterly_style_1": "A full portrait of a beautiful post apocalyptic offworld arctic explorer, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration",
+    "ugly": " ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), out of frame, extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck)))",
+    "art_style": "(SPACE1999:1.0),(dreamlikeart style:1.0), ( redshift style:1.0), (analog style:1.2), (studio_ghibli_anime_style style:0.7), (copeseethemald style:0.8)",
+    "woman_style": "woman, 1girls, solo, detailed face, lips, realistic pupils, closeup, centered,  standing, centered, skin pores, subsurface scattering, detailed skin",
+    "environment_style": "detailed background, items, realistic proportions, blushing, masterpiece, best quality, realistic, hyperrealistic, sharp focus, absurdres, good anatomy",
+    "uniform_style": "space uniform, red, smooth, black belt, black boots",
+    "man_style": "man, solo, detailed face, lips, realistic pupils, closeup, centered,  standing, centered, skin pores, subsurface scattering, detailed skin",
+    "neg_person": "(glossy:1.0), freckles, nipples, small waist, lowres, large head, long neck, blurry, bad anatomy, bad hands, extra limbs, extra hands, mutated hands, mutated fingers, missing hand, missing finger, text, error, missing fingers, extra digit, fewer digits,",
+    "neg_general": "cropped, worst quality, low quality, normal quality, jpeg artifacts, text, signature, watermark, artist name, logo,",
+    "nova_green": "[Julianne Hough:Jaime King:0.5]"
+}
