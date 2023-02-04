@@ -672,6 +672,9 @@ async function setInitImage(layer, session_id) {
         g_generation_session.activeBase64InitImage =
             g_generation_session.base64initImages[path]
 
+        const init_src = base64ToSrc(g_generation_session.activeBase64InitImage)
+        html_manip.setInitImageSrc(init_src)
+
         return (image_info = { name: image_name, base64: base64_image })
     } catch (e) {
         console.error(`psapi.js setInitImage error:, ${e}`)
@@ -716,6 +719,8 @@ async function setInitImageMask(layer, session_id) {
         {
         }
         // return image_name
+        const mask_src = base64ToSrc(g_generation_session.activeBase64MaskImage)
+        html_manip.setInitImageMaskSrc(mask_src)
         return (image_info = { name: image_name, base64: base64_image })
     } catch (e) {
         console.error(`psapi.js setInitImageMask error: `, e)
