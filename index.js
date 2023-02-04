@@ -2,11 +2,13 @@
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
 // let g_sdapi_path = 'sdapi'
-let g_version = 'v1.1.3'
-let g_sdapi_path = 'sdapi_py_re'
+let g_version = 'v1.1.4'
 let g_sd_url = 'http://127.0.0.1:7860'
 const helper = require('./helper')
-const sdapi = require(`./${g_sdapi_path}`)
+// let g_sdapi_path = 'sdapi_py_re'
+// const sdapi = require(`./${g_sdapi_path}`)
+const sdapi = require('./sdapi_py_re')
+
 const exportHelper = require('./export_png')
 const outpaint = require('./outpaint')
 const psapi = require('./psapi')
@@ -593,14 +595,21 @@ let g_viewer_manager = new viewer.ViewerManager()
 //********** End: global variables */
 
 //***********Start: init function calls */
-
+async function initPlugin() {
+    await refreshUI()
+    await displayUpdate()
+    // promptShortcutExample()
+    await loadPromptShortcut()
+    await refreshPromptMenue()
+}
+initPlugin()
 // refreshModels() // get the models when the plugin loads
 // initSamplers()
 // updateVersionUI()
-refreshUI()
-displayUpdate()
-// promptShortcutExample()
-loadPromptShortcut()
+// refreshUI()
+// displayUpdate()
+// // promptShortcutExample()
+// loadPromptShortcut()
 
 //***********End: init function calls */
 
@@ -3253,10 +3262,11 @@ async function loadPromptShortcut() {
         if (!prompt_shortcut) {
             prompt_shortcut = promptShortcutExample()
         }
+
         // var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
         // document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
         html_manip.setPromptShortcut(prompt_shortcut) // fill the prompt shortcut textarea
-        refreshPromptMenue() //refresh the prompt menue
+        await refreshPromptMenue() //refresh the prompt menue
     } catch (e) {
         console.warn(`loadPromptShortcut warning: ${e}`)
     }
@@ -3288,7 +3298,7 @@ document
             console.log(JSONInPrettyFormat)
             document.getElementById('taPromptShortcut').value =
                 JSONInPrettyFormat
-            refreshPromptMenue()
+            await refreshPromptMenue()
         } catch (e) {
             console.warn(`loadPromptShortcut warning: ${e}`)
         }
@@ -3387,8 +3397,6 @@ async function refreshPromptMenue() {
     }
 }
 
-refreshPromptMenue()
-
 document
     .getElementById('mPromptShortcutMenu')
     .addEventListener('change', (evt) => {
@@ -3400,8 +3408,8 @@ document
     })
 document
     .getElementById('btnRefreshPromptShortcutMenu')
-    .addEventListener('click', () => {
-        refreshPromptMenue()
+    .addEventListener('click', async () => {
+        await refreshPromptMenue()
     })
 
 function changePromptShortcutKey(new_key) {
