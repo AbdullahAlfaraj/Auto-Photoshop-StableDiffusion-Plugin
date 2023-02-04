@@ -419,6 +419,7 @@ function promptShortcutExample() {
         7
     )
     document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+    return prompt_shortcut_example
 }
 
 function autoFillInSettings(metadata_json) {
@@ -598,7 +599,8 @@ let g_viewer_manager = new viewer.ViewerManager()
 // updateVersionUI()
 refreshUI()
 displayUpdate()
-promptShortcutExample()
+// promptShortcutExample()
+loadPromptShortcut()
 
 //***********End: init function calls */
 
@@ -3244,18 +3246,25 @@ document
             console.warn(`imageSearch warning: ${e}`)
         }
     })
+
+async function loadPromptShortcut() {
+    try {
+        let prompt_shortcut = await sdapi.loadPromptShortcut()
+        if (!prompt_shortcut) {
+            prompt_shortcut = promptShortcutExample()
+        }
+        // var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
+        // document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+        html_manip.setPromptShortcut(prompt_shortcut) // fill the prompt shortcut textarea
+        refreshPromptMenue() //refresh the prompt menue
+    } catch (e) {
+        console.warn(`loadPromptShortcut warning: ${e}`)
+    }
+}
 document
     .getElementById('btnLoadPromptShortcut')
     .addEventListener('click', async function () {
-        try {
-            prompt_shortcut = await sdapi.loadPromptShortcut()
-            // var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
-            // document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
-            html_manip.setPromptShortcut(prompt_shortcut) // fill the prompt shortcut textarea
-            refreshPromptMenue() //refresh the prompt menue
-        } catch (e) {
-            console.warn(`loadPromptShortcut warning: ${e}`)
-        }
+        await loadPromptShortcut()
     })
 
 document
@@ -3532,3 +3541,9 @@ function base64ToSrc(base64_image) {
     const image_src = `data:image/png;base64, ${base64_image}`
     return image_src
 }
+
+const py_re = require('./utility/sdapi/python_replacement')
+document.getElementById('btnGetDocPath').addEventListener('click', async () => {
+    const docPath = await py_re.getDocumentFolderNativePath()
+    document.getElementById('tiDocPath').value = docPath
+})
