@@ -16,6 +16,8 @@ import search
 sd_url = os.environ.get('SD_URL', 'http://127.0.0.1:7860')
 
 
+
+
 async def txt2ImgRequest(payload):
     # payload = { 
     #     "prompt": "cute cat, kitten",
@@ -254,11 +256,11 @@ async def sdapi(path: str, request: Request, response: Response):
 
 
 
-async def base64ToPng(base64_image,image_path):
-    base64_img_bytes = base64_image.encode('utf-8')
-    with open(image_path, 'wb') as file_to_save:
-        decoded_image_data = base64.decodebytes(base64_img_bytes)
-        file_to_save.write(decoded_image_data)
+# async def base64ToPng(base64_image,image_path):
+#     base64_img_bytes = base64_image.encode('utf-8')
+#     with open(image_path, 'wb') as file_to_save:
+#         decoded_image_data = base64.decodebytes(base64_img_bytes)
+#         file_to_save.write(decoded_image_data)
 
 
 @app.post('/save/png/')
@@ -274,7 +276,7 @@ async def savePng(request:Request):
     try:
         folder = './init_images'
         image_path = f"{folder}/{json['image_name']}"
-        await base64ToPng(json['base64'],image_path)
+        await img2imgapi.base64ToPng(json['base64'],image_path)
         
         
         
@@ -305,8 +307,38 @@ async def searchImage(request:Request):
         # print(f'{request}')
     return {"error": "error message: can't preform an image search"}
 
+@app.post('/mask/expansion/')
+async def maskExpansionHandler(request:Request):
+    try:
+        json = await request.json()
+    except: 
+        json = {}
+    
 
+    try:
+        # keywords = json.get('keywords','cute dogs') 
+        base64_mask_image = json['mask']
+        mask_expansion = json['mask_expansion']
+        #convert base64 to img
+        
+        await img2imgapi.base64ToPng(base64_mask_image,"original_mask.png")#save a copy of the mask for debugging
+
+        mask_image = img2imgapi.b64_2_img(base64_mask_image)
+        
+        expanded_mask_img = img2imgapi.maskExpansion(mask_image,mask_expansion)
+        base64_expanded_mask_image = img2imgapi.img_2_b64(expanded_mask_img)
+        await img2imgapi.base64ToPng(base64_expanded_mask_image,"expanded_mask.png")#save a copy of the mask of the expanded_mask for debugging
+
+
+        return {"mask":base64_expanded_mask_image}
+    
+    except:
+        print("request",request)
+        raise Exception(f"couldn't preform mask expansion")
     # return response
+    return {"error": "error message: can't preform an mask expansion"}
+
+
 @app.post('/history/load')
 async def loadHistory(request: Request):
     # {'image_paths','metadata_setting'}

@@ -23,6 +23,32 @@ import time
 import serverHelper
 import metadata_to_json
 
+def b64_2_img(base64_image):
+     image = Image.open(io.BytesIO(base64.b64decode(base64_image.split(",",1)[0])))
+     return image
+     
+def maskExpansion(mask_img,mask_expansion):
+     #only if image exist then try to open it
+    
+        
+        # init_img_mask = Image.open(f"{init_img_dir}/{init_img_mask_name}")
+        
+        # if(payload['use_sharp_mask'] == False):# use blurry mask 
+        iteration = mask_expansion
+        mask_img = applyDilation(mask_img,iteration)
+
+
+        return mask_img
+        
+async def base64ToPng(base64_image,image_path):
+    base64_img_bytes = base64_image.encode('utf-8')
+    with open(image_path, 'wb') as file_to_save:
+        decoded_image_data = base64.decodebytes(base64_img_bytes)
+        file_to_save.write(decoded_image_data)    
+        
+        
+
+
 from PIL import Image, ImageFilter
 def applyDilation(img,iteration=20,max_filter=3):
     # img = Image.open("test_image_2.png")

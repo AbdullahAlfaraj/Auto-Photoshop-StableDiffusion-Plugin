@@ -1,5 +1,7 @@
 //how to get environment variable in javascript
 
+const { getPromptShortcut } = require('../html_manip')
+
 function newOutputImageName() {
     const random_id = Math.floor(Math.random() * 100000000000 + 1) // Date.now() doesn't have enough resolution to avoid duplicate
     const image_name = `output- ${Date.now()}-${random_id}.png`
@@ -7,22 +9,47 @@ function newOutputImageName() {
     return image_name
 }
 
+function replacePromptsWithShortcuts(
+    prompt,
+    negative_prompt,
+    prompt_shortcut_dic
+) {
+    //     const prompt_shortcut_dict = prompt_shortcut.load()
+    //     prompt_shortcut_dict.update(payload["prompt_shortcut_ui_dict"])
+    new_prompt = prompt_shortcut.replaceShortcut(prompt, prompt_shortcut_dic)
+    // # edit negative prompt, replaceShortcut(negative_prompt)
+    new_negative_prompt = prompt_shortcut.replaceShortcut(
+        negative_prompt,
+        prompt_shortcut_dic
+    )
+    return [new_prompt, new_negative_prompt]
+}
 async function txt2ImgRequest(payload) {
     console.log('payload:', payload)
 
+    // if (payload['use_prompt_shortcut']) {
+    //     //     const prompt_shortcut_dict = prompt_shortcut.load()
+    //     //     prompt_shortcut_dict.update(payload["prompt_shortcut_ui_dict"])
+    //     payload['prompt'] = prompt_shortcut.replaceShortcut(
+    //         payload['prompt'],
+    //         payload['prompt_shortcut_ui_dict']
+    //     )
+    //     // # edit negative prompt, replaceShortcut(negative_prompt)
+    //     payload['negative_prompt'] = prompt_shortcut.replaceShortcut(
+    //         payload['negative_prompt'],
+    //         payload['prompt_shortcut_ui_dict']
+    //     )
+    // }
     if (payload['use_prompt_shortcut']) {
-        //     const prompt_shortcut_dict = prompt_shortcut.load()
-        //     prompt_shortcut_dict.update(payload["prompt_shortcut_ui_dict"])
-        payload['prompt'] = prompt_shortcut.replaceShortcut(
+        const [new_prompt, new_negative_prompt] = replacePromptsWithShortcuts(
             payload['prompt'],
-            payload['prompt_shortcut_ui_dict']
-        )
-        // # edit negative prompt, replaceShortcut(negative_prompt)
-        payload['negative_prompt'] = prompt_shortcut.replaceShortcut(
             payload['negative_prompt'],
             payload['prompt_shortcut_ui_dict']
         )
+        payload['prompt'] = new_prompt
+        payload['negative_prompt'] = new_negative_prompt
     }
+
     const endpoint = 'sdapi/v1/txt2img'
     try {
         console.log('txt2ImgRequest(): about to send a fetch request')
@@ -93,6 +120,35 @@ async function txt2ImgRequest(payload) {
     // const request_path = '/sdapi/v1/txt2img'
 }
 
+async function maskExpansionRequest(original_mask, mask_expansion_value) {
+    // const endpoint = 'sdapi/v1/img2img'
+    // const full_url = `${g_sd_url}/${endpoint}`
+    try {
+        const payload = {
+            mask: original_mask,
+            mask_expansion: mask_expansion_value,
+        }
+        // const full_url = 'http://127.0.0.1:8000/mask/expansion/'
+
+        const full_url = `${g_sd_url}/sdapi/auto-photoshop-sd/mask/expansion/`
+        let request = await fetch(full_url, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+            // "body": payload
+        })
+
+        let r = await request.json()
+
+        console.log('maskExpansionRequest json:', r)
+        return r['mask']
+    } catch (e) {
+        console.warn(e)
+    }
+}
 async function img2ImgRequest(sd_url, payload) {
     console.log('payload:', payload)
 
@@ -105,7 +161,15 @@ async function img2ImgRequest(sd_url, payload) {
     //     # edit negative prompt, replaceShortcut(negative_prompt)
     //     payload['negative_prompt'] = prompt_shortcut.replaceShortcut(payload['negative_prompt'],prompt_shortcut_dict)
     // }
-
+    if (payload['use_prompt_shortcut']) {
+        const [new_prompt, new_negative_prompt] = replacePromptsWithShortcuts(
+            payload['prompt'],
+            payload['negative_prompt'],
+            payload['prompt_shortcut_ui_dict']
+        )
+        payload['prompt'] = new_prompt
+        payload['negative_prompt'] = new_negative_prompt
+    }
     // init_img_dir = "./init_images"
     // init_img_name = payload['init_image_name']
     // init_img = Image.open(f"{init_img_dir}/{init_img_name}")
@@ -115,15 +179,19 @@ async function img2ImgRequest(sd_url, payload) {
     // init_img_mask_name = payload.get('init_image_mask_name',"")
 
     // #only if image exist then try to open it
+
     // if(len(init_img_mask_name) > 0):
     // init_img_mask = Image.open(f"{init_img_dir}/{init_img_mask_name}")
 
-    // if(payload['use_sharp_mask'] == False):# use blurry mask
-    // iteration = payload['mask_expansion']
-    //         init_img_mask = applyDilation(init_img_mask,iteration)
-
-    //         init_img_mask_str = img_2_b64(init_img_mask)
-    //         payload['mask'] = init_img_mask_str #there is only one mask, unlike 'init_images' which is of type array
+    if (payload['use_sharp_mask'] === false && payload['mask']) {
+        //only if mask is available and sharp_mask is off
+        // use blurry and expanded mask
+        const iterations = payload['mask_expansion']
+        const mask = await maskExpansionRequest(payload['mask'], iterations)
+        if (mask) {
+            payload['mask'] = mask
+        }
+    }
 
     // print(type(init_img_str))
     // #request the images to be generated
@@ -279,4 +347,5 @@ module.exports = {
     txt2ImgRequest,
     img2ImgRequest,
     loadHistory,
+    maskExpansionRequest,
 }

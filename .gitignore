@@ -15,3 +15,5 @@ experimental/
 start_server.sh
 start_server.bat
 *.ccx
+expanded_mask.png
+original_mask.png

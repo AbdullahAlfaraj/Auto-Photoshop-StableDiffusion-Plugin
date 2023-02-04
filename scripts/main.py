@@ -23,13 +23,14 @@ python_server_full_path = os.path.join(extension_dir,python_server_dir)
 print("python_server_full_path: ",python_server_full_path)
 sys.path.insert(0, python_server_full_path)
 import search
+import img2imgapi
 
 router = APIRouter()
-@router.get("/config")
-async def get_state():
-    print("hello get /config auto-photoshop-sd")
-    res = "hello get /config auto-photoshop-sd"
-    return {"res": res}
+# @router.get("/config")
+# async def get_state():
+#     print("hello get /config auto-photoshop-sd")
+#     res = "hello get /config auto-photoshop-sd"
+#     return {"res": res}
 
 @router.post('/search/image/')
 async def searchImage(request:Request):
@@ -40,7 +41,7 @@ async def searchImage(request:Request):
     
 
     try:
-        keywords = json.get('keywords','cute dogs') 
+        keywords = json.get('keywords','cute cats') 
         images = await search.imageSearch(keywords)
         print(images)
         
@@ -51,6 +52,37 @@ async def searchImage(request:Request):
         # print(f'{request}')
     return {"error": "error message: can't preform an image search"}
 
+
+@router.post('/mask/expansion/')
+async def maskExpansionHandler(request:Request):
+    try:
+        json = await request.json()
+    except: 
+        json = {}
+    
+    # print("mask expansion json :",json)
+    try:
+        # keywords = json.get('keywords','cute dogs') 
+        base64_mask_image = json['mask']
+        mask_expansion = json['mask_expansion']
+        #convert base64 to img
+        
+        await img2imgapi.base64ToPng(base64_mask_image,"original_mask.png")#save a copy of the mask
+
+        mask_image = img2imgapi.b64_2_img(base64_mask_image)
+        
+        expanded_mask_img = img2imgapi.maskExpansion(mask_image,mask_expansion)
+        base64_expanded_mask_image = img2imgapi.img_2_b64(expanded_mask_img)
+        await img2imgapi.base64ToPng(base64_expanded_mask_image,"expanded_mask.png")#save a copy of the mask
+
+
+        return {"mask":base64_expanded_mask_image}
+    
+    except:
+        # print("request",request)
+        raise Exception(f"couldn't preform mask expansion",json)
+    # return response
+    return {"error": "error message: can't preform an mask expansion"}
 
 
 
