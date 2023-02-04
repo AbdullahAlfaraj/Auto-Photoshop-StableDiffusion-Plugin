@@ -551,6 +551,8 @@ let g_inpaint_mask_layer_history_id //store the history state id when creating a
 let g_selection = {}
 let g_b_use_smart_object = true // true to keep layer as smart objects, false to rasterize them
 let g_sd_options_obj = new sd_options.SdOptions()
+let g_extension_type
+
 g_sd_options_obj.getOptions()
 // let g_sd_config_obj = new sd_config.SdConfig()
 // g_sd_config_obj.getConfig();
@@ -1602,6 +1604,8 @@ function updateMetadata(new_metadata) {
 async function getSettings() {
     let payload = {}
     try {
+        g_extension_type = html_manip.getExtensionType() // get the extension type
+
         numberOfImages = document.querySelector('#tiNumberOfImages').value
         numberOfSteps = document.querySelector('#tiNumberOfSteps').value
         const prompt = html_manip.getPrompt()

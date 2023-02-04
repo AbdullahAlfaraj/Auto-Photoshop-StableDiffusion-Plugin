@@ -746,6 +746,32 @@
                     href="https://colab.research.google.com/drive/1nbcx_WOneRmYv9idBO33pN5CbxXrqZHu?usp=sharing"
                     >Use Colab</sp-link
                 >
+                <div>
+                    <sp-radio-group>
+                        <label>Select Extension: </label>
+                        <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
+                        <sp-radio
+                            title="use the proxy server, need to run 'start_server.bat' "
+                            class="rbExtensionType"
+                            value="proxy_server"
+                            >Proxy Server</sp-radio
+                        >
+                        <sp-radio
+                            title="use Automatic1111 Photoshop SD Extension, need to install the extension in Auto1111"
+                            class="rbExtensionType"
+                            value="auto1111_extension"
+                            checked
+                            >Auto111 Extension</sp-radio
+                        >
+                        <sp-radio
+                            title="Use the Plugin Only No Additional Component"
+                            class="rbExtensionType"
+                            value="none"
+                            >None</sp-radio
+                        >
+                        <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
+                    </sp-radio-group>
+                </div>
             </div>
 
             <div

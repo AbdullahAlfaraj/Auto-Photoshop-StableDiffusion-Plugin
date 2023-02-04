@@ -234,6 +234,11 @@ function getMode() {
     )[0].value
 }
 
+function getExtensionType() {
+    return [...document.getElementsByClassName('rbExtensionType')].filter(
+        (e) => e.checked == true
+    )[0].value
+}
 function checkSampler(sampler_name) {
     sampler_element = getSamplerElementByName(sampler_name)
     sampler_element.checked = true
@@ -596,4 +601,5 @@ module.exports = {
     getMaskContent,
     setMaskContent,
     addHistoryButtonsHtml,
+    getExtensionType,
 }
