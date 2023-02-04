@@ -357,7 +357,7 @@ async function savePromptShortcut(prompt_shortcut) {
     return json['prompt_shortcut']
 }
 async function setInpaintMaskWeight(value) {
-    const full_url = 'http://127.0.0.1:8000/sdapi/v1/options'
+    const full_url = `${g_sd_url}/sdapi/v1/options`
     try {
         const payload = {
             inpainting_mask_weight: value,
