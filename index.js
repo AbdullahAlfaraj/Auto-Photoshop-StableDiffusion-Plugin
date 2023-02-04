@@ -2,7 +2,7 @@
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
 // let g_sdapi_path = 'sdapi'
-let g_version = 'v1.1.4'
+let g_version = 'v1.1.5'
 let g_sd_url = 'http://127.0.0.1:7860'
 const helper = require('./helper')
 // let g_sdapi_path = 'sdapi_py_re'
