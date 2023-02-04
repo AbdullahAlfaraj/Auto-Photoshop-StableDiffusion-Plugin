@@ -356,10 +356,71 @@ async function loadHistory(payload) {
     }
 }
 
+async function getDocumentFolderNativePath(doc_uuid) {
+    try {
+        const uuid = await getUniqueDocumentId()
+
+        let doc_folder = await getDocFolder(uuid)
+        let path = doc_folder.nativePath
+        path = path.replaceAll('\\', '/')
+        return path
+    } catch (e) {
+        console.warn(e)
+    }
+    return ''
+}
+
+async function savePromptShortcut(json, file_name) {
+    try {
+        const json_file_name = file_name
+
+        const folder = await storage.localFileSystem.getDataFolder()
+
+        const file = await folder.createFile(json_file_name, {
+            type: storage.types.file,
+            overwrite: true,
+        })
+
+        const JSONInPrettyFormat = JSON.stringify(json, undefined, 4)
+        await file.write(JSONInPrettyFormat, {
+            format: storage.formats.utf8,
+            append: false,
+        })
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+async function loadPromptShortcut(file_name) {
+    const json_file_name = file_name
+
+    const folder = await storage.localFileSystem.getDataFolder()
+
+    try {
+        const json_entry = await folder.getEntry(json_file_name)
+        if (json_entry) {
+            // await json_entry.read()
+
+            const json = JSON.parse(
+                await json_entry.read({
+                    format: storage.formats.utf8,
+                })
+            )
+            return json
+        }
+    } catch (e) {
+        console.warn(e)
+        await savePromptShortcut({}, 'prompt_shortcut.json') //save an empty file
+    }
+    return {}
+}
 module.exports = {
     txt2ImgRequest,
     img2ImgRequest,
     loadHistory,
     maskExpansionRequest,
     getExtensionUrl,
+    savePromptShortcut,
+    loadPromptShortcut,
+    getDocumentFolderNativePath,
 }

@@ -306,49 +306,53 @@ async function loadHistory(uniqueDocumentId) {
 }
 async function loadPromptShortcut() {
     // console.log('loadPromptShortcut:')
-    let json = {}
+    let prompt_shortcut_json = {}
     try {
-        payload = {}
+        // payload = {}
 
-        const full_url = 'http://127.0.0.1:8000/prompt_shortcut/load'
+        // const full_url = 'http://127.0.0.1:8000/prompt_shortcut/load'
 
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        })
+        // let request = await fetch(full_url, {
+        //     method: 'POST',
+        //     headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(payload),
+        // })
 
-        json = await request.json()
-        console.log('loadPromptShortcut:', json)
+        // json = await request.json()
+        prompt_shortcut_json = await py_re.loadPromptShortcut(
+            'prompt_shortcut.json'
+        )
+        console.log('loadPromptShortcut:', prompt_shortcut_json)
         // console.log('loadPromptShortcut: request: ',request)
     } catch (e) {
         console.warn(e)
     }
-
-    return json['prompt_shortcut']
+    return prompt_shortcut_json
+    // return json['prompt_shortcut']
 }
 
 async function savePromptShortcut(prompt_shortcut) {
     // console.log('loadPromptShortcut:')
-    let json = {}
+    let json = prompt_shortcut
     try {
-        payload = { prompt_shortcut: prompt_shortcut }
+        // payload = { prompt_shortcut: prompt_shortcut }
 
-        const full_url = 'http://127.0.0.1:8000/prompt_shortcut/save'
+        // const full_url = 'http://127.0.0.1:8000/prompt_shortcut/save'
 
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        })
+        // let request = await fetch(full_url, {
+        //     method: 'POST',
+        //     headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(payload),
+        // })
 
-        json = await request.json()
+        // json = await request.json()
+        await py_re.savePromptShortcut(json, 'prompt_shortcut.json')
         console.log('savePromptShortcut:', json)
         // console.log('loadPromptShortcut: request: ',request)
     } catch (e) {
