@@ -410,7 +410,6 @@ async function loadPromptShortcut(file_name) {
         }
     } catch (e) {
         console.warn(e)
-        await savePromptShortcut({}, 'prompt_shortcut.json') //save an empty file
     }
     return {}
 }

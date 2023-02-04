@@ -1,4 +1,3 @@
-// const { loadHistory } = require(`../${g_sdapi_path}`)
 const html_manip = require('./html_manip')
 const presets = require('./presets/preset')
 

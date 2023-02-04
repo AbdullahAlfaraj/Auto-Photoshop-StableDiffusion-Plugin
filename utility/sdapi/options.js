@@ -1,5 +1,3 @@
-// const sdapi = require(`../../${g_sdapi_path}`)
-
 class SdOptions {
     constructor() {
         // this.status = false // true if we have a valid copy of sd options, false otherwise

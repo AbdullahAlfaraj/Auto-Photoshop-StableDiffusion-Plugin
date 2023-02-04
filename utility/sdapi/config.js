@@ -1,5 +1,3 @@
-// const sdapi = require(`../../${g_sdapi_path}`)
-
 class SdConfig {
     constructor() {
         this.config //store sd options

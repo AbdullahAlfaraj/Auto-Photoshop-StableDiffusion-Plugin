@@ -639,7 +639,6 @@ async function setInitImage(layer, session_id) {
         const html_manip = require('./utility/html_manip')
         // const layer = await app.activeDocument.activeLayers[0]
         const old_name = layer.name
-        // const sdapi = require(`./${g_sdapi_path}`)
 
         // image_name = await app.activeDocument.activeLayers[0].name
 
@@ -686,7 +685,6 @@ async function setInitImageMask(layer, session_id) {
 
         // const layer = await app.activeDocument.activeLayers[0]
         const old_name = layer.name
-        // const sdapi = require(`./${g_sdapi_path}`)
 
         //get the active layer name
         // image_name = await app.activeDocument.activeLayers[0].name
