@@ -1,3 +1,4 @@
+const { getExtensionType } = require('./utility/html_manip')
 const py_re = require('./utility/sdapi/python_replacement')
 
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
@@ -406,8 +407,9 @@ async function requestGetOptions() {
 
 async function imageSearch(keywords) {
     let json = {}
+    const extension_url = py_re.getExtensionUrl()
 
-    const full_url = `${g_sd_url}/sdapi/auto-photoshop-sd/search/image/`
+    const full_url = `${extension_url}/search/image/`
     try {
         payload = {
             keywords: keywords,
