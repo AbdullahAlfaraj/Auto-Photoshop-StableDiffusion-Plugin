@@ -119,18 +119,30 @@ async function txt2ImgRequest(payload) {
 
     // const request_path = '/sdapi/v1/txt2img'
 }
-
+function getExtensionUrl() {
+    let extension_url
+    if (g_extension_type === 'auto1111_extension') {
+        extension_url = g_sd_url
+    } else if (g_extension_type === 'proxy_server') {
+        extension_url = 'http://127.0.0.1:8000'
+    } else {
+        //none
+        extension_url = ''
+    }
+    return extension_url
+}
 async function maskExpansionRequest(original_mask, mask_expansion_value) {
     // const endpoint = 'sdapi/v1/img2img'
     // const full_url = `${g_sd_url}/${endpoint}`
+
     try {
         const payload = {
             mask: original_mask,
             mask_expansion: mask_expansion_value,
         }
         // const full_url = 'http://127.0.0.1:8000/mask/expansion/'
-
-        const full_url = `${g_sd_url}/sdapi/auto-photoshop-sd/mask/expansion/`
+        const extension_url = getExtensionUrl()
+        const full_url = `${extension_url}/sdapi/auto-photoshop-sd/mask/expansion/`
         let request = await fetch(full_url, {
             method: 'POST',
             headers: {
