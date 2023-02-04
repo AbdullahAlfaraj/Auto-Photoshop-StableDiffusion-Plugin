@@ -7,7 +7,7 @@ This guide explains the Auto Photoshop UI and its main features, it doesn't go i
 
 ## Stable Diffusion UI Tab
 
-[[Pasted image 20230131191554.png]]
+![[Pasted image 20230131191554.png]]
 
 - **Model Selection** - allows to select the .ckpt / .safetensors model to be used for image generation.
 - **Refresh** - refreshes the models. *Note*: this will extract all loaded models in AUTOMATIC1111, if you want to add a new model, first refresh AUTOMATIC1111.
@@ -160,10 +160,34 @@ Ensure the *prompt_shortcut.json* file exists in the auto photoshop plugin folde
 ### Editing and Using a Prompt File
 [[prompt_shortcut.gif]]
 
-
 1. Switch to the *Prompt Shortcut* tab.
 2. Load the json file.
 3. Input a keyword and its value
 4. Press *Add to Prompt Shortcut*
 5. Now the new Prompt Shortcut can be used in the Stable Diffusion tab
 6. To reuse previously saved shortcuts, ensure you load the json file at the start of each session.
+
+## Inpainting
+
+[[inpainting.gif]]
+
+1. Select inpainting mode in the Stable Diffusion tab
+2. Select the target area where to produce the image using rectangular marquee tool
+3. With a 100% opacity white brush paint the area that you wish to inpaint
+4. Ensure that you have a -inpainting.ckpt model selected (this is as important as it is easy to forget)
+5. Write a prompt describing the inpaining image
+6. Select the desired Mask Content option and adjust the Denoising Strength accordingly.
+7. Hit Generate
+
+## Outpainting
+
+[[outpainting.gif]]
+
+1. Select outpainting mode in the Stable Diffusion tab
+2. Select the target area where to produce the image using rectangular marquee tool, ensure that you have **some overlap** with the existing image (to provide Stable Diffusion with some context) and that the target area is **transparent**.
+4. Ensure that you have a -inpainting.ckpt model selected (this also works for outpainting)
+5. Write a prompt describing the outpaining image
+6. Select the desired Mask Content option and adjust the Denoising Strength accordingly.
+7. Hit Generate
+
+
