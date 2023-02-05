@@ -452,6 +452,10 @@ function getMaskBlur() {
     }
     return mask_blur
 }
+function setMaskBlur(mask_blur) {
+    document.getElementById('slMaskBlur').value = mask_blur
+}
+
 function getUseSharpMask() {
     const isChecked = document.getElementById('chUseSharpMask').checked
     return isChecked
@@ -551,7 +555,22 @@ function addHistoryButtonsHtml(img_html) {
 
     return container
 }
+function getSeed() {
+    const seed = document.getElementById('tiSeed').value
+    return seed
+}
+function setSeed(new_seed) {
+    document.getElementById('tiSeed').value = new_seed
+}
 
+function getMaskExpansion() {
+    const mask_expansion = document.getElementById('slMaskExpansion').value
+    return mask_expansion
+}
+
+function setMaskExpansion(mask_expansion) {
+    document.getElementById('slMaskExpansion').value = mask_expansion
+}
 ///end selection mode////
 module.exports = {
     getPrompt,
@@ -582,6 +601,7 @@ module.exports = {
     autoFillDefaultSettings,
     autoFillSettings,
     getMaskBlur,
+    setMaskBlur,
     getUseSharpMask,
     autoFillInHRHeight,
     autoFillInHRWidth,
@@ -602,4 +622,8 @@ module.exports = {
     setMaskContent,
     addHistoryButtonsHtml,
     getExtensionType,
+    getSeed,
+    setSeed,
+    getMaskExpansion,
+    setMaskExpansion,
 }

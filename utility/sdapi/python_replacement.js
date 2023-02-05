@@ -62,6 +62,7 @@ async function getAuto1111Metadata(base64_image) {
 
         let json = await request.json()
         console.log("json['info']:", json['info'])
+
         console.log('getAuto1111Metadata json:', json)
 
         return json['info']
@@ -131,6 +132,10 @@ async function txt2ImgRequest(payload) {
             try {
                 const auto_metadata_str = await getAuto1111Metadata(i)
                 auto_metadata_json = convertMetadataToJson(auto_metadata_str)
+                console.warn(
+                    'auto_metadata_json.Seed:',
+                    auto_metadata_json?.Seed
+                )
             } catch (e) {
                 console.warn(e)
                 auto_metadata_json = {} // set the metadata to empty if there an error while getting the metadata

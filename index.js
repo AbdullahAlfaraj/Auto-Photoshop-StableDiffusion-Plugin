@@ -1982,7 +1982,11 @@ async function generate(settings) {
                 saveFileInSubFolder(base64_image, document_name, image_name) //save the output image
                 const json_file_name = `${image_name.split('.')[0]}.json`
                 settings['auto_metadata'] = image_info?.auto_metadata
-                saveJsonFileInSubFolder(settings, document_name, json_file_name) //save the settings
+                await saveJsonFileInSubFolder(
+                    settings,
+                    document_name,
+                    json_file_name
+                ) //save the settings
             }
 
             g_number_generation_per_session = 1
@@ -2000,7 +2004,11 @@ async function generate(settings) {
                 saveFileInSubFolder(base64_image, document_name, image_name)
                 const json_file_name = `${image_name.split('.')[0]}.json`
                 settings['auto_metadata'] = image_info?.auto_metadata
-                saveJsonFileInSubFolder(settings, document_name, json_file_name) //save the settings
+                await saveJsonFileInSubFolder(
+                    settings,
+                    document_name,
+                    json_file_name
+                ) //save the settings
             }
 
             g_image_path_to_layer = {
@@ -3195,6 +3203,7 @@ document
                 img.dataset.metadata_json_string = JSON.stringify(
                     metadata_jsons[i]
                 )
+                console.log(`metadata_jsons[${i}]: `, metadata_jsons[i])
                 const img_container = html_manip.addHistoryButtonsHtml(img)
                 container.appendChild(img_container)
 
@@ -3206,8 +3215,15 @@ document
                     )
                     console.log('metadata_json: ', metadata_json)
                     // document.querySelector('#tiSeed').value = metadata_json.Seed
+
+                    //extract auto_metadata into the preset metadata
+                    function convertAutoMetadataToPresset(metadata_json) {
+                        metadata_json['seed'] =
+                            metadata_json?.auto_metadata?.Seed
+                    }
+                    convertAutoMetadataToPresset(metadata_json)
                     document.querySelector('#historySeedLabel').textContent =
-                        metadata_json.Seed
+                        metadata_json?.seed
                     // autoFillInSettings(metadata_json)
                     g_ui_settings.autoFillInSettings(metadata_json)
 
