@@ -7,7 +7,7 @@ This guide explains the Auto Photoshop UI and its main features, it doesn't go i
 
 ## Stable Diffusion UI Tab
 
-[[Pasted image 20230131191554.png]]
+![[Pasted image 20230131191554.png]]
 
 - **Model Selection** - allows to select the .ckpt / .safetensors model to be used for image generation.
 - **Refresh** - refreshes the models. *Note*: this will extract all loaded models in AUTOMATIC1111, if you want to add a new model, first refresh AUTOMATIC1111.
@@ -39,7 +39,7 @@ This guide explains the Auto Photoshop UI and its main features, it doesn't go i
 
 [[Pasted image 20230131195947.png]]
 
-When Hi Res is checked, a number of parameters become available including Upscaler model to be used, output dimensions, and denoising strength. This is just an interface into the AUTOMATIC1111 functionality described [here](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Features#hires-fix).
+When Hi Res is checked, a number of parameters become avaiable including Upscaler model to be used, output dimensions and denoising strength. This is just an interface into the AUTOMATIC1111 functionality described [here](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Features#hires-fix).
 
 ### img2img
 
@@ -57,7 +57,7 @@ When Hi Res is checked, a number of parameters become available including Upscal
 - **Denoising Strength**: similar to img2img however it behaves differently depending on Mask Content context.
 - **Mask Blur**: how much to blur the mask before processing it in pixels
 - **Mask Expansion**: how much the mask should expand to create a more blended output image
-- Mask Content Fill: fill it with the colors of the image
+- Mask Content Fill: fill it with colors of the image
 - Mask Content original: keep whatever was there originally
 - Mask Content latent noise: fill it with latent space noise
 - Mask Content latent nothing: fill it with latent space zeros
@@ -66,7 +66,7 @@ When Hi Res is checked, a number of parameters become available including Upscal
 
 ### outpaint
 
-UI and its functionality are the same as inpaint.
+UI and its functionality are same as inpaint.
 
 
 
@@ -95,7 +95,7 @@ Tab to manage the images generated in the current session.
 
 - **Load Previous Generations**: loads the images generated within this Photoshop file.
 - [[Pasted image 20230201161716.png]] hovering on the image loaded from history will allow bringing the image back into the Photoshop Layer stack
-- Clicking on the image will load the plugin settings for the image generation (seed and image generation configuration)
+- Clicking on the image will load the pluging settings for the image generation (seed and image generation configuration)
 - **Image Search**: loads a set of images from the internet, clicking on any of the images will load them into the layer stack.
 
 ## Prompts Library
@@ -104,7 +104,7 @@ Tab to manage the images generated in the current session.
 
 - For this to work a file will need to be created in the following location: Auto-Photoshop-StableDiffusion-Plugin\\server\\python_server\\prompt_shortcut.json
 - **Load / Save**: Once the file is present, values can be loaded and saved onto the file.
-- **Key / Value / Add top Prompt Shortcut**: allows to change/add values to the existing json file.
+- **Key / Value / Add top Prompt Shortcut**: allows to change / add values to the existing json file.
 - **Refresh Menu**: will load all values from the json, allowing the user to make changes to the value.
 
 ## Horde
@@ -114,3 +114,80 @@ Coming Soon
 ## Settings 
 
 [[Pasted image 20230201163236.png]]
+
+# Tutorials
+
+## Generate a txt2img
+
+[[Generate txt2img.gif]]
+
+1. Make a selection where you want the image to be generated
+2. Press [[Pasted image 20230203191656.png]]
+3. (optional) use the Viewer to select which images to keep in case of multiple image generation
+
+## Using the Viewer
+
+[[Viewer Tutorial.gif]]
+1. Generate images as usual
+2. Select the image in the viewer grid (shift + click for multiple selection)
+3. Choose from: keep one, discard one, keep all, discard all.
+4. Images are saved in the latest session layer folder.
+
+## History Tab
+
+[[History.gif]]
+
+1. Load Previous Generations button
+2. Single click on image to load its settings in the Stable Diffusion tab (seed, prompt, etc)
+3. Click on edit button to load the image in Photoshop
+
+## Generate an img2img
+
+[[img2img.gif]]
+
+1. Select the portion of the image to be used as a sample
+2. Select img2img mode and adjust the parameters (denoising strenght especially)
+3. Press Generate img2img
+4. (optional) use the Viewer to select which images to keep in case of multiple image generation
+
+## Prompts Shortcut
+
+Ensure the *prompt_shortcut.json* file exists in the auto photoshop plugin folder, if not create an empty one.
+
+[[prompt_shortcut_file.gif]]
+
+
+### Editing and Using a Prompt File
+[[prompt_shortcut.gif]]
+
+1. Switch to the *Prompt Shortcut* tab.
+2. Load the json file.
+3. Input a keyword and its value
+4. Press *Add to Prompt Shortcut*
+5. Now the new Prompt Shortcut can be used in the Stable Diffusion tab
+6. To reuse previously saved shortcuts, ensure you load the json file at the start of each session.
+
+## Inpainting
+
+[[inpainting.gif]]
+
+1. Select inpainting mode in the Stable Diffusion tab
+2. Select the target area where to produce the image using rectangular marquee tool
+3. With a 100% opacity white brush paint the area that you wish to inpaint
+4. Ensure that you have a -inpainting.ckpt model selected (this is as important as it is easy to forget)
+5. Write a prompt describing the inpaining image
+6. Select the desired Mask Content option and adjust the Denoising Strength accordingly.
+7. Hit Generate
+
+## Outpainting
+
+[[outpainting.gif]]
+
+1. Select outpainting mode in the Stable Diffusion tab
+2. Select the target area where to produce the image using rectangular marquee tool, ensure that you have **some overlap** with the existing image (to provide Stable Diffusion with some context) and that the target area is **transparent**.
+4. Ensure that you have a -inpainting.ckpt model selected (this also works for outpainting)
+5. Write a prompt describing the outpaining image
+6. Select the desired Mask Content option and adjust the Denoising Strength accordingly.
+7. Hit Generate
+
+
