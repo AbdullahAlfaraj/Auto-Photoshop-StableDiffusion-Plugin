@@ -2128,20 +2128,28 @@ function updateProgressBarsHtml(new_value) {
     // document.querySelector('#pProgressBar').value
 }
 async function progressRecursive() {
-    let json = await sdapi.requestProgress()
-    // document.querySelector('#pProgressBar').value = json.progress * 100
-    progress_value = json.progress * 100
-    updateProgressBarsHtml(progress_value)
-    if (json.progress > 0 && g_can_request_progress == true) {
-        setTimeout(async () => {
-            await progressRecursive()
-        }, 500)
+    try {
+        let json = await sdapi.requestProgress()
+        // document.querySelector('#pProgressBar').value = json.progress * 100
+        progress_value = json.progress * 100
+        updateProgressBarsHtml(progress_value)
+        if (g_generation_session.isActive() && g_can_request_progress == true) {
+            //refactor this code
+            setTimeout(async () => {
+                await progressRecursive()
+            }, 500)
+        }
+    } catch (e) {
+        if (
+            g_generation_session.isActive() &&
+            g_can_request_progress === true
+        ) {
+            setTimeout(async () => {
+                await progressRecursive()
+            }, 1000)
+        }
     }
 }
-
-// document
-//   .getElementById('bGetProgress')
-//   .addEventListener('click', progressRecursive)
 
 function changeImage() {
     let img = document.getElementById('img1')

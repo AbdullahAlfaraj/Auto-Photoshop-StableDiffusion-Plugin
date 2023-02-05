@@ -127,15 +127,21 @@ async function requestImg2Img(payload) {
 }
 
 async function requestProgress() {
-    console.log('requestProgress: ')
+    let json = {}
+    try {
+        console.log('requestProgress: ')
 
-    const full_url = `${g_sd_url}/sdapi/v1/progress?skip_current_image=false`
-    let request = await fetch(full_url)
-    let json = await request.json()
-    console.log('progress json:')
-    console.dir(json)
+        const full_url = `${g_sd_url}/sdapi/v1/progress?skip_current_image=false`
+        let request = await fetch(full_url)
+        json = await request.json()
+        console.log('progress json:')
+        console.dir(json)
 
-    return json
+        return json
+    } catch (e) {
+        console.warn(e)
+        // console.log('json: ', json)
+    }
 }
 
 async function requestGetModels() {
