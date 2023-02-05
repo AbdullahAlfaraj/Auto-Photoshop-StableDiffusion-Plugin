@@ -2,9 +2,6 @@ name: Deploy Wiki
 
 on:
   push:
-    paths:
-      # Trigger only when wiki directory changes
-      - 'docs/**'
     branches:
       # And only on master branch
       - master
@@ -20,7 +17,7 @@ jobs:
         # Make sure you have that / at the end. We use rsync 
         # WIKI_DIR's default is wiki/
         WIKI_DIR: docs/
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.WIKI_ACTION_TOKEN }}
         GH_MAIL: ${{ secrets.YOUR_EMAIL }}
         GH_NAME: ${{ github.repository_owner }}
         EXCLUDED_FILES: "a/ b.md"
