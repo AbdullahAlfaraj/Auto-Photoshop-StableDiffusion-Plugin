@@ -18,6 +18,6 @@ jobs:
         # WIKI_DIR's default is wiki/
         WIKI_DIR: docs/
         GH_TOKEN: ${{ secrets.WIKI_ACTION_TOKEN }}
-        GH_MAIL: ${{ secrets.YOUR_EMAIL }}
+        GH_MAIL: 7842232+AbdullahAlfaraj@users.noreply.github.com
         GH_NAME: ${{ github.repository_owner }}
         EXCLUDED_FILES: "a/ b.md"
