@@ -561,6 +561,68 @@ async function snapshot_layerExe() {
     }
 }
 
+async function snapshot_layer_no_slide() {
+    let psAction = require('photoshop').action
+    // const ids = (await app.activeDocument.activeLayers).map(layer => layer.id)
+    const ids = await app.activeDocument.layers.map((layer) => layer.id)
+    let command = [
+        // Select All Layers current layer
+        {
+            _obj: 'selectAllLayers',
+            _target: [
+                { _enum: 'ordinal', _ref: 'layer', _value: 'targetEnum' },
+            ],
+        },
+        // Duplicate current layer
+        // {"ID":[459,460,461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,479,480,481,482,483,484,485,486,487,488,489,490,491,492,493,494,495,496,497,498,499,500,501,502,503,504,505,506,507,508,509,510,511,512,513],"_obj":"duplicate","_target":[{"_enum":"ordinal","_ref":"layer","_value":"targetEnum"}],"version":5},
+        {
+            ID: ids,
+            _obj: 'duplicate',
+            _target: [
+                { _enum: 'ordinal', _ref: 'layer', _value: 'targetEnum' },
+            ],
+            // version: 5
+        },
+
+        // // Merge Layers
+        // { _obj: 'mergeLayersNew' },
+        // // Make
+        // {
+        //     _obj: 'make',
+        //     at: { _enum: 'channel', _ref: 'channel', _value: 'mask' },
+        //     new: { _class: 'channel' },
+        //     using: { _enum: 'userMaskEnabled', _value: 'revealSelection' },
+        // },
+        // // Set Selection
+        // {
+        //     _obj: 'set',
+        //     _target: [{ _property: 'selection', _ref: 'channel' }],
+        //     to: { _enum: 'ordinal', _ref: 'channel', _value: 'targetEnum' },
+        // },
+    ]
+    const result = await psAction.batchPlay(command, {
+        synchronousExecution: true,
+        modalBehavior: 'execute',
+    })
+    console.log('snapshot_layer: result: ', result)
+    return result
+}
+
+async function snapshot_layer_no_slide_Exe() {
+    try {
+        await executeAsModal(
+            async () => {
+                await snapshot_layer_no_slide()
+            },
+            {
+                commandName: 'Action Commands',
+            }
+        )
+    } catch (e) {
+        console.error(e)
+    }
+}
+
 // await runModalFunction();
 
 async function fillAndGroup() {
@@ -1288,4 +1350,5 @@ module.exports = {
     selectCanvasExe,
     layerToSelection,
     isSelectionValid,
+    snapshot_layer_no_slide_Exe,
 }
