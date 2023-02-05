@@ -9,6 +9,39 @@ function newOutputImageName() {
     return image_name
 }
 
+function convertMetadataToJson(metadata_str) {
+    try {
+        console.log('metadata_str:', metadata_str)
+        const last_new_line_index = metadata_str.lastIndexOf('\n')
+
+        const prompt = metadata_str.slice(0, last_new_line_index)
+        const other_settings = metadata_str.slice(last_new_line_index + 1, -1)
+
+        console.log('prompt:', prompt)
+        console.log('other_settings:', other_settings)
+        const sub_settings = other_settings.split(',')
+        console.log('sub_settings: ', sub_settings)
+
+        const settings_json = {}
+        settings_json['prompt'] = prompt
+
+        for (const setting of sub_settings) {
+            let [key, value] = setting.split(':').map((s) => s.trimLeft())
+            // key =  key.lstrip(' ')
+            // value =  value.lstrip(' ')
+            settings_json[key] = value
+            // import json
+            // settings_json = json.dumps(settings_dict)
+            // print("settings_dict: ",settings_dict)
+            // print("settings_json ",settings_json)
+        }
+
+        return settings_json
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
 async function getAuto1111Metadata(base64_image) {
     try {
         console.log('getAuto1111Metadata: ')
@@ -16,7 +49,7 @@ async function getAuto1111Metadata(base64_image) {
         const full_url = `${g_sd_url}/sdapi/v1/png-info`
 
         const payload = {
-            image: 'data:image/png;base64,' + i,
+            image: 'data:image/png;base64,' + base64_image,
         }
         let request = await fetch(full_url, {
             method: 'POST',
@@ -94,11 +127,15 @@ async function txt2ImgRequest(payload) {
         const images_info = []
 
         for (i of r['images']) {
-            // const image = Image.open(
-            //     io.BytesIO(base64.b64decode(i.split(',', 1)[0]))
-            // )
+            let auto_metadata_json = {}
+            try {
+                const auto_metadata_str = await getAuto1111Metadata(i)
+                auto_metadata_json = convertMetadataToJson(auto_metadata_str)
+            } catch (e) {
+                console.warn(e)
+                auto_metadata_json = {} // set the metadata to empty if there an error while getting the metadata
+            }
 
-            const auto_metadata = await getAuto1111Metadata(i)
             // response2 = await client.post(url=f'{sd_url}/sdapi/v1/png-info', json=png_payload)
             // pnginfo = PngImagePlugin.PngInfo()
             // pnginfo.add_text("parameters", response2.json().get("info"))
@@ -114,7 +151,11 @@ async function txt2ImgRequest(payload) {
             // metadata_json = metadata_to_json.convertMetadataToJson(metadata_info)
             // metadata.append(metadata_json)
 
-            images_info.push({ base64: i, path: image_path })
+            images_info.push({
+                base64: i,
+                path: image_path,
+                auto_metadata: auto_metadata_json,
+            })
             // console.log("metadata_json: ", metadata_json)
         }
         const dir_name = 'temp_dir_name'
@@ -238,9 +279,13 @@ async function img2ImgRequest(sd_url, payload) {
 
     for (i of r['images']) {
         // image = Image.open(io.BytesIO(base64.b64decode(i.split(",",1)[0])))
-
-        const png_payload = {
-            image: 'data:image/png;base64,' + i,
+        let auto_metadata_json = {}
+        try {
+            const auto_metadata_str = await getAuto1111Metadata(i)
+            auto_metadata_json = convertMetadataToJson(auto_metadata_str)
+        } catch (e) {
+            console.warn(e)
+            auto_metadata_json = {} // set the metadata to empty if there an error while getting the metadata
         }
         // response2 = await client.post(url=f'{sd_url}/sdapi/v1/png-info', json=png_payload, timeout=None)
         // pnginfo = PngImagePlugin.PngInfo()
@@ -256,7 +301,11 @@ async function img2ImgRequest(sd_url, payload) {
         const image_name = newOutputImageName()
         const image_path = `${uniqueDocumentId}/${image_name}`
 
-        images_info.push({ base64: i, path: image_path })
+        images_info.push({
+            base64: i,
+            path: image_path,
+            auto_metadata: auto_metadata_json,
+        })
         // print("metadata_json: ", metadata_json)
     }
     const dir_name = 'temp_dir_name'
@@ -425,4 +474,5 @@ module.exports = {
     savePromptShortcut,
     loadPromptShortcut,
     getDocumentFolderNativePath,
+    convertMetadataToJson,
 }

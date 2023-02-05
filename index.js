@@ -1981,6 +1981,7 @@ async function generate(settings) {
                 const [document_name, image_name] = path.split('/')
                 saveFileInSubFolder(base64_image, document_name, image_name) //save the output image
                 const json_file_name = `${image_name.split('.')[0]}.json`
+                settings['auto_metadata'] = image_info?.auto_metadata
                 saveJsonFileInSubFolder(settings, document_name, json_file_name) //save the settings
             }
 
@@ -1998,6 +1999,7 @@ async function generate(settings) {
                 const [document_name, image_name] = path.split('/')
                 saveFileInSubFolder(base64_image, document_name, image_name)
                 const json_file_name = `${image_name.split('.')[0]}.json`
+                settings['auto_metadata'] = image_info?.auto_metadata
                 saveJsonFileInSubFolder(settings, document_name, json_file_name) //save the settings
             }
 
