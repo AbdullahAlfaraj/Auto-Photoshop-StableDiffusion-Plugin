@@ -9,6 +9,34 @@ function newOutputImageName() {
     return image_name
 }
 
+async function getAuto1111Metadata(base64_image) {
+    try {
+        console.log('getAuto1111Metadata: ')
+
+        const full_url = `${g_sd_url}/sdapi/v1/png-info`
+
+        const payload = {
+            image: 'data:image/png;base64,' + i,
+        }
+        let request = await fetch(full_url, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        })
+
+        let json = await request.json()
+        console.log("json['info']:", json['info'])
+        console.log('getAuto1111Metadata json:', json)
+
+        return json['info']
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
 function replacePromptsWithShortcuts(
     prompt,
     negative_prompt,
@@ -27,19 +55,6 @@ function replacePromptsWithShortcuts(
 async function txt2ImgRequest(payload) {
     console.log('payload:', payload)
 
-    // if (payload['use_prompt_shortcut']) {
-    //     //     const prompt_shortcut_dict = prompt_shortcut.load()
-    //     //     prompt_shortcut_dict.update(payload["prompt_shortcut_ui_dict"])
-    //     payload['prompt'] = prompt_shortcut.replaceShortcut(
-    //         payload['prompt'],
-    //         payload['prompt_shortcut_ui_dict']
-    //     )
-    //     // # edit negative prompt, replaceShortcut(negative_prompt)
-    //     payload['negative_prompt'] = prompt_shortcut.replaceShortcut(
-    //         payload['negative_prompt'],
-    //         payload['prompt_shortcut_ui_dict']
-    //     )
-    // }
     if (payload['use_prompt_shortcut']) {
         const [new_prompt, new_negative_prompt] = replacePromptsWithShortcuts(
             payload['prompt'],
@@ -83,10 +98,7 @@ async function txt2ImgRequest(payload) {
             //     io.BytesIO(base64.b64decode(i.split(',', 1)[0]))
             // )
 
-            const png_payload = {
-                image: 'data:image/png;base64,' + i,
-            }
-
+            const auto_metadata = await getAuto1111Metadata(i)
             // response2 = await client.post(url=f'{sd_url}/sdapi/v1/png-info', json=png_payload)
             // pnginfo = PngImagePlugin.PngInfo()
             // pnginfo.add_text("parameters", response2.json().get("info"))
@@ -165,15 +177,6 @@ async function maskExpansionRequest(original_mask, mask_expansion_value) {
 async function img2ImgRequest(sd_url, payload) {
     console.log('payload:', payload)
 
-    // if(payload['use_prompt_shortcut']){// edit prompt
-
-    //     #edit prompt, replaceShortcut(prompt)
-    //     prompt_shortcut_dict = prompt_shortcut.load()
-    //     prompt_shortcut_dict.update(payload["prompt_shortcut_ui_dict"])
-    //     payload['prompt'] = prompt_shortcut.replaceShortcut(payload['prompt'],prompt_shortcut_dict)
-    //     # edit negative prompt, replaceShortcut(negative_prompt)
-    //     payload['negative_prompt'] = prompt_shortcut.replaceShortcut(payload['negative_prompt'],prompt_shortcut_dict)
-    // }
     if (payload['use_prompt_shortcut']) {
         const [new_prompt, new_negative_prompt] = replacePromptsWithShortcuts(
             payload['prompt'],
