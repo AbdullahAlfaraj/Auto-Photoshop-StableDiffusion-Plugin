@@ -3,8 +3,6 @@ name: Publish docs to Wiki
 # Trigger this action only if there are changes pushed to the docs/** directory under the main branch
 on:
   push:
-    paths:
-      - docs/** # This includes all sub folders
     branches:
       - main # This can be changed to any branch of your preference
 
