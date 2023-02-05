@@ -13,7 +13,6 @@ jobs:
   deploy-wiki:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
 
     - name: Push Wiki Changes
       uses: Andrew-Chen-Wang/github-wiki-action@v3
