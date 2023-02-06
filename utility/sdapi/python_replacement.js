@@ -190,6 +190,33 @@ function getExtensionUrl() {
     }
     return extension_url
 }
+
+async function openUrlRequest(url) {
+    try {
+        const payload = {
+            url: url,
+        }
+        // const full_url = 'http://127.0.0.1:8000/mask/expansion/'
+        const extension_url = getExtensionUrl()
+        const full_url = `${extension_url}/open/url/`
+        let request = await fetch(full_url, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+            // "body": payload
+        })
+
+        let r = await request.json()
+
+        console.log('openUrlRequest json:', r)
+        return r['url']
+    } catch (e) {
+        console.warn(e)
+    }
+}
 async function maskExpansionRequest(original_mask, mask_expansion_value) {
     // const endpoint = 'sdapi/v1/img2img'
     // const full_url = `${g_sd_url}/${endpoint}`
@@ -480,4 +507,5 @@ module.exports = {
     loadPromptShortcut,
     getDocumentFolderNativePath,
     convertMetadataToJson,
+    openUrlRequest,
 }
