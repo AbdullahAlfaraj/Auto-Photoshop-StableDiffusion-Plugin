@@ -3581,3 +3581,37 @@ document.getElementById('btnGetDocPath').addEventListener('click', async () => {
     const docPath = await py_re.getDocumentFolderNativePath()
     document.getElementById('tiDocPath').value = docPath
 })
+
+async function prmoptForUpdate() {
+    const shell = require('uxp').shell
+
+    ;(async () => {
+        const r1 = await dialog_box.prompt(
+            'Please Update you Plugin. it will take about 10 seconds to update',
+            'update from discord, update from github',
+            ['Cancel', 'Discord', 'Github']
+        )
+        try {
+            let url
+            if (r1 === 'Cancel') {
+                /* cancelled or No */
+                console.log('cancel')
+            } else if (r1 === 'Github') {
+                url =
+                    'https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin'
+                await py_re.openUrlRequest(url)
+            } else if (r1 === 'Discord') {
+                console.log('Discord')
+                // url = 'https://discord.gg/3mVEtrddXJ'
+                url = 'https://discord.gg/YkUJXYWK3c'
+                await py_re.openUrlRequest(url)
+            }
+            console.log('url: ', url)
+        } catch (e) {
+            console.warn(e, url)
+        }
+    })()
+}
+document.getElementById('btnUpdate').addEventListener('click', async () => {
+    await prmoptForUpdate()
+})
