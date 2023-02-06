@@ -90,16 +90,19 @@ def img_2_b64(image):
 from typing import Union
 
 from fastapi import FastAPI
+from fastapi import APIRouter, Request
 
-app = FastAPI()
 
 
-@app.get("/")
+router = APIRouter()
+
+
+@router.get("/")
 def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/version")
+@router.get("/version")
 def getVersion():
     manifest_dir = "..\..\manifest.json"
     
@@ -119,7 +122,7 @@ def getVersion():
 
 
 
-# @app.post("/txt2img/")
+# @router.post("/txt2img/")
 # async def txt2ImgHandle(payload:Payload):
 #     print("txt2ImgHandle: \n")
 #     txt2ImgRequest(payload)
@@ -134,7 +137,7 @@ import img2imgapi
 
 
 
-@app.post("/sd_url/")
+@router.post("/sd_url/")
 async def changeSdUrl(request:Request):
     global sd_url
     try:
@@ -157,7 +160,7 @@ async def changeSdUrl(request:Request):
 
 
 
-@app.post("/txt2img/")
+@router.post("/txt2img/")
 async def txt2ImgHandle(request:Request):
     print("txt2ImgHandle: \n")
     payload = await request.json() 
@@ -165,7 +168,7 @@ async def txt2ImgHandle(request:Request):
     # return {"prompt":payload.prompt,"images": ""}
     return {"payload": payload,"dir_name": dir_name,"images_info":images_info,"metadata":metadata}
 
-@app.post("/img2img/")
+@router.post("/img2img/")
 async def img2ImgHandle(request:Request):
     print("img2ImgHandle: \n")
     payload = await request.json() 
@@ -178,7 +181,7 @@ async def img2ImgHandle(request:Request):
 
 
 
-@app.post("/getInitImage/")
+@router.post("/getInitImage/")
 async def getInitImageHandle(request:Request):
     print("getInitImageHandle: \n")
     payload = await request.json() 
@@ -208,7 +211,7 @@ async def getInitImageHandle(request:Request):
     
     return {"payload": payload,"init_image_str":init_img_str}
 
-@app.get('/config')
+@router.get('/config')
 async def sdapi(request: Request, response: Response):
     try:
         
@@ -220,7 +223,7 @@ async def sdapi(request: Request, response: Response):
         print(f'{request}')
     return response
 
-@app.get('/sdapi/v1/{path:path}')
+@router.get('/sdapi/v1/{path:path}')
 async def sdapi(path: str, request: Request, response: Response):
     try:
         
@@ -232,7 +235,7 @@ async def sdapi(path: str, request: Request, response: Response):
         print(f'{request}')
     return response
 
-@app.post('/sdapi/v1/{path:path}')
+@router.post('/sdapi/v1/{path:path}')
 async def sdapi(path: str, request: Request, response: Response):
     try:
         json = await request.json()
@@ -263,7 +266,7 @@ async def sdapi(path: str, request: Request, response: Response):
 #         file_to_save.write(decoded_image_data)
 
 
-@app.post('/save/png/')
+@router.post('/save/png/')
 async def savePng(request:Request):
     print("savePng()")
     try:
@@ -287,7 +290,7 @@ async def savePng(request:Request):
     return {"error": "error message: could not save the image file"}
 
 
-@app.post('/search/image/')
+@router.post('/search/image/')
 async def searchImage(request:Request):
     try:
         json = await request.json()
@@ -307,7 +310,7 @@ async def searchImage(request:Request):
         # print(f'{request}')
     return {"error": "error message: can't preform an image search"}
 
-@app.post('/mask/expansion/')
+@router.post('/mask/expansion/')
 async def maskExpansionHandler(request:Request):
     try:
         json = await request.json()
@@ -339,7 +342,7 @@ async def maskExpansionHandler(request:Request):
     return {"error": "error message: can't preform an mask expansion"}
 
 
-@app.post('/history/load')
+@router.post('/history/load')
 async def loadHistory(request: Request):
     # {'image_paths','metadata_setting'}
     history = {}
@@ -365,12 +368,12 @@ async def loadHistory(request: Request):
         for image_path in image_paths:
             print("image_path: ", image_path)
             metadata_dict = metadata_to_json.createMetadataJsonFileIfNotExist(image_path)
-            history['metadata_jsons'].append(metadata_dict)
+            history['metadata_jsons'].routerend(metadata_dict)
             
             
             img = Image.open(image_path)
             base64_image = img_2_b64(img)
-            history['base64_images'].append(base64_image)
+            history['base64_images'].routerend(base64_image)
 
     except:
         
@@ -385,7 +388,7 @@ async def loadHistory(request: Request):
     return {"image_paths":history['image_paths'], "metadata_jsons":history['metadata_jsons'],"base64_images": history['base64_images']}
 
 
-@app.post('/prompt_shortcut/load')
+@router.post('/prompt_shortcut/load')
 async def loadPromptShortcut(request: Request):
     prompt_shortcut_json = {}
     try:
@@ -404,7 +407,7 @@ async def loadPromptShortcut(request: Request):
         
     # return response
     return {"prompt_shortcut":prompt_shortcut_json}
-@app.post('/prompt_shortcut/save')
+@router.post('/prompt_shortcut/save')
 async def loadPromptShortcut(request: Request):
     prompt_shortcut_json = {}
     try:
@@ -426,7 +429,7 @@ async def loadPromptShortcut(request: Request):
     # return response
     return {"prompt_shortcut":prompt_shortcut_json}
 
-@app.post("/swapModel")
+@router.post("/swapModel")
 async def swapModel(request:Request):
     print("swapModel: \n")
     payload = await request.json()
@@ -441,7 +444,7 @@ async def swapModel(request:Request):
 
 
 import webbrowser
-@app.post("/open/url/")
+@router.post("/open/url/")
 async def openUrl(request:Request):
     try:
         json = await request.json()
@@ -458,3 +461,8 @@ async def openUrl(request:Request):
         print(f'an error has occurred durning processing the request {request}')
     # return response
     return {"url":url}
+
+
+
+app = FastAPI()
+app.include_router(router)

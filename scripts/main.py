@@ -24,8 +24,10 @@ print("python_server_full_path: ",python_server_full_path)
 sys.path.insert(0, python_server_full_path)
 import search
 import img2imgapi
+import serverMain
 
 router = APIRouter()
+
 # @router.get("/config")
 # async def get_state():
 #     print("hello get /config auto-photoshop-sd")
@@ -90,7 +92,8 @@ def on_app_started(demo: gr.Blocks, app: FastAPI):
     # print("hello on_app_started auto-photoshop-plugin")
   
     if shared.cmd_opts.api:
-        app.include_router(router, prefix="/sdapi/auto-photoshop-sd", tags=['Auto Photoshop SD Plugin API'])
+        app.include_router(serverMain.router, prefix="/sdapi/auto-photoshop-sd", tags=['Auto Photoshop SD Plugin API'])
+        # app.include_router(router, prefix="/sdapi/auto-photoshop-sd", tags=['Auto Photoshop SD Plugin API'])
 
         
     else:
