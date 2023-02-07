@@ -12,6 +12,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 - [Auto-Photoshop-StableDiffusion-Plugin](#auto-photoshop-stablediffusion-plugin)
 - [Table of Contents](#table-of-contents)
 - [Demo:](#demo)
+- [One Click Installer](#one-click-installer) 
 - [How To Install Video Tutorial](#how-to-install-video-tutorial)
 - [Instructional Tutorial (outpaint, inpaint, img2img and txt2img):](#instructional-tutorial-outpaint-inpaint-img2img-and-txt2img)
 - [How to install:](#how-to-install)
@@ -42,16 +43,35 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 	
 	
  		
+# One Click Installer
+Download the [.ccx](https://www.dropbox.com/t/DkjTcQQEJpfRSdTj) file and run it. that's all.  you will be able to use all of stable diffusion modes (txt2img, img2img, inpainting and outpainting), check the [tutorials](https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/wiki) section to master the tool. 
+
+![install_plugin_1](https://user-images.githubusercontent.com/7842232/217213943-3e2a588d-3ed8-4757-ba69-9846b55a1b36.gif)
+
+
+for advance/professional users who want to use the smart masking mode, we have an optional and free automatic extension that you can install, and Here is how to do it:
+1) copy Auto-Photoshop plugin url
+![copy_githup_url_2](https://user-images.githubusercontent.com/7842232/217213998-367873ce-2c09-4c42-a5fa-0044415e3908.gif)
+
+2) paste the url in auto1111's extension tab and click install
+
+![install_extension_3](https://user-images.githubusercontent.com/7842232/217214062-4c2fef9e-8d49-46a0-aa3b-80c4975f8a70.gif)
+
+3) make sure the Auto-Photoshop plugin is listed, then click "Apply and Restart UI"
+
+![apply_and_restart_4](https://user-images.githubusercontent.com/7842232/217214116-2e30d7b8-aeb6-44df-aff3-4788a56cd800.gif)
 
 # Demo:
 [![Click Here to Watch Demo](https://i3.ytimg.com/vi/VL_gbQai79E/maxresdefault.jpg)](https://youtu.be/VL_gbQai79E "Stable diffusion AI Photoshop Plugin Free and Open Source")
 # How to install Video Tutorial:
+we recommend you use [the one click installer](#one-click-installer) watch the video to know how to install Automatic1111 Stable Diffusion
 [![Click Here to Watch How To Install Tutorial](https://user-images.githubusercontent.com/7842232/215471551-2d39c6c2-a765-4eca-bc54-7b386aa25662.png)](https://youtu.be/BNzdhEpFHrg "How To Install Auto Photoshop Stable Diffusion Plugin")
 
 # Instructional Tutorial (outpaint, inpaint, img2img and txt2img):
 [![Click Here to Watch Tutorial](http://i3.ytimg.com/vi/evjSIfYIQq0/hqdefault.jpg)](https://www.youtube.com/watch?v=evjSIfYIQq0&ab_channel=Abdsart "Tutorial - Auto Photoshop Stable Diffusion Plugin")
 
 # How to install:
+we recommend you use [the one click installer](#one-click-installer)
 ## First time running the plugin (local Automatic1111):
 1) download the plugin:
 ```
