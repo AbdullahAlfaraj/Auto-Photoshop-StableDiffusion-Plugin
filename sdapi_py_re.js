@@ -334,7 +334,9 @@ async function loadPromptShortcut() {
         console.log('loadPromptShortcut:', prompt_shortcut_json)
         // console.log('loadPromptShortcut: request: ',request)
     } catch (e) {
+
         console.warn(e)
+        prompt_shortcut_json = {}
     }
     return prompt_shortcut_json
     // return json['prompt_shortcut']

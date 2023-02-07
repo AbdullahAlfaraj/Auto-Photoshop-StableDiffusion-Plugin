@@ -495,7 +495,7 @@ async function loadPromptShortcut(file_name) {
     } catch (e) {
         console.warn(e)
     }
-    return {}
+    
 }
 module.exports = {
     txt2ImgRequest,
