@@ -32,7 +32,7 @@ const prompt_shortcut = require('./utility/sdapi/prompt_shortcut')
 const formats = require('uxp').storage.formats
 const storage = require('uxp').storage
 const fs = storage.localFileSystem
-
+const horde_native = require('./utility/sdapi/horde_native')
 async function hasSessionSelectionChanged() {
     try {
         const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
@@ -3497,10 +3497,15 @@ async function downloadIt(link) {
 
         await file.write(img)
         const currentDocument = app.activeDocument
-        const newDocument = await app.open(file)
-        if (currentDocument) {
-            await newDocument.activeLayers[0].duplicate(currentDocument)
-            await newDocument.closeWithoutSaving()
+        let newDocument
+        try {
+            newDocument = await app.open(file)
+            if (currentDocument) {
+                await newDocument.activeLayers[0].duplicate(currentDocument)
+                await newDocument.closeWithoutSaving()
+            }
+        } catch (e) {
+            console.warn(e)
         }
 
         if (!file) {
