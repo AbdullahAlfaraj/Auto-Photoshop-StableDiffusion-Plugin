@@ -1,9 +1,14 @@
 // import {helloHelper} from 'helper.js'
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
-
+// let g_sdapi_path = 'sdapi'
+let g_version = 'v1.1.7'
+let g_sd_url = 'http://127.0.0.1:7860'
 const helper = require('./helper')
-const sdapi = require('./sdapi')
+// let g_sdapi_path = 'sdapi_py_re'
+// const sdapi = require(`./${g_sdapi_path}`)
+const sdapi = require('./sdapi_py_re')
+
 const exportHelper = require('./export_png')
 const outpaint = require('./outpaint')
 const psapi = require('./psapi')
@@ -23,6 +28,11 @@ const sd_config = require('./utility/sdapi/config')
 const session = require('./utility/session')
 const ui = require('./utility/ui')
 const script_horde = require('./utility/sd_scripts/horde')
+const prompt_shortcut = require('./utility/sdapi/prompt_shortcut')
+const formats = require('uxp').storage.formats
+const storage = require('uxp').storage
+const fs = storage.localFileSystem
+
 async function hasSessionSelectionChanged() {
     try {
         const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
@@ -109,7 +119,7 @@ require('photoshop').action.addNotificationListener(
 
 async function getUniqueDocumentId() {
     try {
-        uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
+        let uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
 
         console.log(
             'getUniqueDocumentId():  uniqueDocumentId: ',
@@ -131,10 +141,10 @@ async function getUniqueDocumentId() {
             await psapi.saveUniqueDocumentIdExe(uuid)
             uniqueDocumentId = uuid
         }
+        return uniqueDocumentId
     } catch (e) {
         console.warn('warning Document Id may not be valid', e)
     }
-    return uniqueDocumentId
 }
 
 // document
@@ -411,6 +421,7 @@ function promptShortcutExample() {
         7
     )
     document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+    return prompt_shortcut_example
 }
 
 function autoFillInSettings(metadata_json) {
@@ -504,7 +515,7 @@ function autoFillInSettings(metadata_json) {
 let prompt_dir_name = ''
 let gImage_paths = []
 let g_image_path_to_layer = {}
-
+let g_init_images_dir = './server/python_server/init_images'
 gCurrentImagePath = ''
 let g_init_image_name = ''
 // let g_init_mask_layer;
@@ -543,6 +554,7 @@ let g_inpaint_mask_layer_history_id //store the history state id when creating a
 let g_selection = {}
 let g_b_use_smart_object = true // true to keep layer as smart objects, false to rasterize them
 let g_sd_options_obj = new sd_options.SdOptions()
+
 g_sd_options_obj.getOptions()
 // let g_sd_config_obj = new sd_config.SdConfig()
 // g_sd_config_obj.getConfig();
@@ -583,13 +595,21 @@ let g_viewer_manager = new viewer.ViewerManager()
 //********** End: global variables */
 
 //***********Start: init function calls */
-
+async function initPlugin() {
+    await refreshUI()
+    await displayUpdate()
+    // promptShortcutExample()
+    await loadPromptShortcut()
+    await refreshPromptMenue()
+}
+initPlugin()
 // refreshModels() // get the models when the plugin loads
 // initSamplers()
 // updateVersionUI()
-refreshUI()
-displayUpdate()
-promptShortcutExample()
+// refreshUI()
+// displayUpdate()
+// // promptShortcutExample()
+// loadPromptShortcut()
 
 //***********End: init function calls */
 
@@ -1373,9 +1393,6 @@ async function discard() {
         const random_img_src = 'https://source.unsplash.com/random'
         html_manip.setInitImageSrc(random_img_src)
         html_manip.setInitImageMaskSrc(random_img_src)
-        // const last_gen_layers = Object.keys(g_image_path_to_layer).map(
-        //   path => g_image_path_to_layer[path]
-        // )
 
         // psapi.cleanLayers(last_gen_layers)
         await deleteNoneSelected(g_viewer_manager.pathToViewerImage)
@@ -1597,6 +1614,8 @@ function updateMetadata(new_metadata) {
 async function getSettings() {
     let payload = {}
     try {
+        const extension_type = html_manip.getExtensionType() // get the extension type
+
         numberOfImages = document.querySelector('#tiNumberOfImages').value
         numberOfSteps = document.querySelector('#tiNumberOfSteps').value
         const prompt = html_manip.getPrompt()
@@ -1667,6 +1686,7 @@ async function getSettings() {
             payload['init_image_mask_name'] = g_init_image_mask_name
             payload['inpainting_fill'] = html_manip.getMaskContent()
             payload['mask_expansion'] = mask_expansion
+            payload['mask'] = g_generation_session.activeBase64MaskImage
         } else if (mode == 'img2img') {
             var g_use_mask_image = false
             delete payload['inpaint_full_res'] //  inpaint full res is not available in img2img mode
@@ -1685,6 +1705,10 @@ async function getSettings() {
             denoising_strength = html_manip.getDenoisingStrength()
             payload['denoising_strength'] = denoising_strength
             payload['init_image_name'] = g_init_image_name
+
+            payload['init_images'] = [
+                g_generation_session.activeBase64InitImage,
+            ]
         }
 
         if (hi_res_fix && width > 512 && height > 512) {
@@ -1938,30 +1962,53 @@ async function generate(settings) {
         toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
         g_can_request_progress = false
 
-        gImage_paths = json.image_paths
+        const images_info = json?.images_info
+        // gImage_paths = images_info.images_paths
         //open the generated images from disk and load them onto the canvas
         const b_use_silent_import =
             document.getElementById('chUseSilentImport').checked
+
         if (isFirstGeneration) {
             //this is new generation session
 
-            if (b_use_silent_import) {
-                g_image_path_to_layer = await silentImagesToLayersExe(
-                    gImage_paths
-                )
-            } else {
-                g_image_path_to_layer = await ImagesToLayersExe(gImage_paths)
+            g_image_path_to_layer = await silentImagesToLayersExe(images_info)
+
+            g_generation_session.base64OutputImages = {} //delete all previouse images, Note move this to session end ()
+            for (const image_info of images_info) {
+                const path = image_info['path']
+                const base64_image = image_info['base64']
+                g_generation_session.base64OutputImages[path] = base64_image
+                const [document_name, image_name] = path.split('/')
+                saveFileInSubFolder(base64_image, document_name, image_name) //save the output image
+                const json_file_name = `${image_name.split('.')[0]}.json`
+                settings['auto_metadata'] = image_info?.auto_metadata
+                await saveJsonFileInSubFolder(
+                    settings,
+                    document_name,
+                    json_file_name
+                ) //save the settings
             }
 
             g_number_generation_per_session = 1
             g_generation_session.isFirstGeneration = false
         } else {
             // generation session is active so we will generate more
-            let last_images_paths
-            if (b_use_silent_import) {
-                last_images_paths = await silentImagesToLayersExe(gImage_paths)
-            } else {
-                last_images_paths = await ImagesToLayersExe(gImage_paths)
+
+            let last_images_paths = await silentImagesToLayersExe(images_info)
+
+            for (const image_info of images_info) {
+                const path = image_info['path']
+                const base64_image = image_info['base64']
+                g_generation_session.base64OutputImages[path] = base64_image
+                const [document_name, image_name] = path.split('/')
+                saveFileInSubFolder(base64_image, document_name, image_name)
+                const json_file_name = `${image_name.split('.')[0]}.json`
+                settings['auto_metadata'] = image_info?.auto_metadata
+                await saveJsonFileInSubFolder(
+                    settings,
+                    document_name,
+                    json_file_name
+                ) //save the settings
             }
 
             g_image_path_to_layer = {
@@ -1977,53 +2024,6 @@ async function generate(settings) {
         console.error(`btnGenerate.click(): `, e)
     }
 }
-
-// async function generateMore(settings){
-
-//   try{
-//     //pre generation
-//     // toggleGenerateInterruptButton(true)
-//     // toggleTwoButtons(true,'btnGenerateMore','btnInterruptMore')
-//     toggleTwoButtonsByClass(false,'btnGenerateClass','btnInterruptClass')
-//     g_can_request_progress = true
-
-//     //wait 2 seconds till you check for progress
-//     setTimeout(function () {
-//       progressRecursive()
-
-//     }, 2000)
-
-//   console.log(settings)
-
-//   if (g_sd_mode == 'txt2img') {
-//     json = await generateTxt2Img(settings)
-//    }
-//    else if(g_sd_mode == 'img2img' || g_sd_mode =='inpaint' || g_sd_mode =='outpaint'){
-//      json = await sdapi.requestImg2Img(settings)
-
-//    }
-
-//   //post generation
-//   //get the updated metadata from json response
-//   g_metadatas = updateMetadata(json.metadata)
-//   //set button to generate
-//   // toggleGenerateInterruptButton(false)
-//   // toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
-//   toggleTwoButtonsByClass(false,'btnGenerateClass','btnInterruptClass')
-//   g_can_request_progress = false
-
-//   gImage_paths = json.image_paths
-//   //open the generated images from disk and load them onto the canvas
-//   const last_images_paths = await ImagesToLayersExe(gImage_paths)
-//   g_image_path_to_layer = {...g_image_path_to_layer, ...last_images_paths}
-//   //update the viewer
-//   loadViewerImages()
-
-// }catch(e){
-//   console.error(`btnGenerate.click(): `,e)
-
-// }
-// }
 
 Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
     (btn) => {
@@ -2077,7 +2077,8 @@ document
     .addEventListener('click', async () => {
         //set init image event listener, use when settion is active
         const layer = await app.activeDocument.activeLayers[0]
-        const image_name = await psapi.setInitImage(layer, random_session_id)
+        const image_info = await psapi.setInitImage(layer, random_session_id)
+        const image_name = image_info['name']
         const path = `./server/python_server/init_images/${image_name}`
         g_viewer_manager.addInitImageLayers(layer, path, false)
     })
@@ -2093,29 +2094,35 @@ document
             })
             const layer = g_viewer_manager.maskGroup
             // const layer = await app.activeDocument.activeLayers[0]
-            const image_name = await psapi.setInitImageMask(
+            const mask_info = await psapi.setInitImageMask(
                 layer,
                 random_session_id
             )
+            const image_name = mask_info['name']
             const path = `./server/python_server/init_images/${image_name}`
-            g_viewer_manager.addMaskLayers(layer, path, false) //can be autodeleted?
+            g_viewer_manager.addMaskLayers(
+                layer,
+                path,
+                false,
+                mask_info['base64']
+            ) //can be autodeleted?
             await psapi.unselectActiveLayersExe()
         } catch (e) {
             console.warn(e)
         }
     })
 
-document.getElementById('bSetInitImage').addEventListener('click', async () => {
-    const layer = await app.activeDocument.activeLayers[0]
-    await psapi.setInitImage(layer, random_session_id)
-})
+// document.getElementById('bSetInitImage').addEventListener('click', async () => {
+//     const layer = await app.activeDocument.activeLayers[0]
+//     await psapi.setInitImage(layer, random_session_id)
+// })
 
-document
-    .getElementById('bSetInitImageMask')
-    .addEventListener('click', async () => {
-        const layer = await app.activeDocument.activeLayers[0]
-        await psapi.setInitImageMask(layer, random_session_id)
-    })
+// document
+//     .getElementById('bSetInitImageMask')
+//     .addEventListener('click', async () => {
+//         const layer = await app.activeDocument.activeLayers[0]
+//         await psapi.setInitImageMask(layer, random_session_id)
+//     })
 function moveElementToAnotherTab(elementId, newParentId) {
     const element = document.getElementById(elementId)
     document.getElementById(newParentId).appendChild(element)
@@ -2131,20 +2138,28 @@ function updateProgressBarsHtml(new_value) {
     // document.querySelector('#pProgressBar').value
 }
 async function progressRecursive() {
-    let json = await sdapi.requestProgress()
-    // document.querySelector('#pProgressBar').value = json.progress * 100
-    progress_value = json.progress * 100
-    updateProgressBarsHtml(progress_value)
-    if (json.progress > 0 && g_can_request_progress == true) {
-        setTimeout(async () => {
-            await progressRecursive()
-        }, 500)
+    try {
+        let json = await sdapi.requestProgress()
+        // document.querySelector('#pProgressBar').value = json.progress * 100
+        progress_value = json.progress * 100
+        updateProgressBarsHtml(progress_value)
+        if (g_generation_session.isActive() && g_can_request_progress == true) {
+            //refactor this code
+            setTimeout(async () => {
+                await progressRecursive()
+            }, 500)
+        }
+    } catch (e) {
+        if (
+            g_generation_session.isActive() &&
+            g_can_request_progress === true
+        ) {
+            setTimeout(async () => {
+                await progressRecursive()
+            }, 1000)
+        }
     }
 }
-
-// document
-//   .getElementById('bGetProgress')
-//   .addEventListener('click', progressRecursive)
 
 function changeImage() {
     let img = document.getElementById('img1')
@@ -2302,6 +2317,252 @@ async function placeEmbedded(image_path) {
     }
 }
 
+function _base64ToArrayBuffer(base64) {
+    var binary_string = window.atob(base64)
+    var len = binary_string.length
+    var bytes = new Uint8Array(len)
+    for (var i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i)
+    }
+    return bytes.buffer
+}
+function _arrayBufferToBase64(buffer) {
+    var binary = ''
+    var bytes = new Uint8Array(buffer)
+    var len = bytes.byteLength
+    for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i])
+    }
+    return window.btoa(binary)
+}
+
+async function getDocFolder(doc_id) {
+    try {
+        // const uuid = await getUniqueDocumentId()
+        const data_folder = await storage.localFileSystem.getDataFolder()
+
+        let doc_folder
+        try {
+            doc_folder = await data_folder.getEntry(doc_id)
+        } catch (e) {
+            console.warn(e)
+            //create document folder
+            doc_folder = await data_folder.createFolder(doc_id)
+        }
+
+        return doc_folder
+    } catch (e) {
+        console.warn(e)
+    }
+}
+async function getInitImagesDir() {
+    const uuid = await getUniqueDocumentId()
+
+    let doc_folder = await getDocFolder(uuid)
+    let init_folder
+    try {
+        init_folder = await doc_folder.getEntry('init_images')
+    } catch (e) {
+        console.warn(e)
+        //create document folder
+        init_folder = await doc_folder.createFolder('init_images')
+    }
+    return init_folder
+}
+async function saveFileInSubFolder(b64Image, sub_folder_name, file_name) {
+    // const b64Image =
+    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
+
+    const img = _base64ToArrayBuffer(b64Image)
+
+    // const img_name = 'temp_output_image.png'
+    const img_name = file_name
+    const folder = await storage.localFileSystem.getDataFolder()
+    const documentFolderName = sub_folder_name
+    let documentFolder
+    try {
+        documentFolder = await folder.getEntry(documentFolderName)
+    } catch (e) {
+        console.warn(e)
+        //create document folder
+        documentFolder = await folder.createFolder(documentFolderName)
+    }
+
+    console.log('documentFolder.nativePath: ', documentFolder.nativePath)
+    const file = await documentFolder.createFile(img_name, { overwrite: true })
+
+    await file.write(img, { format: storage.formats.binary })
+
+    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
+}
+async function saveJsonFileInSubFolder(json, sub_folder_name, file_name) {
+    // const b64Image =
+    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
+
+    // const img_name = 'temp_output_image.png'
+
+    const json_file_name = file_name
+
+    const folder = await storage.localFileSystem.getDataFolder()
+    const documentFolderName = sub_folder_name
+    let documentFolder
+    try {
+        documentFolder = await folder.getEntry(documentFolderName)
+    } catch (e) {
+        console.warn(e)
+        //create document folder
+        documentFolder = await folder.createFolder(documentFolderName)
+    }
+
+    console.log('documentFolder.nativePath: ', documentFolder.nativePath)
+    const file = await documentFolder.createFile(json_file_name, {
+        type: storage.types.file,
+        overwrite: true,
+    })
+
+    const JSONInPrettyFormat = JSON.stringify(json, undefined, 4)
+    await file.write(JSONInPrettyFormat, {
+        format: storage.formats.utf8,
+        append: false,
+    })
+
+    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
+}
+
+async function base64ToFile(b64Image) {
+    // const b64Image =
+    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
+
+    const img = _base64ToArrayBuffer(b64Image)
+
+    const img_name = 'output_image.png'
+
+    const folder = await storage.localFileSystem.getTemporaryFolder()
+    const file = await folder.createFile(img_name, { overwrite: true })
+
+    await file.write(img, { format: storage.formats.binary })
+
+    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
+
+    let place_event_result
+    await executeAsModal(async () => {
+        const result = await batchPlay(
+            [
+                {
+                    _obj: 'placeEvent',
+                    ID: 6,
+                    null: {
+                        _path: token,
+                        _kind: 'local',
+                    },
+                    freeTransformCenterState: {
+                        _enum: 'quadCenterState',
+                        _value: 'QCSAverage',
+                    },
+                    offset: {
+                        _obj: 'offset',
+                        horizontal: {
+                            _unit: 'pixelsUnit',
+                            _value: 0,
+                        },
+                        vertical: {
+                            _unit: 'pixelsUnit',
+                            _value: 0,
+                        },
+                    },
+                    _isCommand: true,
+                    _options: {
+                        dialogOptions: 'dontDisplay',
+                    },
+                },
+            ],
+            {
+                synchronousExecution: true,
+                modalBehavior: 'execute',
+            }
+        )
+        console.log('placeEmbedd batchPlay result: ', result)
+
+        place_event_result = result[0]
+    })
+
+    return place_event_result
+}
+
+async function placeImageB64ToLayer(image_path) {
+    //silent importer
+
+    try {
+        console.log('placeEmbedded(): image_path: ', image_path)
+
+        const formats = require('uxp').storage.formats
+        const storage = require('uxp').storage
+        const fs = storage.localFileSystem
+
+        const names = image_path.split('/')
+        const length = names.length
+        const image_name = names[length - 1]
+        const project_name = names[length - 2]
+        let pluginFolder = await fs.getPluginFolder()
+
+        const image_dir = `./server/python_server/output/${project_name}`
+        // image_path = "output/f027258e-71b8-430a-9396-0a19425f2b44/output- 1674323725.126322.png"
+
+        let img_dir = await pluginFolder.getEntry(image_dir)
+        // const file = await img_dir.createFile('output- 1674298902.0571606.png', {overwrite: true});
+
+        const file = await img_dir.createFile(image_name, { overwrite: true })
+
+        const img = await file.read({ format: formats.binary })
+        const token = await storage.localFileSystem.createSessionToken(file)
+        let place_event_result
+        await executeAsModal(async () => {
+            const result = await batchPlay(
+                [
+                    {
+                        _obj: 'placeEvent',
+                        ID: 6,
+                        null: {
+                            _path: token,
+                            _kind: 'local',
+                        },
+                        freeTransformCenterState: {
+                            _enum: 'quadCenterState',
+                            _value: 'QCSAverage',
+                        },
+                        offset: {
+                            _obj: 'offset',
+                            horizontal: {
+                                _unit: 'pixelsUnit',
+                                _value: 0,
+                            },
+                            vertical: {
+                                _unit: 'pixelsUnit',
+                                _value: 0,
+                            },
+                        },
+                        _isCommand: true,
+                        _options: {
+                            dialogOptions: 'dontDisplay',
+                        },
+                    },
+                ],
+                {
+                    synchronousExecution: true,
+                    modalBehavior: 'execute',
+                }
+            )
+            console.log('placeEmbedd batchPlay result: ', result)
+
+            place_event_result = result[0]
+        })
+
+        return place_event_result
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
 // document.getElementById('btnImageFileToLayer').addEventListener('click', placeEmbedded)
 
 // open an image in the plugin folder as new document
@@ -2374,23 +2635,21 @@ async function ImagesToLayersExe(images_paths) {
     return image_path_to_layer
 }
 
-async function silentImagesToLayersExe(images_paths) {
+async function silentbase64ImagesToLayersExe(base64_images) {
     try {
         g_generation_session.isLoadingActive = true
 
         await psapi.reSelectMarqueeExe(g_selection)
         image_path_to_layer = {}
-        console.log('silentImagesToLayersExe: images_paths: ', images_paths)
+
         // Returns a Promise that resolves after "ms" Milliseconds
         const timer = (ms) => new Promise((res) => setTimeout(res, ms))
 
-        for (image_path of images_paths) {
-            gCurrentImagePath = image_path
-            console.log(gCurrentImagePath)
+        for (base64_image of base64_images) {
             //unselect all layers so that the imported layer get place at the top of the document
             await psapi.unselectActiveLayersExe()
 
-            const placeEventResult = await placeEmbedded(image_path) //silent import into the document
+            const placeEventResult = await base64ToFile(base64_image) //silent import into the document
 
             let layer = await app.activeDocument.layers.filter(
                 (l) => l.id === placeEventResult?.ID
@@ -2402,6 +2661,7 @@ async function silentImagesToLayersExe(images_paths) {
             // let layer = await app.activeDocument.activeLayers[0]
             console.log('loaded layer: ', layer)
             console.log('placeEventResult?.ID: ', placeEventResult?.ID)
+
             while (!layer && timer_count <= 10000) {
                 await timer(100) // then the created Promise can be awaited
                 timer_count += 100
@@ -2442,6 +2702,91 @@ async function silentImagesToLayersExe(images_paths) {
             // })
 
             image_path_to_layer[image_path] = layer
+            // await reselect(selectionInfo)
+        }
+        return image_path_to_layer
+    } catch (e) {
+        console.warn(e)
+    }
+    g_generation_session.isLoadingActive = false
+}
+async function silentImagesToLayersExe(images_info) {
+    try {
+        g_generation_session.isLoadingActive = true
+
+        await psapi.reSelectMarqueeExe(g_selection)
+        image_path_to_layer = {}
+        console.log(
+            'silentImagesToLayersExe: images_info.images_paths: ',
+            images_info.images_paths
+        )
+        // Returns a Promise that resolves after "ms" Milliseconds
+        const timer = (ms) => new Promise((res) => setTimeout(res, ms))
+
+        for (image_info of images_info) {
+            console.log(gCurrentImagePath)
+            //unselect all layers so that the imported layer get place at the top of the document
+            await psapi.unselectActiveLayersExe()
+
+            let placeEventResult
+            // if (base64_images) {
+            //     placeEventResult = await base64ToFile(base64_images) //silent import into the document
+            // } else {
+            //     placeEventResult = await placeEmbedded(image_path) //silent import into the document
+            // }
+            placeEventResult = await base64ToFile(image_info.base64) //silent import into the document
+
+            let layer = await app.activeDocument.layers.filter(
+                (l) => l.id === placeEventResult?.ID
+            )[0]
+            // await openImageExe() //local image to new document
+            // await convertToSmartObjectExe() //convert the current image to smart object
+            let timer_count = 0
+
+            // let layer = await app.activeDocument.activeLayers[0]
+            console.log('loaded layer: ', layer)
+            console.log('placeEventResult?.ID: ', placeEventResult?.ID)
+
+            while (!layer && timer_count <= 10000) {
+                await timer(100) // then the created Promise can be awaited
+                timer_count += 100
+                // layer = await app.activeDocument.activeLayers[0]
+                layer = await app.activeDocument.layers.filter(
+                    (l) => l.id === placeEventResult?.ID
+                )[0]
+                const active_layer = await app.activeDocument.activeLayers[0]
+                console.log('active_layer.id: ', active_layer.id)
+                if (active_layer.id === placeEventResult?.ID) {
+                    layer = active_layer
+                }
+
+                console.log('timer_count: ', timer_count)
+                console.log('loaded layer: ', layer)
+                console.log('placeEventResult?.ID: ', placeEventResult?.ID)
+            }
+
+            if (g_b_use_smart_object === false) {
+                await executeAsModal(async () => {
+                    await layer.rasterize() //rastrize the active layer
+                })
+            }
+
+            await psapi.selectLayersExe([layer])
+            await psapi.layerToSelection(g_selection)
+
+            // await stackLayers() // move the smart object to the original/old document
+            // await psapi.layerToSelection(g_selection) //transform the new smart object layer to fit selection area
+            // layer = await app.activeDocument.activeLayers[0]
+            await g_generation_session.moveToTopOfOutputGroup(layer)
+            // const output_group_id = await g_generation_session.outputGroup.id
+            // let group_index = await psapi.getLayerIndex(output_group_id)
+            // const indexOffset = 1 //1 for background, 0 if no background exist
+            // await executeAsModal(async ()=>{
+            //   await psapi.moveToGroupCommand(group_index - indexOffset, layer.id)
+
+            // })
+
+            image_path_to_layer[image_info.path] = layer
             // await reselect(selectionInfo)
         }
         return image_path_to_layer
@@ -2612,9 +2957,10 @@ async function NewViewerImageClickHandler(img, viewer_obj_owner) {
         console.warn(e)
     }
 }
-function createViewerImgHtml(output_dir_relative, image_path) {
+function createViewerImgHtml(output_dir_relative, image_path, base64_image) {
     const img = document.createElement('img')
-    img.src = `${output_dir_relative}/${image_path}`
+    // img.src = `${output_dir_relative}/${image_path}`
+    img.src = base64ToSrc(base64_image)
     img.className = 'viewer-image'
     console.log('image_path: ', image_path)
     // img.dataset.image_id = layer_id
@@ -2670,12 +3016,11 @@ async function loadViewerImages() {
         let i = 0
 
         // const viewer_layers = []
-        // Object.keys(g_image_path_to_layer).map(path =>  new viewer.OutputImage(g_image_path_to_layer[path],path))
 
         // if(g_viewer_manager.g_init_image_related_layers.hasOwnProperty('init_image_group') )
         if (g_viewer_manager.initGroup) {
             //it means we are in an img2img related mode
-            // const path =  `./server/python_server/init_images/${g_init_image_name}`
+
             const paths = Object.keys(g_viewer_manager.initImageLayersJson)
             for (const path of paths) {
                 if (!g_viewer_manager.hasViewerImage(path)) {
@@ -2699,10 +3044,12 @@ async function loadViewerImages() {
                         path,
                         auto_delete
                     )
-
+                    const base64_image =
+                        g_generation_session.base64initImages[path]
                     const init_img_html = createViewerImgHtml(
                         './server/python_server/init_images/',
-                        g_init_image_name
+                        path,
+                        base64_image
                     )
                     init_image_container.appendChild(init_img_html)
                     initImage.setImgHtml(init_img_html)
@@ -2734,7 +3081,8 @@ async function loadViewerImages() {
 
                 const mask_img_html = createViewerImgHtml(
                     './server/python_server/init_images/',
-                    g_init_image_mask_name
+                    g_init_image_mask_name,
+                    g_generation_session.base64maskImage[path]
                 )
 
                 mask_container.appendChild(mask_img_html)
@@ -2753,15 +3101,13 @@ async function loadViewerImages() {
             if (!g_viewer_manager.hasViewerImage(path)) {
                 //create viewer object if it doesn't exist
 
-                // const viewer_obj =  new viewer.OutputImage(g_image_path_to_layer[image_path],image_path)
-
                 //create an html image element and attach it container, and link it to the viewer obj
 
                 const layer = g_image_path_to_layer[path]
                 const img = createViewerImgHtml(
                     output_dir_relative,
                     path,
-                    layer.id
+                    g_generation_session.base64OutputImages[path]
                 )
                 const output_image_obj = g_viewer_manager.addOutputImage(
                     layer,
@@ -2827,12 +3173,6 @@ async function deleteNoneSelected(viewer_objects) {
     }
 }
 
-async function deleteNoneSelectedAndReloadViewer() {
-    await deleteNoneSelected(g_viewer_manager.pathToViewerImage)
-    console.log('g_image_path_to_layer: ', g_image_path_to_layer)
-    await loadViewerImages() // maybe we should pass g_image_path_to_layer instead of it been global
-}
-
 // document.getElementById('btnLoadViewer').addEventListener('click', loadViewerImages)
 
 document
@@ -2844,9 +3184,8 @@ document
                 'divHistoryImagesContainer'
             )
             const uniqueDocumentId = await getUniqueDocumentId()
-            const [image_paths, metadata_jsons] = await sdapi.loadHistory(
-                uniqueDocumentId
-            )
+            const [image_paths, metadata_jsons, base64_images] =
+                await sdapi.loadHistory(uniqueDocumentId)
 
             while (container.firstChild) {
                 container.removeChild(container.firstChild)
@@ -2855,12 +3194,16 @@ document
             let i = 0
             for (image_path of image_paths) {
                 const img = document.createElement('img')
-                img.src = `${output_dir_relative}/${image_path}`
+                // img.src = `${output_dir_relative}/${image_path}`
+                const image_src = `data:image/png;base64, ${base64_images[i]}`
+                img.src = image_src
+
                 img.dataset.path = `${output_dir_relative}/${image_path}`
                 img.className = 'history-image'
                 img.dataset.metadata_json_string = JSON.stringify(
                     metadata_jsons[i]
                 )
+                console.log(`metadata_jsons[${i}]: `, metadata_jsons[i])
                 const img_container = html_manip.addHistoryButtonsHtml(img)
                 container.appendChild(img_container)
 
@@ -2872,9 +3215,17 @@ document
                     )
                     console.log('metadata_json: ', metadata_json)
                     // document.querySelector('#tiSeed').value = metadata_json.Seed
+
+                    //extract auto_metadata into the preset metadata
+                    function convertAutoMetadataToPresset(metadata_json) {
+                        metadata_json['seed'] =
+                            metadata_json?.auto_metadata?.Seed
+                    }
+                    convertAutoMetadataToPresset(metadata_json)
                     document.querySelector('#historySeedLabel').textContent =
-                        metadata_json.Seed
-                    autoFillInSettings(metadata_json)
+                        metadata_json?.seed
+                    // autoFillInSettings(metadata_json)
+                    g_ui_settings.autoFillInSettings(metadata_json)
 
                     //load the image onto the canvas
                     // let image_path = img.dataset.path
@@ -2930,18 +3281,26 @@ document
             console.warn(`imageSearch warning: ${e}`)
         }
     })
+
+async function loadPromptShortcut() {
+    try {
+        let prompt_shortcut = await sdapi.loadPromptShortcut()
+        if (!prompt_shortcut) {
+            prompt_shortcut = promptShortcutExample()
+        }
+
+        // var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
+        // document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+        html_manip.setPromptShortcut(prompt_shortcut) // fill the prompt shortcut textarea
+        await refreshPromptMenue() //refresh the prompt menue
+    } catch (e) {
+        console.warn(`loadPromptShortcut warning: ${e}`)
+    }
+}
 document
     .getElementById('btnLoadPromptShortcut')
     .addEventListener('click', async function () {
-        try {
-            prompt_shortcut = await sdapi.loadPromptShortcut()
-            // var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
-            // document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
-            html_manip.setPromptShortcut(prompt_shortcut) // fill the prompt shortcut textarea
-            refreshPromptMenue() //refresh the prompt menue
-        } catch (e) {
-            console.warn(`loadPromptShortcut warning: ${e}`)
-        }
+        await loadPromptShortcut()
     })
 
 document
@@ -2965,7 +3324,7 @@ document
             console.log(JSONInPrettyFormat)
             document.getElementById('taPromptShortcut').value =
                 JSONInPrettyFormat
-            refreshPromptMenue()
+            await refreshPromptMenue()
         } catch (e) {
             console.warn(`loadPromptShortcut warning: ${e}`)
         }
@@ -3064,8 +3423,6 @@ async function refreshPromptMenue() {
     }
 }
 
-refreshPromptMenue()
-
 document
     .getElementById('mPromptShortcutMenu')
     .addEventListener('change', (evt) => {
@@ -3077,8 +3434,8 @@ document
     })
 document
     .getElementById('btnRefreshPromptShortcutMenu')
-    .addEventListener('click', () => {
-        refreshPromptMenue()
+    .addEventListener('click', async () => {
+        await refreshPromptMenue()
     })
 
 function changePromptShortcutKey(new_key) {
@@ -3212,4 +3569,49 @@ document.getElementById('mPresetMenu').addEventListener('change', (evt) => {
         const loader = ui.loadedPresets[preset_name]
         loader(g_ui_settings)
     }
+})
+
+function base64ToSrc(base64_image) {
+    const image_src = `data:image/png;base64, ${base64_image}`
+    return image_src
+}
+
+const py_re = require('./utility/sdapi/python_replacement')
+document.getElementById('btnGetDocPath').addEventListener('click', async () => {
+    const docPath = await py_re.getDocumentFolderNativePath()
+    document.getElementById('tiDocPath').value = docPath
+})
+
+async function prmoptForUpdate() {
+    const shell = require('uxp').shell
+
+    ;(async () => {
+        const r1 = await dialog_box.prompt(
+            'Please Update you Plugin. it will take about 10 seconds to update',
+            'update from discord, update from github',
+            ['Cancel', 'Discord', 'Github']
+        )
+        try {
+            let url
+            if (r1 === 'Cancel') {
+                /* cancelled or No */
+                console.log('cancel')
+            } else if (r1 === 'Github') {
+                url =
+                    'https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin'
+                await py_re.openUrlRequest(url)
+            } else if (r1 === 'Discord') {
+                console.log('Discord')
+                // url = 'https://discord.gg/3mVEtrddXJ'
+                url = 'https://discord.gg/YkUJXYWK3c'
+                await py_re.openUrlRequest(url)
+            }
+            console.log('url: ', url)
+        } catch (e) {
+            console.warn(e, url)
+        }
+    })()
+}
+document.getElementById('btnUpdate').addEventListener('click', async () => {
+    await prmoptForUpdate()
 })

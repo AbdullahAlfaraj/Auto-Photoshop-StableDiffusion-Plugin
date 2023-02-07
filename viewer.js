@@ -160,10 +160,12 @@ class ViewerImage {
         button.addEventListener('click', async () => {
             //set init image event listener, use when settion is active
             const layer = await app.activeDocument.activeLayers[0]
-            const image_name = await psapi.setInitImage(
+
+            const image_info = await psapi.setInitImage(
                 layer,
                 random_session_id
             )
+            const image_name = image_info['name']
             const path = `./server/python_server/init_images/${image_name}`
             g_viewer_manager.addInitImageLayers(layer, path, false)
         })
@@ -505,12 +507,12 @@ class ViewerManager {
         this.init_solid_background = solid_background
         this.addInitImageLayers(snapshot, path, true)
     }
-    initializeMask(group, white_mark, solid_background, path) {
+    initializeMask(group, white_mark, solid_background, path, base64) {
         this.maskGroup = group
         this.mask_solid_background = solid_background
-        this.addMaskLayers(white_mark, path, true)
+        this.addMaskLayers(white_mark, path, true, base64)
     }
-    addMaskLayers(white_mark, path, auto_delete) {
+    addMaskLayers(white_mark, path, auto_delete, base64) {
         try {
             if (!this.maskLayersJson.hasOwnProperty(path)) {
                 //it's a new mask, mostly for the first time storing the mask
@@ -529,7 +531,9 @@ class ViewerManager {
                 const new_path = `${path}?t=${new Date().getTime()}`
                 console.log('new mask path: ', new_path)
                 // this.maskLayersJson[path].img_html.src = new_path
-                this.pathToViewerImage[path].img_html.src = new_path
+
+                // this.pathToViewerImage[path].img_html.src = new_path
+                this.pathToViewerImage[path].img_html.src = base64ToSrc(base64)
             }
         } catch (e) {
             console.warn(e)

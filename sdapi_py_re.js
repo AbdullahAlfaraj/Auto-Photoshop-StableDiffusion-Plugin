@@ -1,3 +1,6 @@
+const { getExtensionType } = require('./utility/html_manip')
+const py_re = require('./utility/sdapi/python_replacement')
+
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
 async function getInitImage(init_image_name) {
     console.log('getInitImage(): get Init Image from the server :')
@@ -5,24 +8,28 @@ async function getInitImage(init_image_name) {
         init_image_name: init_image_name,
     }
 
-    const full_url = 'http://127.0.0.1:8000/getInitImage/'
-    console.log(full_url)
-    console.log('getInitImage payload:', payload)
-    let request = await fetch(full_url, {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-        // "body": payload
-    })
+    // const full_url = 'http://127.0.0.1:8000/getInitImage/'
+    // console.log(full_url)
+    // console.log('getInitImage payload:', payload)
+    // let request = await fetch(full_url, {
+    //     method: 'POST',
+    //     headers: {
+    //         Accept: 'application/json',
+    //         'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(payload),
+    //     // "body": payload
+    // })
 
-    let json = await request.json()
-    console.log('json:')
-    console.dir(json)
-    base64data = json.init_image_str
-    image_src = `data:image/png;base64, ${base64data}`
+    // let json = await request.json()
+
+    // console.log('json:')
+    // console.dir(json)
+    // base64data = json.init_image_str
+    // image_src = `data:image/png;base64, ${base64data}`
+    console.warn('this function is deprecated!')
+    const image_src =
+        'https://im ages.pexels.com/photos/1386604/pexels-photo-1386604.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
     return image_src
 
     // console.log(img.src)
@@ -36,23 +43,28 @@ async function requestSavePng(base64_image, image_name) {
         console.log('requestSavePng():')
         payload = { base64: base64_image, image_name: image_name }
 
-        const full_url = 'http://127.0.0.1:8000/save/png/'
-        console.log(full_url)
-        console.log('payload:', payload)
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-            // "body": payload
-        })
+        // // const full_url = 'http://127.0.0.1:8000/save/png/'
+        // // console.log(full_url)
+        // // console.log('payload:', payload)
+        // // let request = await fetch(full_url, {
+        // //     method: 'POST',
+        // //     headers: {
+        // //         Accept: 'application/json',
+        // //         'Content-Type': 'application/json',
+        // //     },
+        // //     body: JSON.stringify(payload),
+        // //     // "body": payload
+        // // })
 
-        let json = await request.json()
-        console.log('requestSavePng json:', json)
+        // // let json = await request.json()
+        // // console.log('requestSavePng json:', json)
 
-        return json
+        // return json
+        const uniqueDocumentId = await getUniqueDocumentId()
+        const folder = `${uniqueDocumentId}/init_images`
+        const init_entery = getInitImagesDir()
+        saveFileInSubFolder(base64_image, folder, image_name)
+        console.warn('this function is deprecated')
     } catch (e) {
         console.warn(e)
         return {}
@@ -62,20 +74,21 @@ async function requestTxt2Img(payload) {
     try {
         console.log('requestTxt2Img(): about to send a fetch request')
 
-        const full_url = 'http://127.0.0.1:8000/txt2img/'
-        console.log(full_url)
+        // const full_url = 'http://127.0.0.1:8000/txt2img/'
+        // console.log(full_url)
 
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-            // "body": payload
-        })
+        // let request = await fetch(full_url, {
+        //     method: 'POST',
+        //     headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(payload),
+        //     // "body": payload
+        // })
 
-        let json = await request.json()
+        // let json = await request.json()
+        let json = await py_re.txt2ImgRequest(payload)
         console.log('requestTxt2Img json:', json)
 
         return json
@@ -88,20 +101,21 @@ async function requestTxt2Img(payload) {
 async function requestImg2Img(payload) {
     console.log('requestImg2Img(): about to send a fetch request')
     try {
-        const full_url = 'http://127.0.0.1:8000/img2img/'
-        console.log(full_url)
-        console.log('requestImg2Img payload is: ', payload)
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-            // "body": payload
-        })
+        // const full_url = 'http://127.0.0.1:8000/img2img/'
+        // console.log(full_url)
+        // console.log('requestImg2Img payload is: ', payload)
+        // let request = await fetch(full_url, {
+        //     method: 'POST',
+        //     headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(payload),
+        //     // "body": payload
+        // })
 
-        let json = await request.json()
+        // let json = await request.json()
+        let json = await py_re.img2ImgRequest(g_sd_url, payload)
         console.log('requestImg2Img json:')
         console.dir(json)
 
@@ -113,22 +127,27 @@ async function requestImg2Img(payload) {
 }
 
 async function requestProgress() {
-    console.log('requestProgress: ')
+    let json = {}
+    try {
+        console.log('requestProgress: ')
 
-    const full_url =
-        'http://127.0.0.1:8000/sdapi/v1/progress?skip_current_image=false'
-    let request = await fetch(full_url)
-    let json = await request.json()
-    console.log('progress json:')
-    console.dir(json)
+        const full_url = `${g_sd_url}/sdapi/v1/progress?skip_current_image=false`
+        let request = await fetch(full_url)
+        json = await request.json()
+        console.log('progress json:')
+        console.dir(json)
 
-    return json
+        return json
+    } catch (e) {
+        console.warn(e)
+        // console.log('json: ', json)
+    }
 }
 
 async function requestGetModels() {
     console.log('requestGetModels: ')
     let json = []
-    const full_url = 'http://127.0.0.1:8000/sdapi/v1/sd-models'
+    const full_url = `${g_sd_url}/sdapi/v1/sd-models`
     try {
         let request = await fetch(full_url)
         json = await request.json()
@@ -143,7 +162,7 @@ async function requestGetModels() {
 async function requestGetSamplers() {
     console.log('requestGetSamplers: ')
 
-    const full_url = 'http://127.0.0.1:8000/sdapi/v1/samplers'
+    const full_url = `${g_sd_url}/sdapi/v1/samplers`
     let request = await fetch(full_url)
     let json = await request.json()
     console.log('samplers json:')
@@ -156,7 +175,7 @@ async function requestSwapModel(model_title) {
     console.log('requestSwapModel: ')
     // const full_url = 'http://127.0.0.1:8000/swapModel'
 
-    const full_url = 'http://127.0.0.1:8000/sdapi/v1/options'
+    const full_url = `${g_sd_url}/sdapi/v1/options`
     payload = {
         sd_model_checkpoint: model_title,
     }
@@ -179,7 +198,7 @@ async function requestSwapModel(model_title) {
 }
 
 async function requestInterrupt(model_title) {
-    const full_url = 'http://127.0.0.1:8000/sdapi/v1/interrupt'
+    const full_url = `${g_sd_url}/sdapi/v1/interrupt`
     try {
         console.log('requestInterrupt: ')
         // const full_url = 'http://127.0.0.1:8000/swapModel'
@@ -213,20 +232,22 @@ async function requestInterrupt(model_title) {
 async function getVersionRequest() {
     // version = "v0.0.0"
     console.log('requestGetSamplers: ')
-    try {
-        const full_url = 'http://127.0.0.1:8000/version'
-        let request = await fetch(full_url)
-        let json = await request.json()
-        console.log('version json:', json)
-        version = json['version']
+    const current_version = g_version
+    // try {
+    //     const full_url = 'http://127.0.0.1:8000/version'
+    //     let request = await fetch(full_url)
+    //     let json = await request.json()
+    //     console.log('version json:', json)
+    //     version = json['version']
 
-        return version
-    } catch (e) {
-        console.warn(e)
-        version = 'v0.0.0'
+    //     return version
+    // } catch (e) {
+    //     console.warn(e)
+    //     version = 'v0.0.0'
 
-        return version
-    }
+    //     return version
+    // }
+    return current_version
 }
 
 async function changeSdUrl(new_sd_url) {
@@ -237,20 +258,19 @@ async function changeSdUrl(new_sd_url) {
             sd_url: new_sd_url,
         }
 
-        const full_url = 'http://127.0.0.1:8000/sd_url/'
-        console.log('changeSdUrl: payload: ', payload)
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        })
+        // const full_url = `${g_sd_url}/sd_url/`
+        // console.log('changeSdUrl: payload: ', payload)
+        // let request = await fetch(full_url, {
+        //     method: 'POST',
+        //     headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(payload),
+        // })
 
-        // let json = await request.json()
-        // console.log('changeSdUrl:',json)
-        console.log('changeSdUrl: request: ', request)
+        g_sd_url = new_sd_url
+        // console.log('changeSdUrl: request: ', request)
     } catch (e) {
         console.warn(e)
     }
@@ -268,20 +288,21 @@ async function loadHistory(uniqueDocumentId) {
         payload = {
             uniqueDocumentId: uniqueDocumentId,
         }
+        json = await py_re.loadHistory(payload)
+        // const full_url = 'http://127.0.0.1:8000/history/load'
 
-        const full_url = 'http://127.0.0.1:8000/history/load'
+        // let request = await fetch(full_url, {
+        //     method: 'POST',
+        //     headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(payload),
+        // })
 
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        })
+        // json = await request.json()
+        // console.log('loadHistory:', json)
 
-        json = await request.json()
-        console.log('loadHistory:', json)
         // console.log('loadPromptShortcut: request: ',request)
     } catch (e) {
         console.warn(e)
@@ -291,49 +312,53 @@ async function loadHistory(uniqueDocumentId) {
 }
 async function loadPromptShortcut() {
     // console.log('loadPromptShortcut:')
-    let json = {}
+    let prompt_shortcut_json = {}
     try {
-        payload = {}
+        // payload = {}
 
-        const full_url = 'http://127.0.0.1:8000/prompt_shortcut/load'
+        // const full_url = 'http://127.0.0.1:8000/prompt_shortcut/load'
 
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        })
+        // let request = await fetch(full_url, {
+        //     method: 'POST',
+        //     headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(payload),
+        // })
 
-        json = await request.json()
-        console.log('loadPromptShortcut:', json)
+        // json = await request.json()
+        prompt_shortcut_json = await py_re.loadPromptShortcut(
+            'prompt_shortcut.json'
+        )
+        console.log('loadPromptShortcut:', prompt_shortcut_json)
         // console.log('loadPromptShortcut: request: ',request)
     } catch (e) {
         console.warn(e)
     }
-
-    return json['prompt_shortcut']
+    return prompt_shortcut_json
+    // return json['prompt_shortcut']
 }
 
 async function savePromptShortcut(prompt_shortcut) {
     // console.log('loadPromptShortcut:')
-    let json = {}
+    let json = prompt_shortcut
     try {
-        payload = { prompt_shortcut: prompt_shortcut }
+        // payload = { prompt_shortcut: prompt_shortcut }
 
-        const full_url = 'http://127.0.0.1:8000/prompt_shortcut/save'
+        // const full_url = 'http://127.0.0.1:8000/prompt_shortcut/save'
 
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        })
+        // let request = await fetch(full_url, {
+        //     method: 'POST',
+        //     headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(payload),
+        // })
 
-        json = await request.json()
+        // json = await request.json()
+        await py_re.savePromptShortcut(json, 'prompt_shortcut.json')
         console.log('savePromptShortcut:', json)
         // console.log('loadPromptShortcut: request: ',request)
     } catch (e) {
@@ -343,9 +368,9 @@ async function savePromptShortcut(prompt_shortcut) {
     return json['prompt_shortcut']
 }
 async function setInpaintMaskWeight(value) {
-    const full_url = 'http://127.0.0.1:8000/sdapi/v1/options'
+    const full_url = `${g_sd_url}/sdapi/v1/options`
     try {
-        payload = {
+        const payload = {
             inpainting_mask_weight: value,
         }
         await fetch(full_url, {
@@ -364,7 +389,7 @@ async function setInpaintMaskWeight(value) {
 async function requestGetConfig() {
     console.log('requestGetConfig: ')
     let json = []
-    const full_url = 'http://127.0.0.1:8000/config'
+    const full_url = `${g_sd_url}/config`
     try {
         let request = await fetch(full_url)
         json = await request.json()
@@ -378,7 +403,7 @@ async function requestGetConfig() {
 async function requestGetOptions() {
     console.log('requestGetOptions: ')
     let json = []
-    const full_url = 'http://127.0.0.1:8000/sdapi/v1/options'
+    const full_url = `${g_sd_url}/sdapi/v1/options`
     try {
         let request = await fetch(full_url)
         json = await request.json()
@@ -392,7 +417,9 @@ async function requestGetOptions() {
 
 async function imageSearch(keywords) {
     let json = {}
-    const full_url = 'http://127.0.0.1:8000/search/image/'
+    const extension_url = py_re.getExtensionUrl()
+
+    const full_url = `${extension_url}/search/image/`
     try {
         payload = {
             keywords: keywords,

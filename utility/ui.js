@@ -1,4 +1,3 @@
-const { loadHistory } = require('../sdapi')
 const html_manip = require('./html_manip')
 const presets = require('./presets/preset')
 
@@ -181,27 +180,50 @@ class UISettings {
             html_manip.getMaskContent,
             html_manip.setMaskContent
         )
+        this.seed = createUIElement(html_manip.getSeed, html_manip.setSeed)
+        this.prompt = createUIElement(
+            html_manip.getPrompt,
+            html_manip.autoFillInPrompt
+        )
+        this.negative_prompt = createUIElement(
+            html_manip.getNegativePrompt,
+            html_manip.autoFillInNegativePrompt
+        )
+        this.mask_blur = createUIElement(
+            html_manip.getMaskBlur,
+            html_manip.setMaskBlur
+        )
+        this.mask_expansion = createUIElement(
+            html_manip.getMaskExpansion,
+            html_manip.setMaskExpansion
+        )
+        this.samplers = createUIElement(
+            html_manip.getCheckedSamplerName,
+            html_manip.autoFillInSampler
+        )
+
         this.uiElements = {
             // model: null,
             // prompt_shortcut: null,
-            // positive_prompt: "",
-            // negative_prompt: "",
+            prompt: this.prompt,
+            negative_prompt: this.negative_prompt,
             // selection_mode: null,
-            batch_number: this.batch_number,
+            batch_size: this.batch_number,
             steps: this.steps,
             width: this.width,
             height: this.height,
             firstphase_width: this.firstphase_width,
             firstphase_height: this.firstphase_height,
-            cfg: this.cfg,
+            cfg_scale: this.cfg,
             denoising_strength: this.denoising_strength,
             // hi_res_denoising_strength:0.7,
-            // mask_blur: 8,
+            mask_blur: this.mask_blur,
+            mask_expansion: this.mask_expansion,
             // inpaint_at_full_res: false,
             // hi_res_fix:false,
             // inpaint_padding:0,
-            // seed:-1,
-            // samplers: null,
+            seed: this.seed,
+            sampler_index: this.samplers,
             mask_content: this.mask_content,
         }
     }
@@ -219,6 +241,22 @@ class UISettings {
                 )
                 //set the value
                 this.uiElements[name].setValue(value)
+            }
+        }
+    }
+    saveAsJson(json_file_name, settings) {
+        for (const [name, value] of Object.entries(settings)) {
+            if (this.uiElements.hasOwnProperty(name) && value) {
+                //get the values for debugging
+                const old_value = this.uiElements[name].getValue()
+                console.log(
+                    '(name,old_value) => newValue:',
+                    name,
+                    old_value,
+                    value
+                )
+
+                //set the value
             }
         }
     }

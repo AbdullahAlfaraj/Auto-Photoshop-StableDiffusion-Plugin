@@ -63,7 +63,7 @@
         {
           "width": 32,
           "height": 32,
-          "path": "icons/icon_D.png",
+          "path": "icon/icon_D.png",
           "scale": [
             1,
             2
@@ -79,7 +79,7 @@
         {
           "width": 32,
           "height": 32,
-          "path": "icons/icon_N.png",
+          "path": "icon/icon_N.png",
           "scale": [
             1,
             2
@@ -99,7 +99,7 @@
     {
       "width": 32,
       "height": 32,
-      "path": "icons/icon_D.png",
+      "path": "icon/icon_D.png",
       "scale": [
         1,
         2
@@ -115,7 +115,7 @@
     {
       "width": 32,
       "height": 32,
-      "path": "icons/icon_N.png",
+      "path": "icon/icon_N.png",
       "scale": [
         1,
         2

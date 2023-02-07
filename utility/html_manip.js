@@ -234,6 +234,11 @@ function getMode() {
     )[0].value
 }
 
+function getExtensionType() {
+    return [...document.getElementsByClassName('rbExtensionType')].filter(
+        (e) => e.checked == true
+    )[0].value
+}
 function checkSampler(sampler_name) {
     sampler_element = getSamplerElementByName(sampler_name)
     sampler_element.checked = true
@@ -447,6 +452,10 @@ function getMaskBlur() {
     }
     return mask_blur
 }
+function setMaskBlur(mask_blur) {
+    document.getElementById('slMaskBlur').value = mask_blur
+}
+
 function getUseSharpMask() {
     const isChecked = document.getElementById('chUseSharpMask').checked
     return isChecked
@@ -534,7 +543,10 @@ function addHistoryButtonsHtml(img_html) {
         //set init image event listener, use when settion is active
         let image_path = img_html.dataset.path
         const image_path_escape = image_path.replace(/\o/g, '/o') //escape string "\o" in "\output"
-        await placeEmbedded(image_path_escape)
+        // await placeEmbedded(image_path_escape)
+        // load the image from "data:image/png;base64," base64_str
+        const base64_image = img_html.src.replace('data:image/png;base64,', '')
+        await base64ToFile(base64_image)
     })
 
     // Append elements to container
@@ -543,7 +555,22 @@ function addHistoryButtonsHtml(img_html) {
 
     return container
 }
+function getSeed() {
+    const seed = document.getElementById('tiSeed').value
+    return seed
+}
+function setSeed(new_seed) {
+    document.getElementById('tiSeed').value = new_seed
+}
 
+function getMaskExpansion() {
+    const mask_expansion = document.getElementById('slMaskExpansion').value
+    return mask_expansion
+}
+
+function setMaskExpansion(mask_expansion) {
+    document.getElementById('slMaskExpansion').value = mask_expansion
+}
 ///end selection mode////
 module.exports = {
     getPrompt,
@@ -574,6 +601,7 @@ module.exports = {
     autoFillDefaultSettings,
     autoFillSettings,
     getMaskBlur,
+    setMaskBlur,
     getUseSharpMask,
     autoFillInHRHeight,
     autoFillInHRWidth,
@@ -593,4 +621,9 @@ module.exports = {
     getMaskContent,
     setMaskContent,
     addHistoryButtonsHtml,
+    getExtensionType,
+    getSeed,
+    setSeed,
+    getMaskExpansion,
+    setMaskExpansion,
 }

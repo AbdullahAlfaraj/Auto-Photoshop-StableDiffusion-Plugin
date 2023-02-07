@@ -145,7 +145,21 @@
             font-size: 15px;
             margin: 0;
         }
+        #btnUpdate {
+            background-color: #3555ac;
+            color: white;
+            cursor: pointer;
 
+            border: none;
+
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+            margin-left: 3px;
+        }
+        #btnUpdate:hover {
+            background-color: #3f68d6;
+        }
         .button-style2 {
             background-color: #777;
             color: white;
@@ -746,6 +760,43 @@
                     href="https://colab.research.google.com/drive/1nbcx_WOneRmYv9idBO33pN5CbxXrqZHu?usp=sharing"
                     >Use Colab</sp-link
                 >
+                <div>
+                    <sp-radio-group>
+                        <sp-label slot="label">Select Extension:</sp-label>
+                        <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
+                        <sp-radio
+                            title="use the proxy server, need to run 'start_server.bat' "
+                            class="rbExtensionType"
+                            value="proxy_server"
+                            >Proxy Server</sp-radio
+                        >
+                        <sp-radio
+                            title="use Automatic1111 Photoshop SD Extension, need to install the extension in Auto1111"
+                            class="rbExtensionType"
+                            value="auto1111_extension"
+                            checked
+                            >Auto111 Extension</sp-radio
+                        >
+                        <sp-radio
+                            title="Use the Plugin Only No Additional Component"
+                            class="rbExtensionType"
+                            value="none"
+                            >None</sp-radio
+                        >
+                        <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
+                    </sp-radio-group>
+                </div>
+                <div>
+                    <sp-label>Folder Path (read only):</sp-label
+                    ><sp-textfield
+                        title="copy paste the address to access the folder where the images are stored"
+                        id="tiDocPath"
+                        type="text"
+                        placeholder=""
+                        value=""
+                    ></sp-textfield>
+                    <button id="btnGetDocPath">Get Path</button>
+                </div>
             </div>
 
             <div
@@ -765,6 +816,13 @@
                         id="btnRefreshModels"
                     >
                         Refresh
+                    </button>
+                    <button
+                        title="Update the plugin if you encounter bugs. Get the latest features"
+                        class="btnSquare"
+                        id="btnUpdate"
+                    >
+                        Update
                     </button>
                     <!-- <sp-label slot="label"
           id="lVersionNumber">v0.0.0</sp-label> -->
@@ -1179,7 +1237,7 @@
                             show-value="true"
                             id="slMaskExpansion"
                             min="0"
-                            max="64"
+                            max="256"
                             value="40"
                             title="the larger the value the more the mask will expand, '0' means use precise masking, use in combination with the mask blur"
                         >

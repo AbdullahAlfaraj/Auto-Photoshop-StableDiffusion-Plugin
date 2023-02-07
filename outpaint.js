@@ -186,10 +186,11 @@ async function snapAndFillExe(session_id) {
             // g_init_image_related_layers['init_image_layer'] = snapshotLayer
             // g_init_image_related_layers['solid_white'] = whiteSolidLayer
 
-            const image_name = await psapi.setInitImage(
+            const image_info = await psapi.setInitImage(
                 snapshotGroup,
                 session_id
             )
+            const image_name = image_info['name']
             const path = `./server/python_server/init_images/${image_name}`
 
             g_viewer_manager.initializeInitImage(
@@ -205,28 +206,6 @@ async function snapAndFillExe(session_id) {
             await psapi.reSelectMarqueeExe(selectionInfo)
             const util_layer = require('./utility/layer')
             await util_layer.collapseFolderExe([snapshotGroup], false)
-
-            //   function timeout(ms) {
-            //     return new Promise(resolve => setTimeout(resolve, ms));
-            // }
-            // async function sleep(fn, ...args) {
-            //     await timeout(3000);
-            //     return fn(...args);
-            // }
-            // async function saveAndHide(){
-
-            //   await psapi.setInitImage(snapshotGroup,session_id)
-
-            //   // await psapi.selectLayers([snapshotMaskGroup])
-            //   // await psapi.setInitImageMask(snapshotMaskGroup,session_id)
-            //   //set initial image
-            //   //set mask image
-
-            //   for (layer of snapAndFillLayers){
-            //               layer.visible = false
-            //             }
-            //           }
-            // sleep(saveAndHide)
         })
         console.log('snapAndFillLayers: ', snapAndFillLayers)
         return snapAndFillLayers
@@ -292,10 +271,11 @@ async function outpaintFasterExe(session_id) {
             await psapi.createClippingMaskExe()
             await psapi.selectLayers([snapshotGroup])
 
-            const image_name = await psapi.setInitImage(
+            const image_info = await psapi.setInitImage(
                 snapshotGroup,
                 session_id
             )
+            const image_name = image_info['name']
             const path = `./server/python_server/init_images/${image_name}`
 
             await psapi.reSelectMarqueeExe(selectionInfo)
@@ -421,10 +401,11 @@ async function outpaintExe(session_id) {
 
             await addClippingMaskToLayer(snapshotGroup, selectionInfo)
 
-            const init_image_name = await psapi.setInitImage(
+            const image_info = await psapi.setInitImage(
                 snapshotGroup,
                 session_id
             )
+            const init_image_name = image_info['name']
             const init_path = `./server/python_server/init_images/${init_image_name}`
 
             await psapi.reSelectMarqueeExe(selectionInfo)
@@ -434,10 +415,11 @@ async function outpaintExe(session_id) {
             await psapi.reSelectMarqueeExe(selectionInfo)
 
             // await psapi.setInitImageMask(snapshotMaskGroup,session_id)
-            const mask_name = await psapi.setInitImageMask(
+            const mask_info = await psapi.setInitImageMask(
                 snapshotMaskGroup,
                 session_id
             )
+            const mask_name = mask_info['name']
             const mask_path = `./server/python_server/init_images/${mask_name}`
             await psapi.reSelectMarqueeExe(selectionInfo)
             //set initial image
@@ -456,7 +438,8 @@ async function outpaintExe(session_id) {
                 snapshotMaskGroup,
                 snapshotMaskLayer,
                 null,
-                mask_path
+                mask_path,
+                mask_info['base64']
             )
             // g_init_image_related_layers['init_image_group'] = snapshotGroup
             // g_init_image_related_layers['init_image_layer'] = snapshotLayer
@@ -577,19 +560,21 @@ async function inpaintFasterExe(session_id) {
 
             await psapi.selectLayers([maskGroup])
             // await psapi.setInitImageMask(maskGroup,session_id)
-            const mask_name = await psapi.setInitImageMask(
+            const mask_info = await psapi.setInitImageMask(
                 maskGroup,
                 session_id
             )
+            const mask_name = mask_info['name']
             const mask_path = `./server/python_server/init_images/${mask_name}`
 
             await psapi.reSelectMarqueeExe(selectionInfo)
             await psapi.selectLayers([snapshotGroup])
 
-            const image_name = await psapi.setInitImage(
+            const image_info = await psapi.setInitImage(
                 snapshotGroup,
                 session_id
             )
+            const image_name = image_info['name']
             const path = `./server/python_server/init_images/${image_name}`
 
             await psapi.reSelectMarqueeExe(selectionInfo)
@@ -614,7 +599,8 @@ async function inpaintFasterExe(session_id) {
                 maskGroup,
                 white_mark_layer,
                 blackSolidLayer,
-                mask_path
+                mask_path,
+                mask_info['bases64']
             )
             // g_init_image_related_layers['init_image_group'] = snapshotGroup
             // g_init_image_related_layers['init_image_layer'] = snapshotLayer
