@@ -543,7 +543,7 @@ function addHistoryButtonsHtml(img_html) {
         //set init image event listener, use when settion is active
         let image_path = img_html.dataset.path
         const image_path_escape = image_path.replace(/\o/g, '/o') //escape string "\o" in "\output"
-        // await placeEmbedded(image_path_escape)
+
         // load the image from "data:image/png;base64," base64_str
         const base64_image = img_html.src.replace('data:image/png;base64,', '')
         await base64ToFile(base64_image)

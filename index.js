@@ -2245,27 +2245,27 @@ async function imageToSmartObject() {
 
 // document.getElementById('btnNewLayer').addEventListener('click', imageToSmartObject )
 
-async function placeEmbedded(image_path) {
+async function placeEmbedded(image_name, dir_entery) {
     //silent importer
 
     try {
-        console.log('placeEmbedded(): image_path: ', image_path)
+        // console.log('placeEmbedded(): image_path: ', image_path)
 
         const formats = require('uxp').storage.formats
         const storage = require('uxp').storage
         const fs = storage.localFileSystem
-        const names = image_path.split('/')
-        const length = names.length
-        const image_name = names[length - 1]
-        const project_name = names[length - 2]
-        let pluginFolder = await fs.getPluginFolder()
-        const image_dir = `./server/python_server/output/${project_name}`
+        // const names = image_path.split('/')
+        // const length = names.length
+        // const image_name = names[length - 1]
+        // const project_name = names[length - 2]
+        let image_dir = dir_entery
+        // const image_dir = `./server/python_server/output/${project_name}`
         // image_path = "output/f027258e-71b8-430a-9396-0a19425f2b44/output- 1674323725.126322.png"
 
-        let img_dir = await pluginFolder.getEntry(image_dir)
+        // let img_dir = await .getEntry(image_dir)
         // const file = await img_dir.createFile('output- 1674298902.0571606.png', {overwrite: true});
 
-        const file = await img_dir.createFile(image_name, { overwrite: true })
+        const file = await image_dir.createFile(image_name, { overwrite: true })
 
         const img = await file.read({ format: formats.binary })
         const token = await storage.localFileSystem.createSessionToken(file)
@@ -2489,7 +2489,7 @@ async function base64ToFile(b64Image) {
     return place_event_result
 }
 
-async function placeImageB64ToLayer(image_path) {
+async function placeImageB64ToLayer(image_path, entery) {
     //silent importer
 
     try {
@@ -3482,7 +3482,7 @@ document
         }
     })
 
-async function downloadIt(link) {
+async function downloadIt(link, format = 'png') {
     const image = await fetch(link)
     console.log(link)
     const storage = require('uxp').storage
@@ -3492,7 +3492,9 @@ async function downloadIt(link) {
         const img = await image.arrayBuffer()
         // const file = await fs.getFileForSaving("image.png");
         const folder = await storage.localFileSystem.getTemporaryFolder()
-        const file = await folder.createFile('image.png', { overwrite: true })
+        const file = await folder.createFile(`image.${format}`, {
+            overwrite: true,
+        })
         // const file = await fs.getTempFolder()
 
         await file.write(img)
@@ -3516,10 +3518,10 @@ async function downloadIt(link) {
     }
 }
 
-async function downloadItExe(link) {
+async function downloadItExe(link, format = 'png') {
     await executeAsModal(async () => {
         try {
-            await downloadIt(link)
+            await downloadIt(link, format)
         } catch (e) {
             console.warn(e)
         }
@@ -3620,3 +3622,56 @@ async function prmoptForUpdate() {
 document.getElementById('btnUpdate').addEventListener('click', async () => {
     await prmoptForUpdate()
 })
+
+function a() {
+    var webp = document.getElementById('webp_container')
+    var canvas = document.createElement('canvas')
+    document.body.appendChild(canvas)
+    canvas.width = webp.width
+    canvas.height = webp.height
+    var ctx = canvas.getContext('2d')
+    ctx.drawImage(webp, 0, 0)
+    webp.parentNode.removeChild(webp)
+    return
+}
+
+function urlToImg(img_url) {
+    var xhr = new XMLHttpRequest()
+
+    // Use JSFiddle logo as a sample image to avoid complicating
+    // this example with cross-domain issues.
+    // xhr.open('GET', 'http://fiddle.jshell.net/img/logo.png', true)
+
+    xhr.open('GET', img_url, true)
+
+    // Ask for the result as an ArrayBuffer.
+    xhr.responseType = 'arraybuffer'
+
+    xhr.onload = function (e) {
+        // Obtain a blob: URL for the image data.
+        var arrayBufferView = new Uint8Array(this.response)
+        var blob = new Blob([arrayBufferView], { type: 'image/png' })
+        var urlCreator = window.URL || window.webkitURL
+        var imageUrl = urlCreator.createObjectURL(blob)
+        var img = document.getElementById('webp_container')
+        img.src = imageUrl
+    }
+
+    xhr.send()
+}
+
+function webpToJpg(id) {
+    var image = new Image()
+
+    image.onload = function () {
+        var canvas = document.createElement('canvas')
+        canvas.width = this.naturalWidth
+        canvas.height = this.naturalHeight
+        canvas.getContext('2d').drawImage(this, 0, 0)
+        document.getElementById(id).src = canvas.toDataURL('image/jpeg')
+    }
+
+    image.src = document.getElementById(id).src
+}
+
+webpToJpg('webp_container')
