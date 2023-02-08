@@ -1117,7 +1117,7 @@ async function newExportPng(layer, image_name, width, height) {
             let exportDoc = await app.documents.add({
                 width: width,
                 height: height,
-                resolution: 300,
+                resolution: await app.activeDocument.resolution,
                 mode: 'RGBColorMode',
                 fill: 'transparent',
             })
@@ -1174,7 +1174,7 @@ async function tempExportPng(layer, image_name, width, height) {
             let exportDoc = await app.documents.add({
                 width: width,
                 height: height,
-                resolution: 300,
+                resolution: await app.activeDocument.resolution,
                 mode: 'RGBColorMode',
                 fill: 'transparent',
             })
