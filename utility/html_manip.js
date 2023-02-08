@@ -571,6 +571,19 @@ function getMaskExpansion() {
 function setMaskExpansion(mask_expansion) {
     document.getElementById('slMaskExpansion').value = mask_expansion
 }
+
+function updateProgressBarsHtml(new_value) {
+    document.querySelectorAll('.pProgressBars').forEach((el) => {
+        // id = el.getAttribute("id")
+        // console.log("progressbar id:", id)
+        try {
+            el.setAttribute('value', new_value)
+        } catch (e) {
+            console.warn(e) //value is not valid
+        }
+    })
+    // document.querySelector('#pProgressBar').value
+}
 ///end selection mode////
 module.exports = {
     getPrompt,
@@ -626,4 +639,5 @@ module.exports = {
     setSeed,
     getMaskExpansion,
     setMaskExpansion,
+    updateProgressBarsHtml,
 }
