@@ -27,6 +27,7 @@ class GenerationSession {
         this.base64maskImage = []
         this.activeBase64InitImage
         this.activeBase64MaskImage
+        this.image_paths_to_layers = {}
     }
     isActive() {
         return this.state === SessionState['Active']
