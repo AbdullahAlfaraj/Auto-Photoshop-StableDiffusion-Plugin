@@ -1,3 +1,19 @@
+const general = require('../general')
+
+//horde generation process:
+//*) get the settings
+//*) get send request
+//*) wait for response
+//*) load the image to the canvas
+//*) move and scale image to the selection
+//*) save the image to history/data folder
+//*) load the image data into the plugin / viewer tab
+//*)
+
+//other options:
+//*)interrupt the generation process
+//*)cancel the generation process on error
+
 const webui_to_horde_samplers = {
     'Euler a': 'k_euler_a',
     Euler: 'k_euler',
@@ -216,43 +232,50 @@ let g_id
 let g_horde_generation_result
 let g_b_request_result = false
 function cancelRequestClientSide() {
-    clearTimeout(g_interval_id)
+    clearInterval(g_interval_id)
     g_id = null
     g_b_request_result = false
 }
 
+async function processHordeResult() {
+    try {
+        const check_json = await requestHordeCheck(g_id)
+        if (
+            check_json['done'] &&
+            g_interval_id
+            // !g_b_request_result
+        ) {
+            clearInterval(g_interval_id)
+            console.log('horde request is done')
+            // g_b_request_result = true
+            const temp_id = g_id //g_id will reset
+            // cancelRequestClientSide()
+            g_horde_generation_result = await requestHordeStatus(temp_id)
+
+            const generations = g_horde_generation_result.generations
+            const writeable_entry = await getCurrentDocFolder()
+            for (image_horde_container of generations) {
+                try {
+                    const url = image_horde_container.img
+                    image_file_name = general.newOutputImageName('webp')
+                    const image_layer = await downloadItExe(
+                        url,
+                        writeable_entry,
+                        image_file_name
+                    ) //
+                } catch (e) {
+                    console.warn(e)
+                }
+            }
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+}
 async function startCheckingProgress() {
     if (!g_interval_id && g_id) {
         g_interval_id = setInterval(async () => {
-            try {
-                const check_json = await requestHordeCheck(g_id)
-                if (
-                    check_json['done'] &&
-                    g_interval_id
-                    // !g_b_request_result
-                ) {
-                    clearTimeout(g_interval_id)
-                    console.log('horde request is done')
-                    // g_b_request_result = true
-                    const temp_id = g_id //g_id will reset
-                    // cancelRequestClientSide()
-                    g_horde_generation_result = await requestHordeStatus(
-                        temp_id
-                    )
-
-                    const generations = g_horde_generation_result.generations
-                    for (image_horde_container of generations) {
-                        try {
-                            const url = image_horde_container.img
-                            await downloadItExe(url, 'webp') //
-                        } catch (e) {
-                            console.warn(e)
-                        }
-                    }
-                }
-            } catch (e) {
-                console.warn(e)
-            }
+            await processHordeResult()
         }, 3000)
     }
 }

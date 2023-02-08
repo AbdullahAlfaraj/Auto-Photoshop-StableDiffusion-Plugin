@@ -1979,7 +1979,11 @@ async function generate(settings) {
                 const base64_image = image_info['base64']
                 g_generation_session.base64OutputImages[path] = base64_image
                 const [document_name, image_name] = path.split('/')
-                saveFileInSubFolder(base64_image, document_name, image_name) //save the output image
+                await saveFileInSubFolder(
+                    base64_image,
+                    document_name,
+                    image_name
+                ) //save the output image
                 const json_file_name = `${image_name.split('.')[0]}.json`
                 settings['auto_metadata'] = image_info?.auto_metadata
                 await saveJsonFileInSubFolder(
@@ -2001,7 +2005,11 @@ async function generate(settings) {
                 const base64_image = image_info['base64']
                 g_generation_session.base64OutputImages[path] = base64_image
                 const [document_name, image_name] = path.split('/')
-                saveFileInSubFolder(base64_image, document_name, image_name)
+                await saveFileInSubFolder(
+                    base64_image,
+                    document_name,
+                    image_name
+                )
                 const json_file_name = `${image_name.split('.')[0]}.json`
                 settings['auto_metadata'] = image_info?.auto_metadata
                 await saveJsonFileInSubFolder(
@@ -2354,6 +2362,13 @@ async function getDocFolder(doc_id) {
     } catch (e) {
         console.warn(e)
     }
+}
+async function getCurrentDocFolder() {
+    //move to a global utililty lib
+    const uuid = await getUniqueDocumentId()
+
+    let doc_folder = await getDocFolder(uuid)
+    return doc_folder
 }
 async function getInitImagesDir() {
     const uuid = await getUniqueDocumentId()
@@ -3256,6 +3271,7 @@ document
             }
 
             // let i = 0
+            const temp_entry = await fs.getTemporaryFolder()
             for (let image_search_obj of image_search_objs) {
                 const img = document.createElement('img')
                 // img.src = image_search_obj['image']
@@ -3268,7 +3284,8 @@ document
                 img.addEventListener('click', async (e) => {
                     console.log(`the image url: ${img.src}`)
                     const link = img.src
-                    await downloadItExe(link)
+                    const image_file_name = 'search_image_temp.png'
+                    await downloadItExe(link, temp_entry, image_file_name)
                     // const metadata_json = JSON.parse(e.target.dataset.metadata_json_string)
                     // console.log("metadata_json: ",metadata_json)
                     // document.querySelector('#tiSeed').value = metadata_json.Seed
@@ -3482,7 +3499,7 @@ document
         }
     })
 
-async function downloadIt(link, format = 'png') {
+async function downloadIt(link, writeable_entry, image_file_name) {
     const image = await fetch(link)
     console.log(link)
     const storage = require('uxp').storage
@@ -3491,8 +3508,8 @@ async function downloadIt(link, format = 'png') {
     try {
         const img = await image.arrayBuffer()
         // const file = await fs.getFileForSaving("image.png");
-        const folder = await storage.localFileSystem.getTemporaryFolder()
-        const file = await folder.createFile(`image.${format}`, {
+        // const folder = await storage.localFileSystem.getTemporaryFolder()
+        const file = await writeable_entry.createFile(image_file_name, {
             overwrite: true,
         })
         // const file = await fs.getTempFolder()
@@ -3500,10 +3517,13 @@ async function downloadIt(link, format = 'png') {
         await file.write(img)
         const currentDocument = app.activeDocument
         let newDocument
+        let new_layer
         try {
             newDocument = await app.open(file)
             if (currentDocument) {
-                await newDocument.activeLayers[0].duplicate(currentDocument)
+                new_layer = await newDocument.activeLayers[0].duplicate(
+                    currentDocument
+                )
                 await newDocument.closeWithoutSaving()
             }
         } catch (e) {
@@ -3513,19 +3533,22 @@ async function downloadIt(link, format = 'png') {
         if (!file) {
             return
         }
+        return new_layer
     } catch (e) {
         console.warn(e)
     }
 }
 
-async function downloadItExe(link, format = 'png') {
+async function downloadItExe(link, writeable_entry, image_file_name) {
+    let new_layer
     await executeAsModal(async () => {
         try {
-            await downloadIt(link, format)
+            new_layer = await downloadIt(link, writeable_entry, image_file_name)
         } catch (e) {
             console.warn(e)
         }
     })
+    return new_layer
 }
 
 document
@@ -3636,6 +3659,7 @@ function a() {
 }
 
 function urlToImg(img_url) {
+    //TODO: delete this code
     var xhr = new XMLHttpRequest()
 
     // Use JSFiddle logo as a sample image to avoid complicating
