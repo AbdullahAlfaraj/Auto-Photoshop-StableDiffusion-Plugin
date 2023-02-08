@@ -39,7 +39,12 @@ async function hasSessionSelectionChanged() {
         if (isSelectionActive) {
             const current_selection = isSelectionActive // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.
 
-            if (await hasSelectionChanged(current_selection, g_selection)) {
+            if (
+                await hasSelectionChanged(
+                    current_selection,
+                    g_generation_session.selectionInfo
+                )
+            ) {
                 return true
             } else {
                 //selection has not changed
@@ -91,7 +96,12 @@ const eventHandler = async (event, descriptor) => {
 
             // const new_selection = await psapi.getSelectionInfoExe()
 
-            if (await hasSelectionChanged(current_selection, g_selection)) {
+            if (
+                await hasSelectionChanged(
+                    current_selection,
+                    g_generation_session.selectionInfo
+                )
+            ) {
                 // endSessionUI //red color
                 // if selection has changed : change the color and text generate btn  "Generate" color "red"
                 // g_ui.endSessionUI()
@@ -551,7 +561,7 @@ let g_isViewerMenuDisabled = false // disable the viewer menu and viewerImage wh
 let g_b_mask_layer_exist = false // true if inpaint mask layer exist, false otherwise.
 let g_inpaint_mask_layer
 let g_inpaint_mask_layer_history_id //store the history state id when creating a new inpaint mask layer
-let g_selection = {}
+// let g_selection = {}
 let g_b_use_smart_object = true // true to keep layer as smart objects, false to rasterize them
 let g_sd_options_obj = new sd_options.SdOptions()
 
@@ -699,7 +709,10 @@ document.addEventListener('mouseenter', async (event) => {
 
             if (
                 new_selection &&
-                (await hasSelectionChanged(new_selection, g_selection))
+                (await hasSelectionChanged(
+                    new_selection,
+                    g_generation_session.selectionInfo
+                ))
             ) {
                 // if there is an active selection and if the selection has changed
 
@@ -1817,13 +1830,18 @@ async function easyModeGenerate() {
         const mode = html_manip.getMode()
         // const settings = await getSettings()
         console.log('easyModeGenerate mdoe: ', mode)
-        if (psapi.isSelectionValid(g_selection)) {
+        if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
             // check we have an old selection stored
             const new_selection = await psapi.getSelectionInfoExe()
-            if (await hasSelectionChanged(new_selection, g_selection)) {
+            if (
+                await hasSelectionChanged(
+                    new_selection,
+                    g_generation_session.selectionInfo
+                )
+            ) {
                 // check the new selection is difference than the old
                 // end current session
-                g_selection = new_selection
+                g_generation_session.selectionInfo = new_selection
                 try {
                     await g_generation_session.endSession(
                         session.GarbageCollectionState['Accept']
@@ -1837,7 +1855,8 @@ async function easyModeGenerate() {
             }
         } else {
             // store selection value
-            g_selection = await psapi.getSelectionInfoExe()
+            g_generation_session.selectionInfo =
+                await psapi.getSelectionInfoExe()
         }
 
         if (g_generation_session.isActive()) {
@@ -2025,7 +2044,7 @@ async function generate(settings) {
             }
             g_number_generation_per_session++
         }
-        await psapi.reSelectMarqueeExe(g_selection)
+        await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
         //update the viewer
         await loadViewerImages()
     } catch (e) {
@@ -2628,7 +2647,7 @@ async function convertToSmartObjectExe() {
 async function ImagesToLayersExe(images_paths) {
     g_generation_session.isLoadingActive = true
 
-    await psapi.reSelectMarqueeExe(g_selection)
+    await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
     image_path_to_layer = {}
     console.log('ImagesToLayersExe: images_paths: ', images_paths)
     for (image_path of images_paths) {
@@ -2642,7 +2661,7 @@ async function ImagesToLayersExe(images_paths) {
             })
         }
         await stackLayers() // move the smart object to the original/old document
-        await psapi.layerToSelection(g_selection) //transform the new smart object layer to fit selection area
+        await psapi.layerToSelection(g_generation_session.selectionInfo) //transform the new smart object layer to fit selection area
         layer = await app.activeDocument.activeLayers[0]
         image_path_to_layer[image_path] = layer
         // await reselect(selectionInfo)
@@ -2654,7 +2673,7 @@ async function silentbase64ImagesToLayersExe(base64_images) {
     try {
         g_generation_session.isLoadingActive = true
 
-        await psapi.reSelectMarqueeExe(g_selection)
+        await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
         image_path_to_layer = {}
 
         // Returns a Promise that resolves after "ms" Milliseconds
@@ -2702,10 +2721,10 @@ async function silentbase64ImagesToLayersExe(base64_images) {
             }
 
             await psapi.selectLayersExe([layer])
-            await psapi.layerToSelection(g_selection)
+            await psapi.layerToSelection(g_generation_session.selectionInfo)
 
             // await stackLayers() // move the smart object to the original/old document
-            // await psapi.layerToSelection(g_selection) //transform the new smart object layer to fit selection area
+            // await psapi.layerToSelection(g_generation_session.selectionInfo) //transform the new smart object layer to fit selection area
             // layer = await app.activeDocument.activeLayers[0]
             await g_generation_session.moveToTopOfOutputGroup(layer)
             // const output_group_id = await g_generation_session.outputGroup.id
@@ -2729,7 +2748,7 @@ async function silentImagesToLayersExe(images_info) {
     try {
         g_generation_session.isLoadingActive = true
 
-        await psapi.reSelectMarqueeExe(g_selection)
+        await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
         image_path_to_layer = {}
         console.log(
             'silentImagesToLayersExe: images_info.images_paths: ',
@@ -2787,10 +2806,10 @@ async function silentImagesToLayersExe(images_info) {
             }
 
             await psapi.selectLayersExe([layer])
-            await psapi.layerToSelection(g_selection)
+            await psapi.layerToSelection(g_generation_session.selectionInfo)
 
             // await stackLayers() // move the smart object to the original/old document
-            // await psapi.layerToSelection(g_selection) //transform the new smart object layer to fit selection area
+            // await psapi.layerToSelection(g_generation_session.selectionInfo) //transform the new smart object layer to fit selection area
             // layer = await app.activeDocument.activeLayers[0]
             await g_generation_session.moveToTopOfOutputGroup(layer)
             // const output_group_id = await g_generation_session.outputGroup.id
@@ -3555,8 +3574,10 @@ document
     .getElementById('btnSelectionArea')
     .addEventListener('click', async () => {
         try {
-            if (psapi.isSelectionValid(g_selection)) {
-                await psapi.reSelectMarqueeExe(g_selection)
+            if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
+                await psapi.reSelectMarqueeExe(
+                    g_generation_session.selectionInfo
+                )
                 await eventHandler()
             }
         } catch (e) {

@@ -90,7 +90,7 @@ class GenerationSession {
             }
 
             //delete the old selection area
-            // g_selection = {}
+            // g_generation_session.selectionInfo = {}
 
             this.isFirstGeneration = true // only before the first generation is requested should this be true
             // const is_visible = await this.outputGroup.visible
