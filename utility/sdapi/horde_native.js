@@ -1,5 +1,5 @@
 const general = require('../general')
-
+const psapi = require('../../psapi')
 //horde generation process:
 //*) get the settings
 //*) get send request
@@ -263,6 +263,10 @@ async function processHordeResult() {
                         writeable_entry,
                         image_file_name
                     ) //
+
+                    await psapi.layerToSelection(
+                        g_generation_session.selectionInfo
+                    ) //TODO: create a safe layerToSelection function
                 } catch (e) {
                     console.warn(e)
                 }
