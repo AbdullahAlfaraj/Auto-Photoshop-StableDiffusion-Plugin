@@ -36,7 +36,7 @@ async function refreshModelsHorde() {
         // g_models_horde = g_models_horde.sort( compareModelCounts );
         document.getElementById('mModelsMenuHorde').innerHTML = ''
         let model_item_random = addHordeModelMenuItem('Random', 'Random')
-        model_item_random.selected = true
+        // model_item_random.selected = true
         document
             .getElementById('mModelsMenuHorde')
             .appendChild(model_item_random)
@@ -47,7 +47,12 @@ async function refreshModelsHorde() {
                 model_html_tile,
                 model.name
             )
-
+            if (model.name === 'stable_diffusion') {
+                // TODO: refactor this code outside the for loop
+                // maybe call it in an init function
+                //selection the stable diffusion model by default
+                model_item_element.selected = true
+            }
             document
                 .getElementById('mModelsMenuHorde')
                 .appendChild(model_item_element)
