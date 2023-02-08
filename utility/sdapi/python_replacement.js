@@ -507,4 +507,5 @@ module.exports = {
     getDocumentFolderNativePath,
     convertMetadataToJson,
     openUrlRequest,
+    replacePromptsWithShortcuts,
 }

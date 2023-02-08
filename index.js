@@ -1766,10 +1766,32 @@ async function getSettings() {
             delete payload['script_args']
         }
 
+        if (bUsePromptShortcut) {
+            //replace the prompt with the prompt shortcut equivalent
+            const [new_prompt, new_negative_prompt] =
+                py_re.replacePromptsWithShortcuts(
+                    prompt,
+                    negative_prompt,
+                    prompt_shortcut_ui_dict
+                )
+
+            //used in generation
+            payload['prompt'] = new_prompt
+            payload['negative_prompt'] = new_negative_prompt
+
+            //used to when resote settings from metadata
+            payload['original_prompt'] = prompt
+            payload['original_negative_prompt'] = negative_prompt
+        } else {
+            //use the same prompt as in the prompt textarea
+            payload['prompt'] = prompt
+            payload['negative_prompt'] = negative_prompt
+        }
+
         payload = {
             ...payload,
-            prompt: prompt,
-            negative_prompt: negative_prompt,
+            // prompt: prompt,
+            // negative_prompt: negative_prompt,
             steps: numberOfSteps,
             // n_iter: numberOfImages,
             sampler_index: sampler_name,
