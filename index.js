@@ -554,6 +554,7 @@ let h_denoising_strength = 0.7
 // let g_last_snap_and_fill_layers = []
 
 let g_metadatas = []
+let g_last_seed = '-1'
 let g_can_request_progress = true
 let g_saved_active_layers = []
 let g_saved_active_selection = {}
@@ -1366,10 +1367,10 @@ document.getElementById('btnLastSeed').addEventListener('click', async () => {
         console.log('click on Last seed')
         let seed = '-1'
 
-        console.log('g_metadatas.length: ', g_metadatas.length)
-        if (g_metadatas.length > 0) {
-            seed = g_metadatas[0].Seed
+        if (g_last_seed >= 0) {
+            seed = g_last_seed.toString() //make sure the seed is a string
         }
+
         console.log('seed:', seed)
         document.querySelector('#tiSeed').value = seed
     } catch (e) {
@@ -2005,8 +2006,8 @@ async function generate(settings) {
         //post generation: will execute only if the generate request doesn't get interrupted
         //get the updated metadata from json response
 
-        g_metadatas = updateMetadata(json.metadata)
-
+        // g_metadatas = updateMetadata(json.images_info.auto_metadata)
+        g_last_seed = json.images_info[0]?.auto_metadata?.Seed
         //finished generating, set the button back to generate
 
         // toggleTwoButtons(false,'btnGenerate','btnInterrupt')
