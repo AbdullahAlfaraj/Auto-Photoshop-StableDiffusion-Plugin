@@ -71,6 +71,8 @@ we recommend you use [the one click installer](#one-click-installer). However wa
 
 
 # Instructional Tutorial (outpaint, inpaint, img2img and txt2img):
+we recommend you check the [tutorials](https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/wiki) section to master the tool.
+ 
 [![Click Here to Watch Tutorial](http://i3.ytimg.com/vi/evjSIfYIQq0/hqdefault.jpg)](https://www.youtube.com/watch?v=evjSIfYIQq0&ab_channel=Abdsart "Tutorial - Auto Photoshop Stable Diffusion Plugin")
 
 # How to install:
