@@ -289,8 +289,14 @@ function mapPluginSettingsToHorde(plugin_settings) {
     const ps = plugin_settings // for shortness
     const sampler = webui_to_horde_samplers[ps['sampler_index']]
     const model = getModelHorde()
+    let horde_prompt
+    if (ps['negative_prompt'].length > 0) {
+        horde_prompt = `${ps['prompt']} ### ${ps['negative_prompt']}`
+    } else {
+        horde_prompt = ps['prompt'] //no negative prompt
+    }
     let horde_payload = {
-        prompt: ps['prompt'],
+        prompt: horde_prompt,
         params: {
             sampler_name: sampler,
             toggles: [1, 4],
