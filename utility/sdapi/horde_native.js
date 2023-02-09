@@ -28,6 +28,8 @@ class hordeGenerator {
         this.requestStatus = null
         this.isProcessHordeResultCalled = false
         this.maxWaitTime = 0
+        this.waiting = 0
+        this.isCanceled = false
     }
 
     async getSettings() {
@@ -46,16 +48,14 @@ class hordeGenerator {
     async generateRequest(settings) {
         try {
             g_id = null //reset request_id
-
             this.requestStatus = await requestHorde(settings)
-
             g_id = this.requestStatus.id
-
-            this.startCheckingProgress()
             console.log(
                 'generateRequest this.requestStatus: ',
                 this.requestStatus
             )
+
+            await this.startCheckingProgress()
         } catch (e) {
             g_id = null
             console.warn(e)
@@ -65,6 +65,7 @@ class hordeGenerator {
         //*) get the settings
         this.horde_settings = await this.getSettings()
         //*) send generateRequest() and trigger the progress bar update
+        this.isCanceled = false
         await this.generateRequest(this.horde_settings)
         //*) store the generation result in the currentGenerationResult
 
@@ -141,6 +142,48 @@ class hordeGenerator {
             console.warn(e)
         }
     }
+
+    async interruptRequest() {
+        try {
+            console.log('interruptRquest():')
+
+            const full_url = `https://stablehorde.net/api/v2/generate/status/${g_id}`
+
+            console.log(full_url)
+
+            let response = await fetch(full_url, {
+                method: 'DELETE',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    apikey: '0000000000',
+                    // 'Client-Agent': '4c79ab19-8e6c-4054-83b3-773b7ce71ece',
+                    'Client-Agent': 'unknown:0:unknown',
+                },
+            })
+
+            let result = await response.json()
+            console.log('interruptReqquest result:', result)
+
+            return result
+        } catch (e) {
+            console.warn(e)
+            return
+        }
+    }
+    async interrupt() {
+        try {
+            html_manip.updateProgressBarsHtml(0)
+            this.isCanceled = true
+            g_interval_id = clearInterval(g_interval_id)
+            await this.interruptRequest()
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+    async postGeneration() {
+        toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
+    }
     async processHordeResult() {
         //*) get the result from the horde server
         //*) save them locally to output directory
@@ -198,6 +241,10 @@ class hordeGenerator {
         if (!g_interval_id && g_id) {
             g_interval_id = setInterval(async () => {
                 try {
+                    if (this.isCanceled) {
+                        html_manip.updateProgressBarsHtml(0)
+                        return
+                    }
                     const check_json = await requestHordeCheck(g_id)
 
                     //update the progress bar proceduer
@@ -238,6 +285,7 @@ class hordeGenerator {
                         // !g_b_request_result
                     ) {
                         g_interval_id = clearInterval(g_interval_id)
+
                         const images_info = await this.processHordeResult()
 
                         await this.toSession(images_info)
@@ -247,6 +295,7 @@ class hordeGenerator {
                             g_generation_session.selectionInfo
                         )
                         //update the viewer
+                        await this.postGeneration()
                         await loadViewerImages()
                     }
                 } catch (e) {

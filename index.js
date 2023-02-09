@@ -34,7 +34,7 @@ const storage = require('uxp').storage
 const fs = storage.localFileSystem
 const horde_native = require('./utility/sdapi/horde_native')
 
-let horde_generator = new horde_native.hordeGenerator()
+let g_horde_generator = new horde_native.hordeGenerator()
 
 async function hasSessionSelectionChanged() {
     try {
@@ -1466,7 +1466,15 @@ async function deleteMaskRelatedLayers() {
 
 document.getElementById('btnInterrupt').addEventListener('click', async () => {
     try {
-        json = await sdapi.requestInterrupt()
+        if (script_horde.getUseHorde()) {
+            //interrupt the horde
+
+            await g_horde_generator.interrupt()
+        } else {
+            //interrupt auto1111
+
+            json = await sdapi.requestInterrupt()
+        }
 
         toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
         g_can_request_progress = false
@@ -1926,7 +1934,14 @@ async function easyModeGenerate() {
 
         if (script_horde.getUseHorde()) {
             //use the horde
-            await horde_generator.generate()
+            g_ui.onStartSessionUI()
+
+            toggleTwoButtonsByClass(
+                true,
+                'btnGenerateClass',
+                'btnInterruptClass'
+            )
+            await g_horde_generator.generate()
         } else {
             //use auto1111 webui
             await generate(settings)
