@@ -1953,6 +1953,7 @@ async function generate(settings) {
         g_can_request_progress = true
         //wait 2 seconds till you check for progress
         setTimeout(async function () {
+            // change this to setInterval()
             await progressRecursive()
         }, 2000)
 
@@ -2003,6 +2004,7 @@ async function generate(settings) {
             }
             return null
         }
+
         //post generation: will execute only if the generate request doesn't get interrupted
         //get the updated metadata from json response
 
@@ -2085,166 +2087,60 @@ async function generate(settings) {
         console.error(`btnGenerate.click(): `, e)
     }
 }
-async function preGenerateHorde() {
-    try {
-        //pre generation
-        // toggleGenerateInterruptButton(true)
 
-        const isFirstGeneration = g_generation_session.isFirstGeneration
+// async function processHordeResult() {
+//     if (isFirstGeneration) {
+//         //this is new generation session
 
-        g_generation_session.activate()
+//         g_generation_session.image_paths_to_layers =
+//             await silentImagesToLayersExe(images_info)
 
-        g_ui.onStartSessionUI()
-        // toggleTwoButtons(true,'btnGenerate','btnInterrupt')
-        toggleTwoButtonsByClass(true, 'btnGenerateClass', 'btnInterruptClass')
-        g_can_request_progress = true
-        //wait 2 seconds till you check for progress
-        setTimeout(async function () {
-            await progressRecursive()
-        }, 2000)
+//         g_generation_session.base64OutputImages = {} //delete all previouse images, Note move this to session end ()
+//         for (const image_info of images_info) {
+//             const path = image_info['path']
+//             const base64_image = image_info['base64']
+//             g_generation_session.base64OutputImages[path] = base64_image
+//             const [document_name, image_name] = path.split('/')
+//             await saveFileInSubFolder(base64_image, document_name, image_name) //save the output image
+//             const json_file_name = `${image_name.split('.')[0]}.json`
+//             settings['auto_metadata'] = image_info?.auto_metadata
+//             await saveJsonFileInSubFolder(
+//                 settings,
+//                 document_name,
+//                 json_file_name
+//             ) //save the settings
+//         }
 
-        console.log(settings)
+//         g_number_generation_per_session = 1
+//         g_generation_session.isFirstGeneration = false
+//     } else {
+//         // generation session is active so we will generate more
 
-        g_request_status = requestState['Generate']
-    } catch (e) {}
-}
-async function hordeInterrupt() {
-    //when generate request get interrupted. reset progress bar to 0, discard any meta data and images returned from the proxy server by returning from the function.
-    html_manip.updateProgressBarsHtml(0)
-    //check whether request was "generate" or "generate more"
-    //if it's generate discard the session
-    if (isFirstGeneration) {
-        await g_generation_session.endSession(
-            session.GarbageCollectionState['Discard']
-        ) //end session and delete all images
-        g_ui.onEndSessionUI()
+//         let last_images_paths = await silentImagesToLayersExe(images_info)
 
-        // //delete all mask related layers
-        return true
-    }
-}
-function isHordeResultValid(result) {
-    if (Object.keys(result).length === 0) {
-        return false
-    } else {
-        return true
-    }
-}
+//         for (const image_info of images_info) {
+//             const path = image_info['path']
+//             const base64_image = image_info['base64']
+//             g_generation_session.base64OutputImages[path] = base64_image
+//             const [document_name, image_name] = path.split('/')
+//             await saveFileInSubFolder(base64_image, document_name, image_name)
+//             const json_file_name = `${image_name.split('.')[0]}.json`
+//             settings['auto_metadata'] = image_info?.auto_metadata
+//             await saveJsonFileInSubFolder(
+//                 settings,
+//                 document_name,
+//                 json_file_name
+//             ) //save the settings
+//         }
 
-async function processHordeResult() {
-    if (isFirstGeneration) {
-        //this is new generation session
+//         g_generation_session.image_paths_to_layers = {
+//             ...g_generation_session.image_paths_to_layers,
+//             ...last_images_paths,
+//         }
+//         g_number_generation_per_session++
+//     }
+// }
 
-        g_generation_session.image_paths_to_layers =
-            await silentImagesToLayersExe(images_info)
-
-        g_generation_session.base64OutputImages = {} //delete all previouse images, Note move this to session end ()
-        for (const image_info of images_info) {
-            const path = image_info['path']
-            const base64_image = image_info['base64']
-            g_generation_session.base64OutputImages[path] = base64_image
-            const [document_name, image_name] = path.split('/')
-            await saveFileInSubFolder(base64_image, document_name, image_name) //save the output image
-            const json_file_name = `${image_name.split('.')[0]}.json`
-            settings['auto_metadata'] = image_info?.auto_metadata
-            await saveJsonFileInSubFolder(
-                settings,
-                document_name,
-                json_file_name
-            ) //save the settings
-        }
-
-        g_number_generation_per_session = 1
-        g_generation_session.isFirstGeneration = false
-    } else {
-        // generation session is active so we will generate more
-
-        let last_images_paths = await silentImagesToLayersExe(images_info)
-
-        for (const image_info of images_info) {
-            const path = image_info['path']
-            const base64_image = image_info['base64']
-            g_generation_session.base64OutputImages[path] = base64_image
-            const [document_name, image_name] = path.split('/')
-            await saveFileInSubFolder(base64_image, document_name, image_name)
-            const json_file_name = `${image_name.split('.')[0]}.json`
-            settings['auto_metadata'] = image_info?.auto_metadata
-            await saveJsonFileInSubFolder(
-                settings,
-                document_name,
-                json_file_name
-            ) //save the settings
-        }
-
-        g_generation_session.image_paths_to_layers = {
-            ...g_generation_session.image_paths_to_layers,
-            ...last_images_paths,
-        }
-        g_number_generation_per_session++
-    }
-}
-async function generateHorde(settings) {
-    try {
-        //*) take
-        await preGenerateHorde()
-        let json = {}
-        if (g_sd_mode == 'txt2img') {
-            // json = await generateTxt2Img(settings)
-            horde_native.requestHordeMain() //TODO: pass settings to this function
-        } else if (g_sd_mode == 'img2img' || g_sd_mode == 'inpaint') {
-            // json = await sdapi.requestImg2Img(settings)
-        }
-        if (g_sd_mode == 'outpaint') {
-            // json = await sdapi.requestImg2Img(settings)
-        }
-
-        if (g_request_status === requestState['Interrupt']) {
-            if (await hordeInterrupt()) {
-                //cancel if the horde request got interrupted
-                return null
-            }
-        }
-
-        // check if json is empty {}, {} means the proxy server didn't return a valid data
-
-        if (!isHordeResultValid(json)) {
-            if (isFirstGeneration) {
-                await g_generation_session.endSession(
-                    session.GarbageCollectionState['Discard']
-                ) //end session and delete all images
-                g_ui.onEndSessionUI()
-
-                // //delete all mask related layers
-            }
-            return null
-        }
-
-        //post generation: will execute only if the generate request doesn't get interrupted
-        //get the updated metadata from json response
-
-        // g_metadatas = updateMetadata(json.metadata)
-
-        //finished generating, set the button back to generate
-
-        // toggleTwoButtons(false,'btnGenerate','btnInterrupt')
-        toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
-        g_can_request_progress = false
-
-        const images_info = json?.images_info
-        // gImage_paths = images_info.images_paths
-        //open the generated images from disk and load them onto the canvas
-        const b_use_silent_import =
-            document.getElementById('chUseSilentImport').checked
-
-        await processHordeResult()
-
-        await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
-        //update the viewer
-        await loadViewerImages()
-    } catch (e) {
-        console.error(`geneerateHorde(): `, e)
-    }
-}
 Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
     (btn) => {
         btn.addEventListener('click', async () => {
