@@ -1,6 +1,14 @@
 const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
-const { cleanLayers, getLayerIndex, selectLayers } = require('../psapi')
+const {
+    cleanLayers,
+    getLayerIndex,
+    selectLayers,
+    unSelectMarqueeCommand,
+    unSelectMarqueeExe,
+    getSelectionInfoExe,
+    reSelectMarqueeExe,
+} = require('../psapi')
 
 async function createNewLayerExe(layerName) {
     await executeAsModal(async () => {
@@ -102,9 +110,52 @@ async function collapseFolderExe(layers, expand = false, recursive = false) {
     }
 }
 
+class Layer {
+    static async getLayerInfo(layer) {
+        const bounds = layer.bounds
+        const height = bounds.bottom - bounds.top
+        const width = bounds.right - bounds.left
+        const layer_info = {
+            height: height,
+            width: width,
+            left: bounds.left,
+            right: bounds.right,
+            top: bounds.top,
+            bottom: bounds.bottom,
+        }
+        console.log('layer_info:', layer_info)
+        return layer_info
+    }
+    static async moveTo(layer, to_x, to_y) {
+        try {
+            await executeAsModal(async () => {
+                try {
+                    //translate doesn't work with selection active. so store the selection and then unselect. move the layer, then reselect the selection info
+                    const selection_info = await getSelectionInfoExe()
+                    await unSelectMarqueeExe()
+
+                    const layer_info = await this.getLayerInfo(layer)
+                    const top_dist = layer_info.top - to_y
+                    const left_dist = layer_info.left - to_x
+                    console.log('-left_dist, -top_dist', -left_dist, -top_dist)
+                    await layer.translate(-left_dist, -top_dist)
+                    // await reSelectMarqueeExe(selection_info)
+                } catch (e) {
+                    console.warn(e)
+                }
+            })
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+    static resizeTo() {}
+    static fitSelection() {}
+    static {}
+}
 module.exports = {
     createNewLayerExe,
     deleteLayers,
     getIndexExe,
     collapseFolderExe,
+    Layer,
 }
