@@ -95,7 +95,7 @@ class GenerationSession {
 
             this.isFirstGeneration = true // only before the first generation is requested should this be true
             // const is_visible = await this.outputGroup.visible
-            await util_layer.collapseFolderExe([this.outputGroup], false) // close the folder group
+            await layer_util.collapseFolderExe([this.outputGroup], false) // close the folder group
             // this.outputGroup.visible = is_visible
 
             if (
@@ -105,7 +105,7 @@ class GenerationSession {
                 //create "Mask -- Paint White to Mask -- temporary" layer if current session was inpiant and the selected session is inpaint
                 // the current inpaint session ended on inpaint
                 g_b_mask_layer_exist = false
-                await util_layer.deleteLayers([g_inpaint_mask_layer])
+                await layer_util.deleteLayers([g_inpaint_mask_layer])
                 await createTempInpaintMaskLayer()
             }
         } catch (e) {
@@ -118,7 +118,7 @@ class GenerationSession {
 
             if (this.prevOutputGroup) {
                 // const is_visible = await this.prevOutputGroup.visible
-                await util_layer.collapseFolderExe(
+                await layer_util.collapseFolderExe(
                     [this.prevOutputGroup],
                     false
                 ) // close the folder group

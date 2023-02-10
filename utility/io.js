@@ -1,5 +1,6 @@
 const batchPlay = require('photoshop').action.batchPlay
 const psapi = require('../psapi')
+const layer_util = require('../utility/layer')
 async function snapShotLayer() {
     //snapshot layer with no mask
     let command = [
@@ -110,32 +111,44 @@ async function snapShotLayerExe() {
 }
 
 class IO {
-    constructor() {
-        this.io_helper = new IOHelper()
+    // constructor() {}
+    static async exportWebp(layer) {
+        await executeAsModal(async () => {
+            //we assume we have a valid layer rectangular image/layer, no transparency
+            const doc_entry = await getCurrentDocFolder() //get the main document folder before we switch doc
+            const layer_info = await layer_util.Layer.getLayerInfo(layer)
+            //*) create a new document
+            const new_doc = await IOHelper.createDocumentExe(
+                layer_info.width,
+                layer_info.height
+            )
+            const new_layer = await layer_util.Layer.duplicateToDoc(
+                layer,
+                new_doc
+            )
+            //*) resize the layer to the same dimension as the document
+
+            await layer_util.Layer.moveTo(new_layer, 0, 0) //move to the top left corner
+            //
+            await IOHelper.saveAsWebpExe(doc_entry) //save current document as .webp file, save it into doc_entry folder
+        })
     }
-    async exportWebp() {
-        //*) snapshot the current visible layers of the document
-        //*)
-        //create a new document
-        //
-        await this.io_helper.saveAsWebpExe() //save current document as .webp file
-    }
-    async exportPng() {}
-    async exportDoc() {}
-    async exportLayer() {}
+    static async exportPng() {}
+    static async exportDoc() {}
+    static async exportLayer() {}
 }
 
 class IOHelper {
-    constructor() {}
-
-    async saveAsWebp() {
+    static async saveAsWebp(doc_entry) {
+        //doc_entry must be in dataFolder or tempFolder
+        //save document as webp
         const document_id = app.activeDocument.id
 
-        doc_entery = await getCurrentDocFolder()
-        file_entery = await doc_entery.createFile('temp.webp', {
+        // doc_entry = await getCurrentDocFolder()
+        const file_entry = await doc_entry.createFile('temp.webp', {
             overwrite: true,
         })
-        const token = await fs.createSessionToken(file_entery)
+        const token = await fs.createSessionToken(file_entry)
         const result = await batchPlay(
             [
                 {
@@ -175,10 +188,27 @@ class IOHelper {
         return result
     }
 
-    async saveAsWebpExe() {
+    static async saveAsWebpExe(doc_entry) {
         await executeAsModal(async () => {
-            await saveAsWebp()
+            await this.saveAsWebp(doc_entry)
         })
+    }
+    static async createDocumentExe(width, height) {
+        let new_doc
+        try {
+            await executeAsModal(async () => {
+                new_doc = await app.documents.add({
+                    width: width,
+                    height: height,
+                    resolution: await app.activeDocument.resolution,
+                    mode: 'RGBColorMode',
+                    fill: 'transparent',
+                })
+            })
+        } catch (e) {
+            console.warn(e)
+        }
+        return new_doc
     }
 }
 

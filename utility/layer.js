@@ -139,6 +139,7 @@ class Layer {
                     const left_dist = layer_info.left - to_x
                     console.log('-left_dist, -top_dist', -left_dist, -top_dist)
                     await layer.translate(-left_dist, -top_dist)
+
                     // await reSelectMarqueeExe(selection_info)
                 } catch (e) {
                     console.warn(e)
@@ -150,6 +151,11 @@ class Layer {
     }
     static resizeTo() {}
     static fitSelection() {}
+    static async duplicateToDoc(layer, to_doc) {
+        const dupLayer = await layer.duplicate(to_doc)
+        // await selectLayers([dupLayer])
+        return dupLayer
+    }
     static {}
 }
 module.exports = {
