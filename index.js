@@ -22,7 +22,7 @@ const html_manip = require('./utility/html_manip')
 const export_png = require('./export_png')
 const viewer = require('./viewer')
 const selection = require('./selection')
-const util_layer = require('./utility/layer')
+const layer_util = require('./utility/layer')
 const sd_options = require('./utility/sdapi/options')
 const sd_config = require('./utility/sdapi/config')
 const session = require('./utility/session')
@@ -646,7 +646,7 @@ async function createTempInpaintMaskLayer() {
         //make new layer "Mask -- Paint White to Mask -- temporary"
 
         const name = 'Mask -- Paint White to Mask -- temporary'
-        g_inpaint_mask_layer = await util_layer.createNewLayerExe(name)
+        g_inpaint_mask_layer = await layer_util.createNewLayerExe(name)
 
         g_b_mask_layer_exist = true
         const index = app.activeDocument.historyStates.length - 1
@@ -668,7 +668,7 @@ async function deleteTempInpaintMaskLayer() {
     )
     console.log(historyBrushTools)
     if (historyBrushTools.length === 0 && g_b_mask_layer_exist) {
-        await util_layer.deleteLayers([g_inpaint_mask_layer])
+        await layer_util.deleteLayers([g_inpaint_mask_layer])
 
         g_b_mask_layer_exist = false
     }
