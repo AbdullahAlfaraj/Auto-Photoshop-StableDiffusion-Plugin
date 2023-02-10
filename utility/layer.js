@@ -126,6 +126,18 @@ class Layer {
         console.log('layer_info:', layer_info)
         return layer_info
     }
+    static async scaleTo(layer, new_width, new_height) {
+        console.log('scaleLayer got called')
+        // const activeLayer = getActiveLayer()
+        // const activeLayer = await app.activeDocument.activeLayers[0]
+
+        const layer_info = await this.getLayerInfo(layer)
+        const scale_x_ratio = (new_width / layer_info.width) * 100
+        const scale_y_ratio = (new_height / layer_info.height) * 100
+        console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
+        await layer.scale(scale_x_ratio, scale_y_ratio)
+    }
+
     static async moveTo(layer, to_x, to_y) {
         try {
             await executeAsModal(async () => {
