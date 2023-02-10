@@ -80,6 +80,25 @@ class hordeGenerator {
         }
     }
     preGenerate() {}
+    // async layerToBase64WebpToFile
+    //convert layer to .webp file
+    //read the .webp file as buffer data base64 .webp
+    async layerToBase64Webp(layer, document_name, image_name) {
+        const width = html_manip.getWidth()
+        const height = html_manip.getHeight()
+        const image_buffer = await psapi.newExportPng(
+            layer,
+            image_name,
+            width,
+            height
+        )
+
+        const base64_image = _arrayBufferToBase64(image_buffer) //convert the buffer to base64
+        //send the base64 to the server to save the file in the desired directory
+        // await sdapi.requestSavePng(base64_image, image_name)
+        await saveFileInSubFolder(base64_image, document_name, image_name)
+        return base64_image
+    }
 
     async layerToBase64ToFile(layer, document_name, image_name) {
         const width = html_manip.getWidth()
@@ -213,7 +232,7 @@ class hordeGenerator {
                         url,
                         writeable_entry,
                         image_file_name
-                    ) //
+                    ) //download the image from url, it works even with .webp format
                     const image_png_file_name =
                         general.convertImageNameToPng(image_file_name)
 
@@ -344,6 +363,17 @@ function mapPluginSettingsToHorde(plugin_settings) {
     } else {
         horde_prompt = ps['prompt'] //no negative prompt
     }
+
+    if (ps['mode'] === 'img2img') {
+        payload['source_image'] = ps['init_images']
+        // payload['source_image'] = base64.b64encode(buffer.getvalue()).decode() //does it need to be webp?
+        payload['source_processing'] = 'img2img'
+    } else if (ps['mode'] === 'inpaint') {
+        payload['source_processing'] = 'inpainting'
+
+        // payload["source_mask"] = base64.b64encode(buffer.getvalue()).decode()//does it need to be webp?
+    }
+
     let horde_payload = {
         prompt: horde_prompt,
         params: {
