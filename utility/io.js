@@ -112,15 +112,15 @@ async function snapShotLayerExe() {
 
 class IO {
     // constructor() {}
-    static async exportWebp(layer) {
+    static async exportWebp(layer, export_width, export_height) {
         await executeAsModal(async () => {
             //we assume we have a valid layer rectangular image/layer, no transparency
             const doc_entry = await getCurrentDocFolder() //get the main document folder before we switch doc
             const layer_info = await layer_util.Layer.getLayerInfo(layer)
             //*) create a new document
             const new_doc = await IOHelper.createDocumentExe(
-                layer_info.width,
-                layer_info.height
+                export_width,
+                export_height
             )
             const new_layer = await layer_util.Layer.duplicateToDoc(
                 layer,
@@ -128,9 +128,15 @@ class IO {
             )
             //*) resize the layer to the same dimension as the document
 
+            await layer_util.Layer.scaleTo(
+                new_layer,
+                new_doc.width,
+                new_doc.height
+            ) //
             await layer_util.Layer.moveTo(new_layer, 0, 0) //move to the top left corner
             //
             await IOHelper.saveAsWebpExe(doc_entry) //save current document as .webp file, save it into doc_entry folder
+            await new_doc.closeWithoutSaving()
         })
     }
     static async exportPng() {}
@@ -215,6 +221,7 @@ class IOHelper {
         const file_entry = await doc_entry.createFile('temp.webp', {
             overwrite: true,
         })
+
         const token = await fs.createSessionToken(file_entry)
         const result = await batchPlay(
             [
@@ -252,13 +259,16 @@ class IOHelper {
             }
         )
 
-        return result
+        return [result, file_entry]
     }
 
     static async saveAsWebpExe(doc_entry) {
+        let result
+        let file_entry
         await executeAsModal(async () => {
-            await this.saveAsWebp(doc_entry)
+            ;[result, file_entry] = await this.saveAsWebp(doc_entry)
         })
+        return [result, file_entry]
     }
     static async createDocumentExe(width, height) {
         let new_doc
