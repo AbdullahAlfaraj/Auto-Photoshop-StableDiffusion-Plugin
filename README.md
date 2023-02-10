@@ -64,10 +64,15 @@ for advance/professional users who want to use the smart masking mode, we have a
 # Demo:
 [![Click Here to Watch Demo](https://i3.ytimg.com/vi/VL_gbQai79E/maxresdefault.jpg)](https://youtu.be/VL_gbQai79E "Stable diffusion AI Photoshop Plugin Free and Open Source")
 # How to install Video Tutorial:
-we recommend you use [the one click installer](#one-click-installer) watch the video to know how to install Automatic1111 Stable Diffusion
-[![Click Here to Watch How To Install Tutorial](https://user-images.githubusercontent.com/7842232/215471551-2d39c6c2-a765-4eca-bc54-7b386aa25662.png)](https://youtu.be/BNzdhEpFHrg "How To Install Auto Photoshop Stable Diffusion Plugin")
+we recommend you use [the one click installer](#one-click-installer). However watch the video on left if you don't have Automatic1111 Stable Diffusion installed, and the video on the right by Vladimir Chopine for clear instruction on how to install the plugin using UXP. 
+
+<a href="https://www.youtube.com/watch?v=evjSIfYIQq0&ab_channel=Abdsart" title="How To Install Auto Photoshop Stable Diffusion Plugin by Abdullah Alfaraj" rel="Click Here to Watch How To Install Tutorial by Abdullah Alfaraj"><img src="https://user-images.githubusercontent.com/7842232/217941315-8d4a3b25-1a83-4dac-b921-79b3f82e0536.png" style="width:500px"></a>
+<a href="https://www.youtube.com/watch?v=CJuTZw39Reg&t=145s&ab_channel=VladimirChopine%5BGeekatPlay%5D" title="How To Install Auto Photoshop Stable Diffusion Plugin by Vladimir Chopine" rel="Click Here to Watch How To Install Tutorial by Vladimir Chopine"><img src="https://i3.ytimg.com/vi/CJuTZw39Reg/maxresdefault.jpg" style="width:500px"></a>
+
 
 # Instructional Tutorial (outpaint, inpaint, img2img and txt2img):
+we recommend you check the [tutorials](https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/wiki) section to master the tool.
+ 
 [![Click Here to Watch Tutorial](http://i3.ytimg.com/vi/evjSIfYIQq0/hqdefault.jpg)](https://www.youtube.com/watch?v=evjSIfYIQq0&ab_channel=Abdsart "Tutorial - Auto Photoshop Stable Diffusion Plugin")
 
 # How to install:
@@ -77,7 +82,8 @@ we recommend you use [the one click installer](#one-click-installer)
 ```
 git clone https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin.git
 ```
-2) run "start_server.bat" inside "Auto-Photoshop-StableDiffusion-Plugin" directory
+2) run "start_se![Uploading How to Install Tutorial 1.png…]()
+rver.bat" inside "Auto-Photoshop-StableDiffusion-Plugin" directory
 3) go to where you have [automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) installed. 
 Edit the "webui-user.bat" in automatic1111 
  change this line 
