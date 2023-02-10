@@ -136,6 +136,25 @@ class IO {
     static async exportPng() {}
     static async exportDoc() {}
     static async exportLayer() {}
+    static async base64WebpFromFile(file_entry) {
+        //file_entry most be .webp
+        let webp_base64
+        try {
+            await executeAsModal(async () => {
+                const arrayBuffer = await file_entry.read({
+                    format: formats.binary,
+                })
+                console.log('webp arrayBuffer:', arrayBuffer)
+
+                const base64_image = _arrayBufferToBase64(arrayBuffer) //convert the buffer to base64
+                console.log('base64_image:', base64_image)
+                webp_base64 = base64_image
+            })
+            return [webp_base64, webp_arrayBuffer]
+        } catch (e) {
+            console.warn(e)
+        }
+    }
 }
 
 class IOHelper {
