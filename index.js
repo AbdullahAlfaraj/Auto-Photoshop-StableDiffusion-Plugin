@@ -33,7 +33,7 @@ const formats = require('uxp').storage.formats
 const storage = require('uxp').storage
 const fs = storage.localFileSystem
 const horde_native = require('./utility/sdapi/horde_native')
-
+const io = require('./utility/io')
 let g_horde_generator = new horde_native.hordeGenerator()
 
 async function hasSessionSelectionChanged() {
@@ -3767,18 +3767,6 @@ document.getElementById('btnUpdate').addEventListener('click', async () => {
     await prmoptForUpdate()
 })
 
-function a() {
-    var webp = document.getElementById('webp_container')
-    var canvas = document.createElement('canvas')
-    document.body.appendChild(canvas)
-    canvas.width = webp.width
-    canvas.height = webp.height
-    var ctx = canvas.getContext('2d')
-    ctx.drawImage(webp, 0, 0)
-    webp.parentNode.removeChild(webp)
-    return
-}
-
 function urlToImg(img_url) {
     //TODO: delete this code
     var xhr = new XMLHttpRequest()
@@ -3804,19 +3792,3 @@ function urlToImg(img_url) {
 
     xhr.send()
 }
-
-function webpToJpg(id) {
-    var image = new Image()
-
-    image.onload = function () {
-        var canvas = document.createElement('canvas')
-        canvas.width = this.naturalWidth
-        canvas.height = this.naturalHeight
-        canvas.getContext('2d').drawImage(this, 0, 0)
-        document.getElementById(id).src = canvas.toDataURL('image/jpeg')
-    }
-
-    image.src = document.getElementById(id).src
-}
-
-webpToJpg('webp_container')
