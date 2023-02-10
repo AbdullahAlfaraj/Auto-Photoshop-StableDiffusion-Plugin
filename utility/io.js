@@ -152,6 +152,38 @@ class IO {
         const new_doc = await app.open(file_entry)
         return new_doc
     }
+    static async base64PngToBase64Webp(base64_png) {
+        let base64_webp
+        try {
+            await executeAsModal(async () => {
+                try {
+                    const main_doc_entry = await getCurrentDocFolder()
+                    //save the base64_png to .png file
+                    const png_file = await this.base64PngToPngFile(base64_png)
+                    //load the .png file as a layer in new document
+                    const new_doc = await this.openImageFileAsDocument(png_file)
+                    //save document as .webp
+                    const [_, webp_file] = await IOHelper.saveAsWebpExe(
+                        main_doc_entry
+                    ) //save current document as .webp file, save it into doc_entry folder
+                    await new_doc.closeWithoutSaving()
+                    //load/read the .webp file as an arraybuffer
+                    const ArrayBufferWebp = await webp_file.read({
+                        format: formats.binary,
+                    })
+
+                    //convert the arraybuffer to base64Webp string
+
+                    base64_webp = _arrayBufferToBase64(ArrayBufferWebp)
+                } catch (e) {
+                    console.warn(e)
+                }
+            })
+            return base64_webp
+        } catch (e) {
+            console.warn(e)
+        }
+    }
     static async base64WebpFromFile(file_entry) {
         //file_entry most be .webp
         let webp_base64
