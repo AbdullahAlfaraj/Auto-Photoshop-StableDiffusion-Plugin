@@ -136,6 +136,22 @@ class IO {
     static async exportPng() {}
     static async exportDoc() {}
     static async exportLayer() {}
+
+    static async base64PngToPngFile(base64_png) {
+        const arrayBuffer = _base64ToArrayBuffer(base64_png)
+
+        const img_name = 'temp_base64Png.png'
+
+        const folder = await storage.localFileSystem.getTemporaryFolder()
+        const file = await folder.createFile(img_name, { overwrite: true })
+
+        await file.write(arrayBuffer, { format: storage.formats.binary })
+        return file
+    }
+    static async openImageFileAsDocument(file_entry) {
+        const new_doc = await app.open(file_entry)
+        return new_doc
+    }
     static async base64WebpFromFile(file_entry) {
         //file_entry most be .webp
         let webp_base64
