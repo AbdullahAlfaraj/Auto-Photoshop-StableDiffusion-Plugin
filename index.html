@@ -137,13 +137,17 @@
             background-color: #777;
             color: white;
             cursor: pointer;
-
             border: none;
-
             text-align: left;
             outline: none;
             font-size: 15px;
             margin: 0;
+        }
+        #btnRefreshModels:hover {
+            background-color: #333;
+        }
+        .btnSquare:hover {
+            background-color: #333;
         }
         #btnUpdate {
             background-color: #3555ac;
@@ -418,8 +422,8 @@
 
         .acceptAllImgBtn {
             font-family: Arial, Verdana;
-            background-image: url(./icon/accept_all.png);
-            background-color: transparent;
+            background-image: url(./icon/accept_all.svg);
+            background-color: #777;
             background-size: 30px;
             width: 30px;
             height: 30px;
@@ -428,8 +432,8 @@
 
         .acceptSelectedImgBtn {
             font-family: Arial, Verdana;
-            background-image: url(./icon/accept_selected.png);
-            background-color: transparent;
+            background-image: url(./icon/accept_selected.svg);
+            background-color: #777;
             background-size: 30px;
             width: 30px;
             height: 30px;
@@ -438,8 +442,8 @@
 
         .discardAllImgBtn {
             font-family: Arial, Verdana;
-            background-image: url(./icon/discard_all_border.png);
-            background-color: transparent;
+            background-image: url(./icon/discard_all.svg);
+            background-color: #777;
             background-size: 30px;
             width: 30px;
             height: 30px;
@@ -448,9 +452,9 @@
 
         .discardSelectedImgBtn {
             font-family: Arial, Verdana;
-            background-image: url(./icon/discard_selected_border.png);
-            background-color: transparent;
-            background-size: 24px;
+            background-image: url(./icon/discard_selected.svg);
+            background-color: #777;
+            background-size: 30px;
             width: 30px;
             height: 30px;
             background-repeat: no-repeat;
@@ -458,8 +462,8 @@
 
         .resetButton {
             font-family: Arial, Verdana;
-            background-image: url(./icon/reset_settings.png);
-            background-color: transparent;
+            background-image: url(./icon/reset_settings2.png);
+            background-color: #777;
             background-size: 30px;
             width: 30px;
             height: 30px;
@@ -468,8 +472,8 @@
 
         .snapshotButton {
             font-family: Arial, Verdana;
-            background-image: url(./icon/camera_icon.png);
-            background-color: transparent;
+            background-image: url(./icon/camera_icon.svg);
+            background-color: #777;
             background-size: 30px;
             width: 30px;
             height: 30px;
@@ -526,27 +530,16 @@
                 </div>
                 <div></div>
                 <div>
-                    <button class="btnSquare" id="btnSetMaskViewer">
-                        Set Mask
-                    </button>
-                    <button class="btnSquare" id="btnSetInitImageViewer">
-                        Set Init Image
-                    </button>
-                    <button class="btnSquare btnGenerateClass" id="btnGenerate">
-                        Generate txt2img
-                    </button>
+                    <button class="btnSquare" id="btnSetMaskViewer"> Set Mask </button>
+                    <button class="btnSquare" id="btnSetInitImageViewer"> Set Init Image </button>
+                    <button class="btnSquare btnGenerateClass" id="btnGenerate"> Generate txt2img </button>
                     <button
                         class="btnSquare btnInterruptClass"
                         id="btnInterruptViewer"
                         style="display: none"
-                    >
-                        Interrupt
-                    </button>
-                    <button class="btnSquare" id="btnSelectionArea">
-                        Selection Area
-                    </button>
-
-                    <div style="display: flex; justify-content: space-between">
+                    > Interrupt </button>
+                    <button class="btnSquare" id="btnSelectionArea"> Selection Area </button>
+                    <div style="display: flex; justify-content: flex-start; padding-top: 3px;">
                         <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
             <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button>
             <button class="btnSquare acceptSelectedClass acceptSelectedImgBtn"  style="display:none;">Accept Selected</button>
@@ -554,22 +547,22 @@
                         <button
                             title="Keep all generated images on the canvas"
                             class="btnSquare acceptClass acceptAllImgBtn"
-                            style="display: none"
+                            style="display: none; margin-right: 3px;"
                         ></button>
                         <button
                             title="Delete all generated images from the canvas"
                             class="btnSquare discardClass discardAllImgBtn"
-                            style="display: none"
+                            style="display: none; margin-right: 3px;"
                         ></button>
                         <button
                             title="Keep only the highlighted images"
                             class="btnSquare acceptSelectedClass acceptSelectedImgBtn"
-                            style="display: none"
+                            style="display: none; margin-right: 3px;"
                         ></button>
                         <button
                             title="Delete only the highlighted images"
                             class="btnSquare discardSelectedClass discardSelectedImgBtn"
-                            style="display: none"
+                            style="display: none; margin-right: 3px;"
                         ></button>
                     </div>
 
@@ -804,7 +797,7 @@
                 id="sp-stable-diffusion-ui-tab-page"
             >
                 <div id="menu-bar-container">
-                    <sp-picker size="m" label="Selection type">
+                    <sp-picker size="m" label="Selection type" style="margin-right: 3px;">
                         <sp-menu id="mModelsMenu" slot="options">
                             <!-- <sp-menu-item> item </sp-menu-item> -->
                         </sp-menu>
@@ -840,6 +833,7 @@
                         <button
                             class="btnSquare"
                             id="btnLayerToSelection"
+                            style="margin-right: 3px;"
                             title="Move and reSize the highlighted layer to fit into the Selection Area "
                         >
                             L2S
@@ -863,33 +857,30 @@
                     <div
                         style="
                             display: inline-flex;
-                            justify-content: space-between;
+                            justify-content: flex-start;
                             width: 133px;
                         "
                     >
                         <button
                             class="btnSquare acceptClass acceptAllImgBtn"
-                            style="display: none"
+                            style="display: none; margin-right: 3px"
                         ></button>
                         <button
                             class="btnSquare discardClass discardAllImgBtn"
-                            style="display: none"
+                            style="display: none; margin-right: 3px"
                         ></button>
                         <!-- <button class="btnSquare customClass"  style="display:none;">Accept Selected</button> -->
                         <button
                             class="btnSquare snapshotButton"
                             id="btnSnapshot"
+                            style="margin-right: 3px;"
                             title="create a snapshot of what you see on the canvas and place on a new layer"
-                        >
-                            Snapshot
-                        </button>
+                        ></button>
                         <button
                             class="btnSquare resetButton"
                             id="btnResetSettings"
                             title="reset the ui settings to their default values"
-                        >
-                            Reset Settings
-                        </button>
+                        ></button>
 
                         <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
                     </div>

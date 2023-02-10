@@ -107,4 +107,14 @@ async function unSelect() {
     return result
 }
 
+/**
+ * Convert 1d index to 2d array
+ * @param {number} index sequential index
+ * @param {number} width width of 2d array
+ * @returns {number[]} [x,y]
+ */
+function indexToXY(index, width) {
+    return [index % width, Math.floor(index / width)]
+}
+
 module.exports = {}
