@@ -2460,18 +2460,18 @@ function _arrayBufferToBase64(buffer) {
     return window.btoa(binary)
 }
 
-async function getDocFolder(doc_id) {
+async function getDocFolder(doc_uuid) {
     try {
         // const uuid = await getUniqueDocumentId()
         const data_folder = await storage.localFileSystem.getDataFolder()
 
         let doc_folder
         try {
-            doc_folder = await data_folder.getEntry(doc_id)
+            doc_folder = await data_folder.getEntry(doc_uuid)
         } catch (e) {
             console.warn(e)
             //create document folder
-            doc_folder = await data_folder.createFolder(doc_id)
+            doc_folder = await data_folder.createFolder(doc_uuid)
         }
 
         return doc_folder
@@ -2479,6 +2479,7 @@ async function getDocFolder(doc_id) {
         console.warn(e)
     }
 }
+
 async function getCurrentDocFolder() {
     //move to a global utililty lib
     const uuid = await getUniqueDocumentId()
