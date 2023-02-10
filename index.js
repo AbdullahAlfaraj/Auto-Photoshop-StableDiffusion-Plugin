@@ -2943,7 +2943,7 @@ async function stackLayers() {
     // execute as modal is required for functions that change the state of Photoshop or documents
     // think of it as a function that 'wraps' yours and tells Photoshop to go into a modal state and not allow anything to interrupt it from doing whatever is contained in the executeAsModal
     // we also call it with the await keyword to tell JS that we want to wait for it to complete before moving on to later code (in this case there isn't any though)
-    await require('photoshop').core.executeAsModal(() => {
+    await require('photoshop').core.executeAsModal(async () => {
         // increment counter
         docCounter++
 
@@ -2962,7 +2962,7 @@ async function stackLayers() {
             doc.layers[0].duplicate(workingDoc)
 
             // close doc
-            doc.closeWithoutSaving()
+            await doc.closeWithoutSaving()
         }
     })
 }
