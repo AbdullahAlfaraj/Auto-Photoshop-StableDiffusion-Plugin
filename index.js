@@ -1712,6 +1712,19 @@ async function getSettings() {
             payload['inpainting_fill'] = html_manip.getMaskContent()
             payload['mask_expansion'] = mask_expansion
             payload['mask'] = g_generation_session.activeBase64MaskImage
+
+            if (use_sharp_mask === false && payload['mask']) {
+                //only if mask is available and sharp_mask is off
+                // use blurry and expanded mask
+                const iterations = payload['mask_expansion']
+                const mask = await py_re.maskExpansionRequest(
+                    payload['mask'],
+                    iterations
+                )
+                if (mask) {
+                    payload['mask'] = mask
+                }
+            }
         } else if (mode == 'img2img') {
             var g_use_mask_image = false
             delete payload['inpaint_full_res'] //  inpaint full res is not available in img2img mode
