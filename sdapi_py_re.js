@@ -561,6 +561,20 @@ async function requestHordeStatus(id) {
     }
 }
 
+async function requestExtraSingleImage(payload) {
+    console.log('requestExtraSingleImage(): about to send a fetch request')
+    try {
+        let json = await py_re.extraSingleImageRequest(g_sd_url, payload)
+        console.log('requestExtraSingleImage json:')
+        console.dir(json)
+
+        return json
+    } catch (e) {
+        console.warn(e)
+        return {}
+    }
+}
+
 module.exports = {
     requestTxt2Img,
     requestImg2Img,
@@ -583,4 +597,5 @@ module.exports = {
     requestHorde,
     requestHordeCheck,
     requestHordeStatus,
+    requestExtraSingleImage,
 }

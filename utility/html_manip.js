@@ -151,11 +151,11 @@ function setHiResFixs(isChecked) {
     document.getElementById('chHiResFixs').checked = isChecked
 }
 
-function sliderAddEventListener(slider_id, label_id, multiplier) {
+function sliderAddEventListener(slider_id, label_id, multiplier, fractionDigits = 2) {
     document.getElementById(slider_id).addEventListener('input', (evt) => {
         const sd_value = evt.target.value * multiplier // convert slider value to SD ready value
         document.getElementById(label_id).textContent =
-            Number(sd_value).toFixed(2)
+            Number(sd_value).toFixed(fractionDigits)
     })
 }
 
@@ -351,6 +351,55 @@ function setProxyServerStatus(newStatusClass, oldStatusClass) {
 }
 ////// End Servers Status //////////
 
+////// Start Extras //////////
+
+sliderAddEventListener('slUpscaleSize', 'lUpscaleSize', 0.1, 0)
+
+function getUpscaleSize() {
+    slider_width = document.getElementById('slUpscaleSize').value
+    const size = slider_width / 10
+    return size
+}
+
+sliderAddEventListener('slUpscaler2Visibility', 'lUpscaler2Visibility', 0.1, 1)
+
+
+function getUpscaler2Visibility() {
+    slider_width = document.getElementById('slUpscaler2Visibility').value
+    const size = slider_width / 10
+    return size
+}
+
+sliderAddEventListener('slGFPGANVisibility', 'lGFPGANVisibility', 0.1, 1)
+
+
+function getGFPGANVisibility() {
+    slider_width = document.getElementById('slGFPGANVisibility').value
+    const size = slider_width / 10
+    return size
+}
+
+sliderAddEventListener('slCodeFormerVisibility', 'lCodeFormerVisibility', 0.1, 1)
+
+
+function getCodeFormerVisibility() {
+    slider_width = document.getElementById('slCodeFormerVisibility').value
+    const size = slider_width / 10
+    return size
+}
+
+sliderAddEventListener('slCodeFormerWeight', 'lCodeFormerWeight', 0.1, 1)
+
+
+function getCodeFormerWeight() {
+    slider_width = document.getElementById('slCodeFormerWeight').value
+    const size = slider_width / 10
+    return size
+}
+
+
+////// End Extras //////////
+
 ////// Start Reset Settings Button //////////
 
 const defaultSettings = {
@@ -377,12 +426,31 @@ const defaultSettings = {
     mask_content: null,
 }
 
-document.getElementById('btnResetSettings').addEventListener('click', () => {
-    autoFillDefaultSettings(defaultSettings)
-})
-document.getElementById('btnSnapshot').addEventListener('click', async () => {
-    await psapi.snapshot_layerExe()
-})
+const snapshot_btns = Array.from(
+    document.getElementsByClassName('snapshotButton')
+)
+snapshot_btns.forEach((element) =>
+    element.addEventListener('click', async () => {
+        try {
+            await psapi.snapshot_layerExe()
+        } catch (e) {
+            console.warn(e)
+        }
+    })
+)
+
+const reset_btns = Array.from(
+    document.getElementsByClassName('resetButton')
+)
+reset_btns.forEach((element) =>
+    element.addEventListener('click', async () => {
+        try {
+            autoFillDefaultSettings(defaultSettings)
+        } catch (e) {
+            console.warn(e)
+        }
+    })
+)
 
 function getBatchNumber() {
     return document.getElementById('tiNumberOfImages').value
@@ -626,4 +694,9 @@ module.exports = {
     setSeed,
     getMaskExpansion,
     setMaskExpansion,
+    getUpscaleSize,
+    getUpscaler2Visibility,
+    getCodeFormerVisibility,
+    getGFPGANVisibility,
+    getCodeFormerWeight,
 }

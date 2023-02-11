@@ -497,6 +497,55 @@ async function loadPromptShortcut(file_name) {
     }
     
 }
+
+async function extraSingleImageRequest(sd_url, payload) {
+    console.log('payload:', payload)
+
+    const endpoint = 'sdapi/v1/extra-single-image'
+
+    const full_url = `${sd_url}/${endpoint}`
+    let request = await fetch(full_url, {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+        // "body": payload
+    })
+
+    let r = await request.json()
+
+    const images_info = []
+
+    const image = r['image']
+
+    let auto_metadata_json = {}
+
+    const uniqueDocumentId = payload['uniqueDocumentId']
+    const image_name = newOutputImageName()
+    const image_path = `${uniqueDocumentId}/${image_name}`
+
+    images_info.push({
+        base64: image,
+        path: image_path,
+        auto_metadata: auto_metadata_json,
+    })
+
+
+    console.log('extraSingleImageRequest json:', r)
+
+    const dir_name = 'temp_dir_name'
+    const metadata = []
+
+    return {
+        payload: payload,
+        dir_name: dir_name,
+        images_info: images_info,
+        metadata: metadata,
+    }
+}
+
 module.exports = {
     txt2ImgRequest,
     img2ImgRequest,
@@ -508,4 +557,5 @@ module.exports = {
     getDocumentFolderNativePath,
     convertMetadataToJson,
     openUrlRequest,
+    extraSingleImageRequest,
 }
