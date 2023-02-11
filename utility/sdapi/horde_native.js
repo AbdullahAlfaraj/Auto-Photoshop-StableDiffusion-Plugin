@@ -396,6 +396,11 @@ async function mapPluginSettingsToHorde(plugin_settings) {
 
         // payload["source_mask"] = base64.b64encode(buffer.getvalue()).decode()//does it need to be webp?
     }
+    let seed = ps['Seed']
+    if (ps['Seed'] === '-1') {
+        const random_seed = Math.floor(Math.random() * 100000000000 + 1) // Date.now() doesn't have enough resolution to avoid duplicate
+        seed = random_seed.toString()
+    }
 
     let horde_payload = {
         prompt: horde_prompt,
@@ -404,7 +409,7 @@ async function mapPluginSettingsToHorde(plugin_settings) {
             toggles: [1, 4],
             cfg_scale: ps['cfg_scale'],
             denoising_strength: ps['denoising_strength'],
-            // seed: 'string',
+            seed: seed,
             height: ps['height'],
             width: ps['width'],
             seed_variation: 1,
