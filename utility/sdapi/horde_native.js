@@ -368,32 +368,38 @@ async function mapPluginSettingsToHorde(plugin_settings) {
     } else {
         horde_prompt = ps['prompt'] //no negative prompt
     }
-    const payload = {}
+    const extra_payload = {}
     if (ps['mode'] === 'img2img') {
         // payload['source_image'] = ps['init_images']
         // let current_doc_entry =await getCurrentDocFolder()
         // let webp_file = await current_doc_entry.getEntry('temp.webp')
         // let base64_webp =    await io.IO.base64WebpFromFile(webp_file)
         // payload['source_image'] = io.IO.base64WebpFromFile()
-        const base64_webp = await io.IO.base64PngToBase64Webp(
-            ps['init_images'][0]
-        )
+        // console.log('base64_webp:', base64_webp)
 
-        console.log('base64_webp:', base64_webp)
-        const dummy_str = getDummyWebpBase64()
-        if (base64_webp === dummy_str) {
-            console.warn('the same base64')
-        } else {
-            console.warn('different base64')
-        }
+        // const dummy_str = getDummyWebpBase64()
+        // if (base64_webp === dummy_str) {
+        //     console.warn('the same base64')
+        // } else {
+        //     console.warn('different base64')
+        // }
         // payload['source_image'] = dummy_str
-        payload['source_image'] = base64_webp
 
         // payload['source_image'] = base64.b64encode(buffer.getvalue()).decode() //does it need to be webp?
-        payload['source_processing'] = 'img2img'
-    } else if (ps['mode'] === 'inpaint') {
-        payload['source_processing'] = 'inpainting'
 
+        const init_image_base64_webp = await io.IO.base64PngToBase64Webp(
+            ps['init_images'][0]
+        )
+        extra_payload['source_image'] = init_image_base64_webp
+        extra_payload['source_processing'] = 'img2img'
+    } else if (ps['mode'] === 'inpaint' || ps['mode'] === 'outpaint') {
+        const init_image_base64_webp = await io.IO.base64PngToBase64Webp(
+            ps['init_images'][0]
+        )
+        const mask_base64_webp = await io.IO.base64PngToBase64Webp(ps['mask'])
+        extra_payload['source_processing'] = 'inpainting'
+        extra_payload['source_image'] = init_image_base64_webp
+        extra_payload['source_mask'] = mask_base64_webp
         // payload["source_mask"] = base64.b64encode(buffer.getvalue()).decode()//does it need to be webp?
     }
     let seed = ps['Seed']
@@ -429,7 +435,7 @@ async function mapPluginSettingsToHorde(plugin_settings) {
         // source_image: 'string',
         // source_processing: 'img2img',
         // source_mask: 'string',
-        ...payload,
+        ...extra_payload,
         r2: true,
         shared: false,
     }

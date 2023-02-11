@@ -272,15 +272,15 @@ async function img2ImgRequest(sd_url, payload) {
     // if(len(init_img_mask_name) > 0):
     // init_img_mask = Image.open(f"{init_img_dir}/{init_img_mask_name}")
 
-    if (payload['use_sharp_mask'] === false && payload['mask']) {
-        //only if mask is available and sharp_mask is off
-        // use blurry and expanded mask
-        const iterations = payload['mask_expansion']
-        const mask = await maskExpansionRequest(payload['mask'], iterations)
-        if (mask) {
-            payload['mask'] = mask
-        }
-    }
+    // if (payload['use_sharp_mask'] === false && payload['mask']) {
+    //     //only if mask is available and sharp_mask is off
+    //     // use blurry and expanded mask
+    //     const iterations = payload['mask_expansion']
+    //     const mask = await maskExpansionRequest(payload['mask'], iterations)
+    //     if (mask) {
+    //         payload['mask'] = mask
+    //     }
+    // }
 
     // print(type(init_img_str))
     // #request the images to be generated
