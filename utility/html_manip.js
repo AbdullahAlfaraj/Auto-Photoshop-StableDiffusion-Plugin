@@ -353,7 +353,7 @@ function setProxyServerStatus(newStatusClass, oldStatusClass) {
 
 ////// Start Extras //////////
 
-sliderAddEventListener('slUpscaleSize', 'lUpscaleSize', 0.1, 0)
+sliderAddEventListener('slUpscaleSize', 'lUpscaleSize', 0.1, 1)
 
 function getUpscaleSize() {
     slider_width = document.getElementById('slUpscaleSize').value

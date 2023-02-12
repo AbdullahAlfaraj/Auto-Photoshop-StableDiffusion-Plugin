@@ -320,6 +320,7 @@ async function refreshUI() {
             html_manip.setAutomaticStatus('disconnected', 'connected')
         }
         await refreshModels()
+        await refreshExtraUpscalers()
         //get the latest options
         await g_sd_options_obj.getOptions()
         //get the selected model
@@ -361,6 +362,32 @@ async function refreshModels() {
         console.warn(e)
     }
 }
+
+async function refreshExtraUpscalers() {
+    try {
+        //cycle through hrModelsMenuClass and reset innerHTML
+        var hrModelsMenuClass = document.getElementsByClassName('hrExtrasUpscaleModelsMenuClass')
+        for (let i = 0; i < hrModelsMenuClass.length; i++) {
+            hrModelsMenuClass[i].innerHTML = ''
+        }
+        g_extra_upscalers = await sdapi.requestGetUpscalers()
+
+        for (let model of g_extra_upscalers) {
+            var hrModelsMenuClass = document.getElementsByClassName('hrExtrasUpscaleModelsMenuClass')
+            for (let i = 0; i < hrModelsMenuClass.length; i++) {
+                const menu_item_element = document.createElement('sp-menu-item')
+                menu_item_element.className = 'hrExtrasUpscaleModelsMenuItem'
+                menu_item_element.innerHTML = model.name
+                hrModelsMenuClass[i].appendChild(menu_item_element)
+                console.log(model + ' added to ' + hrModelsMenuClass[i].id)
+            }
+            
+        }        
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
 
 async function updateVersionUI() {
     let bStatus = false
@@ -1485,7 +1512,9 @@ async function deleteMaskRelatedLayers() {
 //   }
 // })
 
-document.getElementById('btnInterrupt').addEventListener('click', async () => {
+Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
+    (element) => {
+        element.addEventListener('click', async () => {
     try {
         json = await sdapi.requestInterrupt()
 
@@ -1501,6 +1530,7 @@ document.getElementById('btnInterrupt').addEventListener('click', async () => {
         console.warn(e)
     }
 })
+    })
 
 //store active layers only if they are not stored.
 async function storeActiveLayers() {
@@ -1828,6 +1858,8 @@ async function getExtraSettings() {
         const selection_info = await psapi.getSelectionInfoExe()
         const width = selection_info.width * upscaling_resize
         const height = selection_info.height * upscaling_resize
+        //resize_mode = 0 means "resize to upscaling_resize"
+        //resize_mode = 1 means "resize to width and height"
         payload['resize_mode'] = 0
         payload['show_extras_results'] = 0
         payload['gfpgan_visibility'] = gfpgan_visibility

@@ -734,9 +734,9 @@
             <div class="sp-tab-page" id="sp-extras-tab-page">
                 <div style="padding-bottom: 5px;">
                     <!-- extras tab page -->
-                    <sp-slider style="display: block" show-value="false" id="slUpscaleSize" min="10" max="80" value="20">
+                    <sp-slider style="display: block" show-value="false" id="slUpscaleSize" min="10" max="80" value="20" title="Resize scale of current selection size">
                         <sp-label slot="label">Resize</sp-label>
-                        <sp-label class="labelNumber" slot="label" id="lUpscaleSize">1</sp-label>
+                        <sp-label class="labelNumber" slot="label" id="lUpscaleSize">2</sp-label>
                     </sp-slider>
                 </div>
                 <div style="
@@ -770,14 +770,14 @@
                 <div style="padding-bottom: 5px;">
                     <sp-label style="width: 60px; display: inline-block;">Upscaler 1: </sp-label>
                     <sp-picker size="m" label="Upscaler Options">
-                        <sp-menu id="hrModelsMenuUpscale1" class="hrModelsMenuClass" slot="options">
+                        <sp-menu id="hrModelsMenuUpscale1" class="hrExtrasUpscaleModelsMenuClass" slot="options">
                             <!-- <sp-menu-item> item </sp-menu-item> -->
                         </sp-menu>
                     </sp-picker>
                     <div></div>
                     <sp-label style="width: 60px; display: inline-block;">Upscaler 2: </sp-label>
                     <sp-picker size="m" label="Upscaler Options">
-                        <sp-menu id="hrModelsMenuUpscale2" class="hrModelsMenuClass" slot="options">
+                        <sp-menu id="hrModelsMenuUpscale2" class="hrExtrasUpscaleModelsMenuClass" slot="options">
                             <!-- <sp-menu-item> item </sp-menu-item> -->
                         </sp-menu>
                     </sp-picker>

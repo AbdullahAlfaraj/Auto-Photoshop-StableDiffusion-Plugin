@@ -499,7 +499,7 @@ async function loadPromptShortcut(file_name) {
 }
 
 async function extraSingleImageRequest(sd_url, payload) {
-    console.log('payload:', payload)
+    console.log('extraSingleImageRequest payload:', payload)
 
     const endpoint = 'sdapi/v1/extra-single-image'
 
@@ -533,7 +533,7 @@ async function extraSingleImageRequest(sd_url, payload) {
     })
 
 
-    console.log('extraSingleImageRequest json:', r)
+    console.log('extraSingleImageRequest response json:', r)
 
     const dir_name = 'temp_dir_name'
     const metadata = []

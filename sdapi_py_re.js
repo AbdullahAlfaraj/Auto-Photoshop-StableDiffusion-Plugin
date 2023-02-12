@@ -575,6 +575,22 @@ async function requestExtraSingleImage(payload) {
     }
 }
 
+async function requestGetUpscalers() {
+    console.log('requestGetUpscalers: ')
+    let json = []
+    const full_url = `${g_sd_url}/sdapi/v1/upscalers`
+    try {
+        let request = await fetch(full_url)
+        json = await request.json()
+        console.log('upscalers json:')
+        console.dir(json)
+    } catch (e) {
+        console.warn(`issues requesting from ${full_url}`, e)
+    }
+    return json
+}
+
+
 module.exports = {
     requestTxt2Img,
     requestImg2Img,
@@ -598,4 +614,5 @@ module.exports = {
     requestHordeCheck,
     requestHordeStatus,
     requestExtraSingleImage,
+    requestGetUpscalers,
 }
