@@ -1850,8 +1850,8 @@ async function generateTxt2Img(settings) {
     try {
         const backend = getBackend()
         if (backend === 'horde_native') {
-            const images_info = await g_horde_generator.generate()
-            json = await g_horde_generator.toGenerationFormat(images_info)
+            json = await g_horde_generator.generate()
+            // json = await g_horde_generator.toGenerationFormat(images_info)
             // json = { images_info: images_info }
         } else if (backend === 'auto1111') {
             json = await sdapi.requestTxt2Img(settings)
@@ -2294,6 +2294,10 @@ async function progressRecursive() {
         // document.querySelector('#pProgressBar').value = json.progress * 100
         progress_value = json.progress * 100
         html_manip.updateProgressBarsHtml(progress_value)
+        if (json?.current_image) {
+            //update the progress image
+            io.IO.json.current_image
+        }
         if (g_generation_session.isActive() && g_can_request_progress == true) {
             //refactor this code
             setTimeout(async () => {
