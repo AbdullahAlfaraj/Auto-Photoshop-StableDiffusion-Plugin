@@ -1838,11 +1838,24 @@ async function getSettings() {
     }
     return payload
 }
-
+function getBackend() {
+    if (script_horde.getUseHorde()) {
+        return 'horde_native'
+    } else {
+        return 'auto1111'
+    }
+}
 async function generateTxt2Img(settings) {
     let json = {}
     try {
-        json = await sdapi.requestTxt2Img(settings)
+        const backend = getBackend()
+        if (backend === 'horde_native') {
+            const images_info = await g_horde_generator.generate()
+            json = await g_horde_generator.toGenerationFormat(images_info)
+            // json = { images_info: images_info }
+        } else if (backend === 'auto1111') {
+            json = await sdapi.requestTxt2Img(settings)
+        }
     } catch (e) {
         console.warn(e)
         json = {}
@@ -1945,20 +1958,21 @@ async function easyModeGenerate() {
 
         const settings = await getSettings()
 
-        if (script_horde.getUseHorde()) {
-            //use the horde
-            g_ui.onStartSessionUI()
+        // if (script_horde.getUseHorde()) {
+        //     //use the horde
+        //     g_ui.onStartSessionUI()
 
-            toggleTwoButtonsByClass(
-                true,
-                'btnGenerateClass',
-                'btnInterruptClass'
-            )
-            await g_horde_generator.generate()
-        } else {
-            //use auto1111 webui
-            await generate(settings)
-        }
+        //     toggleTwoButtonsByClass(
+        //         true,
+        //         'btnGenerateClass',
+        //         'btnInterruptClass'
+        //     )
+        //     // await g_horde_generator.generate()
+        // } else {
+        //     //use auto1111 webui
+        //     await generate(settings)
+        // }
+        await generate(settings)
     } catch (e) {
         console.warn(e)
     }
