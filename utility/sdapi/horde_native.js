@@ -323,45 +323,32 @@ class hordeGenerator {
             console.warn(e)
         }
     }
-    async startCheckingProgress() {
-        if (!g_interval_id && g_id) {
-            g_interval_id = setInterval(async () => {
-                try {
-                    if (this.isCanceled) {
-                        html_manip.updateProgressBarsHtml(0)
-                        return
-                    }
-                    const check_json = await requestHordeCheck(g_id)
-
+    updateHordeProgressBar(check_horde_status) {
                     //update the progress bar proceduer
                     console.log('this.maxWaitTime: ', this.maxWaitTime)
                     console.log(
-                        "check_json['wait_time']: ",
-                        check_json['wait_time']
+            "check_horde_status['wait_time']: ",
+            check_horde_status['wait_time']
                     )
                     console.log(
-                        "check_json['waiting']: ",
-                        check_json['waiting']
+            "check_horde_status['waiting']: ",
+            check_horde_status['waiting']
                     )
 
                     this.maxWaitTime = Math.max(
-                        check_json['wait_time'],
+            check_horde_status['wait_time'],
                         this.maxWaitTime
                     ) // return the max time value, so we could use to calculate the complection percentage
-                    const delta_time =
-                        this.maxWaitTime - check_json['wait_time']
+        const delta_time = this.maxWaitTime - check_horde_status['wait_time']
 
-                    if (
-                        isNaN(this.maxWaitTime) ||
-                        parseInt(this.maxWaitTime) === 0
-                    ) {
+        if (isNaN(this.maxWaitTime) || parseInt(this.maxWaitTime) === 0) {
                         this.maxWaitTime = 0 // reset to zero
                     } else {
-                        const completion_percentage =
-                            (delta_time / this.maxWaitTime) * 100
+            const completion_percentage = (delta_time / this.maxWaitTime) * 100
 
                         html_manip.updateProgressBarsHtml(completion_percentage)
                     }
+    }
 
                     //
 
