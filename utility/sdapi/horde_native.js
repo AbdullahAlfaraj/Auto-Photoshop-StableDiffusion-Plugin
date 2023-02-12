@@ -121,6 +121,68 @@ class hordeGenerator {
         await saveFileInSubFolder(base64_image, document_name, image_name)
         return base64_image
     }
+
+    async toGenerationFormat(images_info) {
+        //convert the output of native horde generation to the values that generate() can use
+        try {
+            //images_info[0] = {path:path,base64:base64png}
+            // let last_images_paths = await silentImagesToLayersExe(images_info)
+            let last_images_paths = {}
+            for (const image_info of images_info) {
+                const path = image_info['path']
+                // const base64_image = image_info['base64']
+                const layer = image_info['layer']
+                const [document_name, image_name] = path.split('/')
+
+                // await saveFileInSubFolder(base64_image, document_name, image_name)
+                image_info['base64'] = await this.layerToBase64ToFile(
+                    layer,
+                    document_name,
+                    image_name
+                )
+                // const json_file_name = `${image_name.split('.')[0]}.json`
+                this.plugin_settings['auto_metadata'] =
+                    image_info?.auto_metadata
+
+                // g_generation_session.base64OutputImages[path] =
+                //     image_info['base64']
+                // await saveJsonFileInSubFolder(
+                //     this.plugin_settings,
+                //     document_name,
+                //     json_file_name
+                // ) //save the settings
+                // last_images_paths[path] = image_info['layer']
+                // images_info.push({
+                //     base64: i,
+                //     path: image_path,
+                //     auto_metadata: auto_metadata_json,
+                // })
+                // // console.log("metadata_json: ", metadata_json)
+            }
+
+            // if (g_generation_session.isFirstGeneration) {
+            //     //store them in the generation session for viewer manager to use
+            //     g_generation_session.image_paths_to_layers = last_images_paths
+            // } else {
+            //     g_generation_session.image_paths_to_layers = {
+            //         ...g_generation_session.image_paths_to_layers,
+            //         ...last_images_paths,
+            //     }
+            //     // g_number_generation_per_session++
+
+            // }
+            const dir_name = 'temp_dir_name'
+            return {
+                // payload: payload,
+                dir_name: dir_name,
+                images_info: images_info,
+                metadata: this.plugin_settings,
+            }
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+
     async toSession(images_info) {
         try {
             //images_info[0] = {path:path,base64:base64png}
