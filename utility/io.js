@@ -209,6 +209,30 @@ class IO {
             console.warn(e)
         }
     }
+
+    static async base64ToLayer(
+        base64_png,
+        image_name = 'base64_to_layer.png',
+        to_x = 0,
+        to_y = 0,
+        width = 512,
+        height = 512,
+        format = 'png'
+    ) {
+        let layer
+        if (format === 'png') {
+            layer = await IOBase64ToLayer.base64PngToLayer(
+                base64_png,
+                image_name
+            )
+
+            psapi.setVisibleExe(layer, true)
+            await layer_util.Layer.scaleTo(layer, width, height) //
+            await layer_util.Layer.moveTo(layer, to_x, to_y) //move to the top left corner
+            psapi.setVisibleExe(layer, true)
+        }
+        return layer
+    }
 }
 
 class IOHelper {
@@ -289,6 +313,17 @@ class IOHelper {
     }
 }
 
+class IOBase64ToLayer {
+    static {}
+    static async base64PngToLayer(base64_png, image_name) {
+        //unselect all layers so that the imported layer get place at the top of the document
+        await psapi.unselectActiveLayersExe()
+
+        const imported_layer = await base64ToFile(base64_png, image_name) //silent import into the document
+
+        return imported_layer
+    }
+}
 module.exports = {
     IO,
     snapShotLayerExe,
