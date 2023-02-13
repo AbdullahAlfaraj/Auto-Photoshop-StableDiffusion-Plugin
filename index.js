@@ -1973,6 +1973,8 @@ async function easyModeGenerate() {
         //     await generate(settings)
         // }
         await generate(settings)
+
+        await g_generation_session.deleteProgressLayer() // delete the old progress layer
     } catch (e) {
         console.warn(e)
     }
