@@ -2017,10 +2017,10 @@ async function generate(settings) {
         //wait 2 seconds till you check for progress
 
         if (getBackend() !== 'horde_native') {
-        setTimeout(async function () {
-            // change this to setInterval()
-            await progressRecursive()
-        }, 2000)
+            setTimeout(async function () {
+                // change this to setInterval()
+                await progressRecursive()
+            }, 2000)
         }
 
         console.log(settings)
@@ -2643,64 +2643,70 @@ async function saveJsonFileInSubFolder(json, sub_folder_name, file_name) {
     const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
 }
 
-async function base64ToFile(b64Image) {
+async function base64ToFile(b64Image, image_name = 'output_image.png') {
     // const b64Image =
     //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
+    try {
+        const img = _base64ToArrayBuffer(b64Image)
 
-    const img = _base64ToArrayBuffer(b64Image)
+        const img_name = image_name
 
-    const img_name = 'output_image.png'
+        const folder = await storage.localFileSystem.getTemporaryFolder()
+        const file = await folder.createFile(img_name, { overwrite: true })
 
-    const folder = await storage.localFileSystem.getTemporaryFolder()
-    const file = await folder.createFile(img_name, { overwrite: true })
+        await file.write(img, { format: storage.formats.binary })
 
-    await file.write(img, { format: storage.formats.binary })
+        const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
 
-    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
-
-    let place_event_result
-    await executeAsModal(async () => {
-        const result = await batchPlay(
-            [
+        let place_event_result
+        let imported_layer
+        await executeAsModal(async () => {
+            const result = await batchPlay(
+                [
+                    {
+                        _obj: 'placeEvent',
+                        // ID: 6,
+                        null: {
+                            _path: token,
+                            _kind: 'local',
+                        },
+                        freeTransformCenterState: {
+                            _enum: 'quadCenterState',
+                            _value: 'QCSAverage',
+                        },
+                        offset: {
+                            _obj: 'offset',
+                            horizontal: {
+                                _unit: 'pixelsUnit',
+                                _value: 0,
+                            },
+                            vertical: {
+                                _unit: 'pixelsUnit',
+                                _value: 0,
+                            },
+                        },
+                        _isCommand: true,
+                        _options: {
+                            dialogOptions: 'dontDisplay',
+                        },
+                    },
+                ],
                 {
-                    _obj: 'placeEvent',
-                    ID: 6,
-                    null: {
-                        _path: token,
-                        _kind: 'local',
-                    },
-                    freeTransformCenterState: {
-                        _enum: 'quadCenterState',
-                        _value: 'QCSAverage',
-                    },
-                    offset: {
-                        _obj: 'offset',
-                        horizontal: {
-                            _unit: 'pixelsUnit',
-                            _value: 0,
-                        },
-                        vertical: {
-                            _unit: 'pixelsUnit',
-                            _value: 0,
-                        },
-                    },
-                    _isCommand: true,
-                    _options: {
-                        dialogOptions: 'dontDisplay',
-                    },
-                },
-            ],
-            {
-                synchronousExecution: true,
-                modalBehavior: 'execute',
-            }
-        )
-        console.log('placeEmbedd batchPlay result: ', result)
+                    synchronousExecution: true,
+                    modalBehavior: 'execute',
+                }
+            )
+            console.log('placeEmbedd batchPlay result: ', result)
 
-        place_event_result = result[0]
-    })
+            place_event_result = result[0]
+            imported_layer = await app.activeDocument.activeLayers[0]
+        })
+        return imported_layer
+    } catch (e) {
+        console.warn(e)
+    }
 
-    return place_event_result
+    // return place_event_result
 }
 
 async function placeImageB64ToLayer(image_path, entery) {
@@ -2849,82 +2855,7 @@ async function ImagesToLayersExe(images_paths) {
     return image_path_to_layer
 }
 
-async function silentbase64ImagesToLayersExe(base64_images) {
-    try {
-        g_generation_session.isLoadingActive = true
-
-        await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
-        image_path_to_layer = {}
-
-        // Returns a Promise that resolves after "ms" Milliseconds
-        const timer = (ms) => new Promise((res) => setTimeout(res, ms))
-
-        for (base64_image of base64_images) {
-            //unselect all layers so that the imported layer get place at the top of the document
-            await psapi.unselectActiveLayersExe()
-
-            const placeEventResult = await base64ToFile(base64_image) //silent import into the document
-
-            let layer = await app.activeDocument.layers.filter(
-                (l) => l.id === placeEventResult?.ID
-            )[0]
-            // await openImageExe() //local image to new document
-            // await convertToSmartObjectExe() //convert the current image to smart object
-            let timer_count = 0
-            // console.log("image_path: ",image_path)
-            // let layer = await app.activeDocument.activeLayers[0]
-            console.log('loaded layer: ', layer)
-            console.log('placeEventResult?.ID: ', placeEventResult?.ID)
-
-            while (!layer && timer_count <= 10000) {
-                await timer(100) // then the created Promise can be awaited
-                timer_count += 100
-                // layer = await app.activeDocument.activeLayers[0]
-                layer = await app.activeDocument.layers.filter(
-                    (l) => l.id === placeEventResult?.ID
-                )[0]
-                const active_layer = await app.activeDocument.activeLayers[0]
-                console.log('active_layer.id: ', active_layer.id)
-                if (active_layer.id === placeEventResult?.ID) {
-                    layer = active_layer
-                }
-
-                console.log('timer_count: ', timer_count)
-                console.log('loaded layer: ', layer)
-                console.log('placeEventResult?.ID: ', placeEventResult?.ID)
-            }
-
-            if (g_b_use_smart_object === false) {
-                await executeAsModal(async () => {
-                    await layer.rasterize() //rastrize the active layer
-                })
-            }
-
-            await psapi.selectLayersExe([layer])
-            await psapi.layerToSelection(g_generation_session.selectionInfo)
-
-            // await stackLayers() // move the smart object to the original/old document
-            // await psapi.layerToSelection(g_generation_session.selectionInfo) //transform the new smart object layer to fit selection area
-            // layer = await app.activeDocument.activeLayers[0]
-            await g_generation_session.moveToTopOfOutputGroup(layer)
-            // const output_group_id = await g_generation_session.outputGroup.id
-            // let group_index = await psapi.getLayerIndex(output_group_id)
-            // const indexOffset = 1 //1 for background, 0 if no background exist
-            // await executeAsModal(async ()=>{
-            //   await psapi.moveToGroupCommand(group_index - indexOffset, layer.id)
-
-            // })
-
-            image_path_to_layer[image_path] = layer
-            // await reselect(selectionInfo)
-        }
-        return image_path_to_layer
-    } catch (e) {
-        console.warn(e)
-    }
-    g_generation_session.isLoadingActive = false
-}
-async function silentImagesToLayersExe(images_info) {
+async function silentImagesToLayersExe_old(images_info) {
     try {
         g_generation_session.isLoadingActive = true
 
@@ -3001,6 +2932,83 @@ async function silentImagesToLayersExe(images_info) {
             // })
 
             image_path_to_layer[image_info.path] = layer
+            // await reselect(selectionInfo)
+        }
+        return image_path_to_layer
+    } catch (e) {
+        console.warn(e)
+    }
+    g_generation_session.isLoadingActive = false
+}
+async function silentImagesToLayersExe(images_info) {
+    //use active layer instead of placeEventResult
+    try {
+        g_generation_session.isLoadingActive = true
+
+        await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
+        image_path_to_layer = {}
+        console.log(
+            'silentImagesToLayersExe: images_info.images_paths: ',
+            images_info.images_paths
+        )
+        // Returns a Promise that resolves after "ms" Milliseconds
+        const timer = (ms) => new Promise((res) => setTimeout(res, ms))
+
+        for (image_info of images_info) {
+            console.log(gCurrentImagePath)
+            //unselect all layers so that the imported layer get place at the top of the document
+            await psapi.unselectActiveLayersExe()
+
+            let imported_layer
+            // if (base64_images) {
+            //     placeEventResult = await base64ToFile(base64_images) //silent import into the document
+            // } else {
+            //     placeEventResult = await placeEmbedded(image_path) //silent import into the document
+            // }
+            // imported_layer = await base64ToFile(image_info.base64) //silent import into the document
+            const selection_info = await g_generation_session.selectionInfo
+
+            imported_layer = await io.IO.base64ToLayer(
+                image_info.base64,
+                'output_image.png',
+                selection_info.left,
+                selection_info.top,
+                selection_info.width,
+                selection_info.height
+            )
+            if (!layer_util.Layer.doesLayerExist(imported_layer)) {
+                continue //skip if the import vailed
+            }
+            // let layer = await app.activeDocument.layers.filter(
+            //     (l) => l.id === placeEventResult?.ID
+            // )[0]
+
+            let timer_count = 0
+
+            // let layer = await app.activeDocument.activeLayers[0]
+            console.log('imported_layer: ', imported_layer)
+
+            // while (timer_count <= 10000) {
+            //     await timer(100) // then the created Promise can be awaited
+            //     timer_count += 100
+            //     // layer = await app.activeDocument.activeLayers[0]
+
+            //     console.log('timer_count: ', timer_count)
+            //     console.log('loaded layer: ', imported_layer)
+            // }
+
+            if (g_b_use_smart_object === false) {
+                await executeAsModal(async () => {
+                    await imported_layer.rasterize() //rastrize the active layer
+                })
+            }
+
+            await psapi.selectLayersExe([imported_layer])
+            await psapi.layerToSelection(g_generation_session.selectionInfo)
+
+            await g_generation_session.moveToTopOfOutputGroup(imported_layer)
+
+            image_path_to_layer[image_info.path] = imported_layer
             // await reselect(selectionInfo)
         }
         return image_path_to_layer
