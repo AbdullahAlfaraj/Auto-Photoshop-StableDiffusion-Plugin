@@ -284,7 +284,11 @@ async function unSelectMarqueeCommand() {
     return result
 }
 async function unSelectMarqueeExe() {
-    await executeAsModal(unSelectMarqueeCommand)
+    try {
+        await executeAsModal(unSelectMarqueeCommand)
+    } catch (e) {
+        console.warn(e)
+    }
 }
 ////selection:
 async function selectMarqueeRectangularToolExe() {
@@ -503,9 +507,16 @@ async function reSelectMarqueeCommand(selectionInfo) {
     )
 }
 async function reSelectMarqueeExe(selectionInfo) {
-    await executeAsModal(async () => {
-        await reSelectMarqueeCommand(selectionInfo)
-    })
+    try {
+        if (isSelectionValid(selectionInfo)) {
+            //only try to reactivate the selection area if it is valid
+            await executeAsModal(async () => {
+                await reSelectMarqueeCommand(selectionInfo)
+            })
+        }
+    } catch (e) {
+        console.warn(e)
+    }
 }
 
 async function snapshot_layer() {
@@ -822,13 +833,18 @@ async function cleanLayers(layers) {
     console.log('cleanLayers() -> layers:', layers)
     for (layer of layers) {
         try {
-            if (layer) {
+            if (layer_util.Layer.doesLayerExist(layer)) {
                 await executeAsModal(async () => {
                     await layer.delete()
                 })
             }
         } catch (e) {
-            console.warn('warning attempting to a delete layer: ', e)
+            console.warn(
+                'warning attempting to a delete layer,layer.name: ',
+                layer.name,
+                layer,
+                e
+            )
             continue
         }
     }
@@ -1360,4 +1376,5 @@ module.exports = {
     layerToSelection,
     isSelectionValid,
     snapshot_layer_no_slide_Exe,
+    setVisibleExe,
 }
