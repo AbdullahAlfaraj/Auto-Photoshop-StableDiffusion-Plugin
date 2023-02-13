@@ -2015,10 +2015,13 @@ async function generate(settings) {
         toggleTwoButtonsByClass(true, 'btnGenerateClass', 'btnInterruptClass')
         g_can_request_progress = true
         //wait 2 seconds till you check for progress
+
+        if (getBackend() !== 'horde_native') {
         setTimeout(async function () {
             // change this to setInterval()
             await progressRecursive()
         }, 2000)
+        }
 
         console.log(settings)
 
