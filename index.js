@@ -2326,8 +2326,28 @@ async function progressRecursive() {
         progress_value = json.progress * 100
         html_manip.updateProgressBarsHtml(progress_value)
         if (json?.current_image) {
+            await g_generation_session.deleteProgressLayer() // delete the old progress layer
             //update the progress image
-            io.IO.json.current_image
+            const selection_info = await g_generation_session.selectionInfo
+            b_exsit = layer_util.Layer.doesLayerExist(
+                g_generation_session.progress_layer
+            )
+            if (!b_exsit) {
+                const layer = await io.IO.base64ToLayer(
+                    json.current_image,
+                    'temp_progress_image.png',
+                    selection_info.left,
+                    selection_info.top,
+                    selection_info.width,
+                    selection_info.height
+                )
+                g_generation_session.progress_layer = layer // sotre the new progress layer// TODO: make sure you delete the progress layer when the geneeration request end
+            } else {
+                // if ,somehow, the layer still exsit
+                await layer_util.deleteLayers([
+                    g_generation_session.progress_layer,
+                ]) // delete the old progress layer
+            }
         }
         if (g_generation_session.isActive() && g_can_request_progress == true) {
             //refactor this code
