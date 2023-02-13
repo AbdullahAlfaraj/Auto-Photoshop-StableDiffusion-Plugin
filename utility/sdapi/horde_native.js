@@ -363,7 +363,11 @@ class hordeGenerator {
         if (isNaN(this.maxWaitTime) || parseInt(this.maxWaitTime) === 0) {
             this.maxWaitTime = 0 // reset to zero
         } else {
+            console.log('delta_time:', delta_time)
+            console.log('this.maxWaitTime:', this.maxWaitTime)
+
             const completion_percentage = (delta_time / this.maxWaitTime) * 100
+            console.log('completion_percentage:', completion_percentage)
 
             html_manip.updateProgressBarsHtml(completion_percentage)
         }
