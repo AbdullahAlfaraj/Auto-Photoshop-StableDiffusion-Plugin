@@ -2087,6 +2087,7 @@ async function generate(settings) {
         // toggleTwoButtons(false,'btnGenerate','btnInterrupt')
         toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
         g_can_request_progress = false
+        html_manip.updateProgressBarsHtml(0)
 
         const images_info = json?.images_info
         // gImage_paths = images_info.images_paths
