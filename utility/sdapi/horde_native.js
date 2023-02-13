@@ -1,6 +1,7 @@
 const general = require('../general')
 const psapi = require('../../psapi')
 const html_manip = require('../html_manip')
+const layer_util = require('../layer')
 function getDummyBase64() {
     const b64Image =
         'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
@@ -35,6 +36,8 @@ class hordeGenerator {
         this.maxWaitTime = 0
         this.waiting = 0
         this.isCanceled = false
+        this.horde_id = null
+        this.last_horde_id = null
     }
 
     async getSettings() {
@@ -50,19 +53,28 @@ class hordeGenerator {
         return this.horde_settings
     }
 
+    /**
+     * @returns {json}{payload, dir_name, images_info, metadata}
+     */
     async generateRequest(settings) {
         try {
-            g_id = null //reset request_id
+            this.horde_id = null //reset request_id
             this.requestStatus = await requestHorde(settings)
-            g_id = this.requestStatus.id
+            this.horde_id = this.requestStatus.id
             console.log(
                 'generateRequest this.requestStatus: ',
                 this.requestStatus
             )
 
-            await this.startCheckingProgress()
+            const images_info = await this.startCheckingProgress()
+            const result = await this.toGenerationFormat(images_info)
+            console.warn('generateRequest() images_info: ', images_info)
+            console.warn('generateRequest() result: ', result)
+
+            html_manip.updateProgressBarsHtml(0) // reset progress bar
+            return result
         } catch (e) {
-            g_id = null
+            this.horde_id = null
             console.warn(e)
         }
     }
@@ -71,7 +83,9 @@ class hordeGenerator {
         this.horde_settings = await this.getSettings()
         //*) send generateRequest() and trigger the progress bar update
         this.isCanceled = false
-        await this.generateRequest(this.horde_settings)
+        const result = await this.generateRequest(this.horde_settings)
+
+        return result
         //*) store the generation result in the currentGenerationResult
 
         //*) return the generation currentGenerationResult
@@ -140,6 +154,11 @@ class hordeGenerator {
                     document_name,
                     image_name
                 )
+
+                // delete the layer made by the webp image.
+                await layer_util.deleteLayers([layer])
+                // await layer.delete()
+
                 // const json_file_name = `${image_name.split('.')[0]}.json`
                 this.plugin_settings['auto_metadata'] =
                     image_info?.auto_metadata
@@ -233,7 +252,7 @@ class hordeGenerator {
         try {
             console.log('interruptRquest():')
 
-            const full_url = `https://stablehorde.net/api/v2/generate/status/${g_id}`
+            const full_url = `https://stablehorde.net/api/v2/generate/status/${this.horde_id}`
 
             console.log(full_url)
 
@@ -261,7 +280,7 @@ class hordeGenerator {
         try {
             html_manip.updateProgressBarsHtml(0)
             this.isCanceled = true
-            g_interval_id = clearInterval(g_interval_id)
+            g_interval_id = clearTimeout(g_interval_id)
             await this.interruptRequest()
         } catch (e) {
             console.warn(e)
@@ -283,7 +302,7 @@ class hordeGenerator {
             this.isProcessHordeResultCalled = true
             console.log('horde request is done')
             // g_b_request_result = true
-            const temp_id = g_id //g_id will reset
+            const temp_id = this.horde_id //this.horde_id will reset
             // cancelRequestClientSide()
             g_horde_generation_result = await requestHordeStatus(temp_id)
 
@@ -324,58 +343,78 @@ class hordeGenerator {
         }
     }
     updateHordeProgressBar(check_horde_status) {
-                    //update the progress bar proceduer
-                    console.log('this.maxWaitTime: ', this.maxWaitTime)
-                    console.log(
+        //update the progress bar proceduer
+        console.log('this.maxWaitTime: ', this.maxWaitTime)
+        console.log(
             "check_horde_status['wait_time']: ",
             check_horde_status['wait_time']
-                    )
-                    console.log(
+        )
+        console.log(
             "check_horde_status['waiting']: ",
             check_horde_status['waiting']
-                    )
+        )
 
-                    this.maxWaitTime = Math.max(
+        this.maxWaitTime = Math.max(
             check_horde_status['wait_time'],
-                        this.maxWaitTime
-                    ) // return the max time value, so we could use to calculate the complection percentage
+            this.maxWaitTime
+        ) // return the max time value, so we could use to calculate the complection percentage
         const delta_time = this.maxWaitTime - check_horde_status['wait_time']
 
         if (isNaN(this.maxWaitTime) || parseInt(this.maxWaitTime) === 0) {
-                        this.maxWaitTime = 0 // reset to zero
-                    } else {
+            this.maxWaitTime = 0 // reset to zero
+        } else {
             const completion_percentage = (delta_time / this.maxWaitTime) * 100
 
-                        html_manip.updateProgressBarsHtml(completion_percentage)
-                    }
-    }
-
-                    //
-
-                    if (
-                        check_json['done'] &&
-                        g_interval_id
-                        // !g_b_request_result
-                    ) {
-                        g_interval_id = clearInterval(g_interval_id)
-
-                        const images_info = await this.processHordeResult()
-
-                        await this.toSession(images_info)
-                        html_manip.updateProgressBarsHtml(0) // reset progress bar
-
-                        await psapi.reSelectMarqueeExe(
-                            g_generation_session.selectionInfo
-                        )
-                        //update the viewer
-                        await this.postGeneration()
-                        await loadViewerImages()
-                    }
-                } catch (e) {
-                    console.warn(e)
-                }
-            }, 3000)
+            html_manip.updateProgressBarsHtml(completion_percentage)
         }
+    }
+    async startCheckingProgress() {
+        return new Promise((resolve, reject) => {
+            if (this.horde_id) {
+                g_interval_id = setTimeout(async () => {
+                    try {
+                        // if (this.isCanceled) {
+                        //     html_manip.updateProgressBarsHtml(0)
+                        //     return resolve()
+                        //     // return
+                        // }
+
+                        //check the request status
+                        const check_json = await requestHordeCheck(
+                            this.horde_id
+                        )
+
+                        this.updateHordeProgressBar(check_json)
+
+                        if (check_json['done']) {
+                            g_interval_id = clearTimeout(g_interval_id)
+
+                            const images_info = await this.processHordeResult()
+                            this.last_horde_id = this.horde_id
+                            this.horde_id = null
+                            return resolve(images_info)
+                        } else if (this.isCanceled) {
+                            //resolve the promise if we canceled the request
+                            this.last_horde_id = this.horde_id
+                            this.horde_id = null
+                            return resolve()
+                        } else {
+                            //the request is not done and the user hasn't canceled it
+
+                            const horde_result =
+                                await this.startCheckingProgress() // start another check
+                            return resolve(horde_result) // return the result of the new check
+                        }
+                    } catch (e) {
+                        console.warn(e)
+                        const result = await this.startCheckingProgress()
+                        return resolve(result)
+                    }
+                }, 3000)
+            } else {
+                return resolve()
+            }
+        })
     }
 }
 const webui_to_horde_samplers = {
@@ -451,6 +490,7 @@ async function mapPluginSettingsToHorde(plugin_settings) {
         extra_payload['source_mask'] = mask_base64_webp
         // payload["source_mask"] = base64.b64encode(buffer.getvalue()).decode()//does it need to be webp?
     }
+
     let seed = ps['Seed']
     if (ps['Seed'] === '-1') {
         const random_seed = Math.floor(Math.random() * 100000000000 + 1) // Date.now() doesn't have enough resolution to avoid duplicate
@@ -639,67 +679,15 @@ async function requestHordeStatus(id) {
 }
 
 let g_interval_id
-let g_id
+
 let g_horde_generation_result
 let g_b_request_result = false
 function cancelRequestClientSide() {
-    g_interval_id = clearInterval(g_interval_id)
-    g_id = null
+    g_interval_id = clearTimeout(g_interval_id)
+    // g_id = null
     g_b_request_result = false
 }
 
-// async function processHordeResult() {
-//     try {
-//         const check_json = await requestHordeCheck(g_id)
-//         if (
-//             check_json['done'] &&
-//             g_interval_id
-//             // !g_b_request_result
-//         ) {
-//             clearInterval(g_interval_id)
-//             console.log('horde request is done')
-//             // g_b_request_result = true
-//             const temp_id = g_id //g_id will reset
-//             // cancelRequestClientSide()
-//             g_horde_generation_result = await requestHordeStatus(temp_id)
-
-//             const generations = g_horde_generation_result.generations
-//             const writeable_entry = await getCurrentDocFolder()
-//             for (image_horde_container of generations) {
-//                 try {
-//                     const url = image_horde_container.img
-//                     image_file_name = general.newOutputImageName('webp')
-//                     const image_layer = await downloadItExe(
-//                         url,
-//                         writeable_entry,
-//                         image_file_name
-//                     ) //
-
-//                     await psapi.layerToSelection(
-//                         g_generation_session.selectionInfo
-//                     ) //TODO: create a safe layerToSelection function
-//                 } catch (e) {
-//                     console.warn(e)
-//                 }
-//             }
-//         }
-//     } catch (e) {
-//         console.warn(e)
-//     }
-// }
-// async function startCheckingProgress() {
-//     if (!g_interval_id && g_id) {
-//         g_interval_id = setInterval(async () => {
-//             await processHordeResult()
-//         }, 3000)
-//     }
-// }
-
 module.exports = {
-    // requestHorde,
-    // requestHordeCheck,
-    // requestHordeStatus,
-    // requestHordeMain,
-    // getWorkers,
     hordeGenerator,
 }
