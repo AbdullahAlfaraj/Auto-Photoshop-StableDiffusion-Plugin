@@ -1845,6 +1845,25 @@ function getBackend() {
         return 'auto1111'
     }
 }
+
+async function generateImg2Img(settings) {
+    let json = {}
+    try {
+        const backend = getBackend()
+        if (backend === 'horde_native') {
+            json = await g_horde_generator.generate()
+            // json = await g_horde_generator.toGenerationFormat(images_info)
+            // json = { images_info: images_info }
+        } else if (backend === 'auto1111') {
+            json = await sdapi.requestImg2Img(settings)
+        }
+    } catch (e) {
+        console.warn(e)
+        json = {}
+    }
+
+    return json
+}
 async function generateTxt2Img(settings) {
     let json = {}
     try {
@@ -2007,19 +2026,25 @@ async function generate(settings) {
         let json = {}
         if (g_sd_mode == 'txt2img') {
             json = await generateTxt2Img(settings)
-        } else if (g_sd_mode == 'img2img' || g_sd_mode == 'inpaint') {
-            json = await sdapi.requestImg2Img(settings)
+        } else if (
+            g_sd_mode == 'img2img' ||
+            g_sd_mode == 'inpaint' ||
+            g_sd_mode == 'outpaint'
+        ) {
+            // json = await sdapi.requestImg2Img(settings)
+
+            json = await generateImg2Img(settings)
         }
 
-        if (g_sd_mode == 'outpaint') {
-            // await easyModeOutpaint()
-            json = await sdapi.requestImg2Img(settings)
+        // if (g_sd_mode == 'outpaint') {
+        //     // await easyModeOutpaint()
+        //     json = await sdapi.requestImg2Img(settings)
 
-            // await setTimeout(async ()=> {
-            //   json = await sdapi.requestImg2Img(settings)
+        //     // await setTimeout(async ()=> {
+        //     //   json = await sdapi.requestImg2Img(settings)
 
-            // },5000)
-        }
+        //     // },5000)
+        // }
         if (g_request_status === requestState['Interrupt']) {
             //when generate request get interrupted. reset progress bar to 0, discard any meta data and images returned from the proxy server by returning from the function.
             html_manip.updateProgressBarsHtml(0)
