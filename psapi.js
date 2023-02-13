@@ -193,6 +193,15 @@ async function selectLayers(layers) {
     }
 }
 
+async function setVisibleExe(layer, is_visible) {
+    try {
+        await executeAsModal(async () => {
+            layer.visible = is_visible
+        })
+    } catch (e) {
+        console.warn(e)
+    }
+}
 async function selectLayersExe(layers) {
     await executeAsModal(async () => {
         await selectLayers(layers)
