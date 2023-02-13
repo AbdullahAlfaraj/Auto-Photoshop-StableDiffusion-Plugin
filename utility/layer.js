@@ -9,7 +9,7 @@ const {
     getSelectionInfoExe,
     reSelectMarqueeExe,
 } = require('../psapi')
-
+const psapi = require('../psapi')
 async function createNewLayerExe(layerName) {
     await executeAsModal(async () => {
         await createNewLayerCommand(layerName)
@@ -142,15 +142,25 @@ class Layer {
         return layer_info
     }
     static async scaleTo(layer, new_width, new_height) {
-        console.log('scaleLayer got called')
-        // const activeLayer = getActiveLayer()
-        // const activeLayer = await app.activeDocument.activeLayers[0]
+        await executeAsModal(async () => {
+            try {
+                const selection_info = await psapi.getSelectionInfoExe()
+                await psapi.unSelectMarqueeExe()
 
-        const layer_info = await this.getLayerInfo(layer)
-        const scale_x_ratio = (new_width / layer_info.width) * 100
-        const scale_y_ratio = (new_height / layer_info.height) * 100
-        console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
-        await layer.scale(scale_x_ratio, scale_y_ratio)
+                console.log('scaleLayer got called')
+                // const activeLayer = getActiveLayer()
+                // const activeLayer = await app.activeDocument.activeLayers[0]
+
+                const layer_info = await this.getLayerInfo(layer)
+                const scale_x_ratio = (new_width / layer_info.width) * 100
+                const scale_y_ratio = (new_height / layer_info.height) * 100
+                console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
+                await layer.scale(scale_x_ratio, scale_y_ratio)
+                await psapi.reSelectMarqueeExe(selection_info)
+            } catch (e) {
+                console.warn(e)
+            }
+        })
     }
 
     static async moveTo(layer, to_x, to_y) {
@@ -158,8 +168,8 @@ class Layer {
             await executeAsModal(async () => {
                 try {
                     //translate doesn't work with selection active. so store the selection and then unselect. move the layer, then reselect the selection info
-                    const selection_info = await getSelectionInfoExe()
-                    await unSelectMarqueeExe()
+                    const selection_info = await psapi.getSelectionInfoExe()
+                    await psapi.unSelectMarqueeExe()
 
                     const layer_info = await this.getLayerInfo(layer)
                     const top_dist = layer_info.top - to_y
@@ -167,7 +177,7 @@ class Layer {
                     console.log('-left_dist, -top_dist', -left_dist, -top_dist)
                     await layer.translate(-left_dist, -top_dist)
 
-                    // await reSelectMarqueeExe(selection_info)
+                    await psapi.reSelectMarqueeExe(selection_info)
                 } catch (e) {
                     console.warn(e)
                 }
