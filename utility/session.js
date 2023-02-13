@@ -28,6 +28,7 @@ class GenerationSession {
         this.activeBase64InitImage
         this.activeBase64MaskImage
         this.image_paths_to_layers = {}
+        this.progress_layer
     }
     isActive() {
         return this.state === SessionState['Active']
@@ -149,6 +150,13 @@ class GenerationSession {
         await executeAsModal(async () => {
             await psapi.moveToGroupCommand(group_index - indexOffset, layer.id)
         })
+    }
+    async deleteProgressLayer() {
+        try {
+            await layer_util.deleteLayers([this.progress_layer]) // delete the old progress layer
+        } catch (e) {
+            console.warn(e)
+        }
     }
 }
 
