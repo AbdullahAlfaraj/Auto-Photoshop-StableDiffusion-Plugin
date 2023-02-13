@@ -111,6 +111,21 @@ async function collapseFolderExe(layers, expand = false, recursive = false) {
 }
 
 class Layer {
+    static doesLayerExist(layer) {
+        let b_exist = false
+        try {
+            if (typeof layer !== 'undefined' && layer && layer.name) {
+                //it will throw an error if the layer has been deleted
+                b_exist = true
+                // return true
+            }
+            // b_exist = true
+        } catch (e) {
+            b_exist = false
+            // console.warn(e)
+        }
+        return b_exist
+    }
     static async getLayerInfo(layer) {
         const bounds = layer.bounds
         const height = bounds.bottom - bounds.top
