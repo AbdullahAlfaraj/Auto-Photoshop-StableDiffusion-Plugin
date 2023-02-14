@@ -210,8 +210,17 @@ Array.from(document.querySelectorAll('.sp-tab')).forEach((theTab) => {
     }
 })
 
-document.getElementById('sp-viewer-tab').addEventListener('click', () => {
+document.getElementById('sp-viewer-tab').addEventListener('click', async () => {
+    if (
+        g_generation_session.isActive() &&
+        g_generation_session.mode === 'upscale'
+    ) {
+        g_sd_mode = 'upscale'
+    } else {
+        g_sd_mode = html_manip.getMode()
+    }
     moveElementToAnotherTab('batchNumberUi', 'batchNumberViewerTabContainer')
+    await displayUpdate()
 })
 document
     .getElementById('sp-stable-diffusion-ui-tab')
