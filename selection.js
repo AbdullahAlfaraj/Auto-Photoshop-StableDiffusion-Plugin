@@ -50,7 +50,18 @@ async function selectionToFinalWidthHeight() {
     }
 }
 
+class Selection {
+    static getSelectionInfo() {}
+    static isValidSelection() {
+        selection_info
+    }
+    static reselectArea(selection_info) {}
+    static isSameSelection(selection_info_1, selection_info_2) {}
+
+    static {}
+}
 module.exports = {
     finalWidthHeight,
     selectionToFinalWidthHeight,
+    Selection,
 }

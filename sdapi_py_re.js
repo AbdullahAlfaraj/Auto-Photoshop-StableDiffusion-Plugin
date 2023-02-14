@@ -334,7 +334,6 @@ async function loadPromptShortcut() {
         console.log('loadPromptShortcut:', prompt_shortcut_json)
         // console.log('loadPromptShortcut: request: ',request)
     } catch (e) {
-
         console.warn(e)
         prompt_shortcut_json = {}
     }
@@ -446,120 +445,120 @@ async function imageSearch(keywords) {
     return []
 }
 
-async function requestHorde(payload) {
-    payload = {
-        prompt: 'string',
-        params: {
-            sampler_name: 'k_lms',
-            toggles: [1, 4],
-            cfg_scale: 5,
-            denoising_strength: 0.75,
-            seed: 'string',
-            height: 512,
-            width: 512,
-            seed_variation: 1,
-            post_processing: ['GFPGAN'],
-            karras: false,
-            tiling: false,
-            steps: 30,
-            n: 1,
-        },
-        nsfw: false,
-        trusted_workers: true,
-        censor_nsfw: false,
-        workers: ['4c79ab19-8e6c-4054-83b3-773b7ce71ece'],
-        models: ['stable_diffusion'],
-        // source_image: 'string',
-        // source_processing: 'img2img',
-        // source_mask: 'string',
-        r2: true,
-        shared: false,
-    }
-    try {
-        console.log('requestHorde():')
+// async function requestHorde(payload) {
+//     payload = {
+//         prompt: 'string',
+//         params: {
+//             sampler_name: 'k_lms',
+//             toggles: [1, 4],
+//             cfg_scale: 5,
+//             denoising_strength: 0.75,
+//             seed: 'string',
+//             height: 512,
+//             width: 512,
+//             seed_variation: 1,
+//             post_processing: ['GFPGAN'],
+//             karras: false,
+//             tiling: false,
+//             steps: 30,
+//             n: 1,
+//         },
+//         nsfw: false,
+//         trusted_workers: true,
+//         censor_nsfw: false,
+//         workers: ['4c79ab19-8e6c-4054-83b3-773b7ce71ece'],
+//         models: ['stable_diffusion'],
+//         // source_image: 'string',
+//         // source_processing: 'img2img',
+//         // source_mask: 'string',
+//         r2: true,
+//         shared: false,
+//     }
+//     try {
+//         console.log('requestHorde():')
 
-        const full_url = 'https://stablehorde.net/api/v2/generate/async'
-        // const full_url = 'https://stablehorde.net/api/v2/generate/sync'
-        console.log(full_url)
+//         const full_url = 'https://stablehorde.net/api/v2/generate/async'
+//         // const full_url = 'https://stablehorde.net/api/v2/generate/sync'
+//         console.log(full_url)
 
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                apikey: '0000000000',
-                // 'Client-Agent': '4c79ab19-8e6c-4054-83b3-773b7ce71ece',
-                'Client-Agent': 'unknown:0:unknown',
-            },
-            body: JSON.stringify(payload),
-        })
+//         let request = await fetch(full_url, {
+//             method: 'POST',
+//             headers: {
+//                 Accept: 'application/json',
+//                 'Content-Type': 'application/json',
+//                 apikey: '0000000000',
+//                 // 'Client-Agent': '4c79ab19-8e6c-4054-83b3-773b7ce71ece',
+//                 'Client-Agent': 'unknown:0:unknown',
+//             },
+//             body: JSON.stringify(payload),
+//         })
 
-        let json = await request.json()
-        console.log('requestHorde json:', json)
+//         let json = await request.json()
+//         console.log('requestHorde json:', json)
 
-        return json
-    } catch (e) {
-        console.warn(e)
-        return {}
-    }
-}
-async function requestHordeCheck(id) {
-    try {
-        console.log('requestHordeCheck():')
-        const base_url = 'https://stablehorde.net/api/v2/generate/check'
+//         return json
+//     } catch (e) {
+//         console.warn(e)
+//         return {}
+//     }
+// }
+// async function requestHordeCheck(id) {
+//     try {
+//         console.log('requestHordeCheck():')
+//         const base_url = 'https://stablehorde.net/api/v2/generate/check'
 
-        const full_url = `${base_url}/${id}`
-        // const full_url = 'https://stablehorde.net/api/v2/generate/sync'
-        console.log(full_url)
-        const payload = {}
-        let request = await fetch(full_url, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                // 'Client-Agent': '4c79ab19-8e6c-4054-83b3-773b7ce71ece',
-                'Client-Agent': 'unknown:0:unknown',
-            },
-        })
+//         const full_url = `${base_url}/${id}`
+//         // const full_url = 'https://stablehorde.net/api/v2/generate/sync'
+//         console.log(full_url)
+//         const payload = {}
+//         let request = await fetch(full_url, {
+//             method: 'GET',
+//             headers: {
+//                 Accept: 'application/json',
+//                 'Content-Type': 'application/json',
+//                 // 'Client-Agent': '4c79ab19-8e6c-4054-83b3-773b7ce71ece',
+//                 'Client-Agent': 'unknown:0:unknown',
+//             },
+//         })
 
-        let json = await request.json()
-        console.log('requestHordeCheck json:', json)
+//         let json = await request.json()
+//         console.log('requestHordeCheck json:', json)
 
-        return json
-    } catch (e) {
-        console.warn(e)
-        return {}
-    }
-}
+//         return json
+//     } catch (e) {
+//         console.warn(e)
+//         return {}
+//     }
+// }
 
-async function requestHordeStatus(id) {
-    try {
-        console.log('requestHordeStatus():')
-        const base_url = 'https://stablehorde.net/api/v2/generate/status'
+// async function requestHordeStatus(id) {
+//     try {
+//         console.log('requestHordeStatus():')
+//         const base_url = 'https://stablehorde.net/api/v2/generate/status'
 
-        const full_url = `${base_url}/${id}`
-        // const full_url = 'https://stablehorde.net/api/v2/generate/sync'
-        console.log(full_url)
-        const payload = {}
-        let request = await fetch(full_url, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                // 'Client-Agent': '4c79ab19-8e6c-4054-83b3-773b7ce71ece',
-                'Client-Agent': 'unknown:0:unknown',
-            },
-        })
+//         const full_url = `${base_url}/${id}`
+//         // const full_url = 'https://stablehorde.net/api/v2/generate/sync'
+//         console.log(full_url)
+//         const payload = {}
+//         let request = await fetch(full_url, {
+//             method: 'GET',
+//             headers: {
+//                 Accept: 'application/json',
+//                 'Content-Type': 'application/json',
+//                 // 'Client-Agent': '4c79ab19-8e6c-4054-83b3-773b7ce71ece',
+//                 'Client-Agent': 'unknown:0:unknown',
+//             },
+//         })
 
-        let json = await request.json()
-        console.log('requestHordeStatus json:', json)
+//         let json = await request.json()
+//         console.log('requestHordeStatus json:', json)
 
-        return json
-    } catch (e) {
-        console.warn(e)
-        return {}
-    }
-}
+//         return json
+//     } catch (e) {
+//         console.warn(e)
+//         return {}
+//     }
+// }
 
 async function requestExtraSingleImage(payload) {
     console.log('requestExtraSingleImage(): about to send a fetch request')
@@ -590,7 +589,6 @@ async function requestGetUpscalers() {
     return json
 }
 
-
 module.exports = {
     requestTxt2Img,
     requestImg2Img,
@@ -610,9 +608,9 @@ module.exports = {
     requestGetOptions,
     imageSearch,
     requestSavePng,
-    requestHorde,
-    requestHordeCheck,
-    requestHordeStatus,
+    // requestHorde,
+    // requestHordeCheck,
+    // requestHordeStatus,
     requestExtraSingleImage,
     requestGetUpscalers,
 }

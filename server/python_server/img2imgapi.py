@@ -26,7 +26,24 @@ import metadata_to_json
 def b64_2_img(base64_image):
      image = Image.open(io.BytesIO(base64.b64decode(base64_image.split(",",1)[0])))
      return image
-     
+
+def reserveBorderPixels(img,dilation_img):
+    pixels = img.load() # this is not a list, nor is it list()'able
+    width, height = img.size
+    dilation_pixels =  dilation_img.load()
+    all_pixels = []
+    depth = 20 # five pixel depth
+    for x in range(width):
+        for d in range(depth): 
+            dilation_pixels[x,d] =  pixels[x, d]
+            dilation_pixels[x,height-(d+1)] =  pixels[x, height-(d+1)]
+        # all_pixels.append(cpixel)
+    for y in range(height):
+        for d in range(depth): 
+            dilation_pixels[d,y] =  pixels[d,y] # d = 0
+            dilation_pixels[width-(d+1),y] =  pixels[width-(d+1), y]
+    return dilation_img
+        
 def maskExpansion(mask_img,mask_expansion):
      #only if image exist then try to open it
     
@@ -35,10 +52,10 @@ def maskExpansion(mask_img,mask_expansion):
         
         # if(payload['use_sharp_mask'] == False):# use blurry mask 
         iteration = mask_expansion
-        mask_img = applyDilation(mask_img,iteration)
-
-
-        return mask_img
+        dilated_img = applyDilation(mask_img,iteration)
+        mask_with_border = reserveBorderPixels(mask_img,dilated_img)
+        mask_with_border = mask_with_border.filter(ImageFilter.GaussianBlur(radius = 10))
+        return mask_with_border
         
 async def base64ToPng(base64_image,image_path):
     base64_img_bytes = base64_image.encode('utf-8')
@@ -52,7 +69,7 @@ async def base64ToPng(base64_image,image_path):
 from PIL import Image, ImageFilter
 def applyDilation(img,iteration=20,max_filter=3):
     # img = Image.open("test_image_2.png")
-    dilation_img = img
+    dilation_img = img.copy()
     # for i in range(20):
     #     dilation_img = dilation_img.filter(ImageFilter.MaxFilter(3))
     for i in range(iteration):

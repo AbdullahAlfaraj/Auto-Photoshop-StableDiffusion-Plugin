@@ -193,6 +193,15 @@ async function selectLayers(layers) {
     }
 }
 
+async function setVisibleExe(layer, is_visible) {
+    try {
+        await executeAsModal(async () => {
+            layer.visible = is_visible
+        })
+    } catch (e) {
+        console.warn(e)
+    }
+}
 async function selectLayersExe(layers) {
     await executeAsModal(async () => {
         await selectLayers(layers)
@@ -275,7 +284,11 @@ async function unSelectMarqueeCommand() {
     return result
 }
 async function unSelectMarqueeExe() {
-    await executeAsModal(unSelectMarqueeCommand)
+    try {
+        await executeAsModal(unSelectMarqueeCommand)
+    } catch (e) {
+        console.warn(e)
+    }
 }
 ////selection:
 async function selectMarqueeRectangularToolExe() {
@@ -494,9 +507,16 @@ async function reSelectMarqueeCommand(selectionInfo) {
     )
 }
 async function reSelectMarqueeExe(selectionInfo) {
-    await executeAsModal(async () => {
-        await reSelectMarqueeCommand(selectionInfo)
-    })
+    try {
+        if (isSelectionValid(selectionInfo)) {
+            //only try to reactivate the selection area if it is valid
+            await executeAsModal(async () => {
+                await reSelectMarqueeCommand(selectionInfo)
+            })
+        }
+    } catch (e) {
+        console.warn(e)
+    }
 }
 
 async function snapshot_layer() {
@@ -813,13 +833,18 @@ async function cleanLayers(layers) {
     console.log('cleanLayers() -> layers:', layers)
     for (layer of layers) {
         try {
-            if (layer) {
+            if (layer_util.Layer.doesLayerExist(layer)) {
                 await executeAsModal(async () => {
                     await layer.delete()
                 })
             }
         } catch (e) {
-            console.warn('warning attempting to a delete layer: ', e)
+            console.warn(
+                'warning attempting to a delete layer,layer.name: ',
+                layer.name,
+                layer,
+                e
+            )
             continue
         }
     }
@@ -1117,7 +1142,7 @@ async function newExportPng(layer, image_name, width, height) {
             let exportDoc = await app.documents.add({
                 width: width,
                 height: height,
-                resolution: 300,
+                resolution: await app.activeDocument.resolution,
                 mode: 'RGBColorMode',
                 fill: 'transparent',
             })
@@ -1174,7 +1199,7 @@ async function tempExportPng(layer, image_name, width, height) {
             let exportDoc = await app.documents.add({
                 width: width,
                 height: height,
-                resolution: 300,
+                resolution: await app.activeDocument.resolution,
                 mode: 'RGBColorMode',
                 fill: 'transparent',
             })
@@ -1351,4 +1376,5 @@ module.exports = {
     layerToSelection,
     isSelectionValid,
     snapshot_layer_no_slide_Exe,
+    setVisibleExe,
 }

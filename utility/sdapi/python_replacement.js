@@ -1,13 +1,13 @@
 //how to get environment variable in javascript
 
 const { getPromptShortcut } = require('../html_manip')
-
-function newOutputImageName() {
-    const random_id = Math.floor(Math.random() * 100000000000 + 1) // Date.now() doesn't have enough resolution to avoid duplicate
-    const image_name = `output- ${Date.now()}-${random_id}.png`
-    console.log('generated image name:', image_name)
-    return image_name
-}
+const general = require('../general')
+// function newOutputImageName(format = 'png') {
+//     const random_id = Math.floor(Math.random() * 100000000000 + 1) // Date.now() doesn't have enough resolution to avoid duplicate
+//     const image_name = `output- ${Date.now()}-${random_id}.${format}`
+//     console.log('generated image name:', image_name)
+//     return image_name
+// }
 
 function convertMetadataToJson(metadata_str) {
     try {
@@ -145,7 +145,7 @@ async function txt2ImgRequest(payload) {
             // pnginfo = PngImagePlugin.PngInfo()
             // pnginfo.add_text("parameters", response2.json().get("info"))
 
-            const image_name = newOutputImageName()
+            const image_name = general.newOutputImageName()
             const image_path = `${uniqueDocumentId}/${image_name}`
 
             // image_path = f'output/{dirName}/{image_name}'
@@ -272,15 +272,15 @@ async function img2ImgRequest(sd_url, payload) {
     // if(len(init_img_mask_name) > 0):
     // init_img_mask = Image.open(f"{init_img_dir}/{init_img_mask_name}")
 
-    if (payload['use_sharp_mask'] === false && payload['mask']) {
-        //only if mask is available and sharp_mask is off
-        // use blurry and expanded mask
-        const iterations = payload['mask_expansion']
-        const mask = await maskExpansionRequest(payload['mask'], iterations)
-        if (mask) {
-            payload['mask'] = mask
-        }
-    }
+    // if (payload['use_sharp_mask'] === false && payload['mask']) {
+    //     //only if mask is available and sharp_mask is off
+    //     // use blurry and expanded mask
+    //     const iterations = payload['mask_expansion']
+    //     const mask = await maskExpansionRequest(payload['mask'], iterations)
+    //     if (mask) {
+    //         payload['mask'] = mask
+    //     }
+    // }
 
     // print(type(init_img_str))
     // #request the images to be generated
@@ -330,7 +330,7 @@ async function img2ImgRequest(sd_url, payload) {
         // metadata_info = response2.json().get("info")
         // metadata_json = metadata_to_json.convertMetadataToJson(metadata_info)
         // metadata.append(metadata_json)
-        const image_name = newOutputImageName()
+        const image_name = general.newOutputImageName()
         const image_path = `${uniqueDocumentId}/${image_name}`
 
         images_info.push({
@@ -495,7 +495,6 @@ async function loadPromptShortcut(file_name) {
     } catch (e) {
         console.warn(e)
     }
-    
 }
 
 async function extraSingleImageRequest(sd_url, payload) {
@@ -523,7 +522,7 @@ async function extraSingleImageRequest(sd_url, payload) {
     let auto_metadata_json = {}
 
     const uniqueDocumentId = payload['uniqueDocumentId']
-    const image_name = newOutputImageName()
+    const image_name = general.newOutputImageName()
     const image_path = `${uniqueDocumentId}/${image_name}`
 
     images_info.push({
@@ -531,7 +530,6 @@ async function extraSingleImageRequest(sd_url, payload) {
         path: image_path,
         auto_metadata: auto_metadata_json,
     })
-
 
     console.log('extraSingleImageRequest response json:', r)
 
@@ -557,5 +555,6 @@ module.exports = {
     getDocumentFolderNativePath,
     convertMetadataToJson,
     openUrlRequest,
+    replacePromptsWithShortcuts,
     extraSingleImageRequest,
 }

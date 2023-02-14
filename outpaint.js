@@ -204,8 +204,8 @@ async function snapAndFillExe(session_id) {
                 layer.visible = false
             }
             await psapi.reSelectMarqueeExe(selectionInfo)
-            const util_layer = require('./utility/layer')
-            await util_layer.collapseFolderExe([snapshotGroup], false)
+            const layer_util = require('./utility/layer')
+            await layer_util.collapseFolderExe([snapshotGroup], false)
         })
         console.log('snapAndFillLayers: ', snapAndFillLayers)
         return snapAndFillLayers
@@ -321,8 +321,8 @@ async function outpaintFasterExe(session_id) {
             }
 
             //collapse the folders
-            const util_layer = require('./utility/layer')
-            await util_layer.collapseFolderExe(
+            const layer_util = require('./utility/layer')
+            await layer_util.collapseFolderExe(
                 [snapshotGroup, snapshotMaskGroup],
                 false
             )
@@ -456,8 +456,8 @@ async function outpaintExe(session_id) {
             }
 
             //collapse the folders
-            const util_layer = require('./utility/layer')
-            await util_layer.collapseFolderExe(
+            const layer_util = require('./utility/layer')
+            await layer_util.collapseFolderExe(
                 [snapshotGroup, snapshotMaskGroup],
                 false
             )
@@ -614,9 +614,9 @@ async function inpaintFasterExe(session_id) {
             for (layer of inpaintLayers) {
                 layer.visible = false
             }
-            const util_layer = require('./utility/layer')
+            const layer_util = require('./utility/layer')
 
-            await util_layer.collapseFolderExe(
+            await layer_util.collapseFolderExe(
                 [snapshotGroup, maskGroup],
                 false
             )

@@ -53,8 +53,10 @@ class UI {
         const generate_btns = Array.from(
             document.getElementsByClassName('btnGenerateClass')
         )
+        const generation_mode = g_generation_session.mode
+        const generation_name = getCurrentGenerationModeByValue(generation_mode)
         generate_btns.forEach((element) => {
-            element.textContent = `Generate More`
+            element.textContent = `Generate More ${generation_name}`
         })
         html_manip.setGenerateButtonsColor('generate-more', 'generate')
     }

@@ -27,6 +27,8 @@ class GenerationSession {
         this.base64maskImage = []
         this.activeBase64InitImage
         this.activeBase64MaskImage
+        this.image_paths_to_layers = {}
+        this.progress_layer
     }
     isActive() {
         return this.state === SessionState['Active']
@@ -90,11 +92,11 @@ class GenerationSession {
             }
 
             //delete the old selection area
-            // g_selection = {}
+            // g_generation_session.selectionInfo = {}
 
             this.isFirstGeneration = true // only before the first generation is requested should this be true
             // const is_visible = await this.outputGroup.visible
-            await util_layer.collapseFolderExe([this.outputGroup], false) // close the folder group
+            await layer_util.collapseFolderExe([this.outputGroup], false) // close the folder group
             // this.outputGroup.visible = is_visible
 
             if (
@@ -104,7 +106,7 @@ class GenerationSession {
                 //create "Mask -- Paint White to Mask -- temporary" layer if current session was inpiant and the selected session is inpaint
                 // the current inpaint session ended on inpaint
                 g_b_mask_layer_exist = false
-                await util_layer.deleteLayers([g_inpaint_mask_layer])
+                await layer_util.deleteLayers([g_inpaint_mask_layer])
                 await createTempInpaintMaskLayer()
             }
         } catch (e) {
@@ -117,7 +119,7 @@ class GenerationSession {
 
             if (this.prevOutputGroup) {
                 // const is_visible = await this.prevOutputGroup.visible
-                await util_layer.collapseFolderExe(
+                await layer_util.collapseFolderExe(
                     [this.prevOutputGroup],
                     false
                 ) // close the folder group
@@ -148,6 +150,13 @@ class GenerationSession {
         await executeAsModal(async () => {
             await psapi.moveToGroupCommand(group_index - indexOffset, layer.id)
         })
+    }
+    async deleteProgressLayer() {
+        try {
+            await layer_util.deleteLayers([this.progress_layer]) // delete the old progress layer
+        } catch (e) {
+            console.warn(e)
+        }
     }
 }
 

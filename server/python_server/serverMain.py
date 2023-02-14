@@ -1,3 +1,4 @@
+
 import json
 import requests
 import io
@@ -332,7 +333,7 @@ async def maskExpansionHandler(request:Request):
         base64_expanded_mask_image = img2imgapi.img_2_b64(expanded_mask_img)
         await img2imgapi.base64ToPng(base64_expanded_mask_image,"expanded_mask.png")#save a copy of the mask of the expanded_mask for debugging
 
-
+        print("successful mask expansion operation")
         return {"mask":base64_expanded_mask_image}
     
     except:

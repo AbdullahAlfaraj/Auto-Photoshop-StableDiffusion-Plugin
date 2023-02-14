@@ -151,7 +151,12 @@ function setHiResFixs(isChecked) {
     document.getElementById('chHiResFixs').checked = isChecked
 }
 
-function sliderAddEventListener(slider_id, label_id, multiplier, fractionDigits = 2) {
+function sliderAddEventListener(
+    slider_id,
+    label_id,
+    multiplier,
+    fractionDigits = 2
+) {
     document.getElementById(slider_id).addEventListener('input', (evt) => {
         const sd_value = evt.target.value * multiplier // convert slider value to SD ready value
         document.getElementById(label_id).textContent =
@@ -238,6 +243,17 @@ function getExtensionType() {
     return [...document.getElementsByClassName('rbExtensionType')].filter(
         (e) => e.checked == true
     )[0].value
+}
+function getBackendType() {
+    return [...document.getElementsByClassName('rbBackendType')].filter(
+        (e) => e.checked == true
+    )[0].value
+}
+
+function getHordeApiKey() {
+    let key = document.getElementById('tiHordeApiKey').value
+    const valid_key = key ? key : '0000000000'
+    return valid_key
 }
 function checkSampler(sampler_name) {
     sampler_element = getSamplerElementByName(sampler_name)
@@ -363,7 +379,6 @@ function getUpscaleSize() {
 
 sliderAddEventListener('slUpscaler2Visibility', 'lUpscaler2Visibility', 0.1, 1)
 
-
 function getUpscaler2Visibility() {
     slider_width = document.getElementById('slUpscaler2Visibility').value
     const size = slider_width / 10
@@ -372,15 +387,18 @@ function getUpscaler2Visibility() {
 
 sliderAddEventListener('slGFPGANVisibility', 'lGFPGANVisibility', 0.1, 1)
 
-
 function getGFPGANVisibility() {
     slider_width = document.getElementById('slGFPGANVisibility').value
     const size = slider_width / 10
     return size
 }
 
-sliderAddEventListener('slCodeFormerVisibility', 'lCodeFormerVisibility', 0.1, 1)
-
+sliderAddEventListener(
+    'slCodeFormerVisibility',
+    'lCodeFormerVisibility',
+    0.1,
+    1
+)
 
 function getCodeFormerVisibility() {
     slider_width = document.getElementById('slCodeFormerVisibility').value
@@ -390,13 +408,11 @@ function getCodeFormerVisibility() {
 
 sliderAddEventListener('slCodeFormerWeight', 'lCodeFormerWeight', 0.1, 1)
 
-
 function getCodeFormerWeight() {
     slider_width = document.getElementById('slCodeFormerWeight').value
     const size = slider_width / 10
     return size
 }
-
 
 ////// End Extras //////////
 
@@ -439,9 +455,7 @@ snapshot_btns.forEach((element) =>
     })
 )
 
-const reset_btns = Array.from(
-    document.getElementsByClassName('resetButton')
-)
+const reset_btns = Array.from(document.getElementsByClassName('resetButton'))
 reset_btns.forEach((element) =>
     element.addEventListener('click', async () => {
         try {
@@ -611,7 +625,7 @@ function addHistoryButtonsHtml(img_html) {
         //set init image event listener, use when settion is active
         let image_path = img_html.dataset.path
         const image_path_escape = image_path.replace(/\o/g, '/o') //escape string "\o" in "\output"
-        // await placeEmbedded(image_path_escape)
+
         // load the image from "data:image/png;base64," base64_str
         const base64_image = img_html.src.replace('data:image/png;base64,', '')
         await base64ToFile(base64_image)
@@ -638,6 +652,19 @@ function getMaskExpansion() {
 
 function setMaskExpansion(mask_expansion) {
     document.getElementById('slMaskExpansion').value = mask_expansion
+}
+
+function updateProgressBarsHtml(new_value) {
+    document.querySelectorAll('.pProgressBars').forEach((el) => {
+        // id = el.getAttribute("id")
+        // console.log("progressbar id:", id)
+        try {
+            el.setAttribute('value', new_value)
+        } catch (e) {
+            console.warn(e) //value is not valid
+        }
+    })
+    // document.querySelector('#pProgressBar').value
 }
 ///end selection mode////
 module.exports = {
@@ -699,4 +726,7 @@ module.exports = {
     getCodeFormerVisibility,
     getGFPGANVisibility,
     getCodeFormerWeight,
+    updateProgressBarsHtml,
+    getBackendType,
+    getHordeApiKey,
 }
