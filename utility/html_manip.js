@@ -250,6 +250,11 @@ function getBackendType() {
     )[0].value
 }
 
+function getHordeApiKey() {
+    let key = document.getElementById('tiHordeApiKey').value
+    const valid_key = key ? key : '0000000000'
+    return valid_key
+}
 function checkSampler(sampler_name) {
     sampler_element = getSamplerElementByName(sampler_name)
     sampler_element.checked = true
@@ -723,4 +728,5 @@ module.exports = {
     getCodeFormerWeight,
     updateProgressBarsHtml,
     getBackendType,
+    getHordeApiKey,
 }
