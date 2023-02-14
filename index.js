@@ -115,11 +115,14 @@ const eventHandler = async (event, descriptor) => {
 
 function getCurrentGenerationModeByValue(value) {
     for (let key in generationMode) {
-        if (generationMode.hasOwnProperty(key) && generationMode[key] === value) {
-            return key;
+        if (
+            generationMode.hasOwnProperty(key) &&
+            generationMode[key] === value
+        ) {
+            return key
         }
     }
-    return undefined;
+    return undefined
 }
 
 require('photoshop').action.addNotificationListener(
@@ -366,14 +369,18 @@ async function refreshModels() {
 async function refreshExtraUpscalers() {
     try {
         //cycle through hrModelsMenuClass and reset innerHTML
-        var hrModelsMenuClass = document.getElementsByClassName('hrExtrasUpscaleModelsMenuClass')
+        var hrModelsMenuClass = document.getElementsByClassName(
+            'hrExtrasUpscaleModelsMenuClass'
+        )
         for (let i = 0; i < hrModelsMenuClass.length; i++) {
             hrModelsMenuClass[i].innerHTML = ''
         }
         g_extra_upscalers = await sdapi.requestGetUpscalers()
 
         for (let model of g_extra_upscalers) {
-            var hrModelsMenuClass = document.getElementsByClassName('hrExtrasUpscaleModelsMenuClass')
+            var hrModelsMenuClass = document.getElementsByClassName(
+                'hrExtrasUpscaleModelsMenuClass'
+            )
             for (let i = 0; i < hrModelsMenuClass.length; i++) {
                 const menu_item_element = document.createElement('sp-menu-item')
                 menu_item_element.className = 'hrExtrasUpscaleModelsMenuItem'
@@ -381,13 +388,11 @@ async function refreshExtraUpscalers() {
                 hrModelsMenuClass[i].appendChild(menu_item_element)
                 console.log(model + ' added to ' + hrModelsMenuClass[i].id)
             }
-            
-        }        
+        }
     } catch (e) {
         console.warn(e)
     }
 }
-
 
 async function updateVersionUI() {
     let bStatus = false
@@ -561,7 +566,7 @@ let g_init_image_mask_name = ''
 // let g_init_image_related_layers = {}
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
 let g_sd_mode = 'txt2img'
-let g_sd_mode_last = g_sd_mode
+// let g_sd_mode_last = g_sd_mode
 let g_sd_sampler = 'Euler a'
 let g_denoising_strength = 0.7
 let g_use_mask_image = false
@@ -668,27 +673,33 @@ for (let rbModeElement of rbModeElements) {
 }
 
 //swaps g_sd_mode when clicking on extras tab and swaps it back to previous value when clicking on main tab
-document.getElementById('sp-extras-tab').addEventListener('click', async (evt) => {
-    try {
-        g_sd_mode_last = g_sd_mode
-        g_sd_mode = 'upscale'
-        console.log(`You clicked: ${g_sd_mode}`)
-        await displayUpdate()
-        await postModeSelection() // do things after selection
-    } catch (e) {
-        console.warn(e)
-    }
-})
+document
+    .getElementById('sp-extras-tab')
+    .addEventListener('click', async (evt) => {
+        try {
+            // g_sd_mode_last = g_sd_mode
+            g_sd_mode = 'upscale'
+            console.log(`You clicked: ${g_sd_mode}`)
+            await displayUpdate()
+            await postModeSelection() // do things after selection
+        } catch (e) {
+            console.warn(e)
+        }
+    })
 
-document.getElementById('sp-stable-diffusion-ui-tab').addEventListener('click', async (evt) => {
-    try {
-        g_sd_mode = g_sd_mode_last
-        console.log(`mode restored to: ${g_sd_mode}`)
-        await displayUpdate()
-        await postModeSelection() // do things after selection
-} catch (e) {
-    console.warn(e)
-}})
+document
+    .getElementById('sp-stable-diffusion-ui-tab')
+    .addEventListener('click', async (evt) => {
+        try {
+            // g_sd_mode = g_sd_mode_last
+            g_sd_mode = html_manip.getMode()
+            console.log(`mode restored to: ${g_sd_mode}`)
+            await displayUpdate()
+            await postModeSelection() // do things after selection
+        } catch (e) {
+            console.warn(e)
+        }
+    })
 
 async function createTempInpaintMaskLayer() {
     if (!g_b_mask_layer_exist) {
@@ -950,7 +961,8 @@ async function displayUpdate() {
                     document.getElementsByClassName('btnGenerateClass')
                 )
                 generate_btns.forEach((element) => {
-                    const selected_mode = getCurrentGenerationModeByValue(g_sd_mode)
+                    const selected_mode =
+                        getCurrentGenerationModeByValue(g_sd_mode)
                     element.textContent = `Generate ${selected_mode}`
                 })
 
@@ -1263,7 +1275,10 @@ function toggleTwoButtonsByClass(isVisible, first_class, second_class) {
         } else {
             //show generate button
             first_class_btns.forEach(
-                (element) => (element.textContent = `Generate ${getCurrentGenerationModeByValue(g_sd_mode)}`)
+                (element) =>
+                    (element.textContent = `Generate ${getCurrentGenerationModeByValue(
+                        g_sd_mode
+                    )}`)
             )
         }
         second_class_btns.forEach((element) => (element.style.display = 'none'))
@@ -1515,22 +1530,31 @@ async function deleteMaskRelatedLayers() {
 Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
     (element) => {
         element.addEventListener('click', async () => {
-    try {
-        json = await sdapi.requestInterrupt()
+            try {
+                json = await sdapi.requestInterrupt()
 
-        toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
-        g_can_request_progress = false
-        g_request_status = requestState['Interrupt']
+                toggleTwoButtonsByClass(
+                    false,
+                    'btnGenerateClass',
+                    'btnInterruptClass'
+                )
+                g_can_request_progress = false
+                g_request_status = requestState['Interrupt']
 
-        // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
-    } catch (e) {
-        // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
-        toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
-        g_can_request_progress = false
-        console.warn(e)
+                // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+            } catch (e) {
+                // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+                toggleTwoButtonsByClass(
+                    false,
+                    'btnGenerateClass',
+                    'btnInterruptClass'
+                )
+                g_can_request_progress = false
+                console.warn(e)
+            }
+        })
     }
-})
-    })
+)
 
 //store active layers only if they are not stored.
 async function storeActiveLayers() {
@@ -1872,7 +1896,7 @@ async function getExtraSettings() {
         const upscaler1 = document.querySelector('#hrModelsMenuUpscale1').value
         payload['upscaler_1'] = upscaler1 === undefined ? 'None' : upscaler1
         const upscaler2 = document.querySelector('#hrModelsMenuUpscale2').value
-        payload['upscaler_2'] = upscaler2  === undefined ? 'None' : upscaler2
+        payload['upscaler_2'] = upscaler2 === undefined ? 'None' : upscaler2
         const extras_upscaler_2_visibility = html_manip.getUpscaler2Visibility()
         payload['extras_upscaler_2_visibility'] = extras_upscaler_2_visibility
         payload['upscale_first'] = false
@@ -1886,13 +1910,16 @@ async function getExtraSettings() {
         // image_name = await app.activeDocument.activeLayers[0].name
 
         //convert layer name to a file name
-        let image_name = psapi.layerNameToFileName(old_name, layer.id, random_session_id)
+        let image_name = psapi.layerNameToFileName(
+            old_name,
+            layer.id,
+            random_session_id
+        )
         image_name = `${image_name}.png`
 
         const base64_image = g_generation_session.activeBase64InitImage
 
         payload['image'] = base64_image
-        
     } catch (e) {
         console.error(e)
     }
@@ -1996,8 +2023,8 @@ async function easyModeGenerate(mode) {
 
         await g_generation_session.closePreviousOutputGroup()
 
-        
-        const settings = (mode === 'upscale') ? await getExtraSettings() : await getSettings();
+        const settings =
+            mode === 'upscale' ? await getExtraSettings() : await getSettings()
         await generate(settings, mode)
     } catch (e) {
         console.warn(e)
@@ -2260,10 +2287,8 @@ function updateProgressBarsHtml(new_value) {
     })
     document.querySelectorAll('.lProgressLabel').forEach((el) => {
         console.log('updateProgressBarsHtml: ', new_value)
-        if(new_value > 0)
-            el.innerHTML = 'In progress...'
-        else
-            el.innerHTML = 'No work in progress'
+        if (new_value > 0) el.innerHTML = 'In progress...'
+        else el.innerHTML = 'No work in progress'
     })
     // document.querySelector('#pProgressBar').value
 }
@@ -3519,7 +3544,6 @@ for (let model of hr_models) {
         hrModelsMenuClass[i].appendChild(menu_item_element)
         console.log(model + ' added to ' + hrModelsMenuClass[i].id)
     }
-    
 }
 
 var chHiResFixs = document.getElementById('chHiResFixs')
