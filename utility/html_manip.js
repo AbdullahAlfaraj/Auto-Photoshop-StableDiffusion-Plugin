@@ -244,6 +244,12 @@ function getExtensionType() {
         (e) => e.checked == true
     )[0].value
 }
+function getBackendType() {
+    return [...document.getElementsByClassName('rbBackendType')].filter(
+        (e) => e.checked == true
+    )[0].value
+}
+
 function checkSampler(sampler_name) {
     sampler_element = getSamplerElementByName(sampler_name)
     sampler_element.checked = true
@@ -716,4 +722,5 @@ module.exports = {
     getGFPGANVisibility,
     getCodeFormerWeight,
     updateProgressBarsHtml,
+    getBackendType,
 }

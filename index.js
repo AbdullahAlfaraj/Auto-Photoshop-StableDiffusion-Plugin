@@ -655,6 +655,11 @@ const generationMode = {
     Outpaint: 'outpaint',
     Upscale: 'upscale',
 }
+const backendTypeEnum = {
+    Auto1111: 'auto1111',
+    HordeNative: 'horde_native',
+    Auto1111HordeExtension: 'auto1111_horde_extension',
+}
 
 g_generation_session.mode = generationMode['Txt2Img']
 let g_viewer_manager = new viewer.ViewerManager()
@@ -1557,7 +1562,8 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
     (element) => {
         element.addEventListener('click', async () => {
             try {
-                if (script_horde.getUseHorde()) {
+                const backend_type = html_manip.getBackendType()
+                if (backend_type === backendTypeEnum['HordeNative']) {
                     //interrupt the horde
 
                     await g_horde_generator.interrupt()
@@ -1880,8 +1886,8 @@ async function getSettings() {
         // }
         // const script_args = Object.values(script_args_json)
 
-        const b_use_horde = script_horde.getUseHorde()
-        if (b_use_horde) {
+        const backend_type = html_manip.getBackendType()
+        if (backend_type === backendTypeEnum['Auto1111HordeExtension']) {
             payload['script_name'] = script_horde.script_name
             payload['script_args'] = script_horde.getScriptArgs()
         } else {
@@ -2060,12 +2066,15 @@ async function getExtraSettings() {
 async function generateImg2Img(settings) {
     let json = {}
     try {
-        const backend = getBackend()
-        if (backend === 'horde_native') {
+        const backend_type = html_manip.getBackendType()
+        if (backend_type === backendTypeEnum['HordeNative']) {
             json = await g_horde_generator.generate()
             // json = await g_horde_generator.toGenerationFormat(images_info)
             // json = { images_info: images_info }
-        } else if (backend === 'auto1111') {
+        } else if (
+            backend_type === backendTypeEnum['Auto1111'] ||
+            backend_type === backendTypeEnum['Auto1111HordeExtension']
+        ) {
             json = await sdapi.requestImg2Img(settings)
         }
     } catch (e) {
@@ -2078,12 +2087,15 @@ async function generateImg2Img(settings) {
 async function generateTxt2Img(settings) {
     let json = {}
     try {
-        const backend = getBackend()
-        if (backend === 'horde_native') {
+        const backend_type = html_manip.getBackendType()
+        if (backend_type === backendTypeEnum['HordeNative']) {
             json = await g_horde_generator.generate()
             // json = await g_horde_generator.toGenerationFormat(images_info)
             // json = { images_info: images_info }
-        } else if (backend === 'auto1111') {
+        } else if (
+            backend_type === backendTypeEnum['Auto1111'] ||
+            backend_type === backendTypeEnum['Auto1111HordeExtension']
+        ) {
             json = await sdapi.requestTxt2Img(settings)
         }
     } catch (e) {
@@ -2227,7 +2239,7 @@ async function generate(settings, mode) {
         g_can_request_progress = true
         //wait 2 seconds till you check for progress
 
-        if (getBackend() !== 'horde_native') {
+        if (html_manip.getBackendType() !== backendTypeEnum['HordeNative']) {
             setTimeout(async function () {
                 // change this to setInterval()
                 await progressRecursive()
