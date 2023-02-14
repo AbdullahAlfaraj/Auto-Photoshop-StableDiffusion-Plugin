@@ -424,6 +424,16 @@
             background-repeat: no-repeat;
         }
 
+        .layerToSelection {
+            font-family: Arial, Verdana;
+            background-image: url(./icon/layer_to_selection.svg);
+            background-color: #777;
+            background-size: 30px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
+        }
+
         .acceptAllImgBtn {
             font-family: Arial, Verdana;
             background-image: url(./icon/accept_all.svg);
@@ -1112,13 +1122,11 @@
                         "
                     >
                         <button
-                            class="btnSquare"
+                            class="btnSquare layerToSelection"
                             id="btnLayerToSelection"
                             style="margin-right: 3px"
                             title="Move and reSize the highlighted layer to fit into the Selection Area "
-                        >
-                            L2S
-                        </button>
+                        ></button>
                         <button class="btnSquare btnGenerateClass">
                             Generate txt2img
                         </button>
