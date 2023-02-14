@@ -502,6 +502,9 @@
                 <div class="sp-tab" id="sp-horde-tab">
                     <sp-label>Horde</sp-label>
                 </div>
+                <div class="sp-tab" id="sp-extras-tab">
+                    <sp-label>Extras</sp-label>
+                </div>
                 <div class="sp-tab" id="sp-settings-tab">
                     <sp-label>Settings</sp-label>
                 </div>
@@ -728,7 +731,86 @@
                     </sp-slider>
                 </div>
             </div>
-
+            <div class="sp-tab-page" id="sp-extras-tab-page">
+                <div style="padding-bottom: 5px;">
+                    <!-- extras tab page -->
+                    <sp-slider style="display: block" show-value="false" id="slUpscaleSize" min="10" max="80" value="20" title="Resize scale of current selection size">
+                        <sp-label slot="label">Resize</sp-label>
+                        <sp-label class="labelNumber" slot="label" id="lUpscaleSize">2</sp-label>
+                    </sp-slider>
+                </div>
+                <div style="
+                                                                        display: inline-flex;
+                                                                        justify-content: flex-start;
+                                                                        padding-bottom: 5px;
+                                                                    ">
+                    <button class="btnSquare btnGenerateClass" id="btnGenerateUpscale">
+                        Generate upscale
+                    </button>
+                    <button class="btnSquare btnInterruptClass" id="btnInterruptUpscale" style="display: none">
+                        Interrupt
+                    </button>
+                    <div style="padding-left: 5px;">
+                        <button class="btnSquare acceptClass acceptAllImgBtn" style="display: none; margin-right: 3px"></button>
+                        <button class="btnSquare discardClass discardAllImgBtn" style="display: none; margin-right: 3px"></button>
+                        <button class="btnSquare snapshotButton" id="btnSnapshotUpscale" style="margin-right: 3px;"
+                            title="create a snapshot of what you see on the canvas and place on a new layer"></button>
+                        <button class="btnSquare resetButton" id="btnResetSettingsUpscale"
+                            title="reset the ui settings to their default values"></button>
+                    </div>
+                </div>
+                <!-- <div id="progressContainerUpscale" class="" style="padding-bottom: 5px;">
+                    <sp-progressbar class="pProgressBars" id="pProgressBarUpscale" max="100" value="0">
+                        <sp-label slot="label">Progress...</sp-label>
+                    </sp-progressbar>
+                </div> -->
+                <div id="progressContainerUpscale" class="" style="padding-bottom: 5px;">
+                    <sp-label slot="label" class="lProgressLabel">No work in progress</sp-label>
+                </div>
+                <div style="padding-bottom: 5px;">
+                    <sp-label style="width: 60px; display: inline-block;">Upscaler 1: </sp-label>
+                    <sp-picker size="m" label="Upscaler Options">
+                        <sp-menu id="hrModelsMenuUpscale1" class="hrExtrasUpscaleModelsMenuClass" slot="options">
+                            <!-- <sp-menu-item> item </sp-menu-item> -->
+                        </sp-menu>
+                    </sp-picker>
+                    <div></div>
+                    <sp-label style="width: 60px; display: inline-block;">Upscaler 2: </sp-label>
+                    <sp-picker size="m" label="Upscaler Options">
+                        <sp-menu id="hrModelsMenuUpscale2" class="hrExtrasUpscaleModelsMenuClass" slot="options">
+                            <!-- <sp-menu-item> item </sp-menu-item> -->
+                        </sp-menu>
+                    </sp-picker>
+                </div>
+                <div style="padding-bottom: 5px;">
+                    <!-- extras tab page -->
+                    <sp-slider style="display: block" show-value="false" id="slUpscaler2Visibility" min="0" max="10" value="0">
+                        <sp-label style="width: 110px; display: inline-block;" slot="label">Upscaler 2 visibility: </sp-label>
+                        <sp-label style="display: inline-block;" class="labelNumber" slot="label" id="lUpscaler2Visibility">0</sp-label>
+                    </sp-slider>
+                </div>
+                <div style="padding-bottom: 5px;">
+                    <!-- extras tab page -->
+                    <sp-slider style="display: block" show-value="false" id="slGFPGANVisibility" min="0" max="10" value="0">
+                        <sp-label style="width: 110px; display: inline-block;" slot="label">GFPGAN visibility: </sp-label>
+                        <sp-label style="display: inline-block;" class="labelNumber" slot="label" id="lGFPGANVisibility">0</sp-label>
+                    </sp-slider>
+                </div>
+                <div style="padding-bottom: 5px;">
+                    <!-- extras tab page -->
+                    <sp-slider style="display: block" show-value="false" id="slCodeFormerVisibility" min="0" max="10" value="0">
+                        <sp-label style="width: 110px; display: inline-block;" slot="label">CodeFormer visibility: </sp-label>
+                        <sp-label style="display: inline-block;" class="labelNumber" slot="label" id="lCodeFormerVisibility">0</sp-label>
+                    </sp-slider>
+                </div>
+                <div style="padding-bottom: 5px;">
+                    <!-- extras tab page -->
+                    <sp-slider style="display: block" show-value="false" id="slCodeFormerWeight" min="0" max="10" value="0">
+                        <sp-label style="width: 110px; display: inline-block;" slot="label">CodeFormer weight: </sp-label>
+                        <sp-label style="display: inline-block;" class="labelNumber" slot="label" id="lCodeFormerWeight">0</sp-label>
+                    </sp-slider>
+                </div>
+            </div>
             <div class="sp-tab-page" id="sp-settings-tab-page">
                 <!-- settings tab page -->
                 <div>
@@ -1299,6 +1381,7 @@
                                     >
                                         <sp-menu
                                             id="hrModelsMenu"
+                                            class="hrModelsMenuClass"
                                             slot="options"
                                         >
                                             <!-- <sp-menu-item> item </sp-menu-item> -->
