@@ -385,7 +385,11 @@
             font-size: 1em;
             margin-right: 12px;
         }
-
+        #BackendTypeLabel,
+        .rbBackendType {
+            font-size: 1.05em;
+            margin-right: 12px;
+        }
         .checkbox {
             font-size: 1em;
             margin-right: 10px;
@@ -714,9 +718,41 @@
             <div class="sp-tab-page" id="sp-horde-tab-page">
                 <!-- Horde tab page -->
                 <div></div>
-                <sp-checkbox id="chUseHorde"
-                    >Use Stable Diffusion Horde</sp-checkbox
+                <sp-label>Horde Key:</sp-label
+                ><sp-textfield
+                    id="tiHordeApiKey"
+                    type="password"
+                    placeholder="0000000000"
+                    value=""
+                ></sp-textfield>
+
+                <sp-radio-group>
+                    <sp-label id="BackendTypeLabel" slot="label"
+                        >Select Backend:</sp-label
+                    >
+                    <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
+                    <sp-radio
+                        title="use the horde with the plugin no need to install anything else"
+                        class="rbBackendType"
+                        value="horde_native"
+                        >Native Horde</sp-radio
+                    >
+                    <sp-radio
+                        title="Use the horde extension from Automatic1111 Extension tab"
+                        class="rbBackendType"
+                        value="auto1111_horde_extension"
+                        >Auto1111 Horde Extension</sp-radio
+                    >
+                    <sp-radio
+                        title="use Auto1111 disable the Horde"
+                        class="rbBackendType"
+                        value="auto1111"
+                        checked
+                        >Auto1111 Only</sp-radio
                 >
+                    <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
+                </sp-radio-group>
+
                 <div id="menu-bar-container_horde" style="display: flex">
                     <sp-picker size="m" label="Selection type">
                         <sp-menu id="mModelsMenuHorde" slot="options">
