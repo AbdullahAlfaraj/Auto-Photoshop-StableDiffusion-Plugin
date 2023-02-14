@@ -533,16 +533,32 @@
                 </div>
                 <div></div>
                 <div>
-                    <button class="btnSquare" id="btnSetMaskViewer"> Set Mask </button>
-                    <button class="btnSquare" id="btnSetInitImageViewer"> Set Init Image </button>
-                    <button class="btnSquare btnGenerateClass" id="btnGenerate"> Generate txt2img </button>
+                    <button class="btnSquare" id="btnSetMaskViewer">
+                        Set Mask
+                    </button>
+                    <button class="btnSquare" id="btnSetInitImageViewer">
+                        Set Init Image
+                    </button>
+                    <button class="btnSquare btnGenerateClass" id="btnGenerate">
+                        Generate txt2img
+                    </button>
                     <button
                         class="btnSquare btnInterruptClass"
                         id="btnInterruptViewer"
                         style="display: none"
-                    > Interrupt </button>
-                    <button class="btnSquare" id="btnSelectionArea"> Selection Area </button>
-                    <div style="display: flex; justify-content: flex-start; padding-top: 3px;">
+                    >
+                        Interrupt
+                    </button>
+                    <button class="btnSquare" id="btnSelectionArea">
+                        Selection Area
+                    </button>
+                    <div
+                        style="
+                            display: flex;
+                            justify-content: flex-start;
+                            padding-top: 3px;
+                        "
+                    >
                         <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
             <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button>
             <button class="btnSquare acceptSelectedClass acceptSelectedImgBtn"  style="display:none;">Accept Selected</button>
@@ -550,22 +566,22 @@
                         <button
                             title="Keep all generated images on the canvas"
                             class="btnSquare acceptClass acceptAllImgBtn"
-                            style="display: none; margin-right: 3px;"
+                            style="display: none; margin-right: 3px"
                         ></button>
                         <button
                             title="Delete all generated images from the canvas"
                             class="btnSquare discardClass discardAllImgBtn"
-                            style="display: none; margin-right: 3px;"
+                            style="display: none; margin-right: 3px"
                         ></button>
                         <button
                             title="Keep only the highlighted images"
                             class="btnSquare acceptSelectedClass acceptSelectedImgBtn"
-                            style="display: none; margin-right: 3px;"
+                            style="display: none; margin-right: 3px"
                         ></button>
                         <button
                             title="Delete only the highlighted images"
                             class="btnSquare discardSelectedClass discardSelectedImgBtn"
-                            style="display: none; margin-right: 3px;"
+                            style="display: none; margin-right: 3px"
                         ></button>
                     </div>
 
@@ -732,31 +748,66 @@
                 </div>
             </div>
             <div class="sp-tab-page" id="sp-extras-tab-page">
-                <div style="padding-bottom: 5px;">
+                <div style="padding-bottom: 5px">
                     <!-- extras tab page -->
-                    <sp-slider style="display: block" show-value="false" id="slUpscaleSize" min="10" max="80" value="20" title="Resize scale of current selection size">
+                    <sp-slider
+                        style="display: block"
+                        show-value="false"
+                        id="slUpscaleSize"
+                        min="10"
+                        max="80"
+                        value="20"
+                        title="Resize scale of current selection size"
+                    >
                         <sp-label slot="label">Resize</sp-label>
-                        <sp-label class="labelNumber" slot="label" id="lUpscaleSize">2</sp-label>
+                        <sp-label
+                            class="labelNumber"
+                            slot="label"
+                            id="lUpscaleSize"
+                            >2</sp-label
+                        >
                     </sp-slider>
                 </div>
-                <div style="
+                <div
+                    style="
                                                                         display: inline-flex;
                                                                         justify-content: flex-start;
                                                                         padding-bottom: 5px;
-                                                                    ">
-                    <button class="btnSquare btnGenerateClass" id="btnGenerateUpscale">
+                    "
+                >
+                    <button
+                        class="btnSquare btnGenerateClass"
+                        id="btnGenerateUpscale"
+                    >
                         Generate upscale
                     </button>
-                    <button class="btnSquare btnInterruptClass" id="btnInterruptUpscale" style="display: none">
+                    <button
+                        class="btnSquare btnInterruptClass"
+                        id="btnInterruptUpscale"
+                        style="display: none"
+                    >
                         Interrupt
                     </button>
-                    <div style="padding-left: 5px;">
-                        <button class="btnSquare acceptClass acceptAllImgBtn" style="display: none; margin-right: 3px"></button>
-                        <button class="btnSquare discardClass discardAllImgBtn" style="display: none; margin-right: 3px"></button>
-                        <button class="btnSquare snapshotButton" id="btnSnapshotUpscale" style="margin-right: 3px;"
-                            title="create a snapshot of what you see on the canvas and place on a new layer"></button>
-                        <button class="btnSquare resetButton" id="btnResetSettingsUpscale"
-                            title="reset the ui settings to their default values"></button>
+                    <div style="padding-left: 5px">
+                        <button
+                            class="btnSquare acceptClass acceptAllImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare discardClass discardAllImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare snapshotButton"
+                            id="btnSnapshotUpscale"
+                            style="margin-right: 3px"
+                            title="create a snapshot of what you see on the canvas and place on a new layer"
+                        ></button>
+                        <button
+                            class="btnSquare resetButton"
+                            id="btnResetSettingsUpscale"
+                            title="reset the ui settings to their default values"
+                        ></button>
                     </div>
                 </div>
                 <!-- <div id="progressContainerUpscale" class="" style="padding-bottom: 5px;">
@@ -764,50 +815,136 @@
                         <sp-label slot="label">Progress...</sp-label>
                     </sp-progressbar>
                 </div> -->
-                <div id="progressContainerUpscale" class="" style="padding-bottom: 5px;">
-                    <sp-label slot="label" class="lProgressLabel">No work in progress</sp-label>
+                <div
+                    id="progressContainerUpscale"
+                    class=""
+                    style="padding-bottom: 5px"
+                >
+                    <sp-label slot="label" class="lProgressLabel"
+                        >No work in progress</sp-label
+                    >
                 </div>
-                <div style="padding-bottom: 5px;">
-                    <sp-label style="width: 60px; display: inline-block;">Upscaler 1: </sp-label>
+                <div style="padding-bottom: 5px">
+                    <sp-label style="width: 60px; display: inline-block"
+                        >Upscaler 1:
+                    </sp-label>
                     <sp-picker size="m" label="Upscaler Options">
-                        <sp-menu id="hrModelsMenuUpscale1" class="hrExtrasUpscaleModelsMenuClass" slot="options">
+                        <sp-menu
+                            id="hrModelsMenuUpscale1"
+                            class="hrExtrasUpscaleModelsMenuClass"
+                            slot="options"
+                        >
                             <!-- <sp-menu-item> item </sp-menu-item> -->
                         </sp-menu>
                     </sp-picker>
                     <div></div>
-                    <sp-label style="width: 60px; display: inline-block;">Upscaler 2: </sp-label>
+                    <sp-label style="width: 60px; display: inline-block"
+                        >Upscaler 2:
+                    </sp-label>
                     <sp-picker size="m" label="Upscaler Options">
-                        <sp-menu id="hrModelsMenuUpscale2" class="hrExtrasUpscaleModelsMenuClass" slot="options">
+                        <sp-menu
+                            id="hrModelsMenuUpscale2"
+                            class="hrExtrasUpscaleModelsMenuClass"
+                            slot="options"
+                        >
                             <!-- <sp-menu-item> item </sp-menu-item> -->
                         </sp-menu>
                     </sp-picker>
                 </div>
-                <div style="padding-bottom: 5px;">
+                <div style="padding-bottom: 5px">
                     <!-- extras tab page -->
-                    <sp-slider style="display: block" show-value="false" id="slUpscaler2Visibility" min="0" max="10" value="0">
-                        <sp-label style="width: 110px; display: inline-block;" slot="label">Upscaler 2 visibility: </sp-label>
-                        <sp-label style="display: inline-block;" class="labelNumber" slot="label" id="lUpscaler2Visibility">0</sp-label>
+                    <sp-slider
+                        style="display: block"
+                        show-value="false"
+                        id="slUpscaler2Visibility"
+                        min="0"
+                        max="10"
+                        value="0"
+                    >
+                        <sp-label
+                            style="width: 110px; display: inline-block"
+                            slot="label"
+                            >Upscaler 2 visibility:
+                        </sp-label>
+                        <sp-label
+                            style="display: inline-block"
+                            class="labelNumber"
+                            slot="label"
+                            id="lUpscaler2Visibility"
+                            >0</sp-label
+                        >
                     </sp-slider>
                 </div>
-                <div style="padding-bottom: 5px;">
+                <div style="padding-bottom: 5px">
                     <!-- extras tab page -->
-                    <sp-slider style="display: block" show-value="false" id="slGFPGANVisibility" min="0" max="10" value="0">
-                        <sp-label style="width: 110px; display: inline-block;" slot="label">GFPGAN visibility: </sp-label>
-                        <sp-label style="display: inline-block;" class="labelNumber" slot="label" id="lGFPGANVisibility">0</sp-label>
+                    <sp-slider
+                        style="display: block"
+                        show-value="false"
+                        id="slGFPGANVisibility"
+                        min="0"
+                        max="10"
+                        value="0"
+                    >
+                        <sp-label
+                            style="width: 110px; display: inline-block"
+                            slot="label"
+                            >GFPGAN visibility:
+                        </sp-label>
+                        <sp-label
+                            style="display: inline-block"
+                            class="labelNumber"
+                            slot="label"
+                            id="lGFPGANVisibility"
+                            >0</sp-label
+                        >
                     </sp-slider>
                 </div>
-                <div style="padding-bottom: 5px;">
+                <div style="padding-bottom: 5px">
                     <!-- extras tab page -->
-                    <sp-slider style="display: block" show-value="false" id="slCodeFormerVisibility" min="0" max="10" value="0">
-                        <sp-label style="width: 110px; display: inline-block;" slot="label">CodeFormer visibility: </sp-label>
-                        <sp-label style="display: inline-block;" class="labelNumber" slot="label" id="lCodeFormerVisibility">0</sp-label>
+                    <sp-slider
+                        style="display: block"
+                        show-value="false"
+                        id="slCodeFormerVisibility"
+                        min="0"
+                        max="10"
+                        value="0"
+                    >
+                        <sp-label
+                            style="width: 110px; display: inline-block"
+                            slot="label"
+                            >CodeFormer visibility:
+                        </sp-label>
+                        <sp-label
+                            style="display: inline-block"
+                            class="labelNumber"
+                            slot="label"
+                            id="lCodeFormerVisibility"
+                            >0</sp-label
+                        >
                     </sp-slider>
                 </div>
-                <div style="padding-bottom: 5px;">
+                <div style="padding-bottom: 5px">
                     <!-- extras tab page -->
-                    <sp-slider style="display: block" show-value="false" id="slCodeFormerWeight" min="0" max="10" value="0">
-                        <sp-label style="width: 110px; display: inline-block;" slot="label">CodeFormer weight: </sp-label>
-                        <sp-label style="display: inline-block;" class="labelNumber" slot="label" id="lCodeFormerWeight">0</sp-label>
+                    <sp-slider
+                        style="display: block"
+                        show-value="false"
+                        id="slCodeFormerWeight"
+                        min="0"
+                        max="10"
+                        value="0"
+                    >
+                        <sp-label
+                            style="width: 110px; display: inline-block"
+                            slot="label"
+                            >CodeFormer weight:
+                        </sp-label>
+                        <sp-label
+                            style="display: inline-block"
+                            class="labelNumber"
+                            slot="label"
+                            id="lCodeFormerWeight"
+                            >0</sp-label
+                        >
                     </sp-slider>
                 </div>
             </div>
@@ -862,15 +999,20 @@
                     </sp-radio-group>
                 </div>
                 <div>
-                    <sp-label>Folder Path (read only):</sp-label
-                    ><sp-textfield
+                    <sp-textfield
                         title="copy paste the address to access the folder where the images are stored"
                         id="tiDocPath"
                         type="text"
                         placeholder=""
                         value=""
-                    ></sp-textfield>
-                    <button id="btnGetDocPath">Get Path</button>
+                    >
+                        <sp-label slot="label"
+                            >Folder Path (read only):</sp-label
+                        >
+                    </sp-textfield>
+                    <button class="btnSquare" id="btnGetDocPath">
+                        Get Path
+                    </button>
                 </div>
             </div>
 
@@ -879,7 +1021,11 @@
                 id="sp-stable-diffusion-ui-tab-page"
             >
                 <div id="menu-bar-container">
-                    <sp-picker size="m" label="Selection type" style="margin-right: 3px;">
+                    <sp-picker
+                        size="m"
+                        label="Selection type"
+                        style="margin-right: 3px"
+                    >
                         <sp-menu id="mModelsMenu" slot="options">
                             <!-- <sp-menu-item> item </sp-menu-item> -->
                         </sp-menu>
@@ -915,7 +1061,7 @@
                         <button
                             class="btnSquare"
                             id="btnLayerToSelection"
-                            style="margin-right: 3px;"
+                            style="margin-right: 3px"
                             title="Move and reSize the highlighted layer to fit into the Selection Area "
                         >
                             L2S
@@ -923,6 +1069,10 @@
                         <button class="btnSquare btnGenerateClass">
                             Generate txt2img
                         </button>
+                        <!-- <div class="divBtn btnSquare btnGenerateClass">
+                            Generate txt2img
+                        </div> -->
+
                         <button
                             class="btnSquare btnInterruptClass"
                             id="btnInterrupt"
@@ -955,7 +1105,7 @@
                         <button
                             class="btnSquare snapshotButton"
                             id="btnSnapshot"
-                            style="margin-right: 3px;"
+                            style="margin-right: 3px"
                             title="create a snapshot of what you see on the canvas and place on a new layer"
                         ></button>
                         <button
