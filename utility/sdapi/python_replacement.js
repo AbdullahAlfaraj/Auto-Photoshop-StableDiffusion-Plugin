@@ -522,7 +522,7 @@ async function extraSingleImageRequest(sd_url, payload) {
     let auto_metadata_json = {}
 
     const uniqueDocumentId = payload['uniqueDocumentId']
-    const image_name = newOutputImageName()
+    const image_name = general.newOutputImageName()
     const image_path = `${uniqueDocumentId}/${image_name}`
 
     images_info.push({

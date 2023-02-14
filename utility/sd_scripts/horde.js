@@ -66,10 +66,7 @@ function getModelHorde() {
         (e) => e.selected == true
     )[0].dataset.name
 }
-function getUseHorde() {
-    const isChecked = document.getElementById('chUseHorde').checked
-    return isChecked
-}
+
 function getScriptArgs() {
     const model = getModelHorde()
     const b_nsfw = document.getElementById('chUseNSFW').checked
@@ -104,7 +101,7 @@ module.exports = {
     requestModelsHorde,
     refreshModelsHorde,
     getModelHorde,
-    getUseHorde,
+
     getScriptArgs,
     script_name,
 }
