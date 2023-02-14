@@ -108,7 +108,8 @@ const eventHandler = async (event, descriptor) => {
                 // endSessionUI //red color
                 // if selection has changed : change the color and text generate btn  "Generate" color "red"
                 // g_ui.endSessionUI()
-                const selected_mode = html_manip.getMode()
+                // const selected_mode = html_manip.getMode()
+                const selected_mode = getCurrentGenerationModeByValue(g_sd_mode)
                 g_ui.generateModeUI(selected_mode)
             } else {
                 //indicate that the session will continue. only if the session we are in the same mode as the session's mode
@@ -123,6 +124,18 @@ const eventHandler = async (event, descriptor) => {
     } catch (e) {
         console.warn(e)
     }
+}
+
+function getCurrentGenerationModeByValue(value) {
+    for (let key in generationMode) {
+        if (
+            generationMode.hasOwnProperty(key) &&
+            generationMode[key] === value
+        ) {
+            return key
+        }
+    }
+    return undefined
 }
 
 require('photoshop').action.addNotificationListener(
@@ -323,6 +336,7 @@ async function refreshUI() {
             html_manip.setAutomaticStatus('disconnected', 'connected')
         }
         await refreshModels()
+        await refreshExtraUpscalers()
         //get the latest options
         await g_sd_options_obj.getOptions()
         //get the selected model
@@ -359,6 +373,34 @@ async function refreshModels() {
             document
                 .getElementById('mModelsMenu')
                 .appendChild(menu_item_element)
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+async function refreshExtraUpscalers() {
+    try {
+        //cycle through hrModelsMenuClass and reset innerHTML
+        var hrModelsMenuClass = document.getElementsByClassName(
+            'hrExtrasUpscaleModelsMenuClass'
+        )
+        for (let i = 0; i < hrModelsMenuClass.length; i++) {
+            hrModelsMenuClass[i].innerHTML = ''
+        }
+        g_extra_upscalers = await sdapi.requestGetUpscalers()
+
+        for (let model of g_extra_upscalers) {
+            var hrModelsMenuClass = document.getElementsByClassName(
+                'hrExtrasUpscaleModelsMenuClass'
+            )
+            for (let i = 0; i < hrModelsMenuClass.length; i++) {
+                const menu_item_element = document.createElement('sp-menu-item')
+                menu_item_element.className = 'hrExtrasUpscaleModelsMenuItem'
+                menu_item_element.innerHTML = model.name
+                hrModelsMenuClass[i].appendChild(menu_item_element)
+                console.log(model + ' added to ' + hrModelsMenuClass[i].id)
+            }
         }
     } catch (e) {
         console.warn(e)
@@ -537,6 +579,7 @@ let g_init_image_mask_name = ''
 // let g_init_image_related_layers = {}
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
 let g_sd_mode = 'txt2img'
+// let g_sd_mode_last = g_sd_mode
 let g_sd_sampler = 'Euler a'
 let g_denoising_strength = 0.7
 let g_use_mask_image = false
@@ -601,6 +644,7 @@ const generationMode = {
     Img2Img: 'img2img',
     Inpaint: 'inpaint',
     Outpaint: 'outpaint',
+    Upscale: 'upscale',
 }
 
 g_generation_session.mode = generationMode['Txt2Img']
@@ -641,6 +685,36 @@ for (let rbModeElement of rbModeElements) {
         }
     })
 }
+
+//swaps g_sd_mode when clicking on extras tab and swaps it back to previous value when clicking on main tab
+document
+    .getElementById('sp-extras-tab')
+    .addEventListener('click', async (evt) => {
+        try {
+            // g_sd_mode_last = g_sd_mode
+            g_sd_mode = 'upscale'
+            console.log(`You clicked: ${g_sd_mode}`)
+            await displayUpdate()
+            await postModeSelection() // do things after selection
+        } catch (e) {
+            console.warn(e)
+        }
+    })
+
+document
+    .getElementById('sp-stable-diffusion-ui-tab')
+    .addEventListener('click', async (evt) => {
+        try {
+            // g_sd_mode = g_sd_mode_last
+            g_sd_mode = html_manip.getMode()
+            console.log(`mode restored to: ${g_sd_mode}`)
+            await displayUpdate()
+            await postModeSelection() // do things after selection
+        } catch (e) {
+            console.warn(e)
+        }
+    })
+
 async function createTempInpaintMaskLayer() {
     if (!g_b_mask_layer_exist) {
         //make new layer "Mask -- Paint White to Mask -- temporary"
@@ -904,7 +978,9 @@ async function displayUpdate() {
                     document.getElementsByClassName('btnGenerateClass')
                 )
                 generate_btns.forEach((element) => {
-                    element.textContent = `Generate ${g_sd_mode}`
+                    const selected_mode =
+                        getCurrentGenerationModeByValue(g_sd_mode)
+                    element.textContent = `Generate ${selected_mode}`
                 })
 
                 html_manip.setGenerateButtonsColor('generate', 'generate-more')
@@ -932,7 +1008,8 @@ async function displayUpdate() {
             }
         } else {
             //session is not active
-            g_ui.setGenerateBtnText(`Generate ${g_sd_mode}`)
+            const selected_mode = getCurrentGenerationModeByValue(g_sd_mode)
+            g_ui.setGenerateBtnText(`Generate ${selected_mode}`)
             html_manip.setGenerateButtonsColor('generate', 'generate-more')
         }
     } catch (e) {
@@ -1215,7 +1292,10 @@ function toggleTwoButtonsByClass(isVisible, first_class, second_class) {
         } else {
             //show generate button
             first_class_btns.forEach(
-                (element) => (element.textContent = `Generate ${g_sd_mode}`)
+                (element) =>
+                    (element.textContent = `Generate ${getCurrentGenerationModeByValue(
+                        g_sd_mode
+                    )}`)
             )
         }
         second_class_btns.forEach((element) => (element.style.display = 'none'))
@@ -1464,30 +1544,42 @@ async function deleteMaskRelatedLayers() {
 //   }
 // })
 
-document.getElementById('btnInterrupt').addEventListener('click', async () => {
-    try {
-        if (script_horde.getUseHorde()) {
-            //interrupt the horde
+Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
+    (element) => {
+        element.addEventListener('click', async () => {
+            try {
+                if (script_horde.getUseHorde()) {
+                    //interrupt the horde
 
-            await g_horde_generator.interrupt()
-        } else {
-            //interrupt auto1111
+                    await g_horde_generator.interrupt()
+                } else {
+                    //interrupt auto1111
 
-            json = await sdapi.requestInterrupt()
-        }
+                    json = await sdapi.requestInterrupt()
+                }
 
-        toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
-        g_can_request_progress = false
-        g_request_status = requestState['Interrupt']
+                toggleTwoButtonsByClass(
+                    false,
+                    'btnGenerateClass',
+                    'btnInterruptClass'
+                )
+                g_can_request_progress = false
+                g_request_status = requestState['Interrupt']
 
-        // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
-    } catch (e) {
-        // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
-        toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
-        g_can_request_progress = false
-        console.warn(e)
+                // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+            } catch (e) {
+                // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+                toggleTwoButtonsByClass(
+                    false,
+                    'btnGenerateClass',
+                    'btnInterruptClass'
+                )
+                g_can_request_progress = false
+                console.warn(e)
+            }
+        })
     }
-})
+)
 
 //store active layers only if they are not stored.
 async function storeActiveLayers() {
@@ -1838,12 +1930,122 @@ async function getSettings() {
     }
     return payload
 }
+
+async function getExtraSettings() {
+    let payload = {}
+    try {
+        const html_manip = require('./utility/html_manip')
+        const upscaling_resize = html_manip.getUpscaleSize()
+        const gfpgan_visibility = html_manip.getGFPGANVisibility()
+        const codeformer_visibility = html_manip.getCodeFormerVisibility()
+        const codeformer_weight = html_manip.getCodeFormerWeight()
+        const selection_info = await psapi.getSelectionInfoExe()
+        const width = selection_info.width * upscaling_resize
+        const height = selection_info.height * upscaling_resize
+        //resize_mode = 0 means "resize to upscaling_resize"
+        //resize_mode = 1 means "resize to width and height"
+        payload['resize_mode'] = 0
+        payload['show_extras_results'] = 0
+        payload['gfpgan_visibility'] = gfpgan_visibility
+        payload['codeformer_visibility'] = codeformer_visibility
+        payload['codeformer_weight'] = codeformer_weight
+        payload['upscaling_resize'] = upscaling_resize
+        payload['upscaling_resize_w'] = width
+        payload['upscaling_resize_h'] = height
+        payload['upscaling_crop'] = true
+        const upscaler1 = document.querySelector('#hrModelsMenuUpscale1').value
+        payload['upscaler_1'] = upscaler1 === undefined ? 'None' : upscaler1
+        const upscaler2 = document.querySelector('#hrModelsMenuUpscale2').value
+        payload['upscaler_2'] = upscaler2 === undefined ? 'None' : upscaler2
+        const extras_upscaler_2_visibility = html_manip.getUpscaler2Visibility()
+        payload['extras_upscaler_2_visibility'] = extras_upscaler_2_visibility
+        payload['upscale_first'] = false
+        const uniqueDocumentId = await getUniqueDocumentId()
+        payload['uniqueDocumentId'] = uniqueDocumentId
+
+        // const layer = await app.activeDocument.activeLayers[0]
+        const layer = await app.activeDocument.activeLayers[0]
+        const old_name = layer.name
+
+        // image_name = await app.activeDocument.activeLayers[0].name
+
+        //convert layer name to a file name
+        let image_name = psapi.layerNameToFileName(
+            old_name,
+            layer.id,
+            random_session_id
+        )
+        image_name = `${image_name}.png`
+
+        const base64_image = g_generation_session.activeBase64InitImage
+
+        payload['image'] = base64_image
+    } catch (e) {
+        console.error(e)
+    }
+    return payload
+}
 function getBackend() {
     if (script_horde.getUseHorde()) {
         return 'horde_native'
     } else {
         return 'auto1111'
     }
+}
+
+async function getExtraSettings() {
+    let payload = {}
+    try {
+        const html_manip = require('./utility/html_manip')
+        const upscaling_resize = html_manip.getUpscaleSize()
+        const gfpgan_visibility = html_manip.getGFPGANVisibility()
+        const codeformer_visibility = html_manip.getCodeFormerVisibility()
+        const codeformer_weight = html_manip.getCodeFormerWeight()
+        const selection_info = await psapi.getSelectionInfoExe()
+        const width = selection_info.width * upscaling_resize
+        const height = selection_info.height * upscaling_resize
+        //resize_mode = 0 means "resize to upscaling_resize"
+        //resize_mode = 1 means "resize to width and height"
+        payload['resize_mode'] = 0
+        payload['show_extras_results'] = 0
+        payload['gfpgan_visibility'] = gfpgan_visibility
+        payload['codeformer_visibility'] = codeformer_visibility
+        payload['codeformer_weight'] = codeformer_weight
+        payload['upscaling_resize'] = upscaling_resize
+        payload['upscaling_resize_w'] = width
+        payload['upscaling_resize_h'] = height
+        payload['upscaling_crop'] = true
+        const upscaler1 = document.querySelector('#hrModelsMenuUpscale1').value
+        payload['upscaler_1'] = upscaler1 === undefined ? 'None' : upscaler1
+        const upscaler2 = document.querySelector('#hrModelsMenuUpscale2').value
+        payload['upscaler_2'] = upscaler2 === undefined ? 'None' : upscaler2
+        const extras_upscaler_2_visibility = html_manip.getUpscaler2Visibility()
+        payload['extras_upscaler_2_visibility'] = extras_upscaler_2_visibility
+        payload['upscale_first'] = false
+        const uniqueDocumentId = await getUniqueDocumentId()
+        payload['uniqueDocumentId'] = uniqueDocumentId
+
+        // const layer = await app.activeDocument.activeLayers[0]
+        const layer = await app.activeDocument.activeLayers[0]
+        const old_name = layer.name
+
+        // image_name = await app.activeDocument.activeLayers[0].name
+
+        //convert layer name to a file name
+        let image_name = psapi.layerNameToFileName(
+            old_name,
+            layer.id,
+            random_session_id
+        )
+        image_name = `${image_name}.png`
+
+        const base64_image = g_generation_session.activeBase64InitImage
+
+        payload['image'] = base64_image
+    } catch (e) {
+        console.error(e)
+    }
+    return payload
 }
 
 async function generateImg2Img(settings) {
@@ -1896,7 +2098,7 @@ async function hasSelectionChanged(new_selection, old_selection) {
     }
 }
 
-async function easyModeGenerate() {
+async function easyModeGenerate(mode) {
     try {
         let active_layer = await app.activeDocument.activeLayers[0] // store the active layer so we could reselected after the session end clean up
         //make sure you have selection area active on the canvas
@@ -1906,7 +2108,6 @@ async function easyModeGenerate() {
             return null
         }
 
-        const mode = html_manip.getMode()
         // const settings = await getSettings()
         console.log('easyModeGenerate mdoe: ', mode)
         if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
@@ -1962,7 +2163,7 @@ async function easyModeGenerate() {
         await psapi.selectLayersExe([active_layer]) //reselect the active layer since the clean up of the session sometime will change which layer is selected
         if (mode === 'txt2img') {
             //Note: keep it for clearity/ readibility
-        } else if (mode === generationMode['Img2Img']) {
+        } else if (mode === 'img2img' || mode === 'upscale') {
             await snapAndFillHandler()
         } else if (mode === 'inpaint') {
             await btnInitInpaintHandler()
@@ -1975,7 +2176,8 @@ async function easyModeGenerate() {
 
         await g_generation_session.closePreviousOutputGroup()
 
-        const settings = await getSettings()
+        const settings =
+            mode === 'upscale' ? await getExtraSettings() : await getSettings()
 
         // if (script_horde.getUseHorde()) {
         //     //use the horde
@@ -1991,14 +2193,14 @@ async function easyModeGenerate() {
         //     //use auto1111 webui
         //     await generate(settings)
         // }
-        await generate(settings)
+        await generate(settings, mode)
 
         await g_generation_session.deleteProgressLayer() // delete the old progress layer
     } catch (e) {
         console.warn(e)
     }
 }
-async function generate(settings) {
+async function generate(settings, mode) {
     try {
         //pre generation
         // toggleGenerateInterruptButton(true)
@@ -2027,16 +2229,18 @@ async function generate(settings) {
 
         g_request_status = requestState['Generate']
         let json = {}
-        if (g_sd_mode == 'txt2img') {
+        if (mode == 'txt2img') {
             json = await generateTxt2Img(settings)
         } else if (
-            g_sd_mode == 'img2img' ||
-            g_sd_mode == 'inpaint' ||
-            g_sd_mode == 'outpaint'
+            mode == 'img2img' ||
+            mode == 'inpaint' ||
+            mode == 'outpaint'
         ) {
             // json = await sdapi.requestImg2Img(settings)
 
             json = await generateImg2Img(settings)
+        } else if (mode == 'upscale') {
+            json = await sdapi.requestExtraSingleImage(settings)
         }
 
         // if (g_sd_mode == 'outpaint') {
@@ -2156,6 +2360,9 @@ async function generate(settings) {
         await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
         //update the viewer
         await loadViewerImages()
+
+        //esnures that progress bars are set to 0 (as last progress request call might have returned less than 100%)
+        updateProgressBarsHtml(0)
     } catch (e) {
         console.error(`btnGenerate.click(): `, e)
     }
@@ -2217,9 +2424,7 @@ async function generate(settings) {
 Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
     (btn) => {
         btn.addEventListener('click', async () => {
-            // const settings = await getSettings()
-            // generate(settings)
-            await easyModeGenerate()
+            await easyModeGenerate(g_sd_mode)
         })
     }
 )
@@ -2318,7 +2523,19 @@ function moveElementToAnotherTab(elementId, newParentId) {
 }
 
 // moveElementToAnotherTab("batchNumberUi","batchNumberViewerTabContainer")
-
+function updateProgressBarsHtml(new_value) {
+    document.querySelectorAll('.pProgressBars').forEach((el) => {
+        // id = el.getAttribute("id")
+        // console.log("progressbar id:", id)
+        el.setAttribute('value', new_value)
+    })
+    document.querySelectorAll('.lProgressLabel').forEach((el) => {
+        console.log('updateProgressBarsHtml: ', new_value)
+        if (new_value > 0) el.innerHTML = 'In progress...'
+        else el.innerHTML = 'No work in progress'
+    })
+    // document.querySelector('#pProgressBar').value
+}
 async function progressRecursive() {
     try {
         let json = await sdapi.requestProgress()
@@ -3608,11 +3825,14 @@ var hr_models = [
 ]
 
 for (let model of hr_models) {
-    // console.log(model.title)
-    const menu_item_element = document.createElement('sp-menu-item')
-    menu_item_element.className = 'hrModelsMenuItem'
-    menu_item_element.innerHTML = model
-    document.getElementById('hrModelsMenu').appendChild(menu_item_element)
+    var hrModelsMenuClass = document.getElementsByClassName('hrModelsMenuClass')
+    for (let i = 0; i < hrModelsMenuClass.length; i++) {
+        const menu_item_element = document.createElement('sp-menu-item')
+        menu_item_element.className = 'hrModelsMenuItem'
+        menu_item_element.innerHTML = model
+        hrModelsMenuClass[i].appendChild(menu_item_element)
+        console.log(model + ' added to ' + hrModelsMenuClass[i].id)
+    }
 }
 
 var chHiResFixs = document.getElementById('chHiResFixs')

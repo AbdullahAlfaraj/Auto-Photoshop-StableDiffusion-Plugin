@@ -530,6 +530,22 @@ async function requestHordeStatus(id) {
         console.warn(e)
         return {}
     }
+
+    async function requestGetUpscalers() {
+        console.log('requestGetUpscalers: ')
+        let json = []
+        const full_url = 'http://127.0.0.1:8000/sdapi/v1/upscalers'
+        try {
+            let request = await fetch(full_url)
+            json = await request.json()
+            console.log('upscalers json:')
+            console.dir(json)
+        } catch (e) {
+            console.warn(`issues requesting from ${full_url}`, e)
+        }
+        return json
+    }
+    
 }
 
 module.exports = {
@@ -554,4 +570,5 @@ module.exports = {
     requestHorde,
     requestHordeCheck,
     requestHordeStatus,
+    requestGetUpscalers,
 }
