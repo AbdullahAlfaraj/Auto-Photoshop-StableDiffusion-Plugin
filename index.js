@@ -1008,8 +1008,14 @@ async function displayUpdate() {
                     const generate_btns = Array.from(
                         document.getElementsByClassName('btnGenerateClass')
                     )
+
+                    // const selected_mode =
+                    //     getCurrentGenerationModeByValue(g_sd_mode)
+                    const generation_mode = g_generation_session.mode
+                    const generation_name =
+                        getCurrentGenerationModeByValue(generation_mode)
                     generate_btns.forEach((element) => {
-                        element.textContent = 'Generate More'
+                        element.textContent = `Generate More ${generation_name}`
                     })
 
                     html_manip.setGenerateButtonsColor(
@@ -1299,9 +1305,13 @@ function toggleTwoButtonsByClass(isVisible, first_class, second_class) {
         )
         if (g_generation_session.isActive()) {
             //show generate more
-
+            // const selected_mode = getCurrentGenerationModeByValue(g_sd_mode)
+            const generation_mode = g_generation_session.mode
+            const generation_name =
+                getCurrentGenerationModeByValue(generation_mode)
             first_class_btns.forEach(
-                (element) => (element.textContent = 'Generate More')
+                (element) =>
+                    (element.textContent = `Generate More ${generation_name}`)
             )
         } else {
             //show generate button
@@ -2000,13 +2010,6 @@ async function getExtraSettings() {
     }
     return payload
 }
-function getBackend() {
-    if (script_horde.getUseHorde()) {
-        return 'horde_native'
-    } else {
-        return 'auto1111'
-    }
-}
 
 async function getExtraSettings() {
     let payload = {}
@@ -2129,7 +2132,6 @@ async function easyModeGenerate(mode) {
             return null
         }
 
-        // const settings = await getSettings()
         console.log('easyModeGenerate mdoe: ', mode)
         if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
             // check we have an old selection stored
@@ -2200,20 +2202,6 @@ async function easyModeGenerate(mode) {
         const settings =
             mode === 'upscale' ? await getExtraSettings() : await getSettings()
 
-        // if (script_horde.getUseHorde()) {
-        //     //use the horde
-        //     g_ui.onStartSessionUI()
-
-        //     toggleTwoButtonsByClass(
-        //         true,
-        //         'btnGenerateClass',
-        //         'btnInterruptClass'
-        //     )
-        //     // await g_horde_generator.generate()
-        // } else {
-        //     //use auto1111 webui
-        //     await generate(settings)
-        // }
         await generate(settings, mode)
 
         await g_generation_session.deleteProgressLayer() // delete the old progress layer
