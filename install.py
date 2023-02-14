@@ -11,8 +11,9 @@ import sys
 REPO_LOCATION = Path(__file__).parent
 # auto_update = os.environ.get("AUTO_UPDATE", "True").lower() in {"true", "yes"}
 auto_update = True
-# extension_branch = "master"
-extension_branch = "horde_native"
+extension_branch = "master"
+# extension_branch = "horde_native"
+# extension_branch = "auto_extension_ccx_1_1_7"
 
 if auto_update:
     print("[Auto-Photoshop-SD] Attempting auto-update...")
