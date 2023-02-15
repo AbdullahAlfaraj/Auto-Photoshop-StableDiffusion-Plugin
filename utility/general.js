@@ -6,7 +6,7 @@ function newOutputImageName(format = 'png') {
 }
 
 function makeImagePath(format = 'png') {
-    const image_name = general.newOutputImageName(format)
+    const image_name = newOutputImageName(format)
     const image_path = `${uniqueDocumentId}/${image_name}`
     return image_path
 }
