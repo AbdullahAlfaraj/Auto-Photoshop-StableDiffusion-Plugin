@@ -1,7 +1,7 @@
 const app = window.require('photoshop').app
 const batchPlay = require('photoshop').action.batchPlay
 const { executeAsModal } = require('photoshop').core
-const export_png = require('./export_png')
+// const export_png = require('./export_png')
 const { selectionToFinalWidthHeight } = require('./selection')
 // const { layerToSelection } = require('./helper')
 

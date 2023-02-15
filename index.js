@@ -9,7 +9,8 @@ const helper = require('./helper')
 // const sdapi = require(`./${g_sdapi_path}`)
 const sdapi = require('./sdapi_py_re')
 
-const exportHelper = require('./export_png')
+
+// const exportHelper = require('./export_png')
 const outpaint = require('./outpaint')
 const psapi = require('./psapi')
 const app = window.require('photoshop').app
@@ -19,7 +20,7 @@ const { executeAsModal } = require('photoshop').core
 const dialog_box = require('./dialog_box')
 // const {entrypoints} = require('uxp')
 const html_manip = require('./utility/html_manip')
-const export_png = require('./export_png')
+// const export_png = require('./export_png')
 const viewer = require('./viewer')
 const selection = require('./selection')
 const layer_util = require('./utility/layer')
