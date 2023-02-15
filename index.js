@@ -37,6 +37,7 @@ const io = require('./utility/io')
 const general = require('./utility/general')
 let g_horde_generator = new horde_native.hordeGenerator()
 
+//REFACTOR: move to session.js
 async function hasSessionSelectionChanged() {
     try {
         const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
@@ -60,7 +61,7 @@ async function hasSessionSelectionChanged() {
         return false
     }
 }
-
+//REFACTOR: move to selection.js, add selection mode as attribute (linked to rbSelectionMode event)
 async function calcWidthHeightFromSelection() {
     //set the width and height, hrWidth, and hrHeight using selection info and selection mode
     const selection_mode = html_manip.getSelectionMode()
@@ -85,6 +86,7 @@ async function calcWidthHeightFromSelection() {
         html_manip.autoFillInHeight(height)
     }
 }
+//REFACTOR: rename to newSelectionEventHandler and move to session.js
 const eventHandler = async (event, descriptor) => {
     try {
         console.log(event, descriptor)
@@ -126,7 +128,7 @@ const eventHandler = async (event, descriptor) => {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to generation_settings.js
 function getCurrentGenerationModeByValue(value) {
     for (let key in generationMode) {
         if (
@@ -143,7 +145,7 @@ require('photoshop').action.addNotificationListener(
     ['set', 'move'],
     eventHandler
 )
-
+//REFACTOR: move to document.js
 async function getUniqueDocumentId() {
     try {
         let uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
@@ -181,6 +183,7 @@ async function getUniqueDocumentId() {
 //   })
 
 // attach event listeners for tabs
+//REFACTOR: move to html_manip.js (?) - if there is no business logic here and it's only for UI.
 Array.from(document.querySelectorAll('.sp-tab')).forEach((theTab) => {
     theTab.onclick = () => {
         try {
@@ -210,7 +213,7 @@ Array.from(document.querySelectorAll('.sp-tab')).forEach((theTab) => {
         }
     }
 })
-
+//REFACTOR: move to html_manip.js (?)
 document.getElementById('sp-viewer-tab').addEventListener('click', async () => {
     if (
         g_generation_session.isActive() &&
@@ -220,9 +223,13 @@ document.getElementById('sp-viewer-tab').addEventListener('click', async () => {
     } else {
         g_sd_mode = html_manip.getMode()
     }
+})    
+//REFACTOR: move to html_manip.js (?)
+document.getElementById('sp-viewer-tab').addEventListener('click', async () => {
     moveElementToAnotherTab('batchNumberUi', 'batchNumberViewerTabContainer')
     await displayUpdate()
 })
+//REFACTOR: move to html_manip.js (?)
 document
     .getElementById('sp-stable-diffusion-ui-tab')
     .addEventListener('click', () => {
@@ -243,8 +250,9 @@ document
 //   )
 // just a number that shouldn't unique enough that we will use when save files.
 // each session will get a number from 1 to 1000000
+//REFACTOR: move to session.js
 const random_session_id = Math.floor(Math.random() * 1000000 + 1)
-
+//REFACTOR: move to helpers.js (or other utility file)
 function getSelectedText() {
     // JavaScript
     //     // Obtain the object reference for the <textarea>
@@ -264,6 +272,7 @@ function getSelectedText() {
 
     // Do something with the selected content
 }
+//REFACTOR: move to helpers.js
 // setInterval(getSelectedText,2000)
 function getCommentedString() {
     // const text = document.getElementById("taPrompt").value
@@ -297,7 +306,7 @@ function getCommentedString() {
     let result = text.match(pattern)
     console.log('getCommentedString: ', result)
 }
-
+//REFACTOR: move to psapi.js
 //duplicate the active layer
 async function duplication() {
     try {
@@ -317,6 +326,7 @@ async function duplication() {
     }
 }
 
+//REFACTOR: move to helpers.js
 function tempDisableElement(element, time) {
     element.disabled = true
     element.style.opacity = '0.65'
@@ -327,7 +337,7 @@ function tempDisableElement(element, time) {
         element.style.cursor = 'default'
     }, time)
 }
-
+//REFACTOR: move to ui.js
 async function refreshUI() {
     try {
         const b_proxy_server_status = await updateVersionUI()
@@ -365,7 +375,7 @@ async function refreshUI() {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to generation_settings.js
 async function refreshModels() {
     try {
         g_models = await sdapi.requestGetModels()
@@ -388,7 +398,7 @@ async function refreshModels() {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to generation_settings.js
 async function refreshExtraUpscalers() {
     try {
         //cycle through hrModelsMenuClass and reset innerHTML
@@ -417,6 +427,7 @@ async function refreshExtraUpscalers() {
     }
 }
 
+//REFACTOR: move to ui.js
 async function updateVersionUI() {
     let bStatus = false
     try {
@@ -432,7 +443,7 @@ async function updateVersionUI() {
     }
     return bStatus
 }
-
+//REFACTOR: move to generation_settings.js
 async function initSamplers() {
     let bStatus = false
     try {
@@ -470,7 +481,7 @@ async function initSamplers() {
     }
     return bStatus
 }
-
+//REFACTOR: move to helper.js
 function promptShortcutExample() {
     let prompt_shortcut_example = {
         game_like:
@@ -488,7 +499,7 @@ function promptShortcutExample() {
     document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
     return prompt_shortcut_example
 }
-
+//REFACTOR: move to generation_settings.js
 function autoFillInSettings(metadata_json) {
     try {
         metadata_json1 = {
@@ -581,33 +592,48 @@ let prompt_dir_name = ''
 let gImage_paths = []
 let g_image_path_to_layer = {}
 let g_init_images_dir = './server/python_server/init_images'
+//REFACTOR: move to generationSettings.js
 gCurrentImagePath = ''
+//REFACTOR: move to generationSettings.js
 let g_init_image_name = ''
 // let g_init_mask_layer;
+//REFACTOR: move to generationSettings.js
 let g_init_image_mask_name = ''
 // let g_mask_related_layers = {}
 // let g_init_image_related_layers = {}
+//REFACTOR: move to generationSettings.js
 let numberOfImages = document.querySelector('#tiNumberOfImages').value
+//REFACTOR: move to generationSettings.js
 let g_sd_mode = 'txt2img'
 // let g_sd_mode_last = g_sd_mode
+//REFACTOR: move to generationSettings.js
+let g_sd_mode_last = g_sd_mode
+//REFACTOR: move to generationSettings.js
 let g_sd_sampler = 'Euler a'
+//REFACTOR: move to generationSettings.js
 let g_denoising_strength = 0.7
+//REFACTOR: move to generationSettings.js
 let g_use_mask_image = false
 let g_models = []
 // let g_models_horde = []
 let g_model_title = ''
 // let gWidth = 512
 // let gHeight = 512
+//REFACTOR: move to generationSettings.js
 let hWidth = 512
+//REFACTOR: move to generationSettings.js
 let hHeight = 512
+//REFACTOR: move to generationSettings.js
 let h_denoising_strength = 0.7
 // let g_inpainting_fill = 0
 // let g_last_outpaint_layers = []
 // let g_last_inpaint_layers = []
 // let g_last_snap_and_fill_layers = []
 
+//REFACTOR: move to generationSettings.js
 let g_metadatas = []
 let g_last_seed = '-1'
+//REFACTOR: move to generationSettings.js
 let g_can_request_progress = true
 let g_saved_active_layers = []
 let g_saved_active_selection = {}
@@ -619,6 +645,8 @@ let g_b_mask_layer_exist = false // true if inpaint mask layer exist, false othe
 let g_inpaint_mask_layer
 let g_inpaint_mask_layer_history_id //store the history state id when creating a new inpaint mask layer
 // let g_selection = {}
+//REFACTOR: move to session.js
+let g_selection = {}
 let g_b_use_smart_object = true // true to keep layer as smart objects, false to rasterize them
 let g_sd_options_obj = new sd_options.SdOptions()
 
@@ -2109,7 +2137,7 @@ async function generateTxt2Img(settings) {
 
     return json
 }
-
+//REFACTOR: move to selection.js
 async function hasSelectionChanged(new_selection, old_selection) {
     if (
         new_selection.left === old_selection.left &&
