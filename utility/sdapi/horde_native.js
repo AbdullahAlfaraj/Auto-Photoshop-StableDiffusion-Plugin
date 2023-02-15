@@ -326,7 +326,7 @@ class hordeGenerator {
                     const image_path = `${uuid}/${image_png_file_name}` //this is the png path
                     images_info.push({
                         path: image_path,
-                        base64: getDummyBase64(),
+                        base64: getDummyBase64(), //TODO:change this to the base64_png
                         layer: image_layer,
                     })
                     await psapi.layerToSelection(
