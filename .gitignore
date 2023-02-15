@@ -24,3 +24,4 @@ original_mask.png
 /jimp/browser/examples
 /jimp/browser/*.md
 /jimp/browser/*.editorconfig
+/jimp/browser/lib/jimp.js
