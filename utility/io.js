@@ -2,7 +2,7 @@ const batchPlay = require('photoshop').action.batchPlay
 const psapi = require('../psapi')
 const layer_util = require('../utility/layer')
 const general = require('./general')
-
+const Jimp = require('../jimp/browser/lib/jimp')
 async function snapShotLayer() {
     //snapshot layer with no mask
     let command = [
