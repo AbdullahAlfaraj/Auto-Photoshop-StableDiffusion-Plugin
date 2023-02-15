@@ -715,7 +715,89 @@ function layerNameToFileName(layer_name, layer_id, session_id) {
     return file_name
 }
 
-// await runModalFunction();
+async function silentSetInitImage(layer, session_id) {
+    try {
+        const html_manip = require('./utility/html_manip')
+        const io = require('./utility/io')
+        // const layer = await app.activeDocument.activeLayers[0]
+        const old_name = layer.name
+
+        // image_name = await app.activeDocument.activeLayers[0].name
+
+        //convert layer name to a file name
+        let image_name = layerNameToFileName(old_name, layer.id, session_id)
+        image_name = `${image_name}.png`
+
+        //the width and height of the exported image
+        const width = html_manip.getWidth()
+        const height = html_manip.getHeight()
+
+        //get the selection from the canvas as base64 png, make sure to resize to the width and height slider
+        const base64_image = await io.IO.getSelectionFromCanvasAsBase64(
+            true,
+            width,
+            height
+        )
+
+        //save base64 as file in the init_images directory
+        const init_entry = await getInitImagesDir()
+        await io.IO.base64PngToPngFile(base64_image, init_entry, image_name)
+
+        g_init_image_name = image_name
+        console.log(image_name)
+
+        const path = `${g_init_images_dir}/${image_name}`
+
+        //store the base64 init image and also set it as the active/latest init image
+        g_generation_session.base64initImages[path] = base64_image
+        g_generation_session.activeBase64InitImage = base64_image
+
+        const init_src = base64ToSrc(g_generation_session.activeBase64InitImage)
+        html_manip.setInitImageSrc(init_src)
+
+        return (image_info = { name: image_name, base64: base64_image })
+    } catch (e) {
+        console.error(`psapi.js silentSetInitImage error:, ${e}`)
+    }
+}
+async function silentSetInitImageMask(layer, session_id) {
+    try {
+        const html_manip = require('./utility/html_manip')
+
+        // const layer = await app.activeDocument.activeLayers[0]
+        const old_name = layer.name
+
+        image_name = layerNameToFileName(old_name, layer.id, session_id)
+        image_name = `${image_name}.png`
+        const width = html_manip.getWidth()
+        const height = html_manip.getHeight()
+
+        //get the selection from the canvas as base64 png, make sure to resize to the width and height slider
+        const base64_image = await io.IO.getSelectionFromCanvasAsBase64(
+            true,
+            width,
+            height
+        )
+
+        //save base64 as file in the init_images directory
+        const init_entry = await getInitImagesDir()
+        await io.IO.base64PngToPngFile(base64_image, init_entry, image_name)
+
+        g_init_image_mask_name = image_name // this is the name we will send to the server
+
+        console.log(image_name)
+
+        const path = `${g_init_images_dir}/${image_name}`
+        g_generation_session.base64maskImage[path] = base64_image
+        g_generation_session.activeBase64MaskImage = base64_image
+
+        const mask_src = base64ToSrc(g_generation_session.activeBase64MaskImage)
+        html_manip.setInitImageMaskSrc(mask_src)
+        return (image_info = { name: image_name, base64: base64_image })
+    } catch (e) {
+        console.error(`psapi.js setInitImageMask error: `, e)
+    }
+}
 async function setInitImage(layer, session_id) {
     try {
         const html_manip = require('./utility/html_manip')
@@ -1377,4 +1459,5 @@ module.exports = {
     isSelectionValid,
     snapshot_layer_no_slide_Exe,
     setVisibleExe,
+    silentSetInitImage,
 }
