@@ -14,8 +14,18 @@ function convertImageNameToPng(image_name) {
     const image_png_name = image_name.split('.')[0] + '.png'
     return image_png_name
 }
+function base64ToBase64Url(base64_image) {
+    return 'data:image/png;base64,' + base64_image
+}
+function base64UrlToBase64(base64_url) {
+    const base64_image = base64_url.replace('data:image/png;base64,', '')
+    return base64_image
+}
+
 module.exports = {
     newOutputImageName,
     makeImagePath,
     convertImageNameToPng,
+    base64ToBase64Url,
+    base64UrlToBase64,
 }
