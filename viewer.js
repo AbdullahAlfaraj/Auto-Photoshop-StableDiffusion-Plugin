@@ -161,7 +161,7 @@ class ViewerImage {
             //set init image event listener, use when settion is active
             const layer = await app.activeDocument.activeLayers[0]
 
-            const image_info = await psapi.setInitImage(
+            const image_info = await psapi.silentSetInitImage(
                 layer,
                 random_session_id
             )

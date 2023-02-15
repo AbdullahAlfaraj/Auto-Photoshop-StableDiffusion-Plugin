@@ -186,7 +186,7 @@ async function snapAndFillExe(session_id) {
             // g_init_image_related_layers['init_image_layer'] = snapshotLayer
             // g_init_image_related_layers['solid_white'] = whiteSolidLayer
 
-            const image_info = await psapi.setInitImage(
+            const image_info = await psapi.silentSetInitImage(
                 snapshotGroup,
                 session_id
             )
@@ -401,10 +401,18 @@ async function outpaintExe(session_id) {
 
             await addClippingMaskToLayer(snapshotGroup, selectionInfo)
 
-            const image_info = await psapi.setInitImage(
+            const mask_info = await psapi.silentSetInitImageMask(
+                snapshotMaskGroup,
+                session_id
+            )
+            snapshotMaskGroup.visible = false
+
+            const image_info = await psapi.silentSetInitImage(
                 snapshotGroup,
                 session_id
             )
+            snapshotGroup.visible = false
+
             const init_image_name = image_info['name']
             const init_path = `./server/python_server/init_images/${init_image_name}`
 
@@ -414,11 +422,8 @@ async function outpaintExe(session_id) {
 
             await psapi.reSelectMarqueeExe(selectionInfo)
 
-            // await psapi.setInitImageMask(snapshotMaskGroup,session_id)
-            const mask_info = await psapi.setInitImageMask(
-                snapshotMaskGroup,
-                session_id
-            )
+            // await psapi.silentSetInitImageMask(snapshotMaskGroup,session_id)
+
             const mask_name = mask_info['name']
             const mask_path = `./server/python_server/init_images/${mask_name}`
             await psapi.reSelectMarqueeExe(selectionInfo)
@@ -559,18 +564,20 @@ async function inpaintFasterExe(session_id) {
             // await psapi.selectLayers([snapshotGroup])
 
             await psapi.selectLayers([maskGroup])
-            // await psapi.setInitImageMask(maskGroup,session_id)
-            const mask_info = await psapi.setInitImageMask(
+            // await psapi.silentSetInitImageMask(maskGroup,session_id)
+            const mask_info = await psapi.silentSetInitImageMask(
                 maskGroup,
                 session_id
             )
+            //hide the mask so you can take screenshot of the init image
+            maskGroup.visible = false
             const mask_name = mask_info['name']
             const mask_path = `./server/python_server/init_images/${mask_name}`
 
             await psapi.reSelectMarqueeExe(selectionInfo)
             await psapi.selectLayers([snapshotGroup])
 
-            const image_info = await psapi.setInitImage(
+            const image_info = await psapi.silentSetInitImage(
                 snapshotGroup,
                 session_id
             )

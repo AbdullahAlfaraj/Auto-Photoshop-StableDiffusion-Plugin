@@ -1460,4 +1460,5 @@ module.exports = {
     snapshot_layer_no_slide_Exe,
     setVisibleExe,
     silentSetInitImage,
+    silentSetInitImageMask,
 }
