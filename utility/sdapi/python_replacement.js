@@ -445,8 +445,7 @@ async function getDocumentFolderNativePath(doc_uuid) {
         const uuid = await getUniqueDocumentId()
 
         let doc_folder = await getDocFolder(uuid)
-        let path = doc_folder.nativePath
-        path = path.replaceAll('\\', '/')
+        const path = general.fixNativePath(doc_folder.nativePath)
         return path
     } catch (e) {
         console.warn(e)

@@ -14,6 +14,11 @@ function convertImageNameToPng(image_name) {
     const image_png_name = image_name.split('.')[0] + '.png'
     return image_png_name
 }
+function fixNativePath(native_path) {
+    const fixed_native_path = native_path.replaceAll('\\', '/')
+
+    return fixed_native_path
+}
 function base64ToBase64Url(base64_image) {
     return 'data:image/png;base64,' + base64_image
 }
@@ -26,6 +31,7 @@ module.exports = {
     newOutputImageName,
     makeImagePath,
     convertImageNameToPng,
+    fixNativePath,
     base64ToBase64Url,
     base64UrlToBase64,
 }
