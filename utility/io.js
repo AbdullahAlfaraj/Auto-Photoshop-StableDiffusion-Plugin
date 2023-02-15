@@ -311,6 +311,48 @@ class IOHelper {
         }
         return new_doc
     }
+    static async cropPng(
+        arrayBuffer,
+        selectionInfo,
+        b_resize = false,
+        resize_width = 0,
+        resize_height = 0
+    ) {
+        //crop png from array buffer
+        //have the option to resize the after cropping
+
+        const crop_x = selectionInfo.left
+        const crop_y = selectionInfo.top
+        const crop_w = selectionInfo.width
+        const crop_h = selectionInfo.height
+        const base64_url_result = await Jimp.read(arrayBuffer)
+            .then(async (img) => {
+                let cropped_img = await img.crop(crop_x, crop_y, crop_w, crop_h)
+
+                let resized_img
+                if (b_resize) {
+                    resized_img = await cropped_img.resize(
+                        resize_width,
+                        resize_height
+                    )
+                } else {
+                    resized_img = cropped_img
+                }
+
+                const base64_url = await resized_img.getBase64Async(
+                    Jimp.MIME_PNG
+                )
+
+                console.log('jimp: base64_url: ', base64_url)
+                // document.getElementById("image").setAttribute("src", data);
+
+                return base64_url
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+        return base64_url_result
+    }
 }
 
 class IOBase64ToLayer {
