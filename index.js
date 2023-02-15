@@ -9,7 +9,6 @@ const helper = require('./helper')
 // const sdapi = require(`./${g_sdapi_path}`)
 const sdapi = require('./sdapi_py_re')
 
-
 // const exportHelper = require('./export_png')
 const outpaint = require('./outpaint')
 const psapi = require('./psapi')
@@ -35,6 +34,7 @@ const storage = require('uxp').storage
 const fs = storage.localFileSystem
 const horde_native = require('./utility/sdapi/horde_native')
 const io = require('./utility/io')
+const general = require('./utility/general')
 let g_horde_generator = new horde_native.hordeGenerator()
 
 async function hasSessionSelectionChanged() {
@@ -2481,7 +2481,10 @@ document
     .addEventListener('click', async () => {
         //set init image event listener, use when settion is active
         const layer = await app.activeDocument.activeLayers[0]
-        const image_info = await psapi.setInitImage(layer, random_session_id)
+        const image_info = await psapi.silentSetInitImage(
+            layer,
+            random_session_id
+        )
         const image_name = image_info['name']
         const path = `./server/python_server/init_images/${image_name}`
         g_viewer_manager.addInitImageLayers(layer, path, false)
@@ -2498,7 +2501,7 @@ document
             })
             const layer = g_viewer_manager.maskGroup
             // const layer = await app.activeDocument.activeLayers[0]
-            const mask_info = await psapi.setInitImageMask(
+            const mask_info = await psapi.silentSetInitImageMask(
                 layer,
                 random_session_id
             )
@@ -4087,29 +4090,3 @@ async function prmoptForUpdate() {
 document.getElementById('btnUpdate').addEventListener('click', async () => {
     await prmoptForUpdate()
 })
-
-function urlToImg(img_url) {
-    //TODO: delete this code
-    var xhr = new XMLHttpRequest()
-
-    // Use JSFiddle logo as a sample image to avoid complicating
-    // this example with cross-domain issues.
-    // xhr.open('GET', 'http://fiddle.jshell.net/img/logo.png', true)
-
-    xhr.open('GET', img_url, true)
-
-    // Ask for the result as an ArrayBuffer.
-    xhr.responseType = 'arraybuffer'
-
-    xhr.onload = function (e) {
-        // Obtain a blob: URL for the image data.
-        var arrayBufferView = new Uint8Array(this.response)
-        var blob = new Blob([arrayBufferView], { type: 'image/png' })
-        var urlCreator = window.URL || window.webkitURL
-        var imageUrl = urlCreator.createObjectURL(blob)
-        var img = document.getElementById('webp_container')
-        img.src = imageUrl
-    }
-
-    xhr.send()
-}

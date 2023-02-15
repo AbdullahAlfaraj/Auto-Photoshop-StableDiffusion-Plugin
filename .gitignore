@@ -18,3 +18,9 @@ start_server.bat
 expanded_mask.png
 original_mask.png
 /config
+
+/jimp/*
+!/jimp/browser/
+/jimp/browser/examples
+/jimp/browser/*.md
+/jimp/browser/*.editorconfig

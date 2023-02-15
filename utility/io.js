@@ -1,6 +1,8 @@
 const batchPlay = require('photoshop').action.batchPlay
 const psapi = require('../psapi')
 const layer_util = require('../utility/layer')
+const general = require('./general')
+const Jimp = require('../jimp/browser/lib/jimp.min')
 async function snapShotLayer() {
     //snapshot layer with no mask
     let command = [
@@ -143,13 +145,16 @@ class IO {
     static async exportDoc() {}
     static async exportLayer() {}
 
-    static async base64PngToPngFile(base64_png) {
+    static async base64PngToPngFile(
+        base64_png,
+        folder,
+        image_name = 'temp_base64Png.png'
+    ) {
         const arrayBuffer = _base64ToArrayBuffer(base64_png)
 
-        const img_name = 'temp_base64Png.png'
+        // const folder = await storage.localFileSystem.getTemporaryFolder()
 
-        const folder = await storage.localFileSystem.getTemporaryFolder()
-        const file = await folder.createFile(img_name, { overwrite: true })
+        const file = await folder.createFile(image_name, { overwrite: true })
 
         await file.write(arrayBuffer, { format: storage.formats.binary })
         return file
@@ -165,7 +170,12 @@ class IO {
                 try {
                     const main_doc_entry = await getCurrentDocFolder()
                     //save the base64_png to .png file
-                    const png_file = await this.base64PngToPngFile(base64_png)
+                    const temp_folder = await fs.getTemporaryFolder()
+                    const png_file = await this.base64PngToPngFile(
+                        base64_png,
+                        temp_folder
+                    )
+
                     //load the .png file as a layer in new document
                     const new_doc = await this.openImageFileAsDocument(png_file)
                     //save document as .webp
@@ -232,6 +242,55 @@ class IO {
             psapi.setVisibleExe(layer, true)
         }
         return layer
+    }
+
+    static async getSelectionFromCanvasAsBase64(
+        b_resize = false,
+        resize_width = 0,
+        resize_height = 0
+    ) {
+        //it will save the document then crop it so that only the selection area are left.
+        //return arrayBuffer or base64Png?
+        try {
+            let file
+            const folder = await fs.getTemporaryFolder()
+            await executeAsModal(
+                async () => {
+                    const canvas_image_name = 'canvas_image.png'
+                    file = await folder.createFile(canvas_image_name, {
+                        overwrite: true,
+                    })
+
+                    const currentDocument = app.activeDocument
+                    await currentDocument.saveAs.png(file, null, true)
+                    //save file end
+
+                    //read the saved image.png
+                },
+
+                { commandName: 'readPng' }
+            )
+
+            const arrayBuffer = await file.read({
+                format: formats.binary,
+            })
+
+            const selectionInfo = g_generation_session.selectionInfo
+            // const selectionInfo = await psapi.getSelectionInfoExe()
+            const cropped_base64_url = await IOHelper.cropPng(
+                arrayBuffer,
+                selectionInfo,
+                true,
+                resize_width,
+                resize_height
+            )
+            const cropped_base64 = general.base64UrlToBase64(cropped_base64_url)
+
+            // html_manip.setInitImageSrc(cropped_base64_url)
+            return cropped_base64
+        } catch (e) {
+            console.warn(e)
+        }
     }
 }
 
@@ -311,6 +370,48 @@ class IOHelper {
         }
         return new_doc
     }
+    static async cropPng(
+        arrayBuffer,
+        selectionInfo,
+        b_resize = false,
+        resize_width = 0,
+        resize_height = 0
+    ) {
+        //crop png from array buffer
+        //have the option to resize the after cropping
+
+        const crop_x = selectionInfo.left
+        const crop_y = selectionInfo.top
+        const crop_w = selectionInfo.width
+        const crop_h = selectionInfo.height
+        const base64_url_result = await Jimp.read(arrayBuffer)
+            .then(async (img) => {
+                let cropped_img = await img.crop(crop_x, crop_y, crop_w, crop_h)
+
+                let resized_img
+                if (b_resize) {
+                    resized_img = await cropped_img.resize(
+                        resize_width,
+                        resize_height
+                    )
+                } else {
+                    resized_img = cropped_img
+                }
+
+                const base64_url = await resized_img.getBase64Async(
+                    Jimp.MIME_PNG
+                )
+
+                console.log('jimp: base64_url: ', base64_url)
+                // document.getElementById("image").setAttribute("src", data);
+
+                return base64_url
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+        return base64_url_result
+    }
 }
 
 class IOBase64ToLayer {
@@ -327,4 +428,5 @@ class IOBase64ToLayer {
 module.exports = {
     IO,
     snapShotLayerExe,
+    IOHelper,
 }

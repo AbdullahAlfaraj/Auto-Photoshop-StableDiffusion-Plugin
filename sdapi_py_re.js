@@ -62,7 +62,7 @@ async function requestSavePng(base64_image, image_name) {
         // return json
         const uniqueDocumentId = await getUniqueDocumentId()
         const folder = `${uniqueDocumentId}/init_images`
-        const init_entery = getInitImagesDir()
+        const init_entry = await getInitImagesDir()
         saveFileInSubFolder(base64_image, folder, image_name)
         console.warn('this function is deprecated')
     } catch (e) {
