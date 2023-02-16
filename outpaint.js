@@ -148,7 +148,11 @@ async function snapAndFillExe(session_id) {
 
     try {
         let snapAndFillLayers = []
-        await executeAsModal(async () => {
+        await executeAsModal(async (context) => {
+            const history_id = await context.hostControl.suspendHistory({
+                documentID: app.activeDocument.id, //TODO: change this to the session document id
+                name: 'Img2Img layers',
+            })
             const selectionInfo = await psapi.getSelectionInfoExe()
             // await psapi.unSelectMarqueeExe()
 
@@ -206,6 +210,7 @@ async function snapAndFillExe(session_id) {
             await psapi.reSelectMarqueeExe(selectionInfo)
             const layer_util = require('./utility/layer')
             await layer_util.collapseFolderExe([snapshotGroup], false)
+            await context.hostControl.resumeHistory(history_id)
         })
         console.log('snapAndFillLayers: ', snapAndFillLayers)
         return snapAndFillLayers
@@ -238,7 +243,11 @@ async function outpaintExe(session_id) {
 
     try {
         let outpaintLayers = []
-        await executeAsModal(async () => {
+        await executeAsModal(async (context) => {
+            const history_id = await context.hostControl.suspendHistory({
+                documentID: app.activeDocument.id, //TODO: change this to the session document id
+                name: 'Outpaint Mask Related layers',
+            })
             const selectionInfo = await psapi.getSelectionInfoExe()
             // await psapi.unSelectMarqueeExe()
 
@@ -347,6 +356,7 @@ async function outpaintExe(session_id) {
                 [snapshotGroup, snapshotMaskGroup],
                 false
             )
+            await context.hostControl.resumeHistory(history_id)
         })
         console.log('outpaintLayers 2: ', outpaintLayers)
         return outpaintLayers
@@ -365,7 +375,12 @@ async function inpaintFasterExe(session_id) {
     //set mask image
     try {
         let inpaintLayers = []
-        await executeAsModal(async () => {
+        await executeAsModal(async (context) => {
+            const history_id = await context.hostControl.suspendHistory({
+                documentID: app.activeDocument.id,
+                name: 'Inpaint Mask Related layers',
+            })
+
             const selectionInfo = await psapi.getSelectionInfoExe()
 
             //hide the current white mark mask layer
@@ -508,6 +523,7 @@ async function inpaintFasterExe(session_id) {
                 [snapshotGroup, maskGroup],
                 false
             )
+            await context.hostControl.resumeHistory(history_id)
         })
         return inpaintLayers
     } catch (e) {
