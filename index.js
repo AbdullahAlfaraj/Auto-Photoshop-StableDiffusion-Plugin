@@ -3277,7 +3277,7 @@ async function silentImagesToLayersExe(images_info) {
             await psapi.layerToSelection(g_generation_session.selectionInfo)
 
             await g_generation_session.moveToTopOfOutputGroup(imported_layer)
-
+            await psapi.setVisibleExe(imported_layer, false) // turn off the visibility for the layer
             image_path_to_layer[image_info.path] = imported_layer
             // await reselect(selectionInfo)
         }
