@@ -998,7 +998,7 @@ async function createClippingMaskExe() {
         await createClippingMaskCommand()
     })
 }
-
+//REFACTOR: delete and replace with getSelectionInfoExe()
 async function checkIfSelectionAreaIsActive() {
     try {
         let isSelectionAreaValid = await getSelectionInfoExe()
