@@ -223,7 +223,7 @@ document.getElementById('sp-viewer-tab').addEventListener('click', async () => {
     } else {
         g_sd_mode = html_manip.getMode()
     }
-})    
+})
 //REFACTOR: move to html_manip.js (?)
 document.getElementById('sp-viewer-tab').addEventListener('click', async () => {
     moveElementToAnotherTab('batchNumberUi', 'batchNumberViewerTabContainer')
@@ -2577,6 +2577,37 @@ function updateProgressBarsHtml(new_value) {
     })
     // document.querySelector('#pProgressBar').value
 }
+
+async function updateProgressImage(progress_base64) {
+    await executeAsModal(async (context) => {
+        const history_id = await context.hostControl.suspendHistory({
+            documentID: app.activeDocument.id, //TODO: change this to the session document id
+            name: 'Progress Image',
+        })
+        await g_generation_session.deleteProgressLayer() // delete the old progress layer
+        //update the progress image
+        const selection_info = await g_generation_session.selectionInfo
+        const b_exsit = layer_util.Layer.doesLayerExist(
+            g_generation_session.progress_layer
+        )
+        if (!b_exsit) {
+            const layer = await io.IO.base64ToLayer(
+                progress_base64,
+                'temp_progress_image.png',
+                selection_info.left,
+                selection_info.top,
+                selection_info.width,
+                selection_info.height
+            )
+            g_generation_session.progress_layer = layer // sotre the new progress layer// TODO: make sure you delete the progress layer when the geneeration request end
+        } else {
+            // if ,somehow, the layer still exsit
+            await layer_util.deleteLayers([g_generation_session.progress_layer]) // delete the old progress layer
+        }
+        await context.hostControl.resumeHistory(history_id)
+    })
+}
+
 async function progressRecursive() {
     try {
         let json = await sdapi.requestProgress()
@@ -2584,28 +2615,7 @@ async function progressRecursive() {
         progress_value = json.progress * 100
         html_manip.updateProgressBarsHtml(progress_value)
         if (json?.current_image) {
-            await g_generation_session.deleteProgressLayer() // delete the old progress layer
-            //update the progress image
-            const selection_info = await g_generation_session.selectionInfo
-            b_exsit = layer_util.Layer.doesLayerExist(
-                g_generation_session.progress_layer
-            )
-            if (!b_exsit) {
-                const layer = await io.IO.base64ToLayer(
-                    json.current_image,
-                    'temp_progress_image.png',
-                    selection_info.left,
-                    selection_info.top,
-                    selection_info.width,
-                    selection_info.height
-                )
-                g_generation_session.progress_layer = layer // sotre the new progress layer// TODO: make sure you delete the progress layer when the geneeration request end
-            } else {
-                // if ,somehow, the layer still exsit
-                await layer_util.deleteLayers([
-                    g_generation_session.progress_layer,
-                ]) // delete the old progress layer
-            }
+            await updateProgressImage(json.current_image)
         }
         if (g_generation_session.isActive() && g_can_request_progress == true) {
             //refactor this code
