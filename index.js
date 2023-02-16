@@ -1390,7 +1390,9 @@ async function acceptAll() {
                 ) {
                     //check if the active viewer_image_obj is a type of OutputImage and move it to the top of the output group folder
                     //this is so when we accept all layers the canvas will look the same. otherwise the image could be cover by another generated image
-                    if (viewer_image_obj.isLayerValid()) {
+                    if (
+                        layer_util.Layer.doesLayerExist(viewer_image_obj.layer)
+                    ) {
                         await g_generation_session.moveToTopOfOutputGroup(
                             viewer_image_obj.layer
                         )

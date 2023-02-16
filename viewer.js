@@ -188,7 +188,7 @@ class OutputImage extends ViewerImage {
     visible(visibleOn) {
         try {
             super.visible(visibleOn)
-            if (this.isLayerValid()) {
+            if (layer_util.Layer.doesLayerExist(this.layer)) {
                 this.layer.visible = visibleOn
             }
         } catch (e) {
@@ -197,7 +197,7 @@ class OutputImage extends ViewerImage {
     }
     async select() {
         super.select()
-        if (this.isLayerValid()) {
+        if (layer_util.Layer.doesLayerExist(this.layer)) {
             await psapi.selectLayersExe([this.layer])
             //   console.log(`${this.layer.id} got selected`);
         }
@@ -275,21 +275,21 @@ class InitImage extends ViewerImage {
                 visibleValues = [false, false, false]
             }
 
-            if (this.isLayerValid(this.init_group)) {
+            if (layer_util.Layer.doesLayerExist(this.init_group)) {
                 this.init_group.visible = visibleValues[0]
             }
-            if (this.isLayerValid(this.init_snapshot)) {
+            if (layer_util.Layer.doesLayerExist(this.init_snapshot)) {
                 this.init_snapshot.visible = visibleValues[1]
             }
 
-            if (this.isLayerValid(this.solid_layer)) {
+            if (layer_util.Layer.doesLayerExist(this.solid_layer)) {
                 this.solid_layer.visible = visibleValues[2]
             }
 
             if (!this.autoDelete) {
                 //means it's not the first init image
 
-                if (this.isLayerValid(this.solid_layer)) {
+                if (layer_util.Layer.doesLayerExist(this.solid_layer)) {
                     this.solid_layer.visible = false //turn it off sense the init group is above the output group, and the white solid will hide the init image reference located in the output group
                 }
             }
@@ -387,13 +387,13 @@ class InitMaskImage extends ViewerImage {
                 visibleValues = [false, false, false]
             }
 
-            if (this.isLayerValid(this.mask_group)) {
+            if (layer_util.Layer.doesLayerExist(this.mask_group)) {
                 this.mask_group.visible = visibleValues[0]
             }
-            if (this.isLayerValid(this.white_mark)) {
+            if (layer_util.Layer.doesLayerExist(this.white_mark)) {
                 this.white_mark.visible = visibleValues[1]
             }
-            if (this.isLayerValid(this.solid_black)) {
+            if (layer_util.Layer.doesLayerExist(this.solid_black)) {
                 this.solid_black.visible = visibleValues[2]
             }
         } catch (e) {
@@ -405,16 +405,10 @@ class InitMaskImage extends ViewerImage {
         super.select()
 
         const selectLayers = []
-        // if (this.isLayerValid(this.mask_group)) {
 
-        //   selectLayers.push(this.mask_group)
-        // }
-        if (this.isLayerValid(this.white_mark)) {
+        if (layer_util.Layer.doesLayerExist(this.white_mark)) {
             selectLayers.push(this.white_mark)
         }
-        // if (this.isLayerValid(this.solid_layer)) {
-        //   selectLayers.push(this.solid_layer)
-        // }
 
         await psapi.selectLayersExe(selectLayers)
         //   console.log(`${this.layer.id} got selected`);
