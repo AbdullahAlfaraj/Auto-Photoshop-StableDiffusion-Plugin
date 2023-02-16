@@ -4,6 +4,7 @@
 // let g_sdapi_path = 'sdapi'
 let g_version = 'v1.1.9'
 let g_sd_url = 'http://127.0.0.1:7860'
+const Enum = require('./enum')
 const helper = require('./helper')
 // let g_sdapi_path = 'sdapi_py_re'
 // const sdapi = require(`./${g_sdapi_path}`)
@@ -3222,7 +3223,7 @@ async function silentImagesToLayersExe(images_info) {
             images_info.images_paths
         )
         // Returns a Promise that resolves after "ms" Milliseconds
-        const timer = (ms) => new Promise((res) => setTimeout(res, ms))
+        const timer = (ms) => new Promise((res) => setTimeout(res, ms)) //Todo: move this line to it's own utilit function
 
         for (image_info of images_info) {
             console.log(gCurrentImagePath)
@@ -3342,113 +3343,30 @@ document.getElementById('collapsible').addEventListener('click', function () {
 function removeInitImageFromViewer() {}
 function removeMaskFromViewer() {}
 
-async function NewViewerImageClickHandler(img, viewer_obj_owner) {
-    try {
-        img.addEventListener('click', async (e) => {
-            if (g_isViewerMenuDisabled) {
-                return g_isViewerMenuDisabled
-            }
-
-            // e.target.classList.add("viewerImgSelected")
-            // viewer_obj_owner.isAccepted = true
-            // console.log("viewer_obj_owner: viewer_obj_owner.layer.name: ",viewer_obj_owner.layerName())
-            // e.target.classList.toggle("viewerImgSelected")
-            //  e.target.style.border="3px solid #6db579"
-            //turn off all layers
-            //select the layer this image represent and turn it on
-
-            await executeAsModal(async () => {
-                // const img = e.target
-                // const layer_id = parseInt(img.dataset.image_id)
-                // console.log("the layer id = ",layer_id)
-
-                // let selectedViewerImageObj
-                // Array.isArray(layer)
-
-                //turn off all layers linked the viewer tab
-
-                for (const [path, viewer_object] of Object.entries(
-                    g_viewer_manager.pathToViewerImage
-                )) {
-                    try {
-                        if (viewer_object.getHighlight()) {
-                            // viewer_object.state = viewer.ViewerObjState["Unlink"]
-                        } else {
-                            // viewer_object.state = viewer.ViewerObjState["Delete"]
-                        }
-                        viewer_object.visible(false)
-                        viewer_object.active(false)
-
-                        // console.log("viewer_object.path: ",viewer_object.path)
-                        // console.log("viewer_object.info(): ")
-                        // viewer_object.info()
-                    } catch (e) {
-                        console.error('cannot hide a layer: ', e)
-                    }
-                }
-
-                // for(viewerImageObj of viewer_layers){
-                //     try{
-                //       //viewerImageObj.visible(false)
-
-                //       //make all layers of that entry invisible
-                //       viewerImageObj.visible(false)
-
-                //       //if the layer id of the first layer in the group container
-                //       //viewerImageObj.isSameLayer(layer_id)
-                //       // if (viewerImageObj.isSameLayer(layer_id)){
-                //       //   selectedViewerImageObj = viewerImageObj
-                //       // }
-                //     } catch (e){
-                //       console.error("cannot hide a layer: ",e)
-                //     }
-                //   }
-
-                // selectedViewerImageObj.visible(true)
-                // selectedViewerImageObj.select(true)
-                // viewer_obj_owner.state = viewer.ViewerObjState['Unlink']
-                viewer_obj_owner.visible(true)
-                await viewer_obj_owner.select(true) //select() does take arguments
-                viewer_obj_owner.active(true)
-                // console.log("viewer_obj_owner.path: ",viewer_obj_owner.path)
-                // console.log("viewer_obj_owner.info(): ")
-                // viewer_obj_owner.info()
-                if (e.shiftKey) {
-                    try {
-                        if (g_viewer_manager.last_selected_viewer_obj) {
-                            //if the last selected layer is valid then converted last selected layer into highlight layer
-                            g_viewer_manager.last_selected_viewer_obj.setHighlight(
-                                true
-                            )
-                        }
-                    } catch (e) {
-                        console.warn(e)
-                    }
-
-                    viewer_obj_owner.setHighlight(true)
-                    // e.target.classList.add("viewerImgSelected")
-                } else if (e.altKey) {
-                    g_viewer_manager.last_selected_viewer_obj = null
-                    viewer_obj_owner.setHighlight(false)
-                    viewer_obj_owner.visible(false)
-                    viewer_obj_owner.active(false)
-
-                    // await viewer_obj_owner.select(false)
-                    await psapi.unselectActiveLayersExe()
-                    // e.target.classList.remove("viewerImgSelected")
-                }
-
-                if (viewer_obj_owner.isActive()) {
-                    // will not store current viewer_obj if we click "alt" click if we hit alt click
-
-                    g_viewer_manager.last_selected_viewer_obj = viewer_obj_owner //store the current selection as last selection for the next click attempt .
-                }
-            })
-        })
-    } catch (e) {
-        console.warn(e)
+async function viewerThumbnailclickHandler(e, viewer_obj_owner) {
+    if (g_isViewerMenuDisabled) {
+        return g_isViewerMenuDisabled
     }
+
+    let click_type = Enum.clickTypeEnum['Click']
+    if (e.shiftKey) {
+        click_type = Enum.clickTypeEnum['ShiftClick']
+    } else if (e.altKey) {
+        click_type = Enum.clickTypeEnum['AltClick']
+    }
+    await executeAsModal(async () => {
+        //get type of click
+
+        await viewer_obj_owner.click(click_type)
+    })
 }
+// async function NewViewerImageClickHandler(img, viewer_obj_owner) {
+//     try {
+
+//     } catch (e) {
+//         console.warn(e)
+//     }
+// }
 function createViewerImgHtml(output_dir_relative, image_path, base64_image) {
     const img = document.createElement('img')
     // img.src = `${output_dir_relative}/${image_path}`
@@ -3549,7 +3467,10 @@ async function loadViewerImages() {
                     init_image_container.appendChild(init_img_html)
                     initImage.setImgHtml(init_img_html)
 
-                    await NewViewerImageClickHandler(init_img_html, initImage) // create click handler for each images
+                    init_img_html.addEventListener('click', async (e) => {
+                        await viewerThumbnailclickHandler(e, initImage)
+                    })
+                    // await NewViewerImageClickHandler(init_img_html, initImage) // create click handler for each images
                 }
             }
         }
@@ -3583,7 +3504,12 @@ async function loadViewerImages() {
                 mask_container.appendChild(mask_img_html)
                 mask_obj.setImgHtml(mask_img_html)
 
-                await NewViewerImageClickHandler(mask_img_html, mask_obj) // create click handler for each images ,viewer_layers)// create click handler for each images
+                // await NewViewerImageClickHandler(mask_img_html, mask_obj) // create click handler for each images ,viewer_layers)// create click handler for each images
+
+                mask_img_html.addEventListener('click', async (e) => {
+                    await viewerThumbnailclickHandler(e, mask_obj)
+                })
+
                 // await viewerImageClickHandler(mask_img_html,viewer_layers)// create click handler for each images
             }
         }
@@ -3616,14 +3542,20 @@ async function loadViewerImages() {
                 }
                 output_image_container.appendChild(output_image_obj.img_html)
                 //add on click event handler to the html img
-                await NewViewerImageClickHandler(img, output_image_obj)
+                // await NewViewerImageClickHandler(img, output_image_obj)
+                img.addEventListener('click', async (e) => {
+                    await viewerThumbnailclickHandler(e, output_image_obj)
+                })
             }
 
             // i++
         }
         if (lastOutputImage) {
             //select the last generate/output image
-            lastOutputImage.img_html.click()
+            // lastOutputImage.img_html.click()
+            executeAsModal(async () => {
+                await lastOutputImage.click(Enum.clickTypeEnum['Click'])
+            })
         }
     } catch (e) {
         console.error(`loadViewer images: `, e)

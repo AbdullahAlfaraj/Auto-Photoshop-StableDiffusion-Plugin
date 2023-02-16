@@ -3,13 +3,13 @@
 // 	* image layer
 // 	* viewer()
 // 	* select()
-// 	* isLayerValid()
+
 // * init image class: has three layers
 // 	* path :
 // 	* init image group layer
 // 	* init image layer
 // 	* background layer
-// 	* isLayerValid()
+
 // * mask class:
 // 	* path
 // 	* mask group
@@ -17,10 +17,9 @@
 // 	* balck layer
 // 	* select()
 // 	* viewe()
-// 	* isLayerValid()
-
+const Enum = require('./enum')
 const psapi = require('./psapi')
-
+const layer_util = require('./utility/layer')
 const ViewerObjState = {
     Delete: 'delete',
     Unlink: 'unlink',
@@ -31,12 +30,13 @@ class ViewerImage {
         this.img_html = null
         this.is_highlighted = false
         this.can_highlight = true
-        this.is_active = false // active is a temporary highlight
+        this.is_active = false // active is a temporary highlight , the yellow/orang highlight
         this.state = ViewerObjState['Unlink']
 
         // true will delete the layers from the layer stacks when the session ends,
         // false mean use this.state to determine whither you delete the layer or not
         this.autoDelete = false
+        this.viewerManager = null // store link to the viewer manager of this document
     }
     info() {
         console.log('state: ', this.state)
@@ -66,7 +66,7 @@ class ViewerImage {
     setAutoDelete(auto_delete) {
         this.autoDelete = auto_delete
     }
-    isLayerValid() {}
+
     isSameLayer(layer_id) {}
     setHighlight(is_highlighted) {
         if (this.can_highlight) {
@@ -179,13 +179,56 @@ class ViewerImage {
 }
 
 class OutputImage extends ViewerImage {
-    constructor(layer, path) {
+    constructor(layer, path, viewer_manager) {
         super()
         this.layer = layer
         this.path = path
         this.img_html = null
+        this.viewerManager = viewer_manager
+    }
+    async click(click_type) {
+        console.log('click_type: ', click_type)
+        if (this.isActive() && click_type === Enum.clickTypeEnum['Click']) {
+            //convert consecutive clicks to AltClick
+            click_type = Enum.clickTypeEnum['SecondClick']
+            console.log('converted click_type: ', click_type)
+        }
+
+        if (click_type === Enum.clickTypeEnum['Click']) {
+            //select layer
+            //turn the layer visible
+            //set the layer to active
+            this.visible(true)
+            await this.select(true) //select() does take arguments
+            this.active(true)
+        } else if (click_type === Enum.clickTypeEnum['ShiftClick']) {
+            this.visible(true)
+            await this.select(true) //select() does take arguments
+            this.setHighlight(true)
+            this.active(true)
+            // if (this.viewerManager.last_selected_viewer_obj) {
+            //     //if the last selected layer is valid then converted last selected layer into highlight layer
+            //     this.viewerManager.last_selected_viewer_obj.setHighlight(true)
+            // }
+        } else if (click_type === Enum.clickTypeEnum['AltClick']) {
+            // this.viewerManager.last_selected_viewer_obj = null
+            this.setHighlight(false)
+            this.visible(false)
+            this.active(false)
+
+            await psapi.unselectActiveLayersExe() //Note:can we move to ViewerManager.click()
+        } else if (click_type === Enum.clickTypeEnum['SecondClick']) {
+            //select layer
+            //turn the layer visible
+            //set the layer to active
+            this.visible(false)
+            await this.select(false) //select() does take arguments
+            this.active(false)
+        }
+        this.viewerManager.replaceLastSelection(click_type, this) //pass the click_type and this object
     }
     visible(visibleOn) {
+        //turn the visibility for the layer
         try {
             super.visible(visibleOn)
             if (layer_util.Layer.doesLayerExist(this.layer)) {
@@ -196,27 +239,27 @@ class OutputImage extends ViewerImage {
         }
     }
     async select() {
+        //select the layer
         super.select()
         if (layer_util.Layer.doesLayerExist(this.layer)) {
             await psapi.selectLayersExe([this.layer])
             //   console.log(`${this.layer.id} got selected`);
         }
     }
-    isLayerValid() {
-        super.isLayerValid()
-        //check if layer is defined or not
-        //true if the layer is defined
-        //false otherwise
-        let isValid = false
-        if (typeof this.layer !== 'undefined' && this.layer) {
-            isValid = true
-        }
-        return isValid
-    }
+
     isSameLayer(layer_id) {
         super.isSameLayer(layer_id)
         const is_same = this.layer.id == layer_id
         return is_same
+    }
+    isSameObject(object) {
+        if (
+            layer_util.Layer.doesLayerExist(this.layer) &&
+            layer_util.Layer.doesLayerExist(object.layer)
+        ) {
+            return this.layer.id === object.layer.id
+        }
+        return false
     }
 
     setImgHtml(img_html) {
@@ -251,7 +294,7 @@ class OutputImage extends ViewerImage {
 }
 
 class InitImage extends ViewerImage {
-    constructor(init_group, init_snapshot, solid_layer, path) {
+    constructor(init_group, init_snapshot, solid_layer, path, viewer_manager) {
         super()
         this.init_group = init_group
         this.init_snapshot = init_snapshot
@@ -259,15 +302,46 @@ class InitImage extends ViewerImage {
 
         this.path = path
         this.can_highlight = false
-
+        this.viewerManager = viewer_manager
         // if (this.autoDelete === false){
         //   this.state = ViewerObjState['Unlink']
         // }
     }
+    async click(click_type) {
+        if (click_type === Enum.clickTypeEnum['Click']) {
+            //select layer
+            //turn the layer visible
+            //set the layer to active
+            this.visible(true)
+            await this.select(true) //select() does take arguments
+            this.active(true)
+            click_type = Enum.clickTypeEnum['Click'] // convert all click to Click
+            this.viewerManager.replaceLastSelection(click_type, this) //pass the click_type and this object
+        } else if (click_type === Enum.clickTypeEnum['ShiftClick']) {
+            this.visible(true)
+            await this.select(true) //select() does take arguments
+            this.active(true)
+            // if (this.viewerManager.last_selected_viewer_obj) {
+            //     //if the last selected layer is valid then converted last selected layer into highlight layer
+            //     this.viewerManager.last_selected_viewer_obj.setHighlight(true)
+            // }
+            click_type = Enum.clickTypeEnum['Click'] // convert all click to Click
+            this.viewerManager.replaceLastSelection(click_type, this) //pass the click_type and this object
+        }
+        // else if (click_type === Enum.clickTypeEnum['AltClick']) {
+        //     // this.viewerManager.last_selected_viewer_obj = null
+        //     this.setHighlight(false)
+        //     this.visible(false)
+        //     this.active(false)
+
+        //     await psapi.unselectActiveLayersExe() //Note:can we move to ViewerManager.click()
+        // }
+        // this.viewerManager.replaceLastSelection(click_type, this) //pass the click_type and this object
+    }
     visible(visibleOn) {
         try {
             super.visible(visibleOn)
-            //   const isValid = this.isLayerValid()
+
             let visibleValues = []
             if (visibleOn) {
                 visibleValues = [true, true, true]
@@ -302,38 +376,18 @@ class InitImage extends ViewerImage {
         super.select()
 
         const selectLayers = []
-        if (this.isLayerValid(this.init_group)) {
+        if (layer_util.Layer.doesLayerExist(this.init_group)) {
             selectLayers.push(this.init_group)
         }
-        // if (this.isLayerValid(this.init_snapshot)) {
-
-        //   selectLayers.push(this.init_snapshot)
-        // }
-        // if (this.isLayerValid(this.solid_layer)) {
-        //   selectLayers.push(this.solid_layer)
-        // }
 
         await psapi.selectLayersExe(selectLayers)
         //   console.log(`${this.layer.id} got selected`);
     }
 
-    isLayerValid(layer) {
-        super.isLayerValid()
-        //check if layer is defined or not
-        //true if the layer is defined
-        //false otherwise
-        //   let isValid = [false,false,false]
-        let isValid = false
-        if (typeof layer !== 'undefined' && layer) {
-            isValid = true
-        }
-
-        return isValid
-    }
     isSameLayer(layer_id) {
         super.isSameLayer(layer_id)
         let is_same = false
-        if (this.isLayerValid(this.init_group)) {
+        if (layer_util.Layer.doesLayerExist(this.init_group)) {
             is_same = this.init_group.id == layer_id
         }
         return is_same
@@ -367,7 +421,7 @@ class InitImage extends ViewerImage {
 }
 
 class InitMaskImage extends ViewerImage {
-    constructor(mask_group, white_mark, solid_black, path) {
+    constructor(mask_group, white_mark, solid_black, path, viewer_manager) {
         super()
         this.mask_group = mask_group
         this.white_mark = white_mark
@@ -375,11 +429,34 @@ class InitMaskImage extends ViewerImage {
 
         this.path = path
         this.can_highlight = false
+        this.viewerManager = viewer_manager
+    }
+    async click(click_type) {
+        if (click_type === Enum.clickTypeEnum['Click']) {
+            //select layer
+            //turn the layer visible
+            //set the layer to active
+            this.visible(true)
+            await this.select(true) //select() does take arguments
+            this.active(true)
+            click_type = Enum.clickTypeEnum['Click'] // convert all click to Click
+            this.viewerManager.replaceLastSelection(click_type, this) //pass the click_type and this object
+        } else if (click_type === Enum.clickTypeEnum['ShiftClick']) {
+            this.visible(true)
+            await this.select(true) //select() does take arguments
+            this.active(true)
+            // if (this.viewerManager.last_selected_viewer_obj) {
+            //     //if the last selected layer is valid then converted last selected layer into highlight layer
+            //     this.viewerManager.last_selected_viewer_obj.setHighlight(true)
+            // }
+            click_type = Enum.clickTypeEnum['Click'] // convert all click to Click
+            this.viewerManager.replaceLastSelection(click_type, this) //pass the click_type and this object
+        }
     }
     visible(visibleOn) {
         try {
             super.visible(visibleOn)
-            //   const isValid = this.isLayerValid()
+
             let visibleValues = []
             if (visibleOn) {
                 visibleValues = [true, true, false]
@@ -414,23 +491,10 @@ class InitMaskImage extends ViewerImage {
         //   console.log(`${this.layer.id} got selected`);
     }
 
-    isLayerValid(layer) {
-        super.isLayerValid()
-        //check if layer is defined or not
-        //true if the layer is defined
-        //false otherwise
-        //   let isValid = [false,false,false]
-        let isValid = false
-        if (typeof layer !== 'undefined' && layer) {
-            isValid = true
-        }
-
-        return isValid
-    }
     isSameLayer(layer_id) {
         super.isSameLayer(layer_id)
         let is_same = false
-        if (this.isLayerValid(this.mask_group)) {
+        if (layer_util.Layer.doesLayerExist(this.mask_group)) {
             is_same = this.mask_group.id == layer_id
         }
         return is_same
@@ -484,6 +548,8 @@ class ViewerManager {
         this.pathToViewerImage = {} // quick way to check if an link image path on disk to ViewerImage object.
         this.initImageLayersJson = {} //{path: initImageLayers}
 
+        this.selectedOutputImages = {} //store the selected output images {path: outputImage}
+
         this.mask_layer
         this.maskLayersJson = {} //{path: MaskLayers}
 
@@ -495,6 +561,32 @@ class ViewerManager {
 
         //last_selected_obj
         this.last_selected_viewer_obj
+    }
+
+    replaceLastSelection(click_type, clicked_object) {
+        if (
+            this.last_selected_viewer_obj
+            // clicked_object instanceof OutputImage &&
+            // !clicked_object.isSameObject(this.last_selected_viewer_obj)
+        ) {
+            //if the current selection and the last selection are different
+
+            this.last_selected_viewer_obj.visible(false)
+            this.last_selected_viewer_obj.active(false)
+        }
+        if (click_type === Enum.clickTypeEnum['Click']) {
+            this.last_selected_viewer_obj = clicked_object
+        } else if (click_type === Enum.clickTypeEnum['ShiftClick']) {
+            if (this.last_selected_viewer_obj) {
+                //if the last selected layer is valid then converted last selected layer into highlight layer
+                this.last_selected_viewer_obj.setHighlight(true)
+            }
+            this.last_selected_viewer_obj = clicked_object
+        } else if (click_type === Enum.clickTypeEnum['AltClick']) {
+            this.last_selected_viewer_obj = null
+        } else if (click_type === Enum.clickTypeEnum['SecondClick']) {
+            this.last_selected_viewer_obj = null
+        }
     }
     initializeInitImage(group, snapshot, solid_background, path) {
         this.initGroup = group
@@ -559,14 +651,20 @@ class ViewerManager {
         return false
     }
     addOutputImage(layer, path) {
-        const outputImage = new OutputImage(layer, path)
+        const outputImage = new OutputImage(layer, path, this)
 
         this.outputImages.push(outputImage)
         this.pathToViewerImage[path] = outputImage //
         return outputImage
     }
     addInitImage(group, snapshot, solid_background, path, auto_delete) {
-        const initImage = new InitImage(group, snapshot, solid_background, path)
+        const initImage = new InitImage(
+            group,
+            snapshot,
+            solid_background,
+            path,
+            this
+        )
         initImage.setAutoDelete(auto_delete)
         this.initImages.push(initImage)
         this.pathToViewerImage[path] = initImage
@@ -577,7 +675,8 @@ class ViewerManager {
             group,
             white_mark,
             solid_background,
-            path
+            path,
+            this
         )
 
         this.initMaskImage = mask
