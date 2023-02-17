@@ -11,12 +11,28 @@
   "main": "index.html",
   "manifestVersion": 5,
   "requiredPermissions": {
+    "webview": {
+      "allow": "yes",
+      "domains": [
+        "https://*.adobe.com",
+        "https://*.google.com",
+        "https://webapp.magicposer.com/"
+      ]
+    },
     "network": {
       "domains": "all"
     },
     "launchProcess": {
-      "schemes": ["http", "https", "mailto"],
-		  "extensions": [".png", ".jpg", ".pdf"]
+      "schemes": [
+        "http",
+        "https",
+        "mailto"
+      ],
+      "extensions": [
+        ".png",
+        ".jpg",
+        ".pdf"
+      ]
     },
     "clipboard": "readAndWrite",
     "localFileSystem": "request",
