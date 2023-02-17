@@ -639,6 +639,15 @@
 
                     <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
                 </div>
+                <sp-slider
+                    show-value="true"
+                    id="slThumbnailSize"
+                    min="1"
+                    max="100"
+                    value="1"
+                >
+                    <sp-label slot="label">Thumbnail Size:</sp-label>
+                </sp-slider>
                 <div class="" id="divProgressImageViewerContainer">
                     <img
                         class="viewer-image"
@@ -1292,6 +1301,7 @@
                         <sp-radio
                             title="use this mode to generate variation of a small area of an image, while keeping the rest of the image intact"
                             class="rbMode"
+                            id="rbModeInpaint"
                             value="inpaint"
                             >inpaint</sp-radio
                         >
