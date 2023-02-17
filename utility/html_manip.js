@@ -327,6 +327,11 @@ function setInitImageSrc(image_src) {
     ini_image_element.src = image_src
 }
 
+function setProgressImageSrc(image_src) {
+    const progress_image_element = document.getElementById('progressImage')
+    progress_image_element.src = image_src
+}
+
 function getInitImageMaskElement() {
     const ini_image_mask_element = document.getElementById('init_image_mask')
     return ini_image_mask_element
@@ -729,4 +734,5 @@ module.exports = {
     updateProgressBarsHtml,
     getBackendType,
     getHordeApiKey,
+    setProgressImageSrc,
 }
