@@ -1,5 +1,6 @@
 const { cleanLayers } = require('../psapi')
-
+const psapi = require('../psapi')
+const { ViewerManager } = require('../viewer')
 const SessionState = {
     Active: 'active',
     Inactive: 'inactive',
@@ -29,6 +30,7 @@ class GenerationSession {
         this.activeBase64MaskImage
         this.image_paths_to_layers = {}
         this.progress_layer
+        this.last_settings //the last settings been used for generation
     }
     isActive() {
         return this.state === SessionState['Active']
@@ -96,6 +98,7 @@ class GenerationSession {
 
             this.isFirstGeneration = true // only before the first generation is requested should this be true
             // const is_visible = await this.outputGroup.visible
+            g_viewer_manager.last_selected_viewer_obj = null // TODO: move this in viewerManager endSession()
             await layer_util.collapseFolderExe([this.outputGroup], false) // close the folder group
             // this.outputGroup.visible = is_visible
 
@@ -148,15 +151,30 @@ class GenerationSession {
         let group_index = await psapi.getLayerIndex(output_group_id)
         const indexOffset = 1 //1 for background, 0 if no background exist
         await executeAsModal(async () => {
+            await psapi.selectLayersExe([layer]) //the move command is selection selection sensitive
             await psapi.moveToGroupCommand(group_index - indexOffset, layer.id)
         })
     }
+
     async deleteProgressLayer() {
         try {
             await layer_util.deleteLayers([this.progress_layer]) // delete the old progress layer
         } catch (e) {
             console.warn(e)
         }
+    }
+    deleteProgressImageHtml() {
+        try {
+            // await layer_util.deleteLayers([this.progress_layer]) // delete the old progress layer
+            document.getElementById('progressImage').style.width = '0px'
+            document.getElementById('progressImage').style.height = '0px'
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+    async deleteProgressImage() {
+        this.deleteProgressImageHtml()
+        await this.deleteProgressLayer()
     }
 }
 

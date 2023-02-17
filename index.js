@@ -2235,9 +2235,11 @@ async function easyModeGenerate(mode) {
         const settings =
             mode === 'upscale' ? await getExtraSettings() : await getSettings()
 
+        g_generation_session.last_settings = settings
         await generate(settings, mode)
 
-        await g_generation_session.deleteProgressLayer() // delete the old progress layer
+        // await g_generation_session.deleteProgressLayer() // delete the old progress layer
+        await g_generation_session.deleteProgressImage()
     } catch (e) {
         console.warn(e)
     }
@@ -2589,6 +2591,7 @@ async function updateProgressImage(progress_base64) {
             name: 'Progress Image',
         })
         await g_generation_session.deleteProgressLayer() // delete the old progress layer
+
         //update the progress image
         const selection_info = await g_generation_session.selectionInfo
         const b_exsit = layer_util.Layer.doesLayerExist(
@@ -2619,7 +2622,18 @@ async function progressRecursive() {
         progress_value = json.progress * 100
         html_manip.updateProgressBarsHtml(progress_value)
         if (json?.current_image) {
-            await updateProgressImage(json.current_image)
+            const base64_url = general.base64ToBase64Url(json.current_image)
+
+            html_manip.setProgressImageSrc(base64_url)
+            const progress_image_html = document.getElementById('progressImage')
+            progress_image_html.style.width = progress_image_html.naturalWidth
+            progress_image_html.style.height = progress_image_html.naturalHeight
+
+            if (g_generation_session.last_settings.batch_size === '1') {
+                //only update the canvas if the number of images are one
+                //don't update the canvas with multiple images.
+                await updateProgressImage(json.current_image)
+            }
         }
         if (g_generation_session.isActive() && g_can_request_progress == true) {
             //refactor this code
@@ -3217,7 +3231,7 @@ async function silentImagesToLayersExe(images_info) {
     try {
         g_generation_session.isLoadingActive = true
 
-        await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
+        await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo) //why do we reselect the session selection area
         image_path_to_layer = {}
         console.log(
             'silentImagesToLayersExe: images_info.images_paths: ',
@@ -3275,8 +3289,8 @@ async function silentImagesToLayersExe(images_info) {
                 })
             }
 
-            await psapi.selectLayersExe([imported_layer])
-            await psapi.layerToSelection(g_generation_session.selectionInfo)
+            // await psapi.selectLayersExe([imported_layer])
+            // await psapi.layerToSelection(g_generation_session.selectionInfo)// not needed
 
             await g_generation_session.moveToTopOfOutputGroup(imported_layer)
             await psapi.setVisibleExe(imported_layer, false) // turn off the visibility for the layer
@@ -3554,7 +3568,7 @@ async function loadViewerImages() {
         if (lastOutputImage) {
             //select the last generate/output image
             // lastOutputImage.img_html.click()
-            executeAsModal(async () => {
+            await executeAsModal(async () => {
                 await lastOutputImage.click(Enum.clickTypeEnum['Click'])
             })
         }
@@ -4063,3 +4077,21 @@ async function prmoptForUpdate() {
 document.getElementById('btnUpdate').addEventListener('click', async () => {
     await prmoptForUpdate()
 })
+
+function getDimensions(image) {
+    return new Promise((resolve, reject) => {
+        var img = new Image()
+        img.src = image
+
+        img.addEventListener('load', function () {
+            // image.width × image.height
+            console.log('image loaded:', img.width, img.height)
+            resolve({ width: img.width, height: img.height })
+        })
+
+        // img.onload = () => {
+
+        //     resolve({ width: img.width, height: img.height })
+        // }
+    })
+}
