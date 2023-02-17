@@ -35,6 +35,7 @@ const storage = require('uxp').storage
 const fs = storage.localFileSystem
 const horde_native = require('./utility/sdapi/horde_native')
 const io = require('./utility/io')
+const dummy = require('./utility/dummy')
 const general = require('./utility/general')
 let g_horde_generator = new horde_native.hordeGenerator()
 
