@@ -3,41 +3,6 @@ const app = window.require('photoshop').app
 const batchPlay = require('photoshop').action.batchPlay
 const psapi = require('./psapi')
 
-// async function moveToGroupCommand (to_index, layerIDs) {
-//   const batchPlay = require('photoshop').action.batchPlay
-//   console.log('to_index:', to_index)
-//   console.log('layerIDs:', layerIDs)
-
-//   const result = await batchPlay(
-//     [
-//       {
-//         _obj: 'move',
-//         _target: [
-//           {
-//             _ref: 'layer',
-//             _enum: 'ordinal',
-//             _value: 'targetEnum'
-//           }
-//         ],
-//         to: {
-//           _ref: 'layer',
-//           _index: to_index
-//         },
-//         adjustment: false,
-//         version: 5,
-//         layerID: layerIDs,
-//         _options: {
-//           dialogOptions: 'dontDisplay'
-//         }
-//       }
-//     ],
-//     {
-//       synchronousExecution: false,
-//       modalBehavior: 'execute'
-//     }
-//   )
-// }
-
 async function moveLayersToGroup(group_id) {
     const activeLayers = await app.activeDocument.activeLayers
     const layerIDs = activeLayers.map((layer) => layer.id)

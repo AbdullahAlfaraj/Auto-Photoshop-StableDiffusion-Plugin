@@ -2,7 +2,7 @@
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
 // let g_sdapi_path = 'sdapi'
-let g_version = 'v1.1.9'
+let g_version = 'v1.1.10'
 let g_sd_url = 'http://127.0.0.1:7860'
 const Enum = require('./enum')
 const helper = require('./helper')
