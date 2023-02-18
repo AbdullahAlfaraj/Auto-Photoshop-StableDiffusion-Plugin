@@ -4024,13 +4024,19 @@ function populatePresetMenu() {
 }
 
 populatePresetMenu()
-document.getElementById('mPresetMenu').addEventListener('change', (evt) => {
+document
+    .getElementById('mPresetMenu')
+    .addEventListener('change', async (evt) => {
     const preset_index = evt.target.selectedIndex
     const preset_name = evt.target.options[preset_index].textContent
     if (ui.loadedPresets.hasOwnProperty(preset_name)) {
         const loader = ui.loadedPresets[preset_name]
+            if (loader.constructor.name === 'AsyncFunction') {
+                await loader(g_ui_settings)
+            } else {
         loader(g_ui_settings)
     }
+        }
 })
 
 function base64ToSrc(base64_image) {
