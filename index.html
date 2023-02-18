@@ -97,9 +97,6 @@
             max-width: 100%;
         }
 
-        /* .viewer-image-button:hover {
-     background-color: #333f52;
-  } */
         .viewer-image-container {
             position: relative;
             width: 100px;
@@ -111,9 +108,50 @@
             display: flex;
         }
 
+        .viewer-image-container:hover .thumbnail-image-button {
+            display: flex;
+        }
+
         .viewer-container {
             display: flex;
             flex-wrap: wrap;
+        }
+
+        .thumbnail-image-button{
+            display: none;
+            /* background-color:  #495b79; */
+            color: white;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            /* bottom: 0;
+            left: 0; */
+            width: 100%;
+            /* height: 20px; */
+            margin: 0;
+            max-height: 100%;
+            max-width: 100%;
+        }
+
+        .thumbnail-image-button:nth-child(2) {
+            border-color:green;
+            bottom:0;
+            left:0;    
+        }
+        .thumbnail-image-button:nth-child(3) {
+            border-color:pink;
+            bottom:0;
+            right:0;
+        }
+        .thumbnail-image-button:nth-child(4) {
+            border-color:yellow;
+            top:0;
+            left:0;
+        }
+        .thumbnail-image-button:nth-child(5) {
+            border-color:red;
+            top:0;
+            right:0;
         }
 
         .column-item {
@@ -1244,7 +1282,18 @@
                             </div>
                             Edit Text
                         </sp-action-button>
-
+                        <sp-action-button id="svg_sp_btn_datadownload" style="padding: 0; max-width: 32px; max-height: 32px; display:none;">
+                            <div slot="icon" style="fill: currentColor">
+                                <svg viewBox="0 0 18 18" style="width: 18px; height: 18px;">
+                                    <path
+                                        d="M5.3885,12.5895a1.211,1.211,0,0,1-.314-.8C3.2305,11.478,1.509,10.942,1,10.135V14.5C1,15.8805,4.582,17,9,17c.1385,0,.2735-.0045.4105-.0065Z" />
+                                    <path d="M16.5,6.5V9.3635A1.18,1.18,0,0,0,17,8.5V5.135A5.06144,5.06144,0,0,1,14.3855,6.5Z" />
+                                    <path
+                                        d="M6.315,10.5H8.5V7.13C5.953,7.059,1.8365,6.4625,1,5.135V8.5c0,.996,1.868,1.8535,4.565,2.255A1.21847,1.21847,0,0,1,6.315,10.5Z" />
+                                    <path d="M17.573,12.427A.25.25,0,0,0,17.3965,12H15V8H10v4H7.6035a.25.25,0,0,0-.1765.427L12.5,18Z" />
+                                </svg>
+                            </div>
+                        </sp-action-button>
                         <!-- <img width="15px" height="15px" src="./icon/ftcopy.svg">   -->
                     </div>
                     <img
