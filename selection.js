@@ -1,3 +1,4 @@
+const psapi = require('./psapi')
 function finalWidthHeight(
     selectionWidth,
     selectionHeight,
