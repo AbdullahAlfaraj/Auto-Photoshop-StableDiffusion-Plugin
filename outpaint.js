@@ -350,6 +350,9 @@ async function inpaintFasterExe(session_id) {
 
             //hide the current white mark mask layer
             const white_mark_layer = await app.activeDocument.activeLayers[0]
+
+            const mask_layer_opacity = await white_mark_layer.opacity
+            white_mark_layer.opacity = 100 //make sure the opacity is full
             await psapi.selectLayers([white_mark_layer])
             await psapi.reSelectMarqueeExe(selectionInfo)
             await psapi.createClippingMaskExe()
@@ -488,6 +491,7 @@ async function inpaintFasterExe(session_id) {
                 [snapshotGroup, maskGroup],
                 false
             )
+            white_mark_layer.opacity = mask_layer_opacity // restore the opacity
             await context.hostControl.resumeHistory(history_id)
         })
         return inpaintLayers

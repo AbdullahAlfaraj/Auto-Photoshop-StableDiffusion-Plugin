@@ -766,8 +766,8 @@ async function createTempInpaintMaskLayer() {
         //make new layer "Mask -- Paint White to Mask -- temporary"
 
         const name = 'Mask -- Paint White to Mask -- temporary'
-        g_inpaint_mask_layer = await layer_util.createNewLayerExe(name)
-
+        g_inpaint_mask_layer = await layer_util.createNewLayerExe(name, 60)
+        // g_inpaint_mask_layer.opacity = 50
         g_b_mask_layer_exist = true
         const index = app.activeDocument.historyStates.length - 1
         g_inpaint_mask_layer_history_id =
