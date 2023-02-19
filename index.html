@@ -657,16 +657,16 @@
                     <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
                 </div>
                 <div style="display: flex">
-                <sp-slider
-                    show-value="true"
-                    id="slThumbnailSize"
-                    min="1"
-                    max="10"
-                    value="5"
+                    <sp-slider
+                        show-value="true"
+                        id="slThumbnailSize"
+                        min="1"
+                        max="10"
+                        value="5"
                         style="width: 100%"
-                >
-                    <sp-label slot="label">Thumbnail Size:</sp-label>
-                </sp-slider>
+                    >
+                        <sp-label slot="label">Thumbnail Size:</sp-label>
+                    </sp-slider>
                     <sp-checkbox
                         class="checkbox"
                         id="chSquareThumbnail"
@@ -1483,7 +1483,13 @@
                                 </sp-menu>
                             </sp-picker>
                         </div>
-                        <div style="display: flex">
+                        <div
+                            style="
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                            "
+                        >
                             <sp-slider
                                 show-value="false"
                                 id="slWidth"
@@ -1500,6 +1506,12 @@
                                     >512</sp-label
                                 >
                             </sp-slider>
+                            <button
+                                class="btnSquare linkSlider whiteChain"
+                                id="linkWidthHeight"
+                                title="maintain the ratio between width and height slider"
+                                data-b_link="true"
+                            ></button>
                             <sp-slider
                                 show-value="false"
                                 id="slHeight"
