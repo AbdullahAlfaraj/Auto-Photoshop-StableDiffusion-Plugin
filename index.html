@@ -471,7 +471,24 @@
             height: 30px;
             background-repeat: no-repeat;
         }
+        .linkSlider {
+            margin-top: 25px;
+            font-family: Arial, Verdana;
+            /* background-image: url(./icon/chain.svg); */
+            /* background-color: #777; */
+            background-color: transparent;
 
+            background-size: 20px;
+            width: 20px;
+            height: 20px;
+            background-repeat: no-repeat;
+        }
+        .whiteChain {
+            background-image: url(./icon/chain_white.svg);
+        }
+        .blackChain {
+            background-image: url(./icon/chain_black.svg);
+        }
         .acceptAllImgBtn {
             font-family: Arial, Verdana;
             background-image: url(./icon/accept_all.svg);
@@ -677,11 +694,30 @@
 
                     <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
                 </div>
+                <div style="display: flex">
+                    <sp-slider
+                        show-value="true"
+                        id="slThumbnailSize"
+                        min="1"
+                        max="10"
+                        value="5"
+                        style="width: 100%"
+                    >
+                        <sp-label slot="label">Thumbnail Size:</sp-label>
+                    </sp-slider>
+                    <sp-checkbox
+                        class="checkbox"
+                        id="chSquareThumbnail"
+                        style="margin-left: 20px"
+                        >Square 1:1</sp-checkbox
+                    >
+                </div>
                 <div class="" id="divProgressImageViewerContainer">
                     <img
                         class="viewer-image"
                         id="progressImage"
                         src="https://source.unsplash.com/random"
+                        style="width: auto; height: auto"
                     />
                 </div>
                 <hr class="line-divider" />
@@ -1341,6 +1377,7 @@
                         <sp-radio
                             title="use this mode to generate variation of a small area of an image, while keeping the rest of the image intact"
                             class="rbMode"
+                            id="rbModeInpaint"
                             value="inpaint"
                             >inpaint</sp-radio
                         >
@@ -1496,13 +1533,20 @@
                                 </sp-menu>
                             </sp-picker>
                         </div>
-                        <div style="display: flex">
+                        <div
+                            style="
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                            "
+                        >
                             <sp-slider
                                 show-value="false"
                                 id="slWidth"
                                 min="1"
                                 max="32"
                                 value="8"
+                                data-old_value="512"
                             >
                                 <sp-label slot="label">Width:</sp-label>
                                 <sp-label
@@ -1512,12 +1556,19 @@
                                     >512</sp-label
                                 >
                             </sp-slider>
+                            <button
+                                class="btnSquare linkSlider whiteChain"
+                                id="linkWidthHeight"
+                                title="maintain the ratio between width and height slider"
+                                data-b_link="true"
+                            ></button>
                             <sp-slider
                                 show-value="false"
                                 id="slHeight"
                                 min="1"
                                 max="32"
                                 value="8"
+                                data-old_value="512"
                             >
                                 <sp-label slot="label">Height:</sp-label>
                                 <sp-label

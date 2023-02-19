@@ -2,7 +2,7 @@ const app = window.require('photoshop').app
 const batchPlay = require('photoshop').action.batchPlay
 const { executeAsModal } = require('photoshop').core
 // const export_png = require('./export_png')
-const { selectionToFinalWidthHeight } = require('./selection')
+
 // const { layerToSelection } = require('./helper')
 
 const storage = require('uxp').storage
@@ -441,6 +441,7 @@ function isSelectionValid(selection) {
 
     return false
 }
+
 async function getSelectionInfoExe() {
     console.log('getSelectionInfo was called')
 
@@ -1415,7 +1416,17 @@ async function layerToSelection(selection_info) {
         console.warn(e)
     }
 }
-
+function executeCommandExe(commandFunc) {
+    try {
+        ;(async () => {
+            await executeAsModal(async () => {
+                await commandFunc()
+            })
+        })()
+    } catch (e) {
+        console.warn(e)
+    }
+}
 module.exports = {
     createSolidLayer,
     createEmptyGroup,
@@ -1461,4 +1472,5 @@ module.exports = {
     setVisibleExe,
     silentSetInitImage,
     silentSetInitImageMask,
+    executeCommandExe,
 }

@@ -647,6 +647,7 @@ let g_isViewerMenuDisabled = false // disable the viewer menu and viewerImage wh
 let g_b_mask_layer_exist = false // true if inpaint mask layer exist, false otherwise.
 let g_inpaint_mask_layer
 let g_inpaint_mask_layer_history_id //store the history state id when creating a new inpaint mask layer
+
 // let g_selection = {}
 //REFACTOR: move to session.js
 let g_selection = {}
@@ -660,7 +661,8 @@ g_sd_options_obj.getOptions()
 // let g_width_slider = new ui.UIElement()
 // g_width_slider.getValue = html_manip.getWidth
 // ui_settings.uiElements.push =
-
+let g_old_slider_width = 512
+let g_old_slider_height = 512
 let g_sd_config_obj
 ;(async function () {
     let temp_config = new sd_config.SdConfig()
@@ -766,8 +768,8 @@ async function createTempInpaintMaskLayer() {
         //make new layer "Mask -- Paint White to Mask -- temporary"
 
         const name = 'Mask -- Paint White to Mask -- temporary'
-        g_inpaint_mask_layer = await layer_util.createNewLayerExe(name)
-
+        g_inpaint_mask_layer = await layer_util.createNewLayerExe(name, 60)
+        // g_inpaint_mask_layer.opacity = 50
         g_b_mask_layer_exist = true
         const index = app.activeDocument.historyStates.length - 1
         g_inpaint_mask_layer_history_id =
@@ -3239,7 +3241,7 @@ async function silentImagesToLayersExe(images_info) {
             images_info.images_paths
         )
         // Returns a Promise that resolves after "ms" Milliseconds
-        const timer = (ms) => new Promise((res) => setTimeout(res, ms)) //Todo: move this line to it's own utilit function
+        // const timer = (ms) => new Promise((res) => setTimeout(res, ms)) //Todo: move this line to it's own utilit function
 
         for (image_info of images_info) {
             console.log(gCurrentImagePath)
@@ -3551,12 +3553,19 @@ async function loadViewerImages() {
                     path
                 )
                 lastOutputImage = output_image_obj
-                output_image_obj.setImgHtml(img)
-                if (g_generation_session.mode !== generationMode['Txt2Img']) {
-                    //we don't need a button in txt2img mode
-                    output_image_obj.addButtonHtml()
-                }
-                output_image_container.appendChild(output_image_obj.img_html)
+                const b_button_visible =
+                    g_generation_session.mode !== generationMode['Txt2Img']
+                        ? true
+                        : false
+                output_image_obj.createThumbnail(img, b_button_visible)
+                // output_image_obj.setImgHtml(img)
+                // if (g_generation_session.mode !== generationMode['Txt2Img']) {
+                //     //we don't need a button in txt2img mode
+                //     // output_image_obj.addButtonHtml()
+                // }
+                output_image_container.appendChild(
+                    output_image_obj.thumbnail_container
+                )
                 //add on click event handler to the html img
                 // await NewViewerImageClickHandler(img, output_image_obj)
                 img.addEventListener('click', async (e) => {
@@ -3566,6 +3575,13 @@ async function loadViewerImages() {
 
             // i++
         }
+
+        const thumbnail_size_slider = document.getElementById('slThumbnailSize')
+        scaleThumbnailsEvenHandler(
+            thumbnail_size_slider.value,
+            thumbnail_size_slider.max,
+            thumbnail_size_slider.min
+        )
         if (lastOutputImage) {
             //select the last generate/output image
             // lastOutputImage.img_html.click()
@@ -3607,8 +3623,13 @@ async function deleteNoneSelected(viewer_objects) {
                     console.warn(e)
                 }
             }
+
+            //Refactor: move to viewerManager.onSessionEnd()
             g_viewer_manager.pathToViewerImage = {}
             g_viewer_manager.initImageLayersJson = {}
+            g_viewer_manager.outputImages = []
+            //
+            
             g_generation_session.image_paths_to_layers = {}
         })
     } catch (e) {
@@ -4032,14 +4053,20 @@ function populatePresetMenu() {
 }
 
 populatePresetMenu()
-document.getElementById('mPresetMenu').addEventListener('change', (evt) => {
-    const preset_index = evt.target.selectedIndex
-    const preset_name = evt.target.options[preset_index].textContent
-    if (ui.loadedPresets.hasOwnProperty(preset_name)) {
-        const loader = ui.loadedPresets[preset_name]
-        loader(g_ui_settings)
-    }
-})
+document
+    .getElementById('mPresetMenu')
+    .addEventListener('change', async (evt) => {
+        const preset_index = evt.target.selectedIndex
+        const preset_name = evt.target.options[preset_index].textContent
+        if (ui.loadedPresets.hasOwnProperty(preset_name)) {
+            const loader = ui.loadedPresets[preset_name]
+            if (loader.constructor.name === 'AsyncFunction') {
+                await loader(g_ui_settings)
+            } else {
+                loader(g_ui_settings)
+            }
+        }
+    })
 
 function base64ToSrc(base64_image) {
     const image_src = `data:image/png;base64, ${base64_image}`
@@ -4103,3 +4130,46 @@ function getDimensions(image) {
         // }
     })
 }
+
+function scaleThumbnailsEvenHandler(scale_index, max_index, min_index) {
+    const slider_max = max_index
+    const slider_min = min_index
+    const scaler_value = general.mapRange(scale_index, 0, slider_max, 0, 2)
+    g_viewer_manager.thumbnail_scaler = scaler_value
+
+    try {
+        g_viewer_manager.scaleThumbnails(
+            0,
+            0,
+            0,
+            0,
+            g_viewer_manager.thumbnail_scaler
+        )
+    } catch (e) {
+        console.warn(e)
+    }
+}
+document.getElementById('slThumbnailSize').addEventListener('input', (evt) => {
+    scaleThumbnailsEvenHandler(evt.target.value, evt.target.max, evt.target.min)
+})
+
+document.getElementById('linkWidthHeight').addEventListener('click', (evt) => {
+    evt.target.classList.toggle('blackChain')
+    const b_state = !evt.target.classList.contains('blackChain') //if doesn't has blackChain means => it's white => b_state == true
+    html_manip.setLinkWidthHeightState(b_state)
+})
+document
+    .getElementById('chSquareThumbnail')
+    .addEventListener('click', (evt) => {
+        if (evt.target.checked) {
+            g_viewer_manager.isSquareThumbnail = true
+        } else {
+            g_viewer_manager.isSquareThumbnail = false
+        }
+        const thumbnail_size_slider = document.getElementById('slThumbnailSize')
+        scaleThumbnailsEvenHandler(
+            thumbnail_size_slider.value,
+            thumbnail_size_slider.max,
+            thumbnail_size_slider.min
+        )
+    })

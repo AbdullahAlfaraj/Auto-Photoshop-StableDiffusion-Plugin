@@ -17,6 +17,7 @@
 // 	* balck layer
 // 	* select()
 // 	* viewe()
+const general = require('./utility/general')
 const Enum = require('./enum')
 const psapi = require('./psapi')
 const layer_util = require('./utility/layer')
@@ -27,7 +28,8 @@ const ViewerObjState = {
 
 class ViewerImage {
     constructor() {
-        this.img_html = null
+        this.img_html = null //
+        this.thumbnail_container = null
         this.is_highlighted = false
         this.can_highlight = true
         this.is_active = false // active is a temporary highlight , the yellow/orang highlight
@@ -93,7 +95,12 @@ class ViewerImage {
 
     async delete() {
         try {
-            this.img_html.remove() //delete the img html element
+            if (this.img_html) {
+                this.img_html.remove() //delete the img html element
+            }
+            if (this.thumbnail_container) {
+                this.thumbnail_container.remove()
+            }
 
             //1) it's output layer // can_highlight && this.getHighlight()
             //2) it init or mask relate layers // this.autoDelete
@@ -135,11 +142,12 @@ class ViewerImage {
         }
     }
 
-    addButtonHtml() {
+    createThumbnail(img, b_button_visible = true) {
+        this.img_html = img
         // Create new container element
-        const container = document.createElement('div')
+        this.thumbnail_container = document.createElement('div')
 
-        container.className = 'viewer-image-container'
+        this.thumbnail_container.className = 'viewer-image-container'
 
         const elem = document.getElementById('svg_sp_btn')
 
@@ -156,7 +164,9 @@ class ViewerImage {
         // const button = document.createElement('sp-button');
         button.className = 'viewer-image-button'
         // button.innerHTML = "Button";
-
+        if (!b_button_visible) {
+            button.style.display = 'none'
+        }
         button.addEventListener('click', async () => {
             //set init image event listener, use when settion is active
             const layer = await app.activeDocument.activeLayers[0]
@@ -171,10 +181,10 @@ class ViewerImage {
         })
 
         // Append elements to container
-        container.appendChild(this.img_html)
-        container.appendChild(button)
+        this.thumbnail_container.appendChild(this.img_html)
+        this.thumbnail_container.appendChild(button)
 
-        this.img_html = container
+        // this.img_html = container
     }
 }
 
@@ -561,6 +571,8 @@ class ViewerManager {
 
         //last_selected_obj
         this.last_selected_viewer_obj
+        this.thumbnail_scaler = 1
+        this.isSquareThumbnail = false
     }
 
     replaceLastSelection(click_type, clicked_object) {
@@ -683,6 +695,71 @@ class ViewerManager {
         this.pathToViewerImage[path] = mask
         return mask
     }
+
+    scaleThumbnails(
+        original_width,
+        original_height,
+        min_width,
+        min_height,
+        scaler
+    ) {
+        //calculate the new width and height
+
+        const image_width = this.isSquareThumbnail
+            ? 100
+            : g_generation_session.last_settings.width
+        const image_height = this.isSquareThumbnail
+            ? 100
+            : g_generation_session.last_settings.height
+
+        const [new_width, new_height] = general.scaleToClosestKeepRatio(
+            image_width,
+            image_height,
+            100,
+            100
+        )
+        const [scaled_width, scaled_height] = [
+            new_width * scaler,
+            new_height * scaler,
+        ]
+
+        for (let outputImage of this.outputImages) {
+            //get the image and it's container
+            const img = outputImage.img_html
+            const img_container = img.parentElement
+
+            img_container.style.width = scaled_width
+            img_container.style.height = scaled_height
+            img.style.width = scaled_width
+            img.style.height = scaled_height
+            //scale them to the new dimensions
+        }
+    }
+    onSessionEnd() {
+        this.outputImages = []
+        this.initImages = []
+        this.initMaskImage = null
+
+        this.pathToViewerImage = {} // quick way to check if an link image path on disk to ViewerImage object.
+        this.initImageLayersJson = {} //{path: initImageLayers}
+
+        this.selectedOutputImages = {} //store the selected output images {path: outputImage}
+
+        this.mask_layer = null
+        this.maskLayersJson = {} //{path: MaskLayers}
+
+        //Note:move initGroup, to GenerationSession
+        this.initGroup = null
+        this.init_solid_background = null
+        this.maskGroup = null
+        this.mask_solid_background = null
+
+        //last_selected_obj
+        this.last_selected_viewer_obj = null
+        // this.thumbnail_scaler = 1
+        // this.isSquareThumbnail = false
+    }
+
     deleteAll() {}
     keepAll() {}
     keepSelected() {}

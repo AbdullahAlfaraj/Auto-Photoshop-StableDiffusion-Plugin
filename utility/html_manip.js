@@ -28,7 +28,61 @@ function autoFillInNegativePrompt(negative_prompt_value) {
 
 document.getElementById('slWidth').addEventListener('input', (evt) => {
     const width = evt.target.value * 64
-    document.getElementById('lWidth').textContent = width
+
+    document.getElementById('lWidth').textContent = parseInt(width)
+})
+
+document.getElementById('slHeight').addEventListener('input', (evt) => {
+    const height = evt.target.value * 64
+
+    document.getElementById('lHeight').textContent = parseInt(height)
+})
+
+document.getElementById('slWidth').addEventListener('change', (evt) => {
+    let new_width = evt.target.value * 64
+    const b_link = getLinkWidthHeightState()
+    let final_width = new_width
+    let final_height
+    if (b_link) {
+        const current_height = html_manip.getHeight()
+        ;[final_width, final_height] = general.scaleToRatio(
+            new_width,
+            g_old_slider_width,
+            _,
+            current_height,
+            parseInt(evt.target.max * 64),
+            parseInt(evt.target.min * 64)
+        )
+
+        evt.target.value = parseInt(final_width / 64)
+        html_manip.autoFillInHeight(final_height)
+    }
+
+    g_old_slider_width = final_width // update the old value, so we can use it later
+    document.getElementById('lWidth').textContent = parseInt(final_width)
+})
+document.getElementById('slHeight').addEventListener('change', (evt) => {
+    let new_height = evt.target.value * 64
+
+    let final_width
+    let final_height = new_height
+    const b_link = getLinkWidthHeightState()
+    if (b_link) {
+        const current_width = html_manip.getWidth()
+        ;[final_height, final_width] = general.scaleToRatio(
+            new_height,
+            g_old_slider_height,
+            _,
+            current_width,
+            parseInt(evt.target.max * 64),
+            parseInt(evt.target.min * 64)
+        )
+
+        evt.target.value = parseInt(final_height / 64)
+        html_manip.autoFillInWidth(final_width)
+    }
+    g_old_slider_height = final_height // update the old value, so we can use it later
+    document.getElementById('lHeight').textContent = parseInt(final_height)
 })
 
 function getWidth() {
@@ -49,18 +103,18 @@ function getHrHeight() {
     return width
 }
 function autoFillInWidth(width_value) {
+    const width_slider = document.getElementById('slHeight')
+
+    // g_old_slider_width = width_slider.value * 64 //store the old value
+    g_old_slider_width = width_value
+
     document.getElementById('slWidth').value = `${width_value / 64}`
     //update the label
-    document.getElementById('lWidth').innerHTML = `${width_value}`
+    document.getElementById('lWidth').innerHTML = `${parseInt(width_value)}`
 }
 ////// End Width//////////
 
 ////// Start Height//////////
-
-document.getElementById('slHeight').addEventListener('input', (evt) => {
-    const height = evt.target.value * 64
-    document.getElementById('lHeight').textContent = height
-})
 
 function getHeight() {
     slider_value = document.getElementById('slHeight').value
@@ -69,9 +123,13 @@ function getHeight() {
 }
 
 function autoFillInHeight(height_value) {
-    document.getElementById('slHeight').value = `${height_value / 64}`
+    const height_slider = document.getElementById('slHeight')
+    // g_old_slider_height = height_slider.value * 64
+    g_old_slider_height = height_value //store the current value as old value. counterintuitive!. only use old value when the user directly manipulate the slider
+
+    height_slider.value = `${height_value / 64}`
     //update the label
-    document.getElementById('lHeight').innerHTML = `${height_value}`
+    document.getElementById('lHeight').innerHTML = `${parseInt(height_value)}`
 }
 
 function autoFillInHRHeight(height_value) {
@@ -672,6 +730,17 @@ function updateProgressBarsHtml(new_value) {
     // document.querySelector('#pProgressBar').value
 }
 ///end selection mode////
+function getLinkWidthHeightState() {
+    const state_str = document.getElementById('linkWidthHeight').dataset.b_link // sometime it's true and other time it's "true"
+    const b_state = state_str.toString() === 'true' ? true : false
+    return b_state
+}
+function setLinkWidthHeightState(state) {
+    document.getElementById('linkWidthHeight').dataset.b_link = state
+}
+function isSquareThumbnail() {
+    return document.getElementById('chSquareThumbnail').checked
+}
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -735,4 +804,7 @@ module.exports = {
     getBackendType,
     getHordeApiKey,
     setProgressImageSrc,
+    getLinkWidthHeightState,
+    setLinkWidthHeightState,
+    isSquareThumbnail,
 }

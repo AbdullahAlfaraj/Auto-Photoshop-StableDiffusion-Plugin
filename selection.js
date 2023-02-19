@@ -1,3 +1,4 @@
+const psapi = require('./psapi')
 function finalWidthHeight(
     selectionWidth,
     selectionHeight,
@@ -50,6 +51,25 @@ async function selectionToFinalWidthHeight() {
     }
 }
 
+async function selectBoundingBox() {
+    let l = await app.activeDocument.activeLayers[0]
+    let bounds = await l.boundsNoEffects
+    let selectionInfo = convertSelectionObjectToSelectionInfo(bounds)
+    await psapi.reSelectMarqueeExe(selectionInfo)
+    return selectionInfo
+}
+function convertSelectionObjectToSelectionInfo(selection_obj) {
+    let selection_info = {
+        left: selection_obj._left,
+        right: selection_obj._right,
+        bottom: selection_obj._bottom,
+        top: selection_obj._top,
+        height: selection_obj._bottom - selection_obj._top,
+        width: selection_obj._right - selection_obj._left,
+    }
+    return selection_info
+}
+
 class Selection {
     static getSelectionInfo() {}
     static isValidSelection() {
@@ -63,5 +83,7 @@ class Selection {
 module.exports = {
     finalWidthHeight,
     selectionToFinalWidthHeight,
+    selectBoundingBox,
+    convertSelectionObjectToSelectionInfo,
     Selection,
 }

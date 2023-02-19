@@ -92,6 +92,30 @@ let OriginalSettings = {
     samplers: null,
     mask_content: '1',
 }
+let HealBrushSettings = {
+    model: null,
+    prompt_shortcut: null,
+    positive_prompt: null,
+    negative_prompt: null,
+    generation_mode: null,
+    batch_number: null,
+    steps: '25',
+    width: null,
+    height: null,
+    firstphase_width: null,
+    firstphase_height: null,
+    cfg: '9',
+    denoising_strength: 0.92,
+    hi_res_denoising_strength: null,
+    mask_blur: 1,
+    inpaint_at_full_res: null,
+    hi_res_fix: null,
+    inpaint_padding: null,
+    seed: null,
+    samplers: null,
+    mask_content: '2',
+    mask_expansion: 2,
+}
 
 function nullAllSettings() {}
 
@@ -106,4 +130,5 @@ module.exports = {
     LatentNoiseSettings,
     FillSettings,
     OriginalSettings,
+    HealBrushSettings,
 }

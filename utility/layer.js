@@ -9,19 +9,21 @@ const {
     getSelectionInfoExe,
     reSelectMarqueeExe,
 } = require('../psapi')
+
 const psapi = require('../psapi')
-async function createNewLayerExe(layerName) {
+
+async function createNewLayerExe(layerName, opacity = 100) {
     await executeAsModal(async () => {
-        await createNewLayerCommand(layerName)
+        await createNewLayerCommand(layerName, opacity)
     })
     const new_layer = await app.activeDocument.activeLayers[0]
     return new_layer
 }
 
-async function createNewLayerCommand(layerName) {
+async function createNewLayerCommand(layerName, opacity = 100) {
     return await app.activeDocument.createLayer({
         name: layerName,
-        opacity: 100,
+        opacity: opacity,
         mode: 'normal',
     })
 }
