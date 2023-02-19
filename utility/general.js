@@ -27,6 +27,28 @@ function base64UrlToBase64(base64_url) {
     return base64_image
 }
 const timer = (ms) => new Promise((res) => setTimeout(res, ms)) //Todo: move this line to it's own utilit function
+
+function scaleToClosestKeepRatio(
+    original_width,
+    original_height,
+    min_width,
+    min_height
+) {
+    const { finalWidthHeight } = require('../selection')
+    //better naming than finalWidthHeight()
+    //scale an image to the closest dimension while keeping the ratio intact
+    const [final_width, final_height] = finalWidthHeight(
+        original_width,
+        original_height,
+        min_width,
+        min_height
+    )
+    return [final_width, final_height]
+}
+
+function mapRange(x, in_min, in_max, out_min, out_max) {
+    return ((x - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min
+}
 function scaleToRatio(
     new_value_1,
     old_value_1,
@@ -70,5 +92,7 @@ module.exports = {
     fixNativePath,
     base64ToBase64Url,
     base64UrlToBase64,
+    scaleToClosestKeepRatio,
     scaleToRatio,
+    mapRange,
 }

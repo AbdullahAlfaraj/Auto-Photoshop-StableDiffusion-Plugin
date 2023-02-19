@@ -17,6 +17,7 @@
 // 	* balck layer
 // 	* select()
 // 	* viewe()
+const general = require('./utility/general')
 const Enum = require('./enum')
 const psapi = require('./psapi')
 const layer_util = require('./utility/layer')
@@ -566,6 +567,8 @@ class ViewerManager {
 
         //last_selected_obj
         this.last_selected_viewer_obj
+        this.thumbnail_scaler = 1
+        this.isSquareThumbnail = false
     }
 
     replaceLastSelection(click_type, clicked_object) {
@@ -688,6 +691,47 @@ class ViewerManager {
         this.pathToViewerImage[path] = mask
         return mask
     }
+
+    scaleThumbnails(
+        original_width,
+        original_height,
+        min_width,
+        min_height,
+        scaler
+    ) {
+        //calculate the new width and height
+
+        const image_width = this.isSquareThumbnail
+            ? 100
+            : g_generation_session.last_settings.width
+        const image_height = this.isSquareThumbnail
+            ? 100
+            : g_generation_session.last_settings.height
+
+        const [new_width, new_height] = general.scaleToKeepRatio(
+            image_width,
+            image_height,
+            100,
+            100
+        )
+        const [scaled_width, scaled_height] = [
+            new_width * scaler,
+            new_height * scaler,
+        ]
+
+        for (let outputImage of this.outputImages) {
+            //get the image and it's container
+            const img = outputImage.img_html
+            const img_container = img.parentElement
+
+            img_container.style.width = scaled_width
+            img_container.style.height = scaled_height
+            img.style.width = scaled_width
+            img.style.height = scaled_height
+            //scale them to the new dimensions
+        }
+    }
+
     deleteAll() {}
     keepAll() {}
     keepSelected() {}
