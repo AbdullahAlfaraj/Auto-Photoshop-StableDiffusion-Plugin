@@ -681,6 +681,14 @@ function updateProgressBarsHtml(new_value) {
     // document.querySelector('#pProgressBar').value
 }
 ///end selection mode////
+function getLinkWidthHeightState() {
+    const state_str = document.getElementById('linkWidthHeight').dataset.b_link // sometime it's true and other time it's "true"
+    const b_state = state_str.toString() === 'true' ? true : false
+    return b_state
+}
+function setLinkWidthHeightState(state) {
+    document.getElementById('linkWidthHeight').dataset.b_link = state
+}
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -744,4 +752,6 @@ module.exports = {
     getBackendType,
     getHordeApiKey,
     setProgressImageSrc,
+    getLinkWidthHeightState,
+    setLinkWidthHeightState,
 }
