@@ -656,15 +656,24 @@
 
                     <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
                 </div>
+                <div style="display: flex">
                 <sp-slider
                     show-value="true"
                     id="slThumbnailSize"
                     min="1"
                     max="10"
                     value="5"
+                        style="width: 100%"
                 >
                     <sp-label slot="label">Thumbnail Size:</sp-label>
                 </sp-slider>
+                    <sp-checkbox
+                        class="checkbox"
+                        id="chSquareThumbnail"
+                        style="margin-left: 20px"
+                        >Square 1:1</sp-checkbox
+                    >
+                </div>
                 <div class="" id="divProgressImageViewerContainer">
                     <img
                         class="viewer-image"
