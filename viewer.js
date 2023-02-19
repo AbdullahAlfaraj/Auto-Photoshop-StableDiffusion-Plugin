@@ -95,8 +95,12 @@ class ViewerImage {
 
     async delete() {
         try {
-            // this.img_html.remove() //delete the img html element
-            this.thumbnail_container.remove()
+            if (this.img_html) {
+                this.img_html.remove() //delete the img html element
+            }
+            if (this.thumbnail_container) {
+                this.thumbnail_container.remove()
+            }
 
             //1) it's output layer // can_highlight && this.getHighlight()
             //2) it init or mask relate layers // this.autoDelete
