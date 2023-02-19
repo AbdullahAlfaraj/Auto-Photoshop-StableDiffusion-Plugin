@@ -49,9 +49,14 @@ function getHrHeight() {
     return width
 }
 function autoFillInWidth(width_value) {
+    const width_slider = document.getElementById('slHeight')
+
+    // g_old_slider_width = width_slider.value * 64 //store the old value
+    g_old_slider_width = width_value
+
     document.getElementById('slWidth').value = `${width_value / 64}`
     //update the label
-    document.getElementById('lWidth').innerHTML = `${width_value}`
+    document.getElementById('lWidth').innerHTML = `${parseInt(width_value)}`
 }
 ////// End Width//////////
 
@@ -69,9 +74,13 @@ function getHeight() {
 }
 
 function autoFillInHeight(height_value) {
-    document.getElementById('slHeight').value = `${height_value / 64}`
+    const height_slider = document.getElementById('slHeight')
+    // g_old_slider_height = height_slider.value * 64
+    g_old_slider_height = height_value //store the current value as old value. counterintuitive!. only use old value when the user directly manipulate the slider
+
+    height_slider.value = `${height_value / 64}`
     //update the label
-    document.getElementById('lHeight').innerHTML = `${height_value}`
+    document.getElementById('lHeight').innerHTML = `${parseInt(height_value)}`
 }
 
 function autoFillInHRHeight(height_value) {
