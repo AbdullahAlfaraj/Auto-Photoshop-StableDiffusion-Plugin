@@ -708,7 +708,7 @@ class ViewerManager {
             ? 100
             : g_generation_session.last_settings.height
 
-        const [new_width, new_height] = general.scaleToKeepRatio(
+        const [new_width, new_height] = general.scaleToClosestKeepRatio(
             image_width,
             image_height,
             100,
