@@ -116,11 +116,6 @@ function autoFillInWidth(width_value) {
 
 ////// Start Height//////////
 
-document.getElementById('slHeight').addEventListener('input', (evt) => {
-    const height = evt.target.value * 64
-    document.getElementById('lHeight').textContent = height
-})
-
 function getHeight() {
     slider_value = document.getElementById('slHeight').value
     const height = slider_value * 64
@@ -743,6 +738,9 @@ function getLinkWidthHeightState() {
 function setLinkWidthHeightState(state) {
     document.getElementById('linkWidthHeight').dataset.b_link = state
 }
+function isSquareThumbnail() {
+    return document.getElementById('chSquareThumbnail').checked
+}
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -808,4 +806,5 @@ module.exports = {
     setProgressImageSrc,
     getLinkWidthHeightState,
     setLinkWidthHeightState,
+    isSquareThumbnail,
 }
