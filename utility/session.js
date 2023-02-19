@@ -67,6 +67,10 @@ class GenerationSession {
     }
     async endSession(garbage_collection_state) {
         try {
+            if (!g_generation_session.isActive()) {
+                //return if the session is not active
+                return null
+            }
             this.state = SessionState['Inactive'] // end the session by deactivate it
 
             this.deactivate()
