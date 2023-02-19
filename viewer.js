@@ -27,7 +27,8 @@ const ViewerObjState = {
 
 class ViewerImage {
     constructor() {
-        this.img_html = null
+        this.img_html = null //
+        this.thumbnail_container = null
         this.is_highlighted = false
         this.can_highlight = true
         this.is_active = false // active is a temporary highlight , the yellow/orang highlight
@@ -93,7 +94,8 @@ class ViewerImage {
 
     async delete() {
         try {
-            this.img_html.remove() //delete the img html element
+            // this.img_html.remove() //delete the img html element
+            this.thumbnail_container.remove()
 
             //1) it's output layer // can_highlight && this.getHighlight()
             //2) it init or mask relate layers // this.autoDelete
@@ -135,11 +137,12 @@ class ViewerImage {
         }
     }
 
-    addButtonHtml() {
+    createThumbnail(img, b_button_visible = true) {
+        this.img_html = img
         // Create new container element
-        const container = document.createElement('div')
+        this.thumbnail_container = document.createElement('div')
 
-        container.className = 'viewer-image-container'
+        this.thumbnail_container.className = 'viewer-image-container'
 
         const elem = document.getElementById('svg_sp_btn')
 
@@ -156,7 +159,9 @@ class ViewerImage {
         // const button = document.createElement('sp-button');
         button.className = 'viewer-image-button'
         // button.innerHTML = "Button";
-
+        if (!b_button_visible) {
+            button.style.display = 'none'
+        }
         button.addEventListener('click', async () => {
             //set init image event listener, use when settion is active
             const layer = await app.activeDocument.activeLayers[0]
@@ -171,10 +176,10 @@ class ViewerImage {
         })
 
         // Append elements to container
-        container.appendChild(this.img_html)
-        container.appendChild(button)
+        this.thumbnail_container.appendChild(this.img_html)
+        this.thumbnail_container.appendChild(button)
 
-        this.img_html = container
+        // this.img_html = container
     }
 }
 

@@ -3551,12 +3551,19 @@ async function loadViewerImages() {
                     path
                 )
                 lastOutputImage = output_image_obj
-                output_image_obj.setImgHtml(img)
-                if (g_generation_session.mode !== generationMode['Txt2Img']) {
-                    //we don't need a button in txt2img mode
-                    output_image_obj.addButtonHtml()
-                }
-                output_image_container.appendChild(output_image_obj.img_html)
+                const b_button_visible =
+                    g_generation_session.mode !== generationMode['Txt2Img']
+                        ? true
+                        : false
+                output_image_obj.createThumbnail(img, b_button_visible)
+                // output_image_obj.setImgHtml(img)
+                // if (g_generation_session.mode !== generationMode['Txt2Img']) {
+                //     //we don't need a button in txt2img mode
+                //     // output_image_obj.addButtonHtml()
+                // }
+                output_image_container.appendChild(
+                    output_image_obj.thumbnail_container
+                )
                 //add on click event handler to the html img
                 // await NewViewerImageClickHandler(img, output_image_obj)
                 img.addEventListener('click', async (e) => {
