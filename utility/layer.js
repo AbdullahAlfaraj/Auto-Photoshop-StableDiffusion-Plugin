@@ -197,10 +197,79 @@ class Layer {
     }
     static {}
 }
+
+const hasBackgroundLayerDesc = () => ({
+    _obj: 'get',
+    _target: [
+        { _property: 'hasBackgroundLayer' },
+        {
+            _ref: 'document',
+            _enum: 'ordinal',
+            _value: 'targetEnum',
+        },
+    ],
+})
+async function hasBackgroundLayer() {
+    // check if a document has a background layer
+    try {
+        const result = await batchPlay([hasBackgroundLayerDesc()], {
+            synchronousExecution: true,
+            modalBehavior: 'execute',
+        })
+        const b_hasBackgroundLayer = result[0]?.hasBackgroundLayer
+        return b_hasBackgroundLayer
+    } catch (e) {
+        console.warn(e)
+    }
+}
+const makeBackgroundLayerDesc = () => ({
+    _obj: 'make',
+    _target: [
+        {
+            _ref: 'backgroundLayer',
+        },
+    ],
+    using: {
+        _ref: 'layer',
+        _enum: 'ordinal',
+        _value: 'targetEnum',
+    },
+    _options: { failOnMissingProperty: false, failOnMissingElement: false },
+    // _options: {
+    //     dialogOptions: 'dontDisplay',
+    // },
+})
+
+async function createBackgroundLayer() {
+    try {
+        const has_background = await hasBackgroundLayer()
+        if (has_background) {
+            //no need to create a background layer
+            return null
+        }
+        await executeAsModal(async () => {
+            await createNewLayerCommand('background') //create layer
+            //make the layer into background
+            const result = await batchPlay([makeBackgroundLayerDesc()], {
+                synchronousExecution: true,
+                modalBehavior: 'execute',
+            })
+        })
+    } catch (e) {
+        console.warn(e)
+    }
+}
+async function fixImageBackgroundLayer() {
+    //convert the background layer to a normal layer
+    //create a new layer
+    //convert the new layer to background
+}
 module.exports = {
     createNewLayerExe,
     deleteLayers,
     getIndexExe,
     collapseFolderExe,
     Layer,
+    hasBackgroundLayer,
+    createBackgroundLayer,
 }
