@@ -92,6 +92,7 @@ module.exports = {
     fixNativePath,
     base64ToBase64Url,
     base64UrlToBase64,
+    timer,
     scaleToClosestKeepRatio,
     scaleToRatio,
     mapRange,
