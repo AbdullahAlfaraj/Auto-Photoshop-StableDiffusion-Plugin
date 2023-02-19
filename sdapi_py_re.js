@@ -1,3 +1,4 @@
+const { getDummyBase64 } = require('./utility/dummy')
 const { getExtensionType } = require('./utility/html_manip')
 const py_re = require('./utility/sdapi/python_replacement')
 
@@ -589,6 +590,64 @@ async function requestGetUpscalers() {
     return json
 }
 
+async function requestControlNetTxt2Img() {
+    console.log('requestControlNetTxt2Img: ')
+    // const full_url = 'http://127.0.0.1:8000/swapModel'
+
+    const full_url = `${g_sd_url}/controlnet/txt2img`
+
+    payload = {
+        prompt: 'cute cat',
+        negative_prompt: 'ugly',
+        controlnet_input_image: [getDummyBase64()],
+        // controlnet_mask: (List[str] = Body(
+        //     [],
+        //     (title = 'ControlNet Input Mask')
+        // )),
+        controlnet_module: 'depth',
+        controlnet_model: 'control_sd15_depth',
+        controlnet_weight: 1.0,
+        controlnet_resize_mode: 'Scale to Fit (Inner Fit)',
+        controlnet_lowvram: false,
+        controlnet_processor_res: 512,
+        controlnet_threshold_a: 64,
+        controlnet_threshold_b: 64,
+        seed: -1,
+        subseed: -1,
+        subseed_strength: -1,
+        sampler_index: 'Euler a',
+        batch_size: 1,
+        n_iter: 1,
+        steps: 20,
+        cfg_scale: 7,
+        width: 512,
+        height: 512,
+        restore_faces: false,
+        // override_settings: (Dict[(str, Any)] = Body(
+        //     None,
+        //     (title = 'Override Settings')
+        // )),
+        // override_settings_restore_afterwards: (bool = Body(
+        //     True,
+        //     (title = 'Restore Override Settings Afterwards')
+        // )),
+    }
+    let request = await fetch(full_url, {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+    })
+
+    let json = await request.json()
+
+    console.log('json:', json)
+
+    return json
+}
+
 module.exports = {
     requestTxt2Img,
     requestImg2Img,
@@ -613,4 +672,5 @@ module.exports = {
     // requestHordeStatus,
     requestExtraSingleImage,
     requestGetUpscalers,
+    requestControlNetTxt2Img,
 }
