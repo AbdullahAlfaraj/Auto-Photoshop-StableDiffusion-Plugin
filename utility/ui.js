@@ -1,6 +1,8 @@
 const html_manip = require('./html_manip')
 const presets = require('./presets/preset')
-
+const layer_util = require('../utility/layer')
+const psapi = require('../psapi')
+const { executeAsModal } = require('photoshop').core
 class UI {
     constructor() {}
 
@@ -280,10 +282,34 @@ function loadFillSettings(ui_settings) {
 function loadOriginalSettings(ui_settings) {
     loadPreset(ui_settings, presets.OriginalSettings)
 }
+async function loadHealBrushSettings(ui_settings) {
+    document.getElementById('rbModeInpaint').click()
+    const { timer } = require('./general')
+    // await timer(1000)
+    // if (layer_util.Layer.doesLayerExist(g_inpaint_mask_layer)) {
+    //     // psapi.executeCommandExe(async () => {
+    //     //     g_inpaint_mask_layer.opacity = 50
+    //     // })
+    //     // ;(async () => {
+    //     //     await executeAsModal(() => {
+    //     //         g_inpaint_mask_layer.opacity = 50
+    //     //     })
+    //     // })()
+    // } else {
+    //     await createTempInpaintMaskLayer()
+    // }
+
+    // await executeAsModal(() => {
+    //     g_inpaint_mask_layer.opacity = 50
+    // })
+    loadPreset(ui_settings, presets.HealBrushSettings)
+}
+
 let loadedPresets = {
     fill: loadFillSettings,
     original: loadOriginalSettings,
     'latent noise': loadLatentNoiseSettings,
+    'Heal Brush': loadHealBrushSettings,
 }
 
 module.exports = {
@@ -292,6 +318,6 @@ module.exports = {
     UISettings,
     loadLatentNoiseSettings,
     loadFillSettings,
-
+    loadHealBrushSettings,
     loadedPresets,
 }
