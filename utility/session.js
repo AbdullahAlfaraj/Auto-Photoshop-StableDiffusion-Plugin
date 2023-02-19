@@ -103,6 +103,7 @@ class GenerationSession {
             this.isFirstGeneration = true // only before the first generation is requested should this be true
             // const is_visible = await this.outputGroup.visible
             g_viewer_manager.last_selected_viewer_obj = null // TODO: move this in viewerManager endSession()
+            g_viewer_manager.onSessionEnd()
             await layer_util.collapseFolderExe([this.outputGroup], false) // close the folder group
             // this.outputGroup.visible = is_visible
 

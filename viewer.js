@@ -731,6 +731,30 @@ class ViewerManager {
             //scale them to the new dimensions
         }
     }
+    onSessionEnd() {
+        this.outputImages = []
+        this.initImages = []
+        this.initMaskImage = null
+
+        this.pathToViewerImage = {} // quick way to check if an link image path on disk to ViewerImage object.
+        this.initImageLayersJson = {} //{path: initImageLayers}
+
+        this.selectedOutputImages = {} //store the selected output images {path: outputImage}
+
+        this.mask_layer = null
+        this.maskLayersJson = {} //{path: MaskLayers}
+
+        //Note:move initGroup, to GenerationSession
+        this.initGroup = null
+        this.init_solid_background = null
+        this.maskGroup = null
+        this.mask_solid_background = null
+
+        //last_selected_obj
+        this.last_selected_viewer_obj = null
+        // this.thumbnail_scaler = 1
+        // this.isSquareThumbnail = false
+    }
 
     deleteAll() {}
     keepAll() {}

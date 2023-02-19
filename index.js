@@ -3622,8 +3622,13 @@ async function deleteNoneSelected(viewer_objects) {
                     console.warn(e)
                 }
             }
+
+            //Refactor: move to viewerManager.onSessionEnd()
             g_viewer_manager.pathToViewerImage = {}
             g_viewer_manager.initImageLayersJson = {}
+            g_viewer_manager.outputImages = []
+            //
+            
             g_generation_session.image_paths_to_layers = {}
         })
     } catch (e) {
