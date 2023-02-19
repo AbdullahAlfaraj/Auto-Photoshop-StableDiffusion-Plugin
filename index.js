@@ -3660,7 +3660,7 @@ document
     })
 
     function getHistoryMetadata(img){
-        debugger
+        // debugger
         //auto fill the ui with metadata
         const metadata_json = JSON.parse(
             img.dataset.metadata_json_string
