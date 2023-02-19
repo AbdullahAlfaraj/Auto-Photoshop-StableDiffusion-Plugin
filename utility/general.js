@@ -26,6 +26,7 @@ function base64UrlToBase64(base64_url) {
     const base64_image = base64_url.replace('data:image/png;base64,', '')
     return base64_image
 }
+const timer = (ms) => new Promise((res) => setTimeout(res, ms)) //Todo: move this line to it's own utilit function
 
 module.exports = {
     newOutputImageName,

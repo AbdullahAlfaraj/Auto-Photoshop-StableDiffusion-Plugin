@@ -659,7 +659,8 @@ g_sd_options_obj.getOptions()
 // let g_width_slider = new ui.UIElement()
 // g_width_slider.getValue = html_manip.getWidth
 // ui_settings.uiElements.push =
-
+let g_old_slider_width = 512
+let g_old_slider_height = 512
 let g_sd_config_obj
 ;(async function () {
     let temp_config = new sd_config.SdConfig()
@@ -3238,7 +3239,7 @@ async function silentImagesToLayersExe(images_info) {
             images_info.images_paths
         )
         // Returns a Promise that resolves after "ms" Milliseconds
-        const timer = (ms) => new Promise((res) => setTimeout(res, ms)) //Todo: move this line to it's own utilit function
+        // const timer = (ms) => new Promise((res) => setTimeout(res, ms)) //Todo: move this line to it's own utilit function
 
         for (image_info of images_info) {
             console.log(gCurrentImagePath)
