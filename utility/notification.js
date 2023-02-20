@@ -75,6 +75,30 @@ class Notification {
         }
         return false
     }
+    static async inactiveSelectionArea(is_active_session) {
+        let buttons = ['Cancel', 'Rectangular Marquee']
+        if (is_active_session) {
+            buttons.push('Continue Session')
+        }
+        const r1 = await dialog_box.prompt(
+            'Please Select a Rectangular Area',
+            'You Forgot to select a Rectangular Area',
+            buttons
+        )
+        if (r1 === 'Cancel') {
+            /* cancelled or No */
+            console.log('cancel')
+            return false
+        } else if (r1 === 'Rectangular Marquee') {
+            console.log('Rectangular Marquee')
+            psapi.selectMarqueeRectangularToolExe()
+            return false // should this be false?! what does true and false means in this context?! Yes: it should be false since boolean value represent wither we have an active selection area or not
+        } else if (r1 === 'Continue Session') {
+            await activateSessionSelectionArea()
+            return true
+        }
+        return false
+    }
 }
 
 module.exports = {
