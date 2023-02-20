@@ -574,6 +574,9 @@
         .res-decrease {
             color: #ff595e;
         }
+        .controlNetImaageContainer {
+            margin-right: 3px;
+        }
     </style>
 
     <body>
@@ -587,6 +590,9 @@
                 </div>
                 <div class="sp-tab" id="sp-viewer-tab">
                     <sp-label>Viewer</sp-label>
+                </div>
+                <div class="sp-tab" id="sp-control_net-tab">
+                    <sp-label>ControlNet</sp-label>
                 </div>
                 <div class="sp-tab" id="sp-history-tab" style="display: none">
                     <sp-label>History</sp-label>
@@ -782,6 +788,148 @@
                 </div>
                 <!-- </div> -->
             </div>
+            <div class="sp-tab-page" id="sp-control_net-tab-page">
+                <!-- Horde tab page -->
+                <div></div>
+                <div style="display: flex">
+                    <div
+                        id="control_net_image_container"
+                        class="imgContainer controlNetImaageContainer"
+                    >
+                        <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+
+                        <div>
+                            <img
+                                id="control_net_image"
+                                class="column-item-image"
+                                src="https://source.unsplash.com/random"
+                                width="300px"
+                                height="100px"
+                            />
+                        </div>
+                        <div class="imgButton">
+                            <button
+                                class="column-item button-style disabled-btn"
+                                id="bSetControlImage"
+                            >
+                                Set CtrlNet Img
+                            </button>
+                        </div>
+                    </div>
+                    <div
+                        id="control_net_mask_container"
+                        class="imgContainer controlNetImaageContainer"
+                    >
+                        <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+
+                        <div>
+                            <img
+                                id="control_net_mask"
+                                class="column-item-image"
+                                src="https://source.unsplash.com/random"
+                                width="300px"
+                                height="100px"
+                            />
+                        </div>
+                        <div class="imgButton">
+                            <button
+                                class="column-item button-style disabled-btn"
+                                id="bControlMask"
+                                disabled
+                            >
+                                CtrlNet Mask
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <sp-label>Horde Key:</sp-label
+                ><sp-textfield
+                    id="tiHordeApiKey"
+                    type="password"
+                    placeholder="0000000000"
+                    value=""
+                ></sp-textfield>
+
+                <sp-radio-group>
+                    <sp-label id="BackendTypeLabel" slot="label"
+                        >Select Backend:</sp-label
+                    >
+                    <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
+                    <sp-radio
+                        title="use the horde with the plugin no need to install anything else"
+                        class="rbBackendType"
+                        value="horde_native"
+                        >Native Horde</sp-radio
+                    >
+                    <sp-radio
+                        title="Use the horde extension from Automatic1111 Extension tab"
+                        class="rbBackendType"
+                        value="auto1111_horde_extension"
+                        >Auto1111 Horde Extension</sp-radio
+                    >
+                    <sp-radio
+                        title="use Auto1111 disable the Horde"
+                        class="rbBackendType"
+                        value="auto1111"
+                        checked
+                        >Auto1111 Only</sp-radio
+                    >
+                    <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
+                </sp-radio-group>
+
+                <sp-checkbox id="chEnableControlNet">Enable</sp-checkbox>
+                <div>
+                    <div style="display: flex">
+                        <sp-slider
+                            show-value="false"
+                            id="slControlNetWeight"
+                            min="0"
+                            max="100"
+                            value="100"
+                            title="1 will keep the composition; 0 will allow composition to change"
+                        >
+                            <sp-label slot="label">Weight:</sp-label>
+                            <sp-label slot="label" id="lControlNetWeight"
+                                >1</sp-label
+                            >
+                        </sp-slider>
+                    </div>
+                </div>
+                <div id="menu-bar-control_net" style="display: flex">
+                    <sp-picker size="m" label="Selection type">
+                        <sp-menu id="mModuleMenuControlNet" slot="options">
+                            <!-- <sp-menu-item> item </sp-menu-item> -->
+                        </sp-menu>
+                    </sp-picker>
+                    <sp-picker size="m" label="Selection type">
+                        <sp-menu id="mModelsMenuControlNet" slot="options">
+                            <!-- <sp-menu-item> item </sp-menu-item> -->
+                        </sp-menu>
+                    </sp-picker>
+
+                    <!-- <button class="btnSquare" id="btnRefreshModelsHorde">
+                        Refresh Models
+                    </button> -->
+                </div>
+
+                <div>
+                    <sp-checkbox id="chUseNSFW">NSFW</sp-checkbox>
+                    <sp-checkbox id="chUseSharedLaion"
+                        >Share with LION</sp-checkbox
+                    >
+                    <sp-slider
+                        style="display: none"
+                        show-value="true"
+                        id="slSeedVariation"
+                        min="1"
+                        max="30"
+                        value="1"
+                    >
+                        <sp-label slot="label">Seed variation:</sp-label>
+                    </sp-slider>
+                </div>
+            </div>
+
             <div class="sp-tab-page" id="sp-history-tab-page">
                 <div class="subTabOptionsContainer"></div>
 
