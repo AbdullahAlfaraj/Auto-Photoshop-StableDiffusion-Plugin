@@ -1,4 +1,5 @@
 const dialog_box = require('../dialog_box')
+const psapi = require('../psapi')
 const { createBackgroundLayer } = require('./layer')
 class Notification {
     static {}
@@ -53,13 +54,26 @@ class Notification {
             if (r1 === 'Cancel') {
                 /* cancelled or No */
                 console.log('cancel')
+                return false
             } else if (r1 === 'Create') {
+                //store the selection area and then unselected
+                const selectionInfo = await psapi.getSelectionInfoExe()
+                await psapi.unSelectMarqueeExe()
+                const active_layers = app.activeDocument.activeLayers
+
+                //create a background layer with no selection active
                 await createBackgroundLayer()
                 console.log('create background layer')
+                //reselect the selection area if it exist
+
+                await psapi.reSelectMarqueeExe(selectionInfo)
+                await psapi.selectLayersExe(active_layers)
+                return true
             }
         } catch (e) {
             console.warn(e)
         }
+        return false
     }
 }
 

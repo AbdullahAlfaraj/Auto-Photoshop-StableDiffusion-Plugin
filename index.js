@@ -2161,6 +2161,17 @@ async function hasSelectionChanged(new_selection, old_selection) {
 
 async function easyModeGenerate(mode) {
     try {
+        //1)check if documnet has background layer
+        if (
+            (await layer_util.hasBackgroundLayer()) === false && //doesn't have backround layer
+            (await note.Notification.backgroundLayerIsMissing()) === false //and the user cancled the creation of background layer
+        ) {
+            // const is_canceld  =
+            //     await note.Notification.backgroundLayerIsMissing() //
+
+            return false
+        }
+
         let active_layer = await app.activeDocument.activeLayers[0] // store the active layer so we could reselected after the session end clean up
         //make sure you have selection area active on the canvas
         const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
