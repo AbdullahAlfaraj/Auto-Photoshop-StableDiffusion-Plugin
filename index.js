@@ -4224,3 +4224,25 @@ Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
         console.warn(e)
     }
 })
+
+async function updateResDifferenceLabel() {
+    const ratio = await selection.Selection.getImageToSelectionDifference()
+    const arrow = ratio >= 1 ? '↑' : '↓'
+    let final_ratio = ratio // this ratio will always be >= 1
+    if (ratio >= 1) {
+        // percentage = percentage >= 1 ? percentage : 1 / percentage
+
+        // const percentage_str = `${arrow}X${percentage.toFixed(2)}`
+
+        // console.log('scale_info_str: ', scale_info_str)
+        // console.log('percentage_str: ', percentage_str)
+        document
+            .getElementById('res-difference')
+            .classList.remove('res-decrease')
+    } else {
+        final_ratio = 1 / ratio
+        document.getElementById('res-difference').classList.add('res-decrease')
+    }
+    const ratio_str = `${arrow}x${final_ratio.toFixed(2)}`
+    document.getElementById('res-difference').innerText = ratio_str
+}

@@ -1,4 +1,5 @@
 const psapi = require('./psapi')
+const html_manip = require('./utility/html_manip')
 function finalWidthHeight(
     selectionWidth,
     selectionHeight,
@@ -77,7 +78,28 @@ class Selection {
     }
     static reselectArea(selection_info) {}
     static isSameSelection(selection_info_1, selection_info_2) {}
+    static async getImageToSelectionDifference() {
+        const selectionInfo = await psapi.getSelectionInfoExe()
 
+        const width = html_manip.getWidth()
+        const height = html_manip.getHeight()
+        const scale_info_str = `${parseInt(width)}x${parseInt(
+            height
+        )} => ${parseInt(selectionInfo.width)}x${parseInt(
+            selectionInfo.height
+        )} `
+        let ratio =
+            (width * height) / (selectionInfo.width * selectionInfo.height)
+
+        // const arrow = percentage >= 1 ? '↑' : '↓'
+        // percentage = percentage >= 1 ? percentage : 1 / percentage
+
+        // const percentage_str = `${arrow}X${percentage.toFixed(2)}`
+
+        // console.log('scale_info_str: ', scale_info_str)
+        // console.log('percentage_str: ', percentage_str)
+        return ratio
+    }
     static {}
 }
 module.exports = {
