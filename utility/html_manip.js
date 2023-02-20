@@ -30,15 +30,19 @@ document.getElementById('slWidth').addEventListener('input', (evt) => {
     const width = evt.target.value * 64
 
     document.getElementById('lWidth').textContent = parseInt(width)
+    // widthSliderOnChangeEventHandler(evt)
+    updateResDifferenceLabel()
 })
 
 document.getElementById('slHeight').addEventListener('input', (evt) => {
     const height = evt.target.value * 64
 
     document.getElementById('lHeight').textContent = parseInt(height)
+    // heightSliderOnChangeEventHandler(evt)
+    updateResDifferenceLabel()
 })
 
-document.getElementById('slWidth').addEventListener('change', (evt) => {
+function widthSliderOnChangeEventHandler(evt) {
     let new_width = evt.target.value * 64
     const b_link = getLinkWidthHeightState()
     let final_width = new_width
@@ -60,8 +64,35 @@ document.getElementById('slWidth').addEventListener('change', (evt) => {
 
     g_old_slider_width = final_width // update the old value, so we can use it later
     document.getElementById('lWidth').textContent = parseInt(final_width)
+}
+document.getElementById('slWidth').addEventListener('change', (evt) => {
+    widthSliderOnChangeEventHandler(evt)
 })
-document.getElementById('slHeight').addEventListener('change', (evt) => {
+// document.getElementById('slWidth').addEventListener('change', (evt) => {
+//     let new_width = evt.target.value * 64
+//     const b_link = getLinkWidthHeightState()
+//     let final_width = new_width
+//     let final_height
+//     if (b_link) {
+//         const current_height = html_manip.getHeight()
+//         ;[final_width, final_height] = general.scaleToRatio(
+//             new_width,
+//             g_old_slider_width,
+//             _,
+//             current_height,
+//             parseInt(evt.target.max * 64),
+//             parseInt(evt.target.min * 64)
+//         )
+
+//         evt.target.value = parseInt(final_width / 64)
+//         html_manip.autoFillInHeight(final_height)
+//     }
+
+//     g_old_slider_width = final_width // update the old value, so we can use it later
+//     document.getElementById('lWidth').textContent = parseInt(final_width)
+// })
+
+function heightSliderOnChangeEventHandler(evt) {
     let new_height = evt.target.value * 64
 
     let final_width
@@ -83,6 +114,9 @@ document.getElementById('slHeight').addEventListener('change', (evt) => {
     }
     g_old_slider_height = final_height // update the old value, so we can use it later
     document.getElementById('lHeight').textContent = parseInt(final_height)
+}
+document.getElementById('slHeight').addEventListener('change', (evt) => {
+    heightSliderOnChangeEventHandler(evt)
 })
 
 function getWidth() {
@@ -111,6 +145,7 @@ function autoFillInWidth(width_value) {
     document.getElementById('slWidth').value = `${width_value / 64}`
     //update the label
     document.getElementById('lWidth').innerHTML = `${parseInt(width_value)}`
+    updateResDifferenceLabel()
 }
 ////// End Width//////////
 
@@ -130,6 +165,7 @@ function autoFillInHeight(height_value) {
     height_slider.value = `${height_value / 64}`
     //update the label
     document.getElementById('lHeight').innerHTML = `${parseInt(height_value)}`
+    updateResDifferenceLabel()
 }
 
 function autoFillInHRHeight(height_value) {

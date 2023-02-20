@@ -568,6 +568,12 @@
         .line-divider {
             background-color: #3e3e3e;
         }
+        .res-increase {
+            color: #6db579;
+        }
+        .res-decrease {
+            color: #ff595e;
+        }
     </style>
 
     <body>
@@ -1666,7 +1672,15 @@
                                     id="lHeight"
                                     >512</sp-label
                                 >
+
+                                <sp-label
+                                    class="res-increase"
+                                    id="res-difference"
+                                    slot="label"
+                                ></sp-label>
                             </sp-slider>
+                            <!-- <sp-label slot="label"
+                                >512x512 => 1024x1024</sp-label >-->
                         </div>
                         <!-- <div id='hi-res-sliders-container' style="display:none;">
           <sp-slider show-value="false" id="hrWidth" min="1" max="32" value="8">
