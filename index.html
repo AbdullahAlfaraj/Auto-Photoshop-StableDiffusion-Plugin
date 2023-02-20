@@ -117,7 +117,7 @@
             flex-wrap: wrap;
         }
 
-        .thumbnail-image-button{
+        .thumbnail-image-button {
             display: none;
             /* background-color:  #495b79; */
             color: white;
@@ -134,24 +134,24 @@
         }
 
         .thumbnail-image-button:nth-child(2) {
-            border-color:green;
-            bottom:0;
-            left:0;    
+            border-color: green;
+            bottom: 0;
+            left: 0;
         }
         .thumbnail-image-button:nth-child(3) {
-            border-color:pink;
-            bottom:0;
-            right:0;
+            border-color: pink;
+            bottom: 0;
+            right: 0;
         }
         .thumbnail-image-button:nth-child(4) {
-            border-color:yellow;
-            top:0;
-            left:0;
+            border-color: yellow;
+            top: 0;
+            left: 0;
         }
         .thumbnail-image-button:nth-child(5) {
-            border-color:red;
-            top:0;
-            right:0;
+            border-color: red;
+            top: 0;
+            right: 0;
         }
 
         .column-item {
@@ -568,6 +568,12 @@
         .line-divider {
             background-color: #3e3e3e;
         }
+        .res-increase {
+            color: #6db579;
+        }
+        .res-decrease {
+            color: #ff595e;
+        }
     </style>
 
     <body>
@@ -582,9 +588,17 @@
                 <div class="sp-tab" id="sp-viewer-tab">
                     <sp-label>Viewer</sp-label>
                 </div>
-                <div class="sp-tab" id="sp-history-tab">
+                <div class="sp-tab" id="sp-history-tab" style="display: none">
                     <sp-label>History</sp-label>
                 </div>
+                <div
+                    class="sp-tab"
+                    id="sp-image_search-tab"
+                    style="display: none"
+                >
+                    <sp-label>Image Search</sp-label>
+                </div>
+
                 <div class="sp-tab" id="sp-prompts-library-tab">
                     <sp-label>Prompts library</sp-label>
                 </div>
@@ -615,126 +629,191 @@
             </div>
 
             <div class="sp-tab-page" id="sp-viewer-tab-page">
-                <div class="flexContainer">
-                    <sp-label slot="label"
-                        >View your generated images on the canvas</sp-label
-                    >
+                <div class="subTabOptionsContainer">
+                    <sp-radio-group id="rgSubTab">
+                        <sp-radio
+                            title=""
+                            class="rbSubTab"
+                            id="rbHistoryTab"
+                            checked
+                            value="viewer"
+                            data-tab-name="sp-viewer-tab"
+                            >Viewer</sp-radio
+                        >
+                        <sp-radio
+                            title=""
+                            class="rbSubTab"
+                            id="rbHistoryTab"
+                            value="history"
+                            data-tab-name="sp-history-tab"
+                            >History</sp-radio
+                        >
+                        <sp-radio
+                            title=""
+                            class="rbSubTab"
+                            id="rbImageSearch"
+                            data-tab-name="sp-image_search-tab"
+                            value="image_search"
+                            >Image Search</sp-radio
+                        >
+                    </sp-radio-group>
                 </div>
-                <div></div>
-                <div>
-                    <button class="btnSquare" id="btnSetMaskViewer">
-                        Set Mask
-                    </button>
-                    <button class="btnSquare" id="btnSetInitImageViewer">
-                        Set Init Image
-                    </button>
-                    <button class="btnSquare btnGenerateClass" id="btnGenerate">
-                        Generate txt2img
-                    </button>
-                    <button
-                        class="btnSquare btnInterruptClass"
-                        id="btnInterruptViewer"
-                        style="display: none"
-                    >
-                        Interrupt
-                    </button>
-                    <button class="btnSquare" id="btnSelectionArea">
-                        Selection Area
-                    </button>
-                    <div
-                        style="
-                            display: flex;
-                            justify-content: flex-start;
-                            padding-top: 3px;
-                        "
-                    >
-                        <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
+                <div id="viewerSubTab">
+                    <div class="flexContainer">
+                        <sp-label slot="label"
+                            >View your generated images on the canvas</sp-label
+                        >
+                    </div>
+                    <div></div>
+                    <div>
+                        <button class="btnSquare" id="btnSetMaskViewer">
+                            Set Mask
+                        </button>
+                        <button class="btnSquare" id="btnSetInitImageViewer">
+                            Set Init Image
+                        </button>
+                        <button
+                            class="btnSquare btnGenerateClass"
+                            id="btnGenerate"
+                        >
+                            Generate txt2img
+                        </button>
+                        <button
+                            class="btnSquare btnInterruptClass"
+                            id="btnInterruptViewer"
+                            style="display: none"
+                        >
+                            Interrupt
+                        </button>
+                        <button class="btnSquare" id="btnSelectionArea">
+                            Selection Area
+                        </button>
+                        <div
+                            style="
+                                display: flex;
+                                justify-content: flex-start;
+                                padding-top: 3px;
+                            "
+                        >
+                            <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
             <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button>
             <button class="btnSquare acceptSelectedClass acceptSelectedImgBtn"  style="display:none;">Accept Selected</button>
             <button class="btnSquare discardSelectedClass discardSelectedImgBtn"  style="display:none;">Discard Selected</button> -->
-                        <button
-                            title="Keep all generated images on the canvas"
-                            class="btnSquare acceptClass acceptAllImgBtn"
-                            style="display: none; margin-right: 3px"
-                        ></button>
-                        <button
-                            title="Delete all generated images from the canvas"
-                            class="btnSquare discardClass discardAllImgBtn"
-                            style="display: none; margin-right: 3px"
-                        ></button>
-                        <button
-                            title="Keep only the highlighted images"
-                            class="btnSquare acceptSelectedClass acceptSelectedImgBtn"
-                            style="display: none; margin-right: 3px"
-                        ></button>
-                        <button
-                            title="Delete only the highlighted images"
-                            class="btnSquare discardSelectedClass discardSelectedImgBtn"
-                            style="display: none; margin-right: 3px"
-                        ></button>
-                    </div>
-
-                    <div style="display: inline-flex">
-                        <div id="batchNumberViewerTabContainer">
-                            <!-- we will append here batch number field here   -->
-                            <!-- <sp-label>Images:</sp-label> -->
-                            <!-- <sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
-                value="1"></sp-textfield> -->
+                            <button
+                                title="Keep all generated images on the canvas"
+                                class="btnSquare acceptClass acceptAllImgBtn"
+                                style="display: none; margin-right: 3px"
+                            ></button>
+                            <button
+                                title="Delete all generated images from the canvas"
+                                class="btnSquare discardClass discardAllImgBtn"
+                                style="display: none; margin-right: 3px"
+                            ></button>
+                            <button
+                                title="Keep only the highlighted images"
+                                class="btnSquare acceptSelectedClass acceptSelectedImgBtn"
+                                style="display: none; margin-right: 3px"
+                            ></button>
+                            <button
+                                title="Delete only the highlighted images"
+                                class="btnSquare discardSelectedClass discardSelectedImgBtn"
+                                style="display: none; margin-right: 3px"
+                            ></button>
                         </div>
-                        <sp-progressbar
-                            class="pProgressBars"
-                            id="pViewerProgressBar"
-                            max="100"
-                            value="0"
-                            style="margin-left: 10px; width: 100px"
-                        >
-                            <sp-label slot="label">Progress...</sp-label>
-                        </sp-progressbar>
-                    </div>
 
-                    <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
+                        <div style="display: inline-flex">
+                            <div id="batchNumberViewerTabContainer">
+                                <!-- we will append here batch number field here   -->
+                                <!-- <sp-label>Images:</sp-label> -->
+                                <!-- <sp-textfield id="tiNumberOfImages" type="number" placeholder="1"
+                value="1"></sp-textfield> -->
+                            </div>
+                            <sp-progressbar
+                                class="pProgressBars"
+                                id="pViewerProgressBar"
+                                max="100"
+                                value="0"
+                                style="margin-left: 10px; width: 100px"
+                            >
+                                <sp-label slot="label">Progress...</sp-label>
+                            </sp-progressbar>
+                        </div>
+
+                        <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
+                    </div>
+                    <div style="display: flex">
+                        <sp-slider
+                            show-value="true"
+                            id="slThumbnailSize"
+                            min="1"
+                            max="10"
+                            value="5"
+                            style="width: 100%"
+                        >
+                            <sp-label slot="label">Thumbnail Size:</sp-label>
+                        </sp-slider>
+                        <sp-checkbox
+                            class="checkbox"
+                            id="chSquareThumbnail"
+                            style="margin-left: 20px"
+                            >Square 1:1</sp-checkbox
+                        >
+                    </div>
+                    <div class="" id="divProgressImageViewerContainer">
+                        <img
+                            class="viewer-image"
+                            id="progressImage"
+                            src="https://source.unsplash.com/random"
+                            style="width: auto; height: auto"
+                        />
+                    </div>
+                    <hr class="line-divider" />
+                    <div class="" id="divInitImageViewerContainer">
+                        <!-- <img  class="viewer-image" id="viewer_init_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
+                    </div>
+                    <hr class="line-divider" />
+                    <div class="" id="divInitMaskViewerContainer">
+                        <!-- <img  class="viewer-image" id="viewer_mask_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
+                    </div>
+                    <hr class="line-divider" />
+                    <div class="viewer-container" id="divViewerImagesContainer">
+                        <!-- <img  class="viewer-image" id="viewer_output_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
+                    </div>
                 </div>
-                <div style="display: flex">
-                    <sp-slider
-                        show-value="true"
-                        id="slThumbnailSize"
-                        min="1"
-                        max="10"
-                        value="5"
-                        style="width: 100%"
+                <!-- </div> -->
+            </div>
+            <div class="sp-tab-page" id="sp-history-tab-page">
+                <div class="subTabOptionsContainer"></div>
+
+                <div class="flexContainer">
+                    <sp-label slot="label"
+                        >history of all the images you generated</sp-label
                     >
-                        <sp-label slot="label">Thumbnail Size:</sp-label>
-                    </sp-slider>
-                    <sp-checkbox
-                        class="checkbox"
-                        id="chSquareThumbnail"
-                        style="margin-left: 20px"
-                        >Square 1:1</sp-checkbox
-                    >
+                    <div id="historySeedLabelContainer">
+                        <sp-label slot="label">Seed:</sp-label
+                        ><sp-label slot="label" id="historySeedLabel"
+                            >00000000000</sp-label
+                        >
+                    </div>
                 </div>
-                <div class="" id="divProgressImageViewerContainer">
+                <div></div>
+                <div>
+                    <button class="btnSquare" id="btnLoadHistory">
+                        Load Previous Generations
+                    </button>
+                </div>
+                <div class="viewer-container" id="divHistoryImagesContainer">
                     <img
-                        class="viewer-image"
-                        id="progressImage"
+                        class="history-image"
+                        id="history_image_test"
+                        data-metadata_json_string='{"a":1}'
                         src="https://source.unsplash.com/random"
-                        style="width: auto; height: auto"
                     />
                 </div>
-                <hr class="line-divider" />
-                <div class="" id="divInitImageViewerContainer">
-                    <!-- <img  class="viewer-image" id="viewer_init_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
-                </div>
-                <hr class="line-divider" />
-                <div class="" id="divInitMaskViewerContainer">
-                    <!-- <img  class="viewer-image" id="viewer_mask_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
-                </div>
-                <hr class="line-divider" />
-                <div class="viewer-container" id="divViewerImagesContainer">
-                    <!-- <img  class="viewer-image" id="viewer_output_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
-                </div>
             </div>
+            <div class="sp-tab-page" id="sp-image_search-tab-page">
+                <div class="subTabOptionsContainer"></div>
 
-            <div class="sp-tab-page" id="sp-history-tab-page">
                 <div class="flexContainer">
                     <sp-label slot="label"
                         >history of all the images you generated</sp-label
@@ -759,11 +838,11 @@
                     <button class="btnSquare" id="btnImageSearch">
                         Image Search
                     </button>
-                    <button class="btnSquare" id="btnLoadHistory">
-                        Load Previous Generations
-                    </button>
                 </div>
-                <div class="viewer-container" id="divHistoryImagesContainer">
+                <div
+                    class="viewer-container"
+                    id="divImageSearchImagesContainer"
+                >
                     <img
                         class="history-image"
                         id="history_image_test"
@@ -772,7 +851,6 @@
                     />
                 </div>
             </div>
-
             <div class="sp-tab-page" id="sp-prompts-library-tab-page">
                 <sp-label slot="label"
                     >Prompt Shortcut: a single word that represent a
@@ -1318,15 +1396,32 @@
                             </div>
                             Edit Text
                         </sp-action-button>
-                        <sp-action-button id="svg_sp_btn_datadownload" style="padding: 0; max-width: 32px; max-height: 32px; display:none;">
+                        <sp-action-button
+                            id="svg_sp_btn_datadownload"
+                            style="
+                                padding: 0;
+                                max-width: 32px;
+                                max-height: 32px;
+                                display: none;
+                            "
+                        >
                             <div slot="icon" style="fill: currentColor">
-                                <svg viewBox="0 0 18 18" style="width: 18px; height: 18px;">
+                                <svg
+                                    viewBox="0 0 18 18"
+                                    style="width: 18px; height: 18px"
+                                >
                                     <path
-                                        d="M5.3885,12.5895a1.211,1.211,0,0,1-.314-.8C3.2305,11.478,1.509,10.942,1,10.135V14.5C1,15.8805,4.582,17,9,17c.1385,0,.2735-.0045.4105-.0065Z" />
-                                    <path d="M16.5,6.5V9.3635A1.18,1.18,0,0,0,17,8.5V5.135A5.06144,5.06144,0,0,1,14.3855,6.5Z" />
+                                        d="M5.3885,12.5895a1.211,1.211,0,0,1-.314-.8C3.2305,11.478,1.509,10.942,1,10.135V14.5C1,15.8805,4.582,17,9,17c.1385,0,.2735-.0045.4105-.0065Z"
+                                    />
                                     <path
-                                        d="M6.315,10.5H8.5V7.13C5.953,7.059,1.8365,6.4625,1,5.135V8.5c0,.996,1.868,1.8535,4.565,2.255A1.21847,1.21847,0,0,1,6.315,10.5Z" />
-                                    <path d="M17.573,12.427A.25.25,0,0,0,17.3965,12H15V8H10v4H7.6035a.25.25,0,0,0-.1765.427L12.5,18Z" />
+                                        d="M16.5,6.5V9.3635A1.18,1.18,0,0,0,17,8.5V5.135A5.06144,5.06144,0,0,1,14.3855,6.5Z"
+                                    />
+                                    <path
+                                        d="M6.315,10.5H8.5V7.13C5.953,7.059,1.8365,6.4625,1,5.135V8.5c0,.996,1.868,1.8535,4.565,2.255A1.21847,1.21847,0,0,1,6.315,10.5Z"
+                                    />
+                                    <path
+                                        d="M17.573,12.427A.25.25,0,0,0,17.3965,12H15V8H10v4H7.6035a.25.25,0,0,0-.1765.427L12.5,18Z"
+                                    />
                                 </svg>
                             </div>
                         </sp-action-button>
@@ -1577,7 +1672,15 @@
                                     id="lHeight"
                                     >512</sp-label
                                 >
+
+                                <sp-label
+                                    class="res-increase"
+                                    id="res-difference"
+                                    slot="label"
+                                ></sp-label>
                             </sp-slider>
+                            <!-- <sp-label slot="label"
+                                >512x512 => 1024x1024</sp-label >-->
                         </div>
                         <!-- <div id='hi-res-sliders-container' style="display:none;">
           <sp-slider show-value="false" id="hrWidth" min="1" max="32" value="8">

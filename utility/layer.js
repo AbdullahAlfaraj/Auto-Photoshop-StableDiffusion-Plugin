@@ -240,7 +240,30 @@ const makeBackgroundLayerDesc = () => ({
     // },
 })
 
-async function createBackgroundLayer() {
+const createSolidLayerDesc = (r, g, b) => ({
+    _obj: 'make',
+    _target: [
+        {
+            _ref: 'contentLayer',
+        },
+    ],
+    using: {
+        _obj: 'contentLayer',
+        type: {
+            _obj: 'solidColorLayer',
+            color: {
+                _obj: 'RGBColor',
+                red: r,
+                grain: g,
+                blue: b,
+            },
+        },
+    },
+    _options: {
+        dialogOptions: 'dontDisplay',
+    },
+})
+async function createBackgroundLayer(r = 255, g = 255, b = 255) {
     try {
         const has_background = await hasBackgroundLayer()
         if (has_background) {
@@ -248,12 +271,15 @@ async function createBackgroundLayer() {
             return null
         }
         await executeAsModal(async () => {
-            await createNewLayerCommand('background') //create layer
+            // await createNewLayerCommand('background') //create layer
             //make the layer into background
-            const result = await batchPlay([makeBackgroundLayerDesc()], {
-                synchronousExecution: true,
-                modalBehavior: 'execute',
-            })
+            const result = await batchPlay(
+                [createSolidLayerDesc(r, g, b), makeBackgroundLayerDesc()],
+                {
+                    synchronousExecution: true,
+                    modalBehavior: 'execute',
+                }
+            )
         })
     } catch (e) {
         console.warn(e)
@@ -272,4 +298,6 @@ module.exports = {
     Layer,
     hasBackgroundLayer,
     createBackgroundLayer,
+    createSolidLayerDesc,
+    makeBackgroundLayerDesc,
 }
