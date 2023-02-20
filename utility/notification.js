@@ -42,6 +42,25 @@ class Notification {
             console.warn(e)
         }
     }
+    static async backgroundLayerIsMissing() {
+        const r1 = await dialog_box.prompt(
+            'You need a white background layer present in your document',
+            '',
+            ['Cancel', 'Create']
+        )
+
+        try {
+            if (r1 === 'Cancel') {
+                /* cancelled or No */
+                console.log('cancel')
+            } else if (r1 === 'Create') {
+                await createBackgroundLayer()
+                console.log('create background layer')
+            }
+        } catch (e) {
+            console.warn(e)
+        }
+    }
 }
 
 module.exports = {
