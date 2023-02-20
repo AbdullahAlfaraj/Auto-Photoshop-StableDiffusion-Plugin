@@ -3729,7 +3729,7 @@ document
         try {
             // const output_dir_relative = "./server/python_server/"
             const container = document.getElementById(
-                'divHistoryImagesContainer'
+                'divImageSearchImagesContainer'
             )
             // const uniqueDocumentId = await getUniqueDocumentId()
             // const [image_paths, metadata_jsons] = await sdapi.loadHistory(uniqueDocumentId)
@@ -4186,3 +4186,30 @@ document
             thumbnail_size_slider.min
         )
     })
+
+Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
+    // debugger
+    const tab_button_name = rb.dataset['tab-name']
+    const tab_page_name = `${tab_button_name}-page`
+
+    try {
+        document
+            .getElementById(tab_button_name)
+            .addEventListener('click', () => {
+                document.getElementById(tab_button_name)
+                const option_container = document
+                    .getElementById(tab_page_name)
+                    .querySelector('.subTabOptionsContainer')
+                const radio_group = document.getElementById('rgSubTab')
+                rb.checked = true
+                option_container.appendChild(radio_group)
+            })
+
+        rb.onclick = () => {
+            // debugger
+            document.getElementById(tab_button_name).click()
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+})
