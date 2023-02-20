@@ -1,4 +1,4 @@
-const { getDummyBase64 } = require('./utility/dummy')
+const { getDummyBase64, getDummyBase64_2 } = require('./utility/dummy')
 const { getExtensionType } = require('./utility/html_manip')
 const py_re = require('./utility/sdapi/python_replacement')
 
@@ -599,13 +599,13 @@ async function requestControlNetTxt2Img() {
     payload = {
         prompt: 'cute cat',
         negative_prompt: 'ugly',
-        controlnet_input_image: [getDummyBase64()],
+        controlnet_input_image: [getDummyBase64_2()],
         // controlnet_mask: (List[str] = Body(
         //     [],
         //     (title = 'ControlNet Input Mask')
         // )),
         controlnet_module: 'depth',
-        controlnet_model: 'control_sd15_depth',
+        controlnet_model: 'control_sd15_depth [fef5e48e]',
         controlnet_weight: 1.0,
         controlnet_resize_mode: 'Scale to Fit (Inner Fit)',
         controlnet_lowvram: false,
@@ -616,7 +616,7 @@ async function requestControlNetTxt2Img() {
         subseed: -1,
         subseed_strength: -1,
         sampler_index: 'Euler a',
-        batch_size: 1,
+        batch_size: 4,
         n_iter: 1,
         steps: 20,
         cfg_scale: 7,
@@ -644,6 +644,10 @@ async function requestControlNetTxt2Img() {
     let json = await request.json()
 
     console.log('json:', json)
+
+    for (const image of json['images']) {
+        await io.IO.base64ToLayer(image)
+    }
 
     return json
 }
