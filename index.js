@@ -2161,7 +2161,7 @@ async function hasSelectionChanged(new_selection, old_selection) {
 
 async function easyModeGenerate(mode) {
     try {
-        //1)check if documnet has background layer
+        //1)check if the documnet has a background layer
         if (
             (await layer_util.hasBackgroundLayer()) === false && //doesn't have backround layer
             (await note.Notification.backgroundLayerIsMissing()) === false //and the user cancled the creation of background layer
@@ -2175,8 +2175,12 @@ async function easyModeGenerate(mode) {
         let active_layer = await app.activeDocument.activeLayers[0] // store the active layer so we could reselected after the session end clean up
         //make sure you have selection area active on the canvas
         const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
-        if (!isSelectionAreaValid) {
-            await psapi.promptForMarqueeTool()
+        if (
+            !isSelectionAreaValid && // no selection area
+            (await note.Notification.inactiveSelectionArea(
+                g_generation_session.isActive()
+            )) === false // means did not activate the session selection area if it's available
+        ) {
             return null
         }
 
@@ -4034,19 +4038,31 @@ async function downloadItExe(link, writeable_entry, image_file_name) {
     return new_layer
 }
 
+//REFACTOR: move to session.js or selection.js
+async function activateSessionSelectionArea() {
+    try {
+        if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
+            await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
+            await eventHandler()
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+}
 document
     .getElementById('btnSelectionArea')
     .addEventListener('click', async () => {
-        try {
-            if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
-                await psapi.reSelectMarqueeExe(
-                    g_generation_session.selectionInfo
-                )
-                await eventHandler()
-            }
-        } catch (e) {
-            console.warn(e)
-        }
+        // try {
+        //     if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
+        //         await psapi.reSelectMarqueeExe(
+        //             g_generation_session.selectionInfo
+        //         )
+        //         await eventHandler()
+        //     }
+        // } catch (e) {
+        //     console.warn(e)
+        // }
+        await activateSessionSelectionArea()
     })
 
 function addPresetMenuItem(preset_title) {

@@ -291,7 +291,8 @@ async function unSelectMarqueeExe() {
         console.warn(e)
     }
 }
-////selection:
+
+//REFACTOR: move to selection.js
 async function selectMarqueeRectangularToolExe() {
     async function selectMarqueeRectangularToolCommand() {
         const result = await batchPlay(
