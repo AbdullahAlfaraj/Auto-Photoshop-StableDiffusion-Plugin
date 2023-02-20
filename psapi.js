@@ -9,6 +9,7 @@ const storage = require('uxp').storage
 const fs = storage.localFileSystem
 
 async function createSolidLayer(r, g, b) {
+    console.warn('this function is deprecated')
     await executeAsModal(async () => {
         const result = await batchPlay(
             [
