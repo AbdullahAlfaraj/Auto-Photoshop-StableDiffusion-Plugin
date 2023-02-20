@@ -240,7 +240,29 @@ const makeBackgroundLayerDesc = () => ({
     // },
 })
 
-async function createBackgroundLayer() {
+const createSolidLayerDesc = (r, g, b) => ({
+    _obj: 'make',
+    _target: [
+        {
+            _ref: 'contentLayer',
+        },
+    ],
+    using: {
+        _obj: 'contentLayer',
+        type: {
+            _obj: 'solidColorLayer',
+            color: {
+                _obj: 'RGBColor',
+                red: r,
+                grain: g,
+                blue: b,
+            },
+        },
+    },
+    _options: {
+        dialogOptions: 'dontDisplay',
+    },
+})
     try {
         const has_background = await hasBackgroundLayer()
         if (has_background) {
