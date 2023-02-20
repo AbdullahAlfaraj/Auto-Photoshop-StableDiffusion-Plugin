@@ -38,6 +38,7 @@ const io = require('./utility/io')
 const dummy = require('./utility/dummy')
 const general = require('./utility/general')
 const thumbnail = require('./thumbnail')
+const note = require('./utility/notification')
 let g_horde_generator = new horde_native.hordeGenerator()
 
 //REFACTOR: move to session.js
@@ -3629,7 +3630,7 @@ async function deleteNoneSelected(viewer_objects) {
             g_viewer_manager.initImageLayersJson = {}
             g_viewer_manager.outputImages = []
             //
-            
+
             g_generation_session.image_paths_to_layers = {}
         })
     } catch (e) {
@@ -3669,10 +3670,25 @@ document
                 )
                 console.log(`metadata_jsons[${i}]: `, metadata_jsons[i])
 
-                const img_container = thumbnail.Thumbnail.wrapImgInContainer(img,'viewer-image-container')
-                thumbnail.Thumbnail.addSPButtonToContainer(img_container,'svg_sp_btn', 'place the image on the canvas', moveHistoryImageToLayer, img)
-                thumbnail.Thumbnail.addSPButtonToContainer(img_container,'svg_sp_btn_datadownload', 'download history data to current settings', getHistoryMetadata, img)
-                container.appendChild(img_container)                
+                const img_container = thumbnail.Thumbnail.wrapImgInContainer(
+                    img,
+                    'viewer-image-container'
+                )
+                thumbnail.Thumbnail.addSPButtonToContainer(
+                    img_container,
+                    'svg_sp_btn',
+                    'place the image on the canvas',
+                    moveHistoryImageToLayer,
+                    img
+                )
+                thumbnail.Thumbnail.addSPButtonToContainer(
+                    img_container,
+                    'svg_sp_btn_datadownload',
+                    'download history data to current settings',
+                    getHistoryMetadata,
+                    img
+                )
+                container.appendChild(img_container)
                 i++
             }
         } catch (e) {
@@ -3680,35 +3696,32 @@ document
         }
     })
 
-    function getHistoryMetadata(img){
-        // debugger
-        //auto fill the ui with metadata
-        const metadata_json = JSON.parse(
-            img.dataset.metadata_json_string
-        )
-        console.log('metadata_json: ', metadata_json)
-        // document.querySelector('#tiSeed').value = metadata_json.Seed
+function getHistoryMetadata(img) {
+    // debugger
+    //auto fill the ui with metadata
+    const metadata_json = JSON.parse(img.dataset.metadata_json_string)
+    console.log('metadata_json: ', metadata_json)
+    // document.querySelector('#tiSeed').value = metadata_json.Seed
 
-        //extract auto_metadata into the preset metadata
-        function convertAutoMetadataToPresset(metadata_json) {
-            metadata_json['seed'] =
-                metadata_json?.auto_metadata?.Seed
-        }
-        convertAutoMetadataToPresset(metadata_json)
-        document.querySelector('#historySeedLabel').textContent =
-            metadata_json?.seed
-        // autoFillInSettings(metadata_json)
-        g_ui_settings.autoFillInSettings(metadata_json)
+    //extract auto_metadata into the preset metadata
+    function convertAutoMetadataToPresset(metadata_json) {
+        metadata_json['seed'] = metadata_json?.auto_metadata?.Seed
     }
+    convertAutoMetadataToPresset(metadata_json)
+    document.querySelector('#historySeedLabel').textContent =
+        metadata_json?.seed
+    // autoFillInSettings(metadata_json)
+    g_ui_settings.autoFillInSettings(metadata_json)
+}
 
-    async function moveHistoryImageToLayer(img){
-        let image_path = img.dataset.path
-        const image_path_escape = image_path.replace(/\o/g, '/o') //escape string "\o" in "\output"
+async function moveHistoryImageToLayer(img) {
+    let image_path = img.dataset.path
+    const image_path_escape = image_path.replace(/\o/g, '/o') //escape string "\o" in "\output"
 
-        // load the image from "data:image/png;base64," base64_str
-        const base64_image = img.src.replace('data:image/png;base64,', '')
-        await base64ToFile(base64_image)
-    }
+    // load the image from "data:image/png;base64," base64_str
+    const base64_image = img.src.replace('data:image/png;base64,', '')
+    await base64ToFile(base64_image)
+}
 
 document
     .getElementById('btnImageSearch')
