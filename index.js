@@ -1794,7 +1794,8 @@ async function getSettings() {
     let payload = {}
     try {
         const extension_type = html_manip.getExtensionType() // get the extension type
-
+        const selectionInfo = await psapi.getSelectionInfoExe()
+        payload['selection_info'] = selectionInfo
         numberOfImages = document.querySelector('#tiNumberOfImages').value
         numberOfSteps = document.querySelector('#tiNumberOfSteps').value
         const prompt = html_manip.getPrompt()
@@ -3735,7 +3736,20 @@ async function moveHistoryImageToLayer(img) {
 
     // load the image from "data:image/png;base64," base64_str
     const base64_image = img.src.replace('data:image/png;base64,', '')
-    await base64ToFile(base64_image)
+    // await base64ToFile(base64_image)
+    const metadata_json = JSON.parse(img.dataset.metadata_json_string)
+    const to_x = metadata_json['selection_info']?.left
+    const to_y = metadata_json['selection_info']?.top
+    const width = metadata_json['selection_info']?.width
+    const height = metadata_json['selection_info']?.height
+    await io.IO.base64ToLayer(
+        base64_image,
+        'History Image',
+        to_x,
+        to_y,
+        width,
+        height
+    )
 }
 
 document
