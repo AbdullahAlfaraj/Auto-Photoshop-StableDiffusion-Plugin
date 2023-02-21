@@ -683,6 +683,8 @@ const requestState = {
 }
 
 let g_request_status = '' //
+
+//REFACTOR: move to Enum.js
 const generationMode = {
     Txt2Img: 'txt2img',
     Img2Img: 'img2img',
@@ -2120,7 +2122,13 @@ async function generateImg2Img(settings) {
             backend_type === backendTypeEnum['Auto1111'] ||
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
-            json = await sdapi.requestImg2Img(settings)
+            if (settings['enable_control_net']) {
+                //use control net
+
+                json = await sdapi.requestControlNetImg2Img(settings)
+            } else {
+                json = await sdapi.requestImg2Img(settings)
+            }
         }
     } catch (e) {
         console.warn(e)
