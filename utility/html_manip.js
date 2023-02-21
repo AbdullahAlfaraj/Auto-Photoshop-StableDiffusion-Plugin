@@ -420,7 +420,11 @@ function setInitImageSrc(image_src) {
     const ini_image_element = getInitImageElement()
     ini_image_element.src = image_src
 }
-
+function setControlImageSrc(image_src) {
+    const control_net_image_element =
+        document.getElementById('control_net_image')
+    control_net_image_element.src = image_src
+}
 function setProgressImageSrc(image_src) {
     const progress_image_element = document.getElementById('progressImage')
     progress_image_element.src = image_src
@@ -777,6 +781,16 @@ function setLinkWidthHeightState(state) {
 function isSquareThumbnail() {
     return document.getElementById('chSquareThumbnail').checked
 }
+
+// sliderAddEventListener('slControlNetWeight', 'lControlNetWeight', 1 / 100)
+document
+    .getElementById('slControlNetWeight')
+    .addEventListener('input', (evt) => {
+        // debugger
+        const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 2) // convert slider value to SD ready value
+        document.getElementById('lControlNetWeight').textContent =
+            Number(sd_value).toFixed(2)
+    })
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -843,4 +857,5 @@ module.exports = {
     getLinkWidthHeightState,
     setLinkWidthHeightState,
     isSquareThumbnail,
+    setControlImageSrc,
 }

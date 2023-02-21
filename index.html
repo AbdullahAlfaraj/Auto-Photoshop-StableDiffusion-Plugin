@@ -809,7 +809,7 @@
                         </div>
                         <div class="imgButton">
                             <button
-                                class="column-item button-style disabled-btn"
+                                class="column-item button-style btnSquare"
                                 id="bSetControlImage"
                             >
                                 Set CtrlNet Img
@@ -837,7 +837,7 @@
                                 id="bControlMask"
                                 disabled
                             >
-                                CtrlNet Mask
+                                View Mask
                             </button>
                         </div>
                     </div>
@@ -879,18 +879,18 @@
 
                 <sp-checkbox id="chEnableControlNet">Enable</sp-checkbox>
                 <div>
-                    <div style="display: flex">
+                    <div>
                         <sp-slider
                             show-value="false"
                             id="slControlNetWeight"
                             min="0"
                             max="100"
-                            value="100"
-                            title="1 will keep the composition; 0 will allow composition to change"
+                            value="50"
+                            title="2 will keep the composition; 0 will allow composition to change"
                         >
                             <sp-label slot="label">Weight:</sp-label>
                             <sp-label slot="label" id="lControlNetWeight"
-                                >1</sp-label
+                                >1.0</sp-label
                             >
                         </sp-slider>
                     </div>

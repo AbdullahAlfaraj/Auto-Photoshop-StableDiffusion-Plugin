@@ -738,7 +738,9 @@ async function silentSetInitImage(layer, session_id) {
         const height = html_manip.getHeight()
 
         //get the selection from the canvas as base64 png, make sure to resize to the width and height slider
+        const selectionInfo = g_generation_session.selectionInfo
         const base64_image = await io.IO.getSelectionFromCanvasAsBase64(
+            selectionInfo,
             true,
             width,
             height
@@ -778,7 +780,9 @@ async function silentSetInitImageMask(layer, session_id) {
         const height = html_manip.getHeight()
 
         //get the selection from the canvas as base64 png, make sure to resize to the width and height slider
+        const selectionInfo = g_generation_session.selectionInfo
         const base64_image = await io.IO.getSelectionFromCanvasAsBase64(
+            selectionInfo,
             true,
             width,
             height

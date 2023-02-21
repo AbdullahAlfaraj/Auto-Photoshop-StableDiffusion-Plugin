@@ -245,6 +245,7 @@ class IO {
     }
 
     static async getSelectionFromCanvasAsBase64(
+        selectionInfo,
         b_resize = false,
         resize_width = 0,
         resize_height = 0
@@ -275,7 +276,7 @@ class IO {
                 format: formats.binary,
             })
 
-            const selectionInfo = g_generation_session.selectionInfo
+            // const selectionInfo = g_generation_session.selectionInfo
             // const selectionInfo = await psapi.getSelectionInfoExe()
             const cropped_base64_url = await IOHelper.cropPng(
                 arrayBuffer,

@@ -1,6 +1,10 @@
 const { cleanLayers } = require('../psapi')
 const psapi = require('../psapi')
+const io = require('./io')
+
 const { ViewerManager } = require('../viewer')
+const { base64ToBase64Url } = require('./general')
+const html_manip = require('./html_manip')
 const SessionState = {
     Active: 'active',
     Inactive: 'inactive',
@@ -31,6 +35,7 @@ class GenerationSession {
         this.image_paths_to_layers = {}
         this.progress_layer
         this.last_settings //the last settings been used for generation
+        this.controlNetImage // base64 image
     }
     isActive() {
         return this.state === SessionState['Active']
@@ -117,10 +122,15 @@ class GenerationSession {
                 await layer_util.deleteLayers([g_inpaint_mask_layer])
                 await createTempInpaintMaskLayer()
             }
+            //delete controlNet image
+            this.controlNetImage = null
+
+            html_manip.setControlImageSrc('https://source.unsplash.com/random')
         } catch (e) {
             console.warn(e)
         }
     }
+
     async closePreviousOutputGroup() {
         try {
             //close the previous output folder
@@ -180,6 +190,28 @@ class GenerationSession {
     async deleteProgressImage() {
         this.deleteProgressImageHtml()
         await this.deleteProgressLayer()
+    }
+    async setControlNetImage() {
+        // debugger
+        //check if the selection area is active
+        //convert layer to base64
+        //the width and height of the exported image
+
+        const width = html_manip.getWidth()
+        const height = html_manip.getHeight()
+
+        //get the selection from the canvas as base64 png, make sure to resize to the width and height slider
+        const selectionInfo = await psapi.getSelectionInfoExe()
+        const base64_image = await io.IO.getSelectionFromCanvasAsBase64(
+            selectionInfo,
+            true,
+            width,
+            height
+        )
+        this.setControlNetImage = base64_image
+        html_manip.setControlImageSrc(base64ToBase64Url(base64_image))
+        // console.log('base64_img:', base64_image)
+        await io.IO.base64ToLayer(base64_image)
     }
 }
 

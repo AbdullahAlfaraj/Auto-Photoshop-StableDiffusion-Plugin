@@ -4262,3 +4262,9 @@ async function updateResDifferenceLabel() {
     const ratio_str = `${arrow}x${final_ratio.toFixed(2)}`
     document.getElementById('res-difference').innerText = ratio_str
 }
+
+document
+    .getElementById('bSetControlImage')
+    .addEventListener('click', async () => {
+        await g_generation_session.setControlNetImage()
+    })
