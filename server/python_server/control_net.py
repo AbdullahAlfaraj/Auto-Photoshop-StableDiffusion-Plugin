@@ -43,11 +43,13 @@ class controlnetRequest():
             "controlnet_module": 'depth',
             "ControlNet Weight": 1,
             "controlnet_model": 'control_sd15_depth [fef5e48e]',
+            "controlnet_guidance": 1
         }
 
     def sendRequest(self):
         # print(self.simple_txt2img)
         r = requests.post(self.url, json=self.body)
+        print(r)
         return r.json()
  
 js = controlnetRequest("clothed busty bird").sendRequest()
@@ -60,3 +62,4 @@ for x,i in enumerate(js['images']):
 
 
 len(js['images'])
+print(js)

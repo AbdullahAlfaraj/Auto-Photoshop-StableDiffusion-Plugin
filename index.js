@@ -1966,6 +1966,9 @@ async function getSettings() {
 
         //save the control_net_image
         payload['control_net_image'] = g_generation_session.controlNetImage
+        payload['enable_control_net'] =
+            document.getElementById('chEnableControlNet').checked
+        payload['control_net_weight'] = html_manip.getControlNetWeight()
         payload = {
             ...payload,
             // prompt: prompt,
@@ -2138,7 +2141,13 @@ async function generateTxt2Img(settings) {
             backend_type === backendTypeEnum['Auto1111'] ||
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
-            json = await sdapi.requestTxt2Img(settings)
+            if (settings['enable_control_net']) {
+                //use control net
+
+                json = await sdapi.requestControlNetTxt2Img(settings)
+            } else {
+                json = await sdapi.requestTxt2Img(settings)
+            }
         }
     } catch (e) {
         console.warn(e)

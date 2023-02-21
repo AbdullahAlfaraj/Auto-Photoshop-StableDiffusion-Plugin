@@ -122,10 +122,9 @@ class GenerationSession {
                 await layer_util.deleteLayers([g_inpaint_mask_layer])
                 await createTempInpaintMaskLayer()
             }
-            //delete controlNet image
-            this.controlNetImage = null
-
-            html_manip.setControlImageSrc('https://source.unsplash.com/random')
+            //delete controlNet image, Note: don't delete control net, let the user disable controlNet if doesn't want to use it
+            // this.controlNetImage = null
+            // html_manip.setControlImageSrc('https://source.unsplash.com/random')
         } catch (e) {
             console.warn(e)
         }

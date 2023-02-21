@@ -797,6 +797,13 @@ document
         document.getElementById('lControlNetWeight').textContent =
             Number(sd_value).toFixed(2)
     })
+function getControlNetWeight() {
+    const slider_value = document.getElementById('slControlNetWeight').value
+
+    // debugger
+    const sd_value = general.mapRange(slider_value, 0, 100, 0, 2) // convert slider value to SD ready value
+    return sd_value
+}
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -865,4 +872,5 @@ module.exports = {
     isSquareThumbnail,
     setControlImageSrc,
     setControlMaskSrc,
+    getControlNetWeight,
 }

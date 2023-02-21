@@ -603,7 +603,7 @@ function mapPluginSettingsToControlNet(plugin_settings) {
         controlnet_module: 'depth',
         controlnet_model: 'control_sd15_depth [fef5e48e]',
 
-        controlnet_weight: 1,
+        controlnet_weight: parseInt(ps['control_net_weight']),
         controlnet_resize_mode: 'Scale to Fit (Inner Fit)',
         // controlnet_lowvram: true,
         controlnet_processor_res: 512,
@@ -611,11 +611,13 @@ function mapPluginSettingsToControlNet(plugin_settings) {
         controlnet_threshold_b: 64,
         seed: ps['seed'],
         subseed: -1,
-        subseed_strength: -1,
+        // subseed_strength: -1,
+        // subseed_strength: 0,
+        controlnet_guidance: 1,
         sampler_index: ps['sampler_index'],
-        batch_size: ps['batch_size'],
+        batch_size: parseInt(ps['batch_size']),
         n_iter: 1,
-        steps: ps['steps'],
+        steps: parseInt(ps['steps']),
         cfg_scale: ps['cfg_scale'],
         width: ps['width'],
         height: ps['height'],
@@ -633,42 +635,43 @@ async function requestControlNetTxt2Img(plugin_settings) {
 
     const full_url = `${g_sd_url}/controlnet/txt2img`
     const control_net_settings = mapPluginSettingsToControlNet(plugin_settings)
-    payload = {
-        prompt: 'cute cat',
-        negative_prompt: 'ugly',
-        controlnet_input_image: [getDummyBase64_2()],
-        // controlnet_mask: (List[str] = Body(
-        //     [],
-        //     (title = 'ControlNet Input Mask')
-        // )),
-        controlnet_module: 'depth',
-        controlnet_model: 'control_sd15_depth [fef5e48e]',
-        controlnet_weight: 1.0,
-        controlnet_resize_mode: 'Scale to Fit (Inner Fit)',
-        controlnet_lowvram: false,
-        controlnet_processor_res: 512,
-        controlnet_threshold_a: 64,
-        controlnet_threshold_b: 64,
-        seed: -1,
-        subseed: -1,
-        subseed_strength: -1,
-        sampler_index: 'Euler a',
-        batch_size: 4,
-        n_iter: 1,
-        steps: 20,
-        cfg_scale: 7,
-        width: 512,
-        height: 512,
-        restore_faces: false,
-        // override_settings: (Dict[(str, Any)] = Body(
-        //     None,
-        //     (title = 'Override Settings')
-        // )),
-        // override_settings_restore_afterwards: (bool = Body(
-        //     True,
-        //     (title = 'Restore Override Settings Afterwards')
-        // )),
-    }
+    // payload = {
+    //     prompt: 'cute cat',
+    //     negative_prompt: 'ugly',
+    //     controlnet_input_image: [getDummyBase64_2()],
+    //     // controlnet_mask: (List[str] = Body(
+    //     //     [],
+    //     //     (title = 'ControlNet Input Mask')
+    //     // )),
+    //     controlnet_module: 'depth',
+    //     controlnet_model: 'control_sd15_depth [fef5e48e]',
+    //     controlnet_weight: 1.0,
+    //     controlnet_resize_mode: 'Scale to Fit (Inner Fit)',
+    //     controlnet_lowvram: false,
+    //     controlnet_processor_res: 512,
+    //     controlnet_threshold_a: 64,
+    //     controlnet_threshold_b: 64,
+    //     seed: -1,
+    //     subseed: -1,
+    //     subseed_strength: -1,
+    //     sampler_index: 'Euler a',
+    //     batch_size: 4,
+    //     n_iter: 1,
+    //     steps: 20,
+    //     cfg_scale: 7,
+    //     width: 512,
+    //     height: 512,
+    //     restore_faces: false,
+    //     // override_settings: (Dict[(str, Any)] = Body(
+    //     //     None,
+    //     //     (title = 'Override Settings')
+    //     // )),
+    //     // override_settings_restore_afterwards: (bool = Body(
+    //     //     True,
+    //     //     (title = 'Restore Override Settings Afterwards')
+    //     // )),
+    // }
+
     let request = await fetch(full_url, {
         method: 'POST',
         headers: {
@@ -680,19 +683,26 @@ async function requestControlNetTxt2Img(plugin_settings) {
     })
 
     let json = await request.json()
-
     console.log('json:', json)
-    //get all images except last because it's the mask
-    for (const image of json['images'].slice(0, -1)) {
-        await io.IO.base64ToLayer(image)
-    }
+
     //update the mask in controlNet tab
     const numOfImages = json['images'].length
     const base64_mask = json['images'][numOfImages - 1]
 
     html_manip.setControlMaskSrc(base64ToBase64Url(base64_mask))
 
-    return json
+    const standard_response = await py_re.convertToStandardResponse(
+        json['images'],
+        plugin_settings['uniqueDocumentId']
+    )
+    console.log('standard_response:', standard_response)
+
+    // //get all images except last because it's the mask
+    // for (const image of json['images'].slice(0, -1)) {
+    //     await io.IO.base64ToLayer(image)
+    // }
+
+    return standard_response
 }
 
 module.exports = {
