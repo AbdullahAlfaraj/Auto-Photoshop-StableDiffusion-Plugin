@@ -1964,6 +1964,8 @@ async function getSettings() {
             payload['negative_prompt'] = negative_prompt
         }
 
+        //save the control_net_image
+        payload['control_net_image'] = g_generation_session.controlNetImage
         payload = {
             ...payload,
             // prompt: prompt,

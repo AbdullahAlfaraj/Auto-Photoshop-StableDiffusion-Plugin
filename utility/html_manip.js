@@ -425,6 +425,12 @@ function setControlImageSrc(image_src) {
         document.getElementById('control_net_image')
     control_net_image_element.src = image_src
 }
+function setControlMaskSrc(image_src) {
+    const control_net_image_element =
+        document.getElementById('control_net_mask')
+    control_net_image_element.src = image_src
+}
+
 function setProgressImageSrc(image_src) {
     const progress_image_element = document.getElementById('progressImage')
     progress_image_element.src = image_src
@@ -858,4 +864,5 @@ module.exports = {
     setLinkWidthHeightState,
     isSquareThumbnail,
     setControlImageSrc,
+    setControlMaskSrc,
 }

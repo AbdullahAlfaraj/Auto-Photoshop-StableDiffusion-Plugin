@@ -1,4 +1,5 @@
 const { getDummyBase64, getDummyBase64_2 } = require('./utility/dummy')
+const { base64ToBase64Url } = require('./utility/general')
 const { getExtensionType } = require('./utility/html_manip')
 const py_re = require('./utility/sdapi/python_replacement')
 
@@ -590,12 +591,48 @@ async function requestGetUpscalers() {
     return json
 }
 
-async function requestControlNetTxt2Img() {
+function mapPluginSettingsToControlNet(plugin_settings) {
+    const ps = plugin_settings // for shortness
+
+    const control_net_payload = {
+        prompt: ps['prompt'],
+        negative_prompt: ps['negative_prompt'],
+        controlnet_input_image: [ps['control_net_image']],
+        // controlnet_mask: [],
+
+        controlnet_module: 'depth',
+        controlnet_model: 'control_sd15_depth [fef5e48e]',
+
+        controlnet_weight: 1,
+        controlnet_resize_mode: 'Scale to Fit (Inner Fit)',
+        // controlnet_lowvram: true,
+        controlnet_processor_res: 512,
+        controlnet_threshold_a: 64,
+        controlnet_threshold_b: 64,
+        seed: ps['seed'],
+        subseed: -1,
+        subseed_strength: -1,
+        sampler_index: ps['sampler_index'],
+        batch_size: ps['batch_size'],
+        n_iter: 1,
+        steps: ps['steps'],
+        cfg_scale: ps['cfg_scale'],
+        width: ps['width'],
+        height: ps['height'],
+        restore_faces: ps['restore_faces'],
+        // override_settings: {},
+        // override_settings_restore_afterwards: true,
+    }
+
+    return control_net_payload
+}
+
+async function requestControlNetTxt2Img(plugin_settings) {
     console.log('requestControlNetTxt2Img: ')
     // const full_url = 'http://127.0.0.1:8000/swapModel'
 
     const full_url = `${g_sd_url}/controlnet/txt2img`
-
+    const control_net_settings = mapPluginSettingsToControlNet(plugin_settings)
     payload = {
         prompt: 'cute cat',
         negative_prompt: 'ugly',
@@ -638,16 +675,22 @@ async function requestControlNetTxt2Img() {
             Accept: 'application/json',
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(control_net_settings),
+        // body: JSON.stringify(payload),
     })
 
     let json = await request.json()
 
     console.log('json:', json)
-
-    for (const image of json['images']) {
+    //get all images except last because it's the mask
+    for (const image of json['images'].slice(0, -1)) {
         await io.IO.base64ToLayer(image)
     }
+    //update the mask in controlNet tab
+    const numOfImages = json['images'].length
+    const base64_mask = json['images'][numOfImages - 1]
+
+    html_manip.setControlMaskSrc(base64ToBase64Url(base64_mask))
 
     return json
 }
