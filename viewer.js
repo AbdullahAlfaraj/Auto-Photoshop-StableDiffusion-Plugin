@@ -142,6 +142,33 @@ class ViewerImage {
         }
     }
 
+    createThumbnailNew(img, _) {
+        this.img_html = img
+        this.thumbnail_container = thumbnail.Thumbnail.wrapImgInContainer(
+            img,
+            'viewer-image-container'
+        )
+        thumbnail.Thumbnail.addSPButtonToContainer(
+            this.thumbnail_container,
+            'svg_sp_btn',
+            'Use this as an initial image',
+            this.useOutputImageAsInitImage,
+            img
+        )
+    }
+    async useOutputImageAsInitImage() {
+        //set init image event listener, use when settion is active
+        const layer = await app.activeDocument.activeLayers[0]
+        // const layer = this.layer
+        const image_info = await psapi.silentSetInitImage(
+            layer,
+            random_session_id
+        )
+        const image_name = image_info['name']
+        const path = `./server/python_server/init_images/${image_name}`
+        g_viewer_manager.addInitImageLayers(layer, path, false)
+        await g_viewer_manager.loadInitImageViewerObject(path)
+    }
     createThumbnail(img, b_button_visible = true) {
         this.img_html = img
         // Create new container element
@@ -168,16 +195,7 @@ class ViewerImage {
             button.style.display = 'none'
         }
         button.addEventListener('click', async () => {
-            //set init image event listener, use when settion is active
-            const layer = await app.activeDocument.activeLayers[0]
-
-            const image_info = await psapi.silentSetInitImage(
-                layer,
-                random_session_id
-            )
-            const image_name = image_info['name']
-            const path = `./server/python_server/init_images/${image_name}`
-            g_viewer_manager.addInitImageLayers(layer, path, false)
+            await useOutputImageAsInitImage()
         })
 
         // Append elements to container
@@ -527,6 +545,20 @@ class InitMaskImage extends ViewerImage {
         } catch (e) {
             console.warn(e)
         }
+    }
+    createThumbnailNew(img, _) {
+        this.img_html = img
+        this.thumbnail_container = thumbnail.Thumbnail.wrapImgInContainer(
+            img,
+            'viewer-image-container'
+        )
+        thumbnail.Thumbnail.addSPButtonToContainer(
+            this.thumbnail_container,
+            'svg_sp_btn',
+            'update the mask',
+            setMaskViewer,
+            img
+        )
     }
 }
 
