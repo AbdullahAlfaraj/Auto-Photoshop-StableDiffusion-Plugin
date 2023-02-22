@@ -769,7 +769,12 @@ async function createTempInpaintMaskLayer() {
         //make new layer "Mask -- Paint White to Mask -- temporary"
 
         const name = 'Mask -- Paint White to Mask -- temporary'
+        await psapi.unselectActiveLayersExe() // so that the mask layer get create at the top of the layer stocks
+        const top_layer_doc = await app.activeDocument.layers[0]
         g_inpaint_mask_layer = await layer_util.createNewLayerExe(name, 60)
+        await executeAsModal(async () => {
+            await g_inpaint_mask_layer.moveAbove(top_layer_doc)
+        })
         // g_inpaint_mask_layer.opacity = 50
         g_b_mask_layer_exist = true
         const index = app.activeDocument.historyStates.length - 1
@@ -3391,11 +3396,22 @@ async function viewerThumbnailclickHandler(e, viewer_obj_owner) {
     }
 
     let click_type = Enum.clickTypeEnum['Click']
+
     if (e.shiftKey) {
         click_type = Enum.clickTypeEnum['ShiftClick']
     } else if (e.altKey) {
         click_type = Enum.clickTypeEnum['AltClick']
     }
+
+    if (
+        viewer_obj_owner.isActive() &&
+        click_type === Enum.clickTypeEnum['Click']
+    ) {
+        //convert consecutive clicks to AltClick
+        click_type = Enum.clickTypeEnum['SecondClick']
+        console.log('converted click_type: ', click_type)
+    }
+
     await executeAsModal(async () => {
         //get type of click
 
