@@ -160,14 +160,18 @@ async function requestGetModels() {
 }
 
 async function requestGetSamplers() {
-    console.log('requestGetSamplers: ')
+    let json = null
+    try {
+        console.log('requestGetSamplers: ')
 
-    const full_url = `${g_sd_url}/sdapi/v1/samplers`
-    let request = await fetch(full_url)
-    let json = await request.json()
-    console.log('samplers json:')
-    console.dir(json)
-
+        const full_url = `${g_sd_url}/sdapi/v1/samplers`
+        let request = await fetch(full_url)
+        json = await request.json()
+        console.log('samplers json:')
+        console.dir(json)
+    } catch (e) {
+        console.warn(e)
+    }
     return json
 }
 
@@ -403,10 +407,14 @@ async function requestGetConfig() {
 }
 async function requestGetOptions() {
     console.log('requestGetOptions: ')
-    let json = []
+    let json = null
     const full_url = `${g_sd_url}/sdapi/v1/options`
     try {
         let request = await fetch(full_url)
+        if (request.status === 404) {
+            return null
+        }
+
         json = await request.json()
         console.log('models json:')
         console.dir(json)
@@ -589,6 +597,21 @@ async function requestGetUpscalers() {
     return json
 }
 
+async function isWebuiRunning() {
+    console.log('isWebuiRunning: ')
+    let json = []
+    const full_url = `${g_sd_url}/user`
+    try {
+        let request = await fetch(full_url)
+        json = await request.json()
+        console.log('json:')
+        console.dir(json)
+    } catch (e) {
+        console.warn(`issues requesting from ${full_url}`, e)
+        return false
+    }
+    return true
+}
 module.exports = {
     requestTxt2Img,
     requestImg2Img,
@@ -613,4 +636,5 @@ module.exports = {
     // requestHordeStatus,
     requestExtraSingleImage,
     requestGetUpscalers,
+    isWebuiRunning,
 }
