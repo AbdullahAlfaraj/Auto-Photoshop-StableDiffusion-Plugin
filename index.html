@@ -577,6 +577,12 @@
         #divInitImageViewerContainer {
             display: flex;
         }
+        .rbSubTab {
+            font-size: 0.9em;
+        }
+        .rbSubTab:last-child {
+            margin-right: 0;
+        }
     </style>
 
     <body>
@@ -602,7 +608,11 @@
                     <sp-label>Image Search</sp-label>
                 </div>
 
-                <div class="sp-tab" id="sp-prompts-library-tab">
+                <div
+                    class="sp-tab"
+                    id="sp-prompts-library-tab"
+                    style="display: none"
+                >
                     <sp-label>Prompts library</sp-label>
                 </div>
                 <div class="sp-tab" id="sp-horde-tab">
@@ -633,7 +643,7 @@
 
             <div class="sp-tab-page" id="sp-viewer-tab-page">
                 <div class="subTabOptionsContainer">
-                    <sp-radio-group id="rgSubTab">
+                    <sp-radio-group id="rgSubTab" class="rbMaskContent">
                         <sp-radio
                             title=""
                             class="rbSubTab"
@@ -658,6 +668,14 @@
                             data-tab-name="sp-image_search-tab"
                             value="image_search"
                             >Image Search</sp-radio
+                        >
+                        <sp-radio
+                            title=""
+                            class="rbSubTab"
+                            id="rbPromptsLibrary"
+                            data-tab-name="sp-prompts-library-tab"
+                            value="prompts-library"
+                            >Prompts Library</sp-radio
                         >
                     </sp-radio-group>
                 </div>
@@ -764,10 +782,10 @@
                     </div>
                     <div class="" id="divProgressImageViewerContainer">
                         <img
-                            class="viewer-image"
+                            class=""
                             id="progressImage"
                             src="https://source.unsplash.com/random"
-                            style="width: auto; height: auto"
+                            style="width: auto; height: auto; max-width: 100%"
                         />
                     </div>
                     <hr class="line-divider" />
@@ -855,6 +873,7 @@
                 </div>
             </div>
             <div class="sp-tab-page" id="sp-prompts-library-tab-page">
+                <div class="subTabOptionsContainer"></div>
                 <sp-label slot="label"
                     >Prompt Shortcut: a single word that represent a
                     prompt</sp-label

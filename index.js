@@ -2655,11 +2655,37 @@ async function progressRecursive() {
         html_manip.updateProgressBarsHtml(progress_value)
         if (json?.current_image) {
             const base64_url = general.base64ToBase64Url(json.current_image)
-
-            html_manip.setProgressImageSrc(base64_url)
+            // debugger
             const progress_image_html = document.getElementById('progressImage')
-            progress_image_html.style.width = progress_image_html.naturalWidth
-            progress_image_html.style.height = progress_image_html.naturalHeight
+            const container_width = document.querySelector(
+                '#divProgressImageViewerContainer'
+            ).offsetWidth
+            //*) find the parent container width
+            //*) set the width of the image to auto
+            //*) scale to closest while keeping the ratio, the hieght should not be larger than the width of the container
+
+            // const progress_image_container = document.getElementById(
+            //     'divProgressImageViewerContainer'
+            // )
+            // progress_image_container.style.width =
+            //     progress_image_html.naturalWidth
+            // progress_image_container.style.height =
+            //     progress_image_html.naturalHeight
+            html_manip.setProgressImageSrc(base64_url)
+
+            // const [new_width, new_height] = general.scaleToClosestKeepRatio(
+            //     progress_image_html.naturalWidth,
+            //     progress_image_html.naturalHeight,
+            //     container_width,
+            //     container_width
+            // )
+
+            // progress_image_html.style.width = '100%'
+            progress_image_html.style.width = 'auto'
+            progress_image_html.style.height = 'auto'
+            // progress_image_html = new_height
+            // progress_image_html.style.width = progress_image_html.naturalWidth
+            // progress_image_html.style.height = progress_image_html.naturalHeight
 
             if (g_generation_session.last_settings.batch_size === '1') {
                 //only update the canvas if the number of images are one
