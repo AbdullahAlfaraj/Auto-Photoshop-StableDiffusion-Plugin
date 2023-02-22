@@ -2533,7 +2533,7 @@ document
 document
     .getElementById('btnSetInitImageViewer')
     .addEventListener('click', async () => {
-        //set init image event listener, use when settion is active
+        //set init image event listener, use when session is active
         const layer = await app.activeDocument.activeLayers[0]
         const image_info = await psapi.silentSetInitImage(
             layer,
@@ -2542,35 +2542,42 @@ document
         const image_name = image_info['name']
         const path = `./server/python_server/init_images/${image_name}`
         g_viewer_manager.addInitImageLayers(layer, path, false)
+        await g_viewer_manager.loadInitImageViewerObject(path)
+        // await loadInitImageViewerObject(
+        //     group,
+        //     snapshot,
+        //     solid_background,
+        //     path,
+        //     auto_delete,
+        //     base64_image
+        // )
     })
 
+async function setMaskViewer() {
+    try {
+        await executeAsModal(async () => {
+            if (g_viewer_manager.mask_solid_background) {
+                g_viewer_manager.mask_solid_background.visible = true
+            }
+        })
+        const layer = g_viewer_manager.maskGroup
+        // const layer = await app.activeDocument.activeLayers[0]
+        const mask_info = await psapi.silentSetInitImageMask(
+            layer,
+            random_session_id
+        )
+        const image_name = mask_info['name']
+        const path = `./server/python_server/init_images/${image_name}`
+        g_viewer_manager.addMaskLayers(layer, path, false, mask_info['base64']) //can be autodeleted?
+        await psapi.unselectActiveLayersExe()
+    } catch (e) {
+        console.warn(e)
+    }
+}
 document
     .getElementById('btnSetMaskViewer')
     .addEventListener('click', async () => {
-        try {
-            await executeAsModal(async () => {
-                if (g_viewer_manager.mask_solid_background) {
-                    g_viewer_manager.mask_solid_background.visible = true
-                }
-            })
-            const layer = g_viewer_manager.maskGroup
-            // const layer = await app.activeDocument.activeLayers[0]
-            const mask_info = await psapi.silentSetInitImageMask(
-                layer,
-                random_session_id
-            )
-            const image_name = mask_info['name']
-            const path = `./server/python_server/init_images/${image_name}`
-            g_viewer_manager.addMaskLayers(
-                layer,
-                path,
-                false,
-                mask_info['base64']
-            ) //can be autodeleted?
-            await psapi.unselectActiveLayersExe()
-        } catch (e) {
-            console.warn(e)
-        }
+        await setMaskViewer()
     })
 
 // document.getElementById('bSetInitImage').addEventListener('click', async () => {
@@ -3437,6 +3444,34 @@ async function turnMaskVisible(
     }
 }
 
+async function loadInitImageViewerObject(
+    group,
+    snapshot,
+    solid_background,
+    path,
+    auto_delete,
+    base64_image
+) {
+    const initImage = g_viewer_manager.addInitImage(
+        group,
+        snapshot,
+        solid_background,
+        path,
+        auto_delete
+    )
+
+    const init_img_html = createViewerImgHtml(
+        './server/python_server/init_images/',
+        path,
+        base64_image
+    )
+    g_viewer_manager.init_image_container.appendChild(init_img_html)
+    initImage.setImgHtml(init_img_html)
+
+    init_img_html.addEventListener('click', async (e) => {
+        await viewerThumbnailclickHandler(e, initImage)
+    })
+}
 async function loadViewerImages() {
     try {
         //get the images path
@@ -3446,9 +3481,9 @@ async function loadViewerImages() {
         )
 
         const output_dir_relative = './server/python_server/'
-        const init_image_container = document.getElementById(
-            'divInitImageViewerContainer'
-        )
+        // const init_image_container = document.getElementById(
+        //     'divInitImageViewerContainer'
+        // )
         const mask_container = document.getElementById(
             'divInitMaskViewerContainer'
         )
@@ -3472,39 +3507,27 @@ async function loadViewerImages() {
             const paths = Object.keys(g_viewer_manager.initImageLayersJson)
             for (const path of paths) {
                 if (!g_viewer_manager.hasViewerImage(path)) {
-                    // const group = g_init_image_related_layers['init_image_group']
-                    // const snapshot = g_init_image_related_layers['init_image_layer']
-                    // const solid_background = g_init_image_related_layers['solid_white']
+                    // const group =
+                    //     g_viewer_manager.initImageLayersJson[path].group
+                    // const snapshot =
+                    //     g_viewer_manager.initImageLayersJson[path].snapshot
+                    // const solid_background =
+                    //     g_viewer_manager.initImageLayersJson[path]
+                    //         .solid_background
+                    // const auto_delete =
+                    //     g_viewer_manager.initImageLayersJson[path].autoDelete
+                    // const base64_image =
+                    //     g_generation_session.base64initImages[path]
+                    // await loadInitImageViewerObject(
+                    //     group,
+                    //     snapshot,
+                    //     solid_background,
+                    //     path,
+                    //     auto_delete,
+                    //     base64_image
+                    // )
+                    await g_viewer_manager.loadInitImageViewerObject(path)
 
-                    const group =
-                        g_viewer_manager.initImageLayersJson[path].group
-                    const snapshot =
-                        g_viewer_manager.initImageLayersJson[path].snapshot
-                    const solid_background =
-                        g_viewer_manager.initImageLayersJson[path]
-                            .solid_background
-                    const auto_delete =
-                        g_viewer_manager.initImageLayersJson[path].autoDelete
-                    const initImage = g_viewer_manager.addInitImage(
-                        group,
-                        snapshot,
-                        solid_background,
-                        path,
-                        auto_delete
-                    )
-                    const base64_image =
-                        g_generation_session.base64initImages[path]
-                    const init_img_html = createViewerImgHtml(
-                        './server/python_server/init_images/',
-                        path,
-                        base64_image
-                    )
-                    init_image_container.appendChild(init_img_html)
-                    initImage.setImgHtml(init_img_html)
-
-                    init_img_html.addEventListener('click', async (e) => {
-                        await viewerThumbnailclickHandler(e, initImage)
-                    })
                     // await NewViewerImageClickHandler(init_img_html, initImage) // create click handler for each images
                 }
             }
@@ -3536,7 +3559,8 @@ async function loadViewerImages() {
                     g_generation_session.base64maskImage[path]
                 )
 
-                mask_container.appendChild(mask_img_html)
+                mask_obj.createThumbnailNew(mask_img_html)
+                mask_container.appendChild(mask_obj.thumbnail_container)
                 mask_obj.setImgHtml(mask_img_html)
 
                 // await NewViewerImageClickHandler(mask_img_html, mask_obj) // create click handler for each images ,viewer_layers)// create click handler for each images
@@ -3574,7 +3598,8 @@ async function loadViewerImages() {
                     g_generation_session.mode !== generationMode['Txt2Img']
                         ? true
                         : false
-                output_image_obj.createThumbnail(img, b_button_visible)
+
+                output_image_obj.createThumbnailNew(img, b_button_visible)
                 // output_image_obj.setImgHtml(img)
                 // if (g_generation_session.mode !== generationMode['Txt2Img']) {
                 //     //we don't need a button in txt2img mode

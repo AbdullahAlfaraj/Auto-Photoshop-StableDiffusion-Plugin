@@ -21,6 +21,7 @@ const general = require('./utility/general')
 const Enum = require('./enum')
 const psapi = require('./psapi')
 const layer_util = require('./utility/layer')
+const thumbnail = require('./thumbnail')
 const ViewerObjState = {
     Delete: 'delete',
     Unlink: 'unlink',
@@ -605,6 +606,9 @@ class ViewerManager {
         this.last_selected_viewer_obj
         this.thumbnail_scaler = 1
         this.isSquareThumbnail = false
+        this.init_image_container = document.getElementById(
+            'divInitImageViewerContainer'
+        )
     }
 
     replaceLastSelection(click_type, clicked_object) {
@@ -792,6 +796,24 @@ class ViewerManager {
         // this.isSquareThumbnail = false
     }
 
+    async loadInitImageViewerObject(path) {
+        if (!g_viewer_manager.hasViewerImage(path)) {
+            const group = this.initImageLayersJson[path].group
+            const snapshot = this.initImageLayersJson[path].snapshot
+            const solid_background =
+                this.initImageLayersJson[path].solid_background
+            const auto_delete = this.initImageLayersJson[path].autoDelete
+            const base64_image = g_generation_session.base64initImages[path]
+            await loadInitImageViewerObject(
+                group,
+                snapshot,
+                solid_background,
+                path,
+                auto_delete,
+                base64_image
+            )
+        }
+    }
     deleteAll() {}
     keepAll() {}
     keepSelected() {}
