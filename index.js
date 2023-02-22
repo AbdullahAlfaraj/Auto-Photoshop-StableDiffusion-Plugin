@@ -39,7 +39,11 @@ const dummy = require('./utility/dummy')
 const general = require('./utility/general')
 const thumbnail = require('./thumbnail')
 const note = require('./utility/notification')
+const sampler_data = require('./utility/sampler')
+
 let g_horde_generator = new horde_native.hordeGenerator()
+let g_automatic_status = Enum.AutomaticStatusEnum['Offline']
+let g_models_status = false
 
 //REFACTOR: move to session.js
 async function hasSessionSelectionChanged() {
@@ -341,25 +345,65 @@ function tempDisableElement(element, time) {
         element.style.cursor = 'default'
     }, time)
 }
+
+//REFACTOR: move to the notfication.js
+async function displayNotification(automatic_status) {
+    if (automatic_status === Enum.AutomaticStatusEnum['RunningWithApi']) {
+        //do nothing
+    } else if (
+        g_automatic_status === Enum.AutomaticStatusEnum['RunningNoApi']
+    ) {
+        await note.Notification.webuiAPIMissing()
+    } else if (g_automatic_status === Enum.AutomaticStatusEnum['Offline']) {
+        await note.Notification.webuiIsOffline()
+    }
+}
+//REFACTOR: move to sdapi.js
+async function checkAutoStatus() {
+    try {
+        const options = await g_sd_options_obj.getOptions()
+        if (options) {
+            //means both automatic1111 and proxy server are online
+            html_manip.setAutomaticStatus('connected', 'disconnected')
+            g_automatic_status = Enum.AutomaticStatusEnum['RunningWithApi']
+            // html_manip.setProxyServerStatus('connected','disconnected')
+        } else {
+            html_manip.setAutomaticStatus('disconnected', 'connected')
+            if (await sdapi.isWebuiRunning()) {
+                //running with no api
+                g_automatic_status = Enum.AutomaticStatusEnum['RunningNoApi']
+                // await note.Notification.webuiAPIMissing()
+            } else {
+                //not running and of course no api
+                g_automatic_status = Enum.AutomaticStatusEnum['Offline']
+                // await note.Notification.webuiIsOffline()
+            }
+
+            return g_automatic_status
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+    return g_automatic_status
+}
+
 //REFACTOR: move to ui.js
 async function refreshUI() {
     try {
         const b_proxy_server_status = await updateVersionUI()
         if (b_proxy_server_status) {
             html_manip.setProxyServerStatus('connected', 'disconnected')
+            // g_automatic_status = Enum.AutomaticStatusEnum['RunningWithApi']
         } else {
             html_manip.setProxyServerStatus('disconnected', 'connected')
         }
 
+        g_automatic_status = await checkAutoStatus()
+        await displayNotification(g_automatic_status)
+
         const bSamplersStatus = await initSamplers()
-        if (bSamplersStatus) {
-            //means both automatic1111 and proxy server are online
-            html_manip.setAutomaticStatus('connected', 'disconnected')
-            // html_manip.setProxyServerStatus('connected','disconnected')
-        } else {
-            html_manip.setAutomaticStatus('disconnected', 'connected')
-        }
-        await refreshModels()
+
+        g_models_status = await refreshModels()
         await refreshExtraUpscalers()
         //get the latest options
         await g_sd_options_obj.getOptions()
@@ -381,8 +425,13 @@ async function refreshUI() {
 }
 //REFACTOR: move to generation_settings.js
 async function refreshModels() {
+    let b_result = false
     try {
         g_models = await sdapi.requestGetModels()
+        if (g_models.length > 0) {
+            b_result = true
+        }
+
         // const models_menu_element = document.getElementById('mModelsMenu')
         // models_menu_element.value = ""
         document.getElementById('mModelsMenu').innerHTML = ''
@@ -399,8 +448,10 @@ async function refreshModels() {
                 .appendChild(menu_item_element)
         }
     } catch (e) {
+        b_result = false
         console.warn(e)
     }
+    return b_result
 }
 //REFACTOR: move to generation_settings.js
 async function refreshExtraUpscalers() {
@@ -454,8 +505,14 @@ async function initSamplers() {
         let sampler_group = document.getElementById('sampler_group')
         sampler_group.innerHTML = ''
 
-        const samplers = await sdapi.requestGetSamplers()
-        for (sampler of samplers) {
+        let samplers = await sdapi.requestGetSamplers()
+        if (!samplers) {
+            //if we failed to get the sampler list from auto1111, use the list stored in sampler.js
+
+            samplers = sampler_data.samplers
+        }
+
+        for (let sampler of samplers) {
             console.log(sampler)
             // sampler.name
             // <sp-radio class="rbSampler" value="Euler">Euler</sp-radio>
@@ -703,6 +760,7 @@ let g_viewer_manager = new viewer.ViewerManager()
 
 //***********Start: init function calls */
 async function initPlugin() {
+    const bSamplersStatus = await initSamplers() //initialize the sampler
     await refreshUI()
     await displayUpdate()
     // promptShortcutExample()
@@ -715,8 +773,8 @@ initPlugin()
 // updateVersionUI()
 // refreshUI()
 // displayUpdate()
-// // promptShortcutExample()
 // loadPromptShortcut()
+// // promptShortcutExample()
 
 //***********End: init function calls */
 
@@ -1792,6 +1850,7 @@ function updateMetadata(new_metadata) {
 
 async function getSettings() {
     let payload = {}
+
     try {
         const extension_type = html_manip.getExtensionType() // get the extension type
 
@@ -1848,7 +1907,10 @@ async function getSettings() {
         )
         console.log('Check2')
 
+        //Note: store the sampler names in json file if auto is offline or auto api is unmounted
+
         const sampler_name = html_manip.getCheckedSamplerName()
+
         const mode = html_manip.getMode()
         const b_restore_faces =
             document.getElementById('chRestoreFaces').checked
@@ -2170,6 +2232,20 @@ async function easyModeGenerate(mode) {
             //     await note.Notification.backgroundLayerIsMissing() //
 
             return false
+        }
+        const backend_type = html_manip.getBackendType()
+        if (
+            backend_type === backendTypeEnum['Auto1111'] ||
+            backend_type === backendTypeEnum['Auto1111HordeExtension']
+        ) {
+            g_automatic_status = await checkAutoStatus()
+            await displayNotification(g_automatic_status)
+            if (
+                g_automatic_status === Enum.AutomaticStatusEnum['Offline'] ||
+                g_automatic_status === Enum.AutomaticStatusEnum['RunningNoApi']
+            ) {
+                return false
+            }
         }
 
         let active_layer = await app.activeDocument.activeLayers[0] // store the active layer so we could reselected after the session end clean up
