@@ -5,6 +5,13 @@ const clickTypeEnum = {
     SecondClick: 'second_click', //when we click a thumbnail that is active/ has orange border
 }
 
+const AutomaticStatusEnum = {
+    NoApi: 'no_api',
+    Offline: 'offline',
+    RunningNoApi: 'running_no_api',
+    RunningWithApi: 'running_with_api',
+}
+
 const ViewerObjectTypeEnum = {
     OutputImage: 'output_image',
     InitImage: 'init_image',
@@ -13,5 +20,6 @@ const ViewerObjectTypeEnum = {
 
 module.exports = {
     clickTypeEnum,
+    AutomaticStatusEnum,
     ViewerObjectTypeEnum,
 }
