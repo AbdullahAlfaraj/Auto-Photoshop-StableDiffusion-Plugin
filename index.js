@@ -831,7 +831,11 @@ for (let btnSquareButton of btnSquareClass) {
     btnSquareButton.addEventListener('click', async (evt) => {
         // document.activeElement.blur()
         setTimeout(() => {
-            evt.target.blur()
+            try {
+                evt.target.blur()
+            } catch (e) {
+                console.warn(e)
+            }
         }, 500)
     })
 }
@@ -842,7 +846,11 @@ for (let btnRefreshModel of btnRefreshModelsClass) {
     btnRefreshModel.addEventListener('click', async (evt) => {
         // document.activeElement.blur()
         setTimeout(() => {
-            evt.target.blur()
+            try {
+                evt.target.blur()
+            } catch (e) {
+                console.warn(e)
+            }
         }, 500)
     })
 }
