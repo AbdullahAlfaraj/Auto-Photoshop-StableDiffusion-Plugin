@@ -3465,7 +3465,10 @@ async function loadInitImageViewerObject(
         path,
         base64_image
     )
-    g_viewer_manager.init_image_container.appendChild(init_img_html)
+    initImage.createThumbnailNew(init_img_html)
+    g_viewer_manager.init_image_container.appendChild(
+        initImage.thumbnail_container
+    )
     initImage.setImgHtml(init_img_html)
 
     init_img_html.addEventListener('click', async (e) => {
