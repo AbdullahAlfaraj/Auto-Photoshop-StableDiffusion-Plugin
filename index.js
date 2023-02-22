@@ -769,7 +769,12 @@ async function createTempInpaintMaskLayer() {
         //make new layer "Mask -- Paint White to Mask -- temporary"
 
         const name = 'Mask -- Paint White to Mask -- temporary'
+        await psapi.unselectActiveLayersExe() // so that the mask layer get create at the top of the layer stocks
+        const top_layer_doc = await app.activeDocument.layers[0]
         g_inpaint_mask_layer = await layer_util.createNewLayerExe(name, 60)
+        await executeAsModal(async () => {
+            await g_inpaint_mask_layer.moveAbove(top_layer_doc)
+        })
         // g_inpaint_mask_layer.opacity = 50
         g_b_mask_layer_exist = true
         const index = app.activeDocument.historyStates.length - 1
@@ -1816,7 +1821,8 @@ async function getSettings() {
     let payload = {}
     try {
         const extension_type = html_manip.getExtensionType() // get the extension type
-
+        const selectionInfo = await psapi.getSelectionInfoExe()
+        payload['selection_info'] = selectionInfo
         numberOfImages = document.querySelector('#tiNumberOfImages').value
         numberOfSteps = document.querySelector('#tiNumberOfSteps').value
         const prompt = html_manip.getPrompt()
@@ -2183,11 +2189,26 @@ async function hasSelectionChanged(new_selection, old_selection) {
 
 async function easyModeGenerate(mode) {
     try {
+        //1)check if the documnet has a background layer
+        if (
+            (await layer_util.hasBackgroundLayer()) === false && //doesn't have backround layer
+            (await note.Notification.backgroundLayerIsMissing()) === false //and the user cancled the creation of background layer
+        ) {
+            // const is_canceld  =
+            //     await note.Notification.backgroundLayerIsMissing() //
+
+            return false
+        }
+
         let active_layer = await app.activeDocument.activeLayers[0] // store the active layer so we could reselected after the session end clean up
         //make sure you have selection area active on the canvas
         const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
-        if (!isSelectionAreaValid) {
-            await psapi.promptForMarqueeTool()
+        if (
+            !isSelectionAreaValid && // no selection area
+            (await note.Notification.inactiveSelectionArea(
+                g_generation_session.isActive()
+            )) === false // means did not activate the session selection area if it's available
+        ) {
             return null
         }
 
@@ -2539,7 +2560,7 @@ document
 document
     .getElementById('btnSetInitImageViewer')
     .addEventListener('click', async () => {
-        //set init image event listener, use when settion is active
+        //set init image event listener, use when session is active
         const layer = await app.activeDocument.activeLayers[0]
         const image_info = await psapi.silentSetInitImage(
             layer,
@@ -2548,35 +2569,42 @@ document
         const image_name = image_info['name']
         const path = `./server/python_server/init_images/${image_name}`
         g_viewer_manager.addInitImageLayers(layer, path, false)
+        await g_viewer_manager.loadInitImageViewerObject(path)
+        // await loadInitImageViewerObject(
+        //     group,
+        //     snapshot,
+        //     solid_background,
+        //     path,
+        //     auto_delete,
+        //     base64_image
+        // )
     })
 
+async function setMaskViewer() {
+    try {
+        await executeAsModal(async () => {
+            if (g_viewer_manager.mask_solid_background) {
+                g_viewer_manager.mask_solid_background.visible = true
+            }
+        })
+        const layer = g_viewer_manager.maskGroup
+        // const layer = await app.activeDocument.activeLayers[0]
+        const mask_info = await psapi.silentSetInitImageMask(
+            layer,
+            random_session_id
+        )
+        const image_name = mask_info['name']
+        const path = `./server/python_server/init_images/${image_name}`
+        g_viewer_manager.addMaskLayers(layer, path, false, mask_info['base64']) //can be autodeleted?
+        await psapi.unselectActiveLayersExe()
+    } catch (e) {
+        console.warn(e)
+    }
+}
 document
     .getElementById('btnSetMaskViewer')
     .addEventListener('click', async () => {
-        try {
-            await executeAsModal(async () => {
-                if (g_viewer_manager.mask_solid_background) {
-                    g_viewer_manager.mask_solid_background.visible = true
-                }
-            })
-            const layer = g_viewer_manager.maskGroup
-            // const layer = await app.activeDocument.activeLayers[0]
-            const mask_info = await psapi.silentSetInitImageMask(
-                layer,
-                random_session_id
-            )
-            const image_name = mask_info['name']
-            const path = `./server/python_server/init_images/${image_name}`
-            g_viewer_manager.addMaskLayers(
-                layer,
-                path,
-                false,
-                mask_info['base64']
-            ) //can be autodeleted?
-            await psapi.unselectActiveLayersExe()
-        } catch (e) {
-            console.warn(e)
-        }
+        await setMaskViewer()
     })
 
 // document.getElementById('bSetInitImage').addEventListener('click', async () => {
@@ -2649,11 +2677,37 @@ async function progressRecursive() {
         html_manip.updateProgressBarsHtml(progress_value)
         if (json?.current_image) {
             const base64_url = general.base64ToBase64Url(json.current_image)
-
-            html_manip.setProgressImageSrc(base64_url)
+            // debugger
             const progress_image_html = document.getElementById('progressImage')
-            progress_image_html.style.width = progress_image_html.naturalWidth
-            progress_image_html.style.height = progress_image_html.naturalHeight
+            const container_width = document.querySelector(
+                '#divProgressImageViewerContainer'
+            ).offsetWidth
+            //*) find the parent container width
+            //*) set the width of the image to auto
+            //*) scale to closest while keeping the ratio, the hieght should not be larger than the width of the container
+
+            // const progress_image_container = document.getElementById(
+            //     'divProgressImageViewerContainer'
+            // )
+            // progress_image_container.style.width =
+            //     progress_image_html.naturalWidth
+            // progress_image_container.style.height =
+            //     progress_image_html.naturalHeight
+            html_manip.setProgressImageSrc(base64_url)
+
+            // const [new_width, new_height] = general.scaleToClosestKeepRatio(
+            //     progress_image_html.naturalWidth,
+            //     progress_image_html.naturalHeight,
+            //     container_width,
+            //     container_width
+            // )
+
+            // progress_image_html.style.width = '100%'
+            progress_image_html.style.width = 'auto'
+            progress_image_html.style.height = 'auto'
+            // progress_image_html = new_height
+            // progress_image_html.style.width = progress_image_html.naturalWidth
+            // progress_image_html.style.height = progress_image_html.naturalHeight
 
             if (g_generation_session.last_settings.batch_size === '1') {
                 //only update the canvas if the number of images are one
@@ -3390,11 +3444,22 @@ async function viewerThumbnailclickHandler(e, viewer_obj_owner) {
     }
 
     let click_type = Enum.clickTypeEnum['Click']
+
     if (e.shiftKey) {
         click_type = Enum.clickTypeEnum['ShiftClick']
     } else if (e.altKey) {
         click_type = Enum.clickTypeEnum['AltClick']
     }
+
+    if (
+        viewer_obj_owner.isActive() &&
+        click_type === Enum.clickTypeEnum['Click']
+    ) {
+        //convert consecutive clicks to AltClick
+        click_type = Enum.clickTypeEnum['SecondClick']
+        console.log('converted click_type: ', click_type)
+    }
+
     await executeAsModal(async () => {
         //get type of click
 
@@ -3443,6 +3508,37 @@ async function turnMaskVisible(
     }
 }
 
+async function loadInitImageViewerObject(
+    group,
+    snapshot,
+    solid_background,
+    path,
+    auto_delete,
+    base64_image
+) {
+    const initImage = g_viewer_manager.addInitImage(
+        group,
+        snapshot,
+        solid_background,
+        path,
+        auto_delete
+    )
+
+    const init_img_html = createViewerImgHtml(
+        './server/python_server/init_images/',
+        path,
+        base64_image
+    )
+    initImage.createThumbnailNew(init_img_html)
+    g_viewer_manager.init_image_container.appendChild(
+        initImage.thumbnail_container
+    )
+    initImage.setImgHtml(init_img_html)
+
+    init_img_html.addEventListener('click', async (e) => {
+        await viewerThumbnailclickHandler(e, initImage)
+    })
+}
 async function loadViewerImages() {
     try {
         //get the images path
@@ -3452,9 +3548,9 @@ async function loadViewerImages() {
         )
 
         const output_dir_relative = './server/python_server/'
-        const init_image_container = document.getElementById(
-            'divInitImageViewerContainer'
-        )
+        // const init_image_container = document.getElementById(
+        //     'divInitImageViewerContainer'
+        // )
         const mask_container = document.getElementById(
             'divInitMaskViewerContainer'
         )
@@ -3478,39 +3574,27 @@ async function loadViewerImages() {
             const paths = Object.keys(g_viewer_manager.initImageLayersJson)
             for (const path of paths) {
                 if (!g_viewer_manager.hasViewerImage(path)) {
-                    // const group = g_init_image_related_layers['init_image_group']
-                    // const snapshot = g_init_image_related_layers['init_image_layer']
-                    // const solid_background = g_init_image_related_layers['solid_white']
+                    // const group =
+                    //     g_viewer_manager.initImageLayersJson[path].group
+                    // const snapshot =
+                    //     g_viewer_manager.initImageLayersJson[path].snapshot
+                    // const solid_background =
+                    //     g_viewer_manager.initImageLayersJson[path]
+                    //         .solid_background
+                    // const auto_delete =
+                    //     g_viewer_manager.initImageLayersJson[path].autoDelete
+                    // const base64_image =
+                    //     g_generation_session.base64initImages[path]
+                    // await loadInitImageViewerObject(
+                    //     group,
+                    //     snapshot,
+                    //     solid_background,
+                    //     path,
+                    //     auto_delete,
+                    //     base64_image
+                    // )
+                    await g_viewer_manager.loadInitImageViewerObject(path)
 
-                    const group =
-                        g_viewer_manager.initImageLayersJson[path].group
-                    const snapshot =
-                        g_viewer_manager.initImageLayersJson[path].snapshot
-                    const solid_background =
-                        g_viewer_manager.initImageLayersJson[path]
-                            .solid_background
-                    const auto_delete =
-                        g_viewer_manager.initImageLayersJson[path].autoDelete
-                    const initImage = g_viewer_manager.addInitImage(
-                        group,
-                        snapshot,
-                        solid_background,
-                        path,
-                        auto_delete
-                    )
-                    const base64_image =
-                        g_generation_session.base64initImages[path]
-                    const init_img_html = createViewerImgHtml(
-                        './server/python_server/init_images/',
-                        path,
-                        base64_image
-                    )
-                    init_image_container.appendChild(init_img_html)
-                    initImage.setImgHtml(init_img_html)
-
-                    init_img_html.addEventListener('click', async (e) => {
-                        await viewerThumbnailclickHandler(e, initImage)
-                    })
                     // await NewViewerImageClickHandler(init_img_html, initImage) // create click handler for each images
                 }
             }
@@ -3542,7 +3626,8 @@ async function loadViewerImages() {
                     g_generation_session.base64maskImage[path]
                 )
 
-                mask_container.appendChild(mask_img_html)
+                mask_obj.createThumbnailNew(mask_img_html)
+                mask_container.appendChild(mask_obj.thumbnail_container)
                 mask_obj.setImgHtml(mask_img_html)
 
                 // await NewViewerImageClickHandler(mask_img_html, mask_obj) // create click handler for each images ,viewer_layers)// create click handler for each images
@@ -3580,7 +3665,8 @@ async function loadViewerImages() {
                     g_generation_session.mode !== generationMode['Txt2Img']
                         ? true
                         : false
-                output_image_obj.createThumbnail(img, b_button_visible)
+
+                output_image_obj.createThumbnailNew(img, b_button_visible)
                 // output_image_obj.setImgHtml(img)
                 // if (g_generation_session.mode !== generationMode['Txt2Img']) {
                 //     //we don't need a button in txt2img mode
@@ -3742,7 +3828,20 @@ async function moveHistoryImageToLayer(img) {
 
     // load the image from "data:image/png;base64," base64_str
     const base64_image = img.src.replace('data:image/png;base64,', '')
-    await base64ToFile(base64_image)
+    // await base64ToFile(base64_image)
+    const metadata_json = JSON.parse(img.dataset.metadata_json_string)
+    const to_x = metadata_json['selection_info']?.left
+    const to_y = metadata_json['selection_info']?.top
+    const width = metadata_json['selection_info']?.width
+    const height = metadata_json['selection_info']?.height
+    await io.IO.base64ToLayer(
+        base64_image,
+        'History Image',
+        to_x,
+        to_y,
+        width,
+        height
+    )
 }
 
 document
@@ -4045,19 +4144,31 @@ async function downloadItExe(link, writeable_entry, image_file_name) {
     return new_layer
 }
 
+//REFACTOR: move to session.js or selection.js
+async function activateSessionSelectionArea() {
+    try {
+        if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
+            await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
+            await eventHandler()
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+}
 document
     .getElementById('btnSelectionArea')
     .addEventListener('click', async () => {
-        try {
-            if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
-                await psapi.reSelectMarqueeExe(
-                    g_generation_session.selectionInfo
-                )
-                await eventHandler()
-            }
-        } catch (e) {
-            console.warn(e)
-        }
+        // try {
+        //     if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
+        //         await psapi.reSelectMarqueeExe(
+        //             g_generation_session.selectionInfo
+        //         )
+        //         await eventHandler()
+        //     }
+        // } catch (e) {
+        //     console.warn(e)
+        // }
+        await activateSessionSelectionArea()
     })
 
 function addPresetMenuItem(preset_title) {
