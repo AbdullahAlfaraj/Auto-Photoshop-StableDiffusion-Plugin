@@ -823,19 +823,24 @@ for (let rbMaskContentElement of rbMaskContentElements) {
 btnSquareClass = document.getElementsByClassName('btnSquare')
 
 for (let btnSquareButton of btnSquareClass) {
-    btnSquareButton.addEventListener('mouseleave', async (evt) => {
-        document.activeElement.blur()
+    btnSquareButton.addEventListener('click', async (evt) => {
+        // document.activeElement.blur()
+        setTimeout(() => {
+            evt.target.blur()
+        }, 500)
     })
 }
 
 btnRefreshModelsClass = document.getElementsByClassName('btnRefreshModels')
 
 for (let btnRefreshModel of btnRefreshModelsClass) {
-    btnRefreshModel.addEventListener('mouseleave', async (evt) => {
-        document.activeElement.blur()
+    btnRefreshModel.addEventListener('click', async (evt) => {
+        // document.activeElement.blur()
+        setTimeout(() => {
+            evt.target.blur()
+        }, 500)
     })
 }
-
 
 document.addEventListener('mouseenter', async (event) => {
     try {
