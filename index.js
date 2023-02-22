@@ -820,6 +820,23 @@ for (let rbMaskContentElement of rbMaskContentElements) {
     })
 }
 
+btnSquareClass = document.getElementsByClassName('btnSquare')
+
+for (let btnSquareButton of btnSquareClass) {
+    btnSquareButton.addEventListener('mouseleave', async (evt) => {
+        document.activeElement.blur()
+    })
+}
+
+btnRefreshModelsClass = document.getElementsByClassName('btnRefreshModels')
+
+for (let btnRefreshModel of btnRefreshModelsClass) {
+    btnRefreshModel.addEventListener('mouseleave', async (evt) => {
+        document.activeElement.blur()
+    })
+}
+
+
 document.addEventListener('mouseenter', async (event) => {
     try {
         //only check if the generation mode has not changed( e.g a session.mode === img2img and the current selection is "img2img"  ).
