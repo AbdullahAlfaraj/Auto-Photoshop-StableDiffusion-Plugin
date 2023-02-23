@@ -722,11 +722,25 @@ g_sd_options_obj.getOptions()
 let g_old_slider_width = 512
 let g_old_slider_height = 512
 let g_sd_config_obj
+let g_hi_res_upscaler_models
 ;(async function () {
     let temp_config = new sd_config.SdConfig()
     await temp_config.getConfig()
-    temp_config.getUpscalerModels()
+    g_hi_res_upscaler_models = temp_config.getUpscalerModels()
     g_sd_config_obj = temp_config
+
+    for (let model of g_hi_res_upscaler_models) {
+        //update the hi res upscaler models menu
+        let hrModelsMenuClass =
+            document.getElementsByClassName('hrModelsMenuClass')
+        for (let i = 0; i < hrModelsMenuClass.length; i++) {
+            const menu_item_element = document.createElement('sp-menu-item')
+            menu_item_element.className = 'hrModelsMenuItem'
+            menu_item_element.innerHTML = model
+            hrModelsMenuClass[i].appendChild(menu_item_element)
+            console.log(model + ' added to ' + hrModelsMenuClass[i].id)
+        }
+    }
 })()
 
 let g_generation_session = new session.GenerationSession(0) //session manager
@@ -2001,7 +2015,7 @@ async function getSettings() {
             ]
         }
 
-        if (hi_res_fix && width > 512 && height > 512) {
+        if (hi_res_fix && width >= 512 && height >= 512) {
             payload['enable_hr'] = hi_res_fix
             payload['firstphase_width'] = width
             payload['firstphase_height'] = height
@@ -4054,33 +4068,22 @@ document
 
 // Hi res fix stuff
 
-var hr_models = [
-    'Latent',
-    'Latent (antialiased)',
-    'Latent (bicubic)',
-    'Latent (bicubic antialiased)',
-    'Latent (nearest)',
-    'Latent (nearest-exact)',
-    'None',
-    'Lanczos',
-    'Nearest',
-    'ESRGAN_4x',
-    'R-ESRGAN 4x+',
-    'R-ESRGAN 4x+ Anime6B',
-    'LDSR',
-    'SwinIR 4x',
-]
-
-for (let model of hr_models) {
-    var hrModelsMenuClass = document.getElementsByClassName('hrModelsMenuClass')
-    for (let i = 0; i < hrModelsMenuClass.length; i++) {
-        const menu_item_element = document.createElement('sp-menu-item')
-        menu_item_element.className = 'hrModelsMenuItem'
-        menu_item_element.innerHTML = model
-        hrModelsMenuClass[i].appendChild(menu_item_element)
-        console.log(model + ' added to ' + hrModelsMenuClass[i].id)
-    }
-}
+// var hr_models = [
+//     'Latent',
+//     'Latent (antialiased)',
+//     'Latent (bicubic)',
+//     'Latent (bicubic antialiased)',
+//     'Latent (nearest)',
+//     'Latent (nearest-exact)',
+//     'None',
+//     'Lanczos',
+//     'Nearest',
+//     'ESRGAN_4x',
+//     'R-ESRGAN 4x+',
+//     'R-ESRGAN 4x+ Anime6B',
+//     'LDSR',
+//     'SwinIR 4x',
+// ]
 
 var chHiResFixs = document.getElementById('chHiResFixs')
 var div = document.getElementById('HiResDiv')
