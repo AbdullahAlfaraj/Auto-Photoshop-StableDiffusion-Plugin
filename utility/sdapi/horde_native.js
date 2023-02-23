@@ -14,6 +14,11 @@ class HordeSettings {
         native_horde_settings['api_key'] = html_manip.getHordeApiKey()
         await io.IOJson.saveHordeSettingsToFile(native_horde_settings)
     }
+    static async loadSettings() {
+        let native_horde_settings = await io.IOJson.loadHordeSettingsFromFile()
+        html_manip.setHordeApiKey(native_horde_settings['api_key'])
+    }
+}
 class hordeGenerator {
     //horde generation process:
     //*) get the settings
@@ -48,7 +53,7 @@ class hordeGenerator {
         const workers_ids = getWorkerID(workers)
         const settings = await getSettings()
         this.plugin_settings = settings
-        let payload = mapPluginSettingsToHorde(settings)
+        let payload = await mapPluginSettingsToHorde(settings)
         payload['workers'] = workers_ids
 
         this.horde_settings = payload
@@ -696,4 +701,5 @@ function cancelRequestClientSide() {
 
 module.exports = {
     hordeGenerator,
+    HordeSettings,
 }

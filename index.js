@@ -774,6 +774,12 @@ let g_viewer_manager = new viewer.ViewerManager()
 
 //***********Start: init function calls */
 async function initPlugin() {
+    //*) load plugin settings
+    //*) load horde settings
+    //*)
+    //*) initialize the samplers
+    //*)
+    await horde_native.HordeSettings.loadSettings()
     const bSamplersStatus = await initSamplers() //initialize the sampler
     await refreshUI()
     await displayUpdate()
@@ -4456,3 +4462,9 @@ async function updateResDifferenceLabel() {
     const ratio_str = `${arrow}x${final_ratio.toFixed(2)}`
     document.getElementById('res-difference').innerText = ratio_str
 }
+
+document
+    .getElementById('btnSaveHordeSettings')
+    .addEventListener('click', async () => {
+        await horde_native.HordeSettings.saveSettings()
+    })
