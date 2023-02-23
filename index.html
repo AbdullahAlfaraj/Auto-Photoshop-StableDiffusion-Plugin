@@ -795,7 +795,7 @@
                             class=""
                             id="progressImage"
                             src="https://source.unsplash.com/random"
-                            style="width: auto; height: auto; max-width: 100%"
+                            style="width: 100px; height: 100px; max-width: 100%"
                         />
                     </div>
                     <hr class="line-divider" />
@@ -1220,12 +1220,25 @@
                         type="text"
                         placeholder="http://127.0.0.1:7860"
                         value=""
+                        style="width: 160px"
                     ></sp-textfield
-                    ><button class="btnSquare" id="btnSdUrl">Submit</button>
+                    ><button
+                        class="btnSquare"
+                        id="btnSdUrl"
+                        style="margin-left: 5px"
+                    >
+                        Submit
+                    </button>
+                    <button class="btnSquare" id="btnSaveSettingsTabs">
+                        Save
+                    </button>
                 </div>
                 <sp-checkbox id="chUseSharpMask">use sharp mask</sp-checkbox>
                 <sp-checkbox checked id="chUseSmartObject"
                     >Smart Object</sp-checkbox
+                >
+                <sp-checkbox checked id="chLiveProgressImage"
+                    >Live Progress Image</sp-checkbox
                 >
                 <!-- <sp-checkbox checked id="chUseSilentImport"
                     >Use Silent Import</sp-checkbox
@@ -1468,7 +1481,6 @@
                         id="webp_container"
                         src="https://www.keycdn.com/img/blog/convert-to-webp-the-successor-of-jpeg-lg.webp"
                     />
-                    
 
                     <div class="prompts">
                         <!-- <sp-label slot="label">Prompt</sp-label> -->

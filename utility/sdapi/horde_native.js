@@ -7,16 +7,25 @@ const io = require('../io')
 class HordeSettings {
     static {}
     static async saveSettings() {
-        const settings = await getSettings()
+        try {
+            const settings = await getSettings()
 
-        let native_horde_settings = await mapPluginSettingsToHorde(settings)
-        const horde_api_key = html_manip.getHordeApiKey()
-        native_horde_settings['api_key'] = html_manip.getHordeApiKey()
-        await io.IOJson.saveHordeSettingsToFile(native_horde_settings)
+            let native_horde_settings = await mapPluginSettingsToHorde(settings)
+            const horde_api_key = html_manip.getHordeApiKey()
+            native_horde_settings['api_key'] = html_manip.getHordeApiKey()
+            await io.IOJson.saveHordeSettingsToFile(native_horde_settings)
+        } catch (e) {
+            console.warn(e)
+        }
     }
     static async loadSettings() {
-        let native_horde_settings = await io.IOJson.loadHordeSettingsFromFile()
-        html_manip.setHordeApiKey(native_horde_settings['api_key'])
+        try {
+            let native_horde_settings =
+                await io.IOJson.loadHordeSettingsFromFile()
+            html_manip.setHordeApiKey(native_horde_settings['api_key'])
+        } catch (e) {
+            console.warn(e)
+        }
     }
 }
 class hordeGenerator {
