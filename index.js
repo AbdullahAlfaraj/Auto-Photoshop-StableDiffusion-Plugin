@@ -2794,7 +2794,10 @@ async function progressRecursive() {
             // progress_image_html.style.width = progress_image_html.naturalWidth
             // progress_image_html.style.height = progress_image_html.naturalHeight
 
-            if (g_generation_session.last_settings.batch_size === '1') {
+            if (
+                g_generation_session.last_settings.batch_size === '1' &&
+                settings_tab.getUseLiveProgressImage()
+            ) {
                 //only update the canvas if the number of images are one
                 //don't update the canvas with multiple images.
                 await updateProgressImage(json.current_image)
