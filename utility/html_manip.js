@@ -337,11 +337,6 @@ function getMode() {
     )[0].value
 }
 
-function getExtensionType() {
-    return [...document.getElementsByClassName('rbExtensionType')].filter(
-        (e) => e.checked == true
-    )[0].value
-}
 function getBackendType() {
     return [...document.getElementsByClassName('rbBackendType')].filter(
         (e) => e.checked == true
@@ -645,28 +640,6 @@ function setMaskBlur(mask_blur) {
     document.getElementById('slMaskBlur').value = mask_blur
 }
 
-function getUseSharpMask() {
-    const isChecked = document.getElementById('chUseSharpMask').checked
-    return isChecked
-}
-document.getElementById('chUseSharpMask').addEventListener('change', (ev) => {
-    const isChecked = ev.target.checked
-    if (isChecked) {
-        document.getElementById('slMaskBlur').setAttribute('disabled')
-    } else {
-        document.getElementById('slMaskBlur').removeAttribute('disabled')
-    }
-})
-
-document.getElementById('chUseSmartObject').addEventListener('change', (ev) => {
-    const isChecked = ev.target.checked
-    if (isChecked) {
-        g_b_use_smart_object = true
-    } else {
-        g_b_use_smart_object = false
-    }
-})
-
 function getPromptShortcut() {
     //read json string
     //converted into json object
@@ -815,7 +788,7 @@ module.exports = {
     autoFillSettings,
     getMaskBlur,
     setMaskBlur,
-    getUseSharpMask,
+
     autoFillInHRHeight,
     autoFillInHRWidth,
     getPromptShortcut,
@@ -834,7 +807,7 @@ module.exports = {
     getMaskContent,
     setMaskContent,
     addHistoryButtonsHtml,
-    getExtensionType,
+
     getSeed,
     setSeed,
     getMaskExpansion,

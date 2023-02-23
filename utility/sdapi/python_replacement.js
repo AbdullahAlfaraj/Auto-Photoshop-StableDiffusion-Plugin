@@ -1,5 +1,5 @@
 //how to get environment variable in javascript
-
+const settings_tab = require('../tab/settings')
 const { getPromptShortcut } = require('../html_manip')
 const general = require('../general')
 // function newOutputImageName(format = 'png') {
@@ -178,7 +178,7 @@ async function txt2ImgRequest(payload) {
     // const request_path = '/sdapi/v1/txt2img'
 }
 function getExtensionUrl() {
-    const extension_type = html_manip.getExtensionType()
+    const extension_type = settings_tab.getExtensionType()
     let extension_url
     if (extension_type === 'auto1111_extension') {
         extension_url = `${g_sd_url}/sdapi/auto-photoshop-sd`
@@ -440,19 +440,6 @@ async function loadHistory(payload) {
     }
 }
 
-async function getDocumentFolderNativePath(doc_uuid) {
-    try {
-        const uuid = await getUniqueDocumentId()
-
-        let doc_folder = await getDocFolder(uuid)
-        const path = general.fixNativePath(doc_folder.nativePath)
-        return path
-    } catch (e) {
-        console.warn(e)
-    }
-    return ''
-}
-
 async function savePromptShortcut(json, file_name) {
     console.warn(
         "savePromptShortcut() is deprecated, use it's IO class instead "
@@ -554,7 +541,7 @@ module.exports = {
     getExtensionUrl,
     savePromptShortcut,
     loadPromptShortcut,
-    getDocumentFolderNativePath,
+
     convertMetadataToJson,
     openUrlRequest,
     replacePromptsWithShortcuts,

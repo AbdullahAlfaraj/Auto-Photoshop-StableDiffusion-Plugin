@@ -476,6 +476,19 @@ class IOFolder {
         }
     }
 
+    static async getDocumentFolderNativePath() {
+        try {
+            const uuid = await getUniqueDocumentId()
+
+            let doc_folder = await this.getDocFolder(uuid)
+            const path = general.fixNativePath(doc_folder.nativePath)
+            return path
+        } catch (e) {
+            console.warn(e)
+        }
+        return ''
+    }
+
     static async getDocFolder(doc_uuid) {
         //will create folder if does not exist. always return a folder entry
         const doc_entry = await getDocFolder(doc_uuid)

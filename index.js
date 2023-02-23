@@ -40,6 +40,7 @@ const general = require('./utility/general')
 const thumbnail = require('./thumbnail')
 const note = require('./utility/notification')
 const sampler_data = require('./utility/sampler')
+const settings_tab = require('./utility/tab/settings')
 
 let g_horde_generator = new horde_native.hordeGenerator()
 let g_automatic_status = Enum.AutomaticStatusEnum['Offline']
@@ -155,6 +156,9 @@ require('photoshop').action.addNotificationListener(
 )
 //REFACTOR: move to document.js
 async function getUniqueDocumentId() {
+    console.warn(
+        'getUniqueDocumentId is deprecated, instead use the methods in IOFolder'
+    )
     try {
         let uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
 
@@ -1907,7 +1911,7 @@ async function getSettings() {
     let payload = {}
 
     try {
-        const extension_type = html_manip.getExtensionType() // get the extension type
+        const extension_type = settings_tab.getExtensionType() // get the extension type
         const selectionInfo = await psapi.getSelectionInfoExe()
         payload['selection_info'] = selectionInfo
         const numberOfImages = document.querySelector('#tiNumberOfImages').value
@@ -1923,7 +1927,7 @@ async function getSettings() {
         //  const model_index = document.querySelector("#")
         const seed = document.querySelector('#tiSeed').value
         // const mask_blur = document.querySelector('#slMaskBlur').value
-        const use_sharp_mask = html_manip.getUseSharpMask()
+        const use_sharp_mask = settings_tab.getUseSharpMask()
         const mask_blur = html_manip.getMaskBlur()
         const mask_expansion = document.getElementById('slMaskExpansion').value
 
@@ -2491,8 +2495,8 @@ async function generate(settings, mode) {
         const images_info = json?.images_info
         // gImage_paths = images_info.images_paths
         //open the generated images from disk and load them onto the canvas
-        const b_use_silent_import =
-            document.getElementById('chUseSilentImport').checked
+        // const b_use_silent_import =
+        //     document.getElementById('chUseSilentImport').checked
 
         if (isFirstGeneration) {
             //this is new generation session
@@ -4314,10 +4318,6 @@ function base64ToSrc(base64_image) {
 }
 
 const py_re = require('./utility/sdapi/python_replacement')
-document.getElementById('btnGetDocPath').addEventListener('click', async () => {
-    const docPath = await py_re.getDocumentFolderNativePath()
-    document.getElementById('tiDocPath').value = docPath
-})
 
 async function prmoptForUpdate() {
     const shell = require('uxp').shell

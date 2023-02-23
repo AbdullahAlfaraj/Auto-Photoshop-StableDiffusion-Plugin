@@ -1,4 +1,3 @@
-const { getExtensionType } = require('./utility/html_manip')
 const py_re = require('./utility/sdapi/python_replacement')
 
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
