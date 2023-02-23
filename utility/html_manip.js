@@ -353,6 +353,10 @@ function getHordeApiKey() {
     const valid_key = key ? key : '0000000000'
     return valid_key
 }
+
+function setHordeApiKey(key) {
+    document.getElementById('tiHordeApiKey').value = key
+}
 function checkSampler(sampler_name) {
     sampler_element = getSamplerElementByName(sampler_name)
     sampler_element.checked = true
@@ -847,4 +851,5 @@ module.exports = {
     getLinkWidthHeightState,
     setLinkWidthHeightState,
     isSquareThumbnail,
+    setHordeApiKey,
 }
