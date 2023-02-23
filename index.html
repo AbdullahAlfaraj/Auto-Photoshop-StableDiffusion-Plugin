@@ -940,13 +940,18 @@
             <div class="sp-tab-page" id="sp-horde-tab-page">
                 <!-- Horde tab page -->
                 <div></div>
-                <sp-label>Horde Key:</sp-label
-                ><sp-textfield
-                    id="tiHordeApiKey"
-                    type="password"
-                    placeholder="0000000000"
-                    value=""
-                ></sp-textfield>
+                <div>
+                    <sp-label>Horde Key:</sp-label
+                    ><sp-textfield
+                        id="tiHordeApiKey"
+                        type="password"
+                        placeholder="0000000000"
+                        value=""
+                    ></sp-textfield>
+                    <button class="btnSquare" id="btnSaveHordeSettings">
+                        Save
+                    </button>
+                </div>
 
                 <sp-radio-group>
                     <sp-label id="BackendTypeLabel" slot="label"

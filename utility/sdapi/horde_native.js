@@ -3,7 +3,17 @@ const psapi = require('../../psapi')
 const html_manip = require('../html_manip')
 const layer_util = require('../layer')
 const dummy = require('../dummy')
+const io = require('../io')
+class HordeSettings {
+    static {}
+    static async saveSettings() {
+        const settings = await getSettings()
 
+        let native_horde_settings = await mapPluginSettingsToHorde(settings)
+        const horde_api_key = html_manip.getHordeApiKey()
+        native_horde_settings['api_key'] = html_manip.getHordeApiKey()
+        await io.IOJson.saveHordeSettingsToFile(native_horde_settings)
+    }
 class hordeGenerator {
     //horde generation process:
     //*) get the settings
