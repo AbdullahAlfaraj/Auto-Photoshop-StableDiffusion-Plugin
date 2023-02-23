@@ -662,8 +662,8 @@ let g_init_image_name = ''
 let g_init_image_mask_name = ''
 // let g_mask_related_layers = {}
 // let g_init_image_related_layers = {}
-//REFACTOR: move to generationSettings.js
-let numberOfImages = document.querySelector('#tiNumberOfImages').value
+//REFACTOR: move to generationSettings.js, Note: numberOfImages deprecated global variable
+// let numberOfImages = document.querySelector('#tiNumberOfImages').value
 //REFACTOR: move to generationSettings.js
 let g_sd_mode = 'txt2img'
 // let g_sd_mode_last = g_sd_mode
@@ -1904,8 +1904,8 @@ async function getSettings() {
         const extension_type = html_manip.getExtensionType() // get the extension type
         const selectionInfo = await psapi.getSelectionInfoExe()
         payload['selection_info'] = selectionInfo
-        numberOfImages = document.querySelector('#tiNumberOfImages').value
-        numberOfSteps = document.querySelector('#tiNumberOfSteps').value
+        const numberOfImages = document.querySelector('#tiNumberOfImages').value
+        const numberOfSteps = document.querySelector('#tiNumberOfSteps').value
         const prompt = html_manip.getPrompt()
         const negative_prompt = html_manip.getNegativePrompt()
         const hi_res_fix = html_manip.getHiResFixs()
@@ -1924,7 +1924,7 @@ async function getSettings() {
         const inpaint_full_res_padding =
             document.querySelector('#slInpaintPadding').value
 
-        console.dir(numberOfImages)
+        // console.dir(numberOfImages)
         const bUsePromptShortcut = document.getElementById(
             'chUsePromptShortcut'
         ).checked
@@ -3006,6 +3006,7 @@ function _arrayBufferToBase64(buffer) {
     return window.btoa(binary)
 }
 
+//REFACTOR: move to io.js
 async function getDocFolder(doc_uuid) {
     try {
         // const uuid = await getUniqueDocumentId()
