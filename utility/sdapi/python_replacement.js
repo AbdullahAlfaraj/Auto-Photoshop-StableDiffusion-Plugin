@@ -454,6 +454,9 @@ async function getDocumentFolderNativePath(doc_uuid) {
 }
 
 async function savePromptShortcut(json, file_name) {
+    console.warn(
+        "savePromptShortcut() is deprecated, use it's IO class instead "
+    )
     try {
         const json_file_name = file_name
 
