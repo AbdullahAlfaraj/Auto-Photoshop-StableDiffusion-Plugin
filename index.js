@@ -1660,7 +1660,11 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
     (element) => {
         element.addEventListener('click', async () => {
             try {
+                g_generation_session.request_status =
+                    Enum.RequestStateEnum['Interrupted']
+
                 const backend_type = html_manip.getBackendType()
+
                 if (backend_type === backendTypeEnum['HordeNative']) {
                     //interrupt the horde
 
@@ -1677,8 +1681,6 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
                     'btnInterruptClass'
                 )
                 g_can_request_progress = false
-                g_generation_session.request_status =
-                    Enum.RequestStateEnum['Interrupted']
 
                 // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
             } catch (e) {
