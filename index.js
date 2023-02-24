@@ -318,25 +318,6 @@ function getCommentedString() {
     let result = text.match(pattern)
     console.log('getCommentedString: ', result)
 }
-//REFACTOR: move to psapi.js
-//duplicate the active layer
-async function duplication() {
-    try {
-        console.log('active layer id: ', app.activeDocument.activeLayers[0].id)
-        await executeAsModal(async () => {
-            let inner_new_layer =
-                await app.activeDocument.activeLayers[0].duplicate()
-            console.log('inner_new_layer id: ', inner_new_layer.id)
-        })
-
-        console.log(
-            'new active layer id: ',
-            app.activeDocument.activeLayers[0].id
-        )
-    } catch (e) {
-        console.warn('duplication error:', e)
-    }
-}
 
 //REFACTOR: move to helpers.js
 function tempDisableElement(element, time) {
@@ -642,15 +623,6 @@ function autoFillInSettings(metadata_json) {
         console.error(`autoFillInSettings: ${e}`)
     }
 }
-//steps to load init_image:
-//duplicate the active layer
-// duplication()
-// create a mask from marquee selection
-
-// export the layer as png
-//load the image from disk to panel as <img /> tag
-//store the relative path of the image into init_img_path to be load from the python server (serverMain.py)
-//
 
 //**********Start: global variables
 let prompt_dir_name = ''
