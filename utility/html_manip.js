@@ -744,6 +744,7 @@ function updateProgressBarsHtml(new_value) {
             console.warn(e) //value is not valid
         }
     })
+
     // document.querySelector('#pProgressBar').value
 }
 ///end selection mode////

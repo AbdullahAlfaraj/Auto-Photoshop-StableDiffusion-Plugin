@@ -666,6 +666,7 @@ class ViewerManager {
         }
     }
     initializeInitImage(group, snapshot, solid_background, path) {
+        console.warn('this method is deprecated, use the session.js method ')
         this.initGroup = group
         this.init_solid_background = solid_background
         this.addInitImageLayers(snapshot, path, true)

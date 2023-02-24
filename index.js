@@ -724,12 +724,6 @@ g_generation_session.deactivate() //session starte as inactive
 let g_ui = new ui.UI()
 let g_ui_settings = new ui.UISettings()
 
-const requestState = {
-    Generate: 'generate',
-    Interrupt: 'interrupt',
-}
-
-let g_request_status = '' //
 const generationMode = {
     Txt2Img: 'txt2img',
     Img2Img: 'img2img',
@@ -1662,44 +1656,15 @@ Array.from(document.getElementsByClassName('discardClass')).forEach(
     }
 )
 
-async function deleteMaskRelatedLayers() {
-    // console.log("click on btnCleanLayers,  g_last_outpaint_layers:",g_last_outpaint_layers)
-    // console.log("click on btnCleanLayers,  g_last_inpaint_layers:",g_last_inpaint_layers)
-    // console.log("click on btnCleanLayers,  g_last_snap_and_fill_layers:",g_last_snap_and_fill_layers)
-    // console.log("g_last_snap_and_fill_layers")
-    // g_last_snap_and_fill_layers = await psapi.cleanLayers(g_last_snap_and_fill_layers)
-    // if (g_last_outpaint_layers.length > 0){
-    //   g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
-    //   console.log("g_last_outpaint_layers has 1 layers")
-    // }
-    // if (g_last_inpaint_layers.length> 0 ){
-    //   g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
-    // }
-}
-// document.getElementById('btnCleanLayers').addEventListener('click', async () => {
-//   await deleteMaskRelatedLayers()
-
-// })
-
-// document.getElementById('btnInterruptMore').addEventListener('click', async () => {
-//   try{
-
-//     json = await sdapi.requestInterrupt()
-
-//     g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
-//   }catch(e)
-//   {
-
-//     g_can_request_progress = toggleTwoButtons(false,'btnGenerateMore','btnInterruptMore')
-//     console.warn(e)
-//   }
-// })
-
 Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
     (element) => {
         element.addEventListener('click', async () => {
             try {
+                g_generation_session.request_status =
+                    Enum.RequestStateEnum['Interrupted']
+
                 const backend_type = html_manip.getBackendType()
+
                 if (backend_type === backendTypeEnum['HordeNative']) {
                     //interrupt the horde
 
@@ -1716,7 +1681,6 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
                     'btnInterruptClass'
                 )
                 g_can_request_progress = false
-                g_request_status = requestState['Interrupt']
 
                 // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
             } catch (e) {
@@ -2345,6 +2309,7 @@ async function easyModeGenerate(mode) {
         // await g_generation_session.deleteProgressLayer() // delete the old progress layer
         await g_generation_session.deleteProgressImage()
     } catch (e) {
+        await g_generation_session.deleteProgressImage()
         console.warn(e)
     }
 }
@@ -2375,7 +2340,8 @@ async function generate(settings, mode) {
 
         console.log(settings)
 
-        g_request_status = requestState['Generate']
+        g_generation_session.request_status =
+            Enum.RequestStateEnum['Generating']
         let json = {}
         if (mode == 'txt2img') {
             json = await generateTxt2Img(settings)
@@ -2400,12 +2366,25 @@ async function generate(settings, mode) {
 
         //     // },5000)
         // }
-        if (g_request_status === requestState['Interrupt']) {
+        if (
+            g_generation_session.request_status ===
+            Enum.RequestStateEnum['Interrupted']
+        ) {
             //when generate request get interrupted. reset progress bar to 0, discard any meta data and images returned from the proxy server by returning from the function.
             html_manip.updateProgressBarsHtml(0)
+            console.log(
+                'before delete g_generation_session.progress_layer: ',
+                g_generation_session.progress_layer
+            )
+            await g_generation_session.deleteProgressImage()
+            console.log(
+                'after delete g_generation_session.progress_layer: ',
+                g_generation_session.progress_layer
+            )
             //check whether request was "generate" or "generate more"
             //if it's generate discard the session
             if (isFirstGeneration) {
+                await loadViewerImages()
                 await g_generation_session.endSession(
                     session.GarbageCollectionState['Discard']
                 ) //end session and delete all images
@@ -2515,59 +2494,6 @@ async function generate(settings, mode) {
         console.error(`btnGenerate.click(): `, e)
     }
 }
-
-// async function processHordeResult() {
-//     if (isFirstGeneration) {
-//         //this is new generation session
-
-//         g_generation_session.image_paths_to_layers =
-//             await silentImagesToLayersExe(images_info)
-
-//         g_generation_session.base64OutputImages = {} //delete all previouse images, Note move this to session end ()
-//         for (const image_info of images_info) {
-//             const path = image_info['path']
-//             const base64_image = image_info['base64']
-//             g_generation_session.base64OutputImages[path] = base64_image
-//             const [document_name, image_name] = path.split('/')
-//             await saveFileInSubFolder(base64_image, document_name, image_name) //save the output image
-//             const json_file_name = `${image_name.split('.')[0]}.json`
-//             settings['auto_metadata'] = image_info?.auto_metadata
-//             await saveJsonFileInSubFolder(
-//                 settings,
-//                 document_name,
-//                 json_file_name
-//             ) //save the settings
-//         }
-
-//         g_number_generation_per_session = 1
-//         g_generation_session.isFirstGeneration = false
-//     } else {
-//         // generation session is active so we will generate more
-
-//         let last_images_paths = await silentImagesToLayersExe(images_info)
-
-//         for (const image_info of images_info) {
-//             const path = image_info['path']
-//             const base64_image = image_info['base64']
-//             g_generation_session.base64OutputImages[path] = base64_image
-//             const [document_name, image_name] = path.split('/')
-//             await saveFileInSubFolder(base64_image, document_name, image_name)
-//             const json_file_name = `${image_name.split('.')[0]}.json`
-//             settings['auto_metadata'] = image_info?.auto_metadata
-//             await saveJsonFileInSubFolder(
-//                 settings,
-//                 document_name,
-//                 json_file_name
-//             ) //save the settings
-//         }
-
-//         g_generation_session.image_paths_to_layers = {
-//             ...g_generation_session.image_paths_to_layers,
-//             ...last_images_paths,
-//         }
-//         g_number_generation_per_session++
-//     }
-// }
 
 Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
     (btn) => {
@@ -2696,34 +2622,40 @@ function updateProgressBarsHtml(new_value) {
 }
 
 async function updateProgressImage(progress_base64) {
-    await executeAsModal(async (context) => {
-        const history_id = await context.hostControl.suspendHistory({
-            documentID: app.activeDocument.id, //TODO: change this to the session document id
-            name: 'Progress Image',
-        })
-        await g_generation_session.deleteProgressLayer() // delete the old progress layer
+    try {
+        await executeAsModal(async (context) => {
+            const history_id = await context.hostControl.suspendHistory({
+                documentID: app.activeDocument.id, //TODO: change this to the session document id
+                name: 'Progress Image',
+            })
+            await g_generation_session.deleteProgressLayer() // delete the old progress layer
 
-        //update the progress image
-        const selection_info = await g_generation_session.selectionInfo
-        const b_exsit = layer_util.Layer.doesLayerExist(
-            g_generation_session.progress_layer
-        )
-        if (!b_exsit) {
-            const layer = await io.IO.base64ToLayer(
-                progress_base64,
-                'temp_progress_image.png',
-                selection_info.left,
-                selection_info.top,
-                selection_info.width,
-                selection_info.height
+            //update the progress image
+            const selection_info = await g_generation_session.selectionInfo
+            const b_exsit = layer_util.Layer.doesLayerExist(
+                g_generation_session.progress_layer
             )
-            g_generation_session.progress_layer = layer // sotre the new progress layer// TODO: make sure you delete the progress layer when the geneeration request end
-        } else {
-            // if ,somehow, the layer still exsit
-            await layer_util.deleteLayers([g_generation_session.progress_layer]) // delete the old progress layer
-        }
-        await context.hostControl.resumeHistory(history_id)
-    })
+            if (!b_exsit) {
+                const layer = await io.IO.base64ToLayer(
+                    progress_base64,
+                    'temp_progress_image.png',
+                    selection_info.left,
+                    selection_info.top,
+                    selection_info.width,
+                    selection_info.height
+                )
+                g_generation_session.progress_layer = layer // sotre the new progress layer// TODO: make sure you delete the progress layer when the geneeration request end
+            } else {
+                // if ,somehow, the layer still exsit
+                await layer_util.deleteLayers([
+                    g_generation_session.progress_layer,
+                ]) // delete the old progress layer
+            }
+            await context.hostControl.resumeHistory(history_id)
+        })
+    } catch (e) {
+        console.warn(e)
+    }
 }
 
 async function progressRecursive() {
@@ -2732,7 +2664,11 @@ async function progressRecursive() {
         // document.querySelector('#pProgressBar').value = json.progress * 100
         progress_value = json.progress * 100
         html_manip.updateProgressBarsHtml(progress_value)
-        if (json?.current_image) {
+        if (
+            json?.current_image &&
+            g_generation_session.request_status ===
+                Enum.RequestStateEnum['Generating']
+        ) {
             const base64_url = general.base64ToBase64Url(json.current_image)
             // debugger
             const progress_image_html = document.getElementById('progressImage')

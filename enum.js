@@ -18,8 +18,14 @@ const ViewerObjectTypeEnum = {
     MaskImage: 'mask_image',
 }
 
+const RequestStateEnum = {
+    Generating: 'generating', // in the generation process
+    Interrupted: 'interrupted', // canceled/ interrupted
+    Finished: 'finished', // finished generating
+}
 module.exports = {
     clickTypeEnum,
     AutomaticStatusEnum,
     ViewerObjectTypeEnum,
+    RequestStateEnum,
 }
