@@ -40,6 +40,7 @@ const general = require('./utility/general')
 const thumbnail = require('./thumbnail')
 const note = require('./utility/notification')
 const sampler_data = require('./utility/sampler')
+const settings_tab = require('./utility/tab/settings')
 
 let g_horde_generator = new horde_native.hordeGenerator()
 let g_automatic_status = Enum.AutomaticStatusEnum['Offline']
@@ -155,6 +156,9 @@ require('photoshop').action.addNotificationListener(
 )
 //REFACTOR: move to document.js
 async function getUniqueDocumentId() {
+    console.warn(
+        'getUniqueDocumentId is deprecated, instead use the methods in IOFolder'
+    )
     try {
         let uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
 
@@ -313,25 +317,6 @@ function getCommentedString() {
 
     let result = text.match(pattern)
     console.log('getCommentedString: ', result)
-}
-//REFACTOR: move to psapi.js
-//duplicate the active layer
-async function duplication() {
-    try {
-        console.log('active layer id: ', app.activeDocument.activeLayers[0].id)
-        await executeAsModal(async () => {
-            let inner_new_layer =
-                await app.activeDocument.activeLayers[0].duplicate()
-            console.log('inner_new_layer id: ', inner_new_layer.id)
-        })
-
-        console.log(
-            'new active layer id: ',
-            app.activeDocument.activeLayers[0].id
-        )
-    } catch (e) {
-        console.warn('duplication error:', e)
-    }
 }
 
 //REFACTOR: move to helpers.js
@@ -638,15 +623,6 @@ function autoFillInSettings(metadata_json) {
         console.error(`autoFillInSettings: ${e}`)
     }
 }
-//steps to load init_image:
-//duplicate the active layer
-// duplication()
-// create a mask from marquee selection
-
-// export the layer as png
-//load the image from disk to panel as <img /> tag
-//store the relative path of the image into init_img_path to be load from the python server (serverMain.py)
-//
 
 //**********Start: global variables
 let prompt_dir_name = ''
@@ -774,6 +750,13 @@ let g_viewer_manager = new viewer.ViewerManager()
 
 //***********Start: init function calls */
 async function initPlugin() {
+    //*) load plugin settings
+    //*) load horde settings
+    //*)
+    //*) initialize the samplers
+    //*)
+    await settings_tab.loadSettings()
+    await horde_native.HordeSettings.loadSettings()
     const bSamplersStatus = await initSamplers() //initialize the sampler
     await refreshUI()
     await displayUpdate()
@@ -1818,30 +1801,6 @@ async function restoreActiveSelection() {
     }
 }
 
-document.getElementById('btnSdUrl').addEventListener('click', async () => {
-    //change the sdUrl in server in proxy server
-    console.log('you clicked btnSdUrl')
-    let new_sd_url = document.getElementById('tiSdUrl').value
-
-    console.log('new_sd_url: ', new_sd_url)
-
-    new_sd_url = new_sd_url.trim()
-    console.log('new_sd_url.trim(): ', new_sd_url)
-
-    if (new_sd_url.length > 0) {
-        //check if the last character of the url has "/" or '\' and remove it
-
-        last_index = new_sd_url.length - 1
-
-        if (new_sd_url[last_index] === '/' || new_sd_url[last_index] === '\\') {
-            new_sd_url = new_sd_url.slice(0, -1)
-        }
-
-        //submit the change
-        await sdapi.changeSdUrl(new_sd_url)
-    }
-})
-
 document.querySelector('#taPrompt').addEventListener('focus', async () => {
     if (!g_generation_session.isLoadingActive) {
         console.log('taPrompt focus')
@@ -1901,7 +1860,7 @@ async function getSettings() {
     let payload = {}
 
     try {
-        const extension_type = html_manip.getExtensionType() // get the extension type
+        const extension_type = settings_tab.getExtensionType() // get the extension type
         const selectionInfo = await psapi.getSelectionInfoExe()
         payload['selection_info'] = selectionInfo
         const numberOfImages = document.querySelector('#tiNumberOfImages').value
@@ -1917,7 +1876,7 @@ async function getSettings() {
         //  const model_index = document.querySelector("#")
         const seed = document.querySelector('#tiSeed').value
         // const mask_blur = document.querySelector('#slMaskBlur').value
-        const use_sharp_mask = html_manip.getUseSharpMask()
+        const use_sharp_mask = settings_tab.getUseSharpMask()
         const mask_blur = html_manip.getMaskBlur()
         const mask_expansion = document.getElementById('slMaskExpansion').value
 
@@ -2485,8 +2444,8 @@ async function generate(settings, mode) {
         const images_info = json?.images_info
         // gImage_paths = images_info.images_paths
         //open the generated images from disk and load them onto the canvas
-        const b_use_silent_import =
-            document.getElementById('chUseSilentImport').checked
+        // const b_use_silent_import =
+        //     document.getElementById('chUseSilentImport').checked
 
         if (isFirstGeneration) {
             //this is new generation session
@@ -2807,7 +2766,10 @@ async function progressRecursive() {
             // progress_image_html.style.width = progress_image_html.naturalWidth
             // progress_image_html.style.height = progress_image_html.naturalHeight
 
-            if (g_generation_session.last_settings.batch_size === '1') {
+            if (
+                g_generation_session.last_settings.batch_size === '1' &&
+                settings_tab.getUseLiveProgressImage()
+            ) {
                 //only update the canvas if the number of images are one
                 //don't update the canvas with multiple images.
                 await updateProgressImage(json.current_image)
@@ -4308,10 +4270,6 @@ function base64ToSrc(base64_image) {
 }
 
 const py_re = require('./utility/sdapi/python_replacement')
-document.getElementById('btnGetDocPath').addEventListener('click', async () => {
-    const docPath = await py_re.getDocumentFolderNativePath()
-    document.getElementById('tiDocPath').value = docPath
-})
 
 async function prmoptForUpdate() {
     const shell = require('uxp').shell
@@ -4456,3 +4414,9 @@ async function updateResDifferenceLabel() {
     const ratio_str = `${arrow}x${final_ratio.toFixed(2)}`
     document.getElementById('res-difference').innerText = ratio_str
 }
+
+document
+    .getElementById('btnSaveHordeSettings')
+    .addEventListener('click', async () => {
+        await horde_native.HordeSettings.saveSettings()
+    })

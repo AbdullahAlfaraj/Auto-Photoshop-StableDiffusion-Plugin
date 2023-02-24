@@ -795,7 +795,7 @@
                             class=""
                             id="progressImage"
                             src="https://source.unsplash.com/random"
-                            style="width: auto; height: auto; max-width: 100%"
+                            style="width: 100px; height: 100px; max-width: 100%"
                         />
                     </div>
                     <hr class="line-divider" />
@@ -940,13 +940,18 @@
             <div class="sp-tab-page" id="sp-horde-tab-page">
                 <!-- Horde tab page -->
                 <div></div>
-                <sp-label>Horde Key:</sp-label
-                ><sp-textfield
-                    id="tiHordeApiKey"
-                    type="password"
-                    placeholder="0000000000"
-                    value=""
-                ></sp-textfield>
+                <div>
+                    <sp-label>Horde Key:</sp-label
+                    ><sp-textfield
+                        id="tiHordeApiKey"
+                        type="password"
+                        placeholder="0000000000"
+                        value=""
+                    ></sp-textfield>
+                    <button class="btnSquare" id="btnSaveHordeSettings">
+                        Save
+                    </button>
+                </div>
 
                 <sp-radio-group>
                     <sp-label id="BackendTypeLabel" slot="label"
@@ -1215,16 +1220,29 @@
                         type="text"
                         placeholder="http://127.0.0.1:7860"
                         value=""
+                        style="width: 160px"
                     ></sp-textfield
-                    ><button class="btnSquare" id="btnSdUrl">Submit</button>
+                    ><button
+                        class="btnSquare"
+                        id="btnSdUrl"
+                        style="margin-left: 5px"
+                    >
+                        Submit
+                    </button>
+                    <button class="btnSquare" id="btnSaveSettingsTabs">
+                        Save
+                    </button>
                 </div>
                 <sp-checkbox id="chUseSharpMask">use sharp mask</sp-checkbox>
                 <sp-checkbox checked id="chUseSmartObject"
                     >Smart Object</sp-checkbox
                 >
-                <sp-checkbox checked id="chUseSilentImport"
-                    >Use Silent Import</sp-checkbox
+                <sp-checkbox checked id="chLiveProgressImage"
+                    >Live Progress Image</sp-checkbox
                 >
+                <!-- <sp-checkbox checked id="chUseSilentImport"
+                    >Use Silent Import</sp-checkbox
+                > -->
                 <!-- <a href="https://colab.research.google.com/drive/1nbcx_WOneRmYv9idBO33pN5CbxXrqZHu?usp=sharing" target="_blank">Don't have GPU, use Colab</a> -->
                 <sp-link
                     href="https://colab.research.google.com/drive/1nbcx_WOneRmYv9idBO33pN5CbxXrqZHu?usp=sharing"
@@ -1463,6 +1481,7 @@
                         id="webp_container"
                         src="https://www.keycdn.com/img/blog/convert-to-webp-the-successor-of-jpeg-lg.webp"
                     />
+
                     <div class="prompts">
                         <!-- <sp-label slot="label">Prompt</sp-label> -->
                         <div class="">

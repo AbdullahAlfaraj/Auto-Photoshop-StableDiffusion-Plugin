@@ -3,7 +3,31 @@ const psapi = require('../../psapi')
 const html_manip = require('../html_manip')
 const layer_util = require('../layer')
 const dummy = require('../dummy')
+const io = require('../io')
+class HordeSettings {
+    static {}
+    static async saveSettings() {
+        try {
+            const settings = await getSettings()
 
+            let native_horde_settings = await mapPluginSettingsToHorde(settings)
+            const horde_api_key = html_manip.getHordeApiKey()
+            native_horde_settings['api_key'] = html_manip.getHordeApiKey()
+            await io.IOJson.saveHordeSettingsToFile(native_horde_settings)
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+    static async loadSettings() {
+        try {
+            let native_horde_settings =
+                await io.IOJson.loadHordeSettingsFromFile()
+            html_manip.setHordeApiKey(native_horde_settings['api_key'])
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+}
 class hordeGenerator {
     //horde generation process:
     //*) get the settings
@@ -38,7 +62,7 @@ class hordeGenerator {
         const workers_ids = getWorkerID(workers)
         const settings = await getSettings()
         this.plugin_settings = settings
-        let payload = mapPluginSettingsToHorde(settings)
+        let payload = await mapPluginSettingsToHorde(settings)
         payload['workers'] = workers_ids
 
         this.horde_settings = payload
@@ -686,4 +710,5 @@ function cancelRequestClientSide() {
 
 module.exports = {
     hordeGenerator,
+    HordeSettings,
 }
