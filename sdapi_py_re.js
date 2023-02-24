@@ -200,15 +200,11 @@ async function requestSwapModel(model_title) {
     return json
 }
 
-async function requestInterrupt(model_title) {
+async function requestInterrupt() {
     const full_url = `${g_sd_url}/sdapi/v1/interrupt`
     try {
         console.log('requestInterrupt: ')
-        // const full_url = 'http://127.0.0.1:8000/swapModel'
 
-        // payload = {
-        //   sd_model_checkpoint: model_title
-        // }
         payload = ''
         let request = await fetch(full_url, {
             method: 'POST',
@@ -222,9 +218,6 @@ async function requestInterrupt(model_title) {
 
         console.log('interrupt request:', request)
         let json = await request.json()
-
-        console.log('interrupt json:')
-        console.dir(json)
 
         return json
     } catch (e) {

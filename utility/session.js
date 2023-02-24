@@ -1,6 +1,7 @@
 const { cleanLayers } = require('../psapi')
 const psapi = require('../psapi')
 const { ViewerManager } = require('../viewer')
+const layer_util = require('./layer')
 const SessionState = {
     Active: 'active',
     Inactive: 'inactive',
@@ -31,6 +32,7 @@ class GenerationSession {
         this.image_paths_to_layers = {}
         this.progress_layer
         this.last_settings //the last settings been used for generation
+        this.request_status
     }
     isActive() {
         return this.state === SessionState['Active']
@@ -121,6 +123,12 @@ class GenerationSession {
             console.warn(e)
         }
     }
+    // initializeInitImage(group, snapshot, solid_background, path) {
+    //     this.initGroup = group
+    //     this.init_solid_background = solid_background
+    //     this.InitSnapshot = snapshot
+    // }
+    deleteInitImageLayers() {}
     async closePreviousOutputGroup() {
         try {
             //close the previous output folder
