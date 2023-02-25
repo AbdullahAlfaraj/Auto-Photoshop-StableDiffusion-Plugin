@@ -606,7 +606,7 @@ function mapPluginSettingsToControlNet(plugin_settings) {
 
         controlnet_weight: parseInt(ps['control_net_weight']),
         controlnet_resize_mode: 'Scale to Fit (Inner Fit)',
-        // controlnet_lowvram: true,
+        controlnet_lowvram: true,
         controlnet_processor_res: 512,
         controlnet_threshold_a: 64,
         controlnet_threshold_b: 64,
@@ -623,8 +623,8 @@ function mapPluginSettingsToControlNet(plugin_settings) {
         width: ps['width'],
         height: ps['height'],
         restore_faces: ps['restore_faces'],
-        // override_settings: {},
-        // override_settings_restore_afterwards: true,
+        override_settings: {},
+        override_settings_restore_afterwards: true,
     }
     if (
         plugin_settings['mode'] === Enum.generationModeEnum['Img2Img'] ||
@@ -670,6 +670,7 @@ async function requestControlNetTxt2Img(plugin_settings) {
     html_manip.setControlMaskSrc(base64ToBase64Url(base64_mask))
 
     const standard_response = await py_re.convertToStandardResponse(
+        control_net_settings,
         json['images'].slice(0, -1),
         plugin_settings['uniqueDocumentId']
     )
@@ -705,6 +706,7 @@ async function requestControlNetImg2Img(plugin_settings) {
     html_manip.setControlMaskSrc(base64ToBase64Url(base64_mask))
 
     const standard_response = await py_re.convertToStandardResponse(
+        control_net_settings,
         json['images'].slice(0, -1), //remove the last image, mask image
         plugin_settings['uniqueDocumentId']
     )
