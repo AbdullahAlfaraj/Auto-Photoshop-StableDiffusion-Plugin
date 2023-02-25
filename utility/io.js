@@ -3,6 +3,10 @@ const psapi = require('../psapi')
 const layer_util = require('../utility/layer')
 const general = require('./general')
 const Jimp = require('../jimp/browser/lib/jimp.min')
+
+const formats = require('uxp').storage.formats
+const storage = require('uxp').storage
+const fs = storage.localFileSystem
 async function snapShotLayer() {
     //snapshot layer with no mask
     let command = [
@@ -426,8 +430,164 @@ class IOBase64ToLayer {
         return imported_layer
     }
 }
+class IOFolder {
+    static {}
+    static async createSettingsFolder() {
+        //create a folder named "Settings" in the DataFolder
+        let settings_entry
+        await executeAsModal(async () => {
+            settings_entry = await this.createFolderSafe('Settings')
+        })
+        return settings_entry
+    }
+
+    static async doesFolderExist(folder_name) {
+        //check if folder exist. return true if it does. false if it doesn't.
+        const data_folder = await fs.getDataFolder()
+        let b_exist = false
+        let folder
+        try {
+            folder = await data_folder.getEntry(folder_name)
+            b_exist = true
+        } catch (e) {
+            // console.warn(e)
+            b_exist = false
+        }
+        return b_exist
+    }
+
+    static async createFolderSafe(folder_name) {
+        //will always return a folder. it will create the folder if it doesn't exist.
+        try {
+            // const uuid = await getUniqueDocumentId()
+            const data_folder = await fs.getDataFolder()
+
+            let folder_entry
+            try {
+                folder_entry = await data_folder.getEntry(folder_name)
+            } catch (e) {
+                console.warn(e)
+                //create document folder
+                folder_entry = await data_folder.createFolder(folder_name)
+            }
+
+            return folder_entry
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+
+    static async getDocumentFolderNativePath() {
+        try {
+            const uuid = await getUniqueDocumentId()
+
+            let doc_folder = await this.getDocFolder(uuid)
+            const path = general.fixNativePath(doc_folder.nativePath)
+            return path
+        } catch (e) {
+            console.warn(e)
+        }
+        return ''
+    }
+
+    static async getDocFolder(doc_uuid) {
+        //will create folder if does not exist. always return a folder entry
+        const doc_entry = await getDocFolder(doc_uuid)
+        return doc_entry
+    }
+    static async getSettingsFolder() {
+        //will create folder if does not exist. always return a folder entry
+        const settings_entry = await this.createSettingsFolder()
+        return settings_entry
+    }
+
+    static async createFolderIfDoesNotExist(folder_name) {
+        try {
+            await executeAsModal(async () => {
+                try {
+                    const folder = await fs.getDataFolder()
+                    const sub_folder = await folder.createFolder(folder_name)
+                } catch (e) {
+                    console.warn(e)
+                }
+            })
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+}
+class IOJson {
+    static {}
+    static async saveJsonToFile(json, folder_entry, file_name) {
+        try {
+            const file = await folder_entry.createFile(file_name, {
+                type: storage.types.file,
+                overwrite: true,
+            })
+
+            const JSONInPrettyFormat = JSON.stringify(json, undefined, 4)
+            await file.write(JSONInPrettyFormat, {
+                format: storage.formats.utf8,
+                append: false,
+            })
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+    static async loadJsonFromFile(folder_entry, file_name) {
+        const json_file_name = file_name
+
+        try {
+            const json_entry = await folder_entry.getEntry(json_file_name)
+            if (json_entry) {
+                const json = JSON.parse(
+                    await json_entry.read({
+                        format: storage.formats.utf8,
+                    })
+                )
+                return json
+            }
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+
+    static async saveSettingsToFile(settings_json, settings_file_name) {
+        await executeAsModal(async () => {
+            // debugger
+            const folder_entry = await IOFolder.getSettingsFolder('Settings')
+            await this.saveJsonToFile(
+                settings_json,
+                folder_entry,
+                settings_file_name
+            )
+        })
+    }
+    static async loadSettingsFromFile(settings_file_name) {
+        const folder_entry = await IOFolder.getSettingsFolder('Settings')
+        const settings_json = await this.loadJsonFromFile(
+            folder_entry,
+            settings_file_name
+        )
+        return settings_json
+    }
+    static async saveHordeSettingsToFile(settings_json) {
+        const settings_file_name = 'horde_settings.json'
+        await this.saveSettingsToFile(settings_json, settings_file_name)
+    }
+    static async loadHordeSettingsFromFile() {
+        const settings_file_name = 'horde_settings.json'
+        const settings_json = await this.loadSettingsFromFile(
+            settings_file_name
+        )
+        return settings_json
+    }
+}
+
 module.exports = {
     IO,
     snapShotLayerExe,
     IOHelper,
+    IOJson,
+    IOFolder,
 }

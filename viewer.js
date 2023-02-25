@@ -21,6 +21,7 @@ const general = require('./utility/general')
 const Enum = require('./enum')
 const psapi = require('./psapi')
 const layer_util = require('./utility/layer')
+const thumbnail = require('./thumbnail')
 const ViewerObjState = {
     Delete: 'delete',
     Unlink: 'unlink',
@@ -39,6 +40,8 @@ class ViewerImage {
         // false mean use this.state to determine whither you delete the layer or not
         this.autoDelete = false
         this.viewerManager = null // store link to the viewer manager of this document
+        this.viewerObjectType
+        this.objectId
     }
     info() {
         console.log('state: ', this.state)
@@ -142,6 +145,52 @@ class ViewerImage {
         }
     }
 
+    createThumbnailNew(img, _) {
+        this.img_html = img
+        this.thumbnail_container = thumbnail.Thumbnail.wrapImgInContainer(
+            img,
+            'viewer-image-container'
+        )
+        thumbnail.Thumbnail.addSPButtonToContainer(
+            this.thumbnail_container,
+            'svg_sp_btn',
+            'Use this as an initial image',
+
+            this.useOutputImageAsInitImage,
+            img
+        )
+    }
+    useOutputImageAsInitImage = async () => {
+        //set init image event listener, use when settion is active
+        // const layer = await app.activeDocument.activeLayers[0]
+        try {
+            // console.log('this.img_html:', this.img_html)
+            // await executeAsModal(() => {
+            //     this.visible(true)
+            // })
+            // await this.select(true) //select() does take arguments
+            // this.active(true)
+            await executeAsModal(async () => {
+                await this.click(Enum.clickTypeEnum['Click'])
+            })
+
+            const layer = layer_util.Layer.doesLayerExist(this.layer)
+                ? this.layer
+                : await app.activeDocument.activeLayers[0]
+
+            // const layer = this.layer
+            const image_info = await psapi.silentSetInitImage(
+                layer,
+                random_session_id
+            )
+            const image_name = image_info['name']
+            const path = `./server/python_server/init_images/${image_name}`
+            g_viewer_manager.addInitImageLayers(layer, path, false)
+            await g_viewer_manager.loadInitImageViewerObject(path)
+        } catch (e) {
+            console.warn(e)
+        }
+    }
     createThumbnail(img, b_button_visible = true) {
         this.img_html = img
         // Create new container element
@@ -168,16 +217,7 @@ class ViewerImage {
             button.style.display = 'none'
         }
         button.addEventListener('click', async () => {
-            //set init image event listener, use when settion is active
-            const layer = await app.activeDocument.activeLayers[0]
-
-            const image_info = await psapi.silentSetInitImage(
-                layer,
-                random_session_id
-            )
-            const image_name = image_info['name']
-            const path = `./server/python_server/init_images/${image_name}`
-            g_viewer_manager.addInitImageLayers(layer, path, false)
+            await useOutputImageAsInitImage()
         })
 
         // Append elements to container
@@ -195,14 +235,16 @@ class OutputImage extends ViewerImage {
         this.path = path
         this.img_html = null
         this.viewerManager = viewer_manager
+        this.viewerObjectType = Enum.ViewerObjectTypeEnum['OutputImage']
+        this.objectId = path // the path is unique, so we will use it as an id
     }
     async click(click_type) {
         console.log('click_type: ', click_type)
-        if (this.isActive() && click_type === Enum.clickTypeEnum['Click']) {
-            //convert consecutive clicks to AltClick
-            click_type = Enum.clickTypeEnum['SecondClick']
-            console.log('converted click_type: ', click_type)
-        }
+        // if (this.isActive() && click_type === Enum.clickTypeEnum['Click']) {
+        //     //convert consecutive clicks to AltClick
+        //     click_type = Enum.clickTypeEnum['SecondClick']
+        //     console.log('converted click_type: ', click_type)
+        // }
 
         if (click_type === Enum.clickTypeEnum['Click']) {
             //select layer
@@ -313,6 +355,8 @@ class InitImage extends ViewerImage {
         this.path = path
         this.can_highlight = false
         this.viewerManager = viewer_manager
+        this.viewerObjectType = Enum.ViewerObjectTypeEnum['InitImage']
+        this.objectId = path // the path is unique, so we will use it as an id
         // if (this.autoDelete === false){
         //   this.state = ViewerObjState['Unlink']
         // }
@@ -440,6 +484,8 @@ class InitMaskImage extends ViewerImage {
         this.path = path
         this.can_highlight = false
         this.viewerManager = viewer_manager
+        this.viewerObjectType = Enum.ViewerObjectTypeEnum['MaskImage']
+        this.objectId = path // the path is unique, so we will use it as an id
     }
     async click(click_type) {
         if (click_type === Enum.clickTypeEnum['Click']) {
@@ -528,6 +574,20 @@ class InitMaskImage extends ViewerImage {
             console.warn(e)
         }
     }
+    createThumbnailNew(img, _) {
+        this.img_html = img
+        this.thumbnail_container = thumbnail.Thumbnail.wrapImgInContainer(
+            img,
+            'viewer-image-container'
+        )
+        thumbnail.Thumbnail.addSPButtonToContainer(
+            this.thumbnail_container,
+            'svg_sp_btn',
+            'update the mask',
+            setMaskViewer,
+            img
+        )
+    }
 }
 
 class initImageLayers {
@@ -573,11 +633,16 @@ class ViewerManager {
         this.last_selected_viewer_obj
         this.thumbnail_scaler = 1
         this.isSquareThumbnail = false
+        this.init_image_container = document.getElementById(
+            'divInitImageViewerContainer'
+        )
     }
 
     replaceLastSelection(click_type, clicked_object) {
         if (
-            this.last_selected_viewer_obj
+            this.last_selected_viewer_obj && // is valid last selected object
+            this.last_selected_viewer_obj.objectId !== clicked_object.objectId // not the same object
+
             // clicked_object instanceof OutputImage &&
             // !clicked_object.isSameObject(this.last_selected_viewer_obj)
         ) {
@@ -601,6 +666,7 @@ class ViewerManager {
         }
     }
     initializeInitImage(group, snapshot, solid_background, path) {
+        console.warn('this method is deprecated, use the session.js method ')
         this.initGroup = group
         this.init_solid_background = solid_background
         this.addInitImageLayers(snapshot, path, true)
@@ -760,6 +826,24 @@ class ViewerManager {
         // this.isSquareThumbnail = false
     }
 
+    async loadInitImageViewerObject(path) {
+        if (!g_viewer_manager.hasViewerImage(path)) {
+            const group = this.initImageLayersJson[path].group
+            const snapshot = this.initImageLayersJson[path].snapshot
+            const solid_background =
+                this.initImageLayersJson[path].solid_background
+            const auto_delete = this.initImageLayersJson[path].autoDelete
+            const base64_image = g_generation_session.base64initImages[path]
+            await loadInitImageViewerObject(
+                group,
+                snapshot,
+                solid_background,
+                path,
+                auto_delete,
+                base64_image
+            )
+        }
+    }
     deleteAll() {}
     keepAll() {}
     keepSelected() {}

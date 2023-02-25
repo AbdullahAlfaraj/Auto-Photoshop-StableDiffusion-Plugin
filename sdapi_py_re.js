@@ -162,14 +162,18 @@ async function requestGetModels() {
 }
 
 async function requestGetSamplers() {
-    console.log('requestGetSamplers: ')
+    let json = null
+    try {
+        console.log('requestGetSamplers: ')
 
-    const full_url = `${g_sd_url}/sdapi/v1/samplers`
-    let request = await fetch(full_url)
-    let json = await request.json()
-    console.log('samplers json:')
-    console.dir(json)
-
+        const full_url = `${g_sd_url}/sdapi/v1/samplers`
+        let request = await fetch(full_url)
+        json = await request.json()
+        console.log('samplers json:')
+        console.dir(json)
+    } catch (e) {
+        console.warn(e)
+    }
     return json
 }
 
@@ -199,15 +203,11 @@ async function requestSwapModel(model_title) {
     return json
 }
 
-async function requestInterrupt(model_title) {
+async function requestInterrupt() {
     const full_url = `${g_sd_url}/sdapi/v1/interrupt`
     try {
         console.log('requestInterrupt: ')
-        // const full_url = 'http://127.0.0.1:8000/swapModel'
 
-        // payload = {
-        //   sd_model_checkpoint: model_title
-        // }
         payload = ''
         let request = await fetch(full_url, {
             method: 'POST',
@@ -221,9 +221,6 @@ async function requestInterrupt(model_title) {
 
         console.log('interrupt request:', request)
         let json = await request.json()
-
-        console.log('interrupt json:')
-        console.dir(json)
 
         return json
     } catch (e) {
@@ -405,10 +402,14 @@ async function requestGetConfig() {
 }
 async function requestGetOptions() {
     console.log('requestGetOptions: ')
-    let json = []
+    let json = null
     const full_url = `${g_sd_url}/sdapi/v1/options`
     try {
         let request = await fetch(full_url)
+        if (request.status === 404) {
+            return null
+        }
+
         json = await request.json()
         console.log('models json:')
         console.dir(json)
@@ -720,6 +721,150 @@ async function requestControlNetImg2Img(plugin_settings) {
     return standard_response
 }
 
+function mapPluginSettingsToControlNet(plugin_settings) {
+    const ps = plugin_settings // for shortness
+
+    let control_net_payload = {
+        ...ps,
+        prompt: ps['prompt'],
+        negative_prompt: ps['negative_prompt'],
+        controlnet_input_image: [ps['control_net_image']],
+        // controlnet_mask: [],
+
+        controlnet_module: 'depth',
+        controlnet_model: 'control_sd15_depth [fef5e48e]',
+
+        controlnet_weight: parseInt(ps['control_net_weight']),
+        controlnet_resize_mode: 'Scale to Fit (Inner Fit)',
+        controlnet_lowvram: true,
+        controlnet_processor_res: 512,
+        controlnet_threshold_a: 64,
+        controlnet_threshold_b: 64,
+        seed: ps['seed'],
+        subseed: -1,
+        // subseed_strength: -1,
+        // subseed_strength: 0,
+        controlnet_guidance: 1,
+        sampler_index: ps['sampler_index'],
+        batch_size: parseInt(ps['batch_size']),
+        n_iter: 1,
+        steps: parseInt(ps['steps']),
+        cfg_scale: ps['cfg_scale'],
+        width: ps['width'],
+        height: ps['height'],
+        restore_faces: ps['restore_faces'],
+        override_settings: {},
+        override_settings_restore_afterwards: true,
+    }
+    if (
+        plugin_settings['mode'] === Enum.generationModeEnum['Img2Img'] ||
+        plugin_settings['mode'] === Enum.generationModeEnum['Inpaint'] ||
+        plugin_settings['mode'] === Enum.generationModeEnum['Outpaint']
+    ) {
+        control_net_payload = {
+            ...control_net_payload,
+
+            guess_mode: true,
+
+            include_init_images: true,
+        }
+    }
+
+    return control_net_payload
+}
+
+async function requestControlNetTxt2Img(plugin_settings) {
+    console.log('requestControlNetTxt2Img: ')
+    // const full_url = 'http://127.0.0.1:8000/swapModel'
+
+    const full_url = `${g_sd_url}/controlnet/txt2img`
+    const control_net_settings = mapPluginSettingsToControlNet(plugin_settings)
+
+    let request = await fetch(full_url, {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(control_net_settings),
+        // body: JSON.stringify(payload),
+    })
+
+    let json = await request.json()
+    console.log('json:', json)
+
+    //update the mask in controlNet tab
+    const numOfImages = json['images'].length
+    const base64_mask = json['images'][numOfImages - 1]
+
+    html_manip.setControlMaskSrc(base64ToBase64Url(base64_mask))
+
+    const standard_response = await py_re.convertToStandardResponse(
+        control_net_settings,
+        json['images'].slice(0, -1),
+        plugin_settings['uniqueDocumentId']
+    )
+    console.log('standard_response:', standard_response)
+
+    return standard_response
+}
+
+async function requestControlNetImg2Img(plugin_settings) {
+    console.log('requestControlNetImg2Img: ')
+    // const full_url = 'http://127.0.0.1:8000/swapModel'
+
+    const full_url = `${g_sd_url}/controlnet/img2img`
+    const control_net_settings = mapPluginSettingsToControlNet(plugin_settings)
+
+    let request = await fetch(full_url, {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(control_net_settings),
+        // body: JSON.stringify(payload),
+    })
+
+    let json = await request.json()
+    console.log('json:', json)
+
+    //update the mask in controlNet tab
+    const numOfImages = json['images'].length
+    const base64_mask = json['images'][numOfImages - 1]
+
+    html_manip.setControlMaskSrc(base64ToBase64Url(base64_mask))
+
+    const standard_response = await py_re.convertToStandardResponse(
+        control_net_settings,
+        json['images'].slice(0, -1), //remove the last image, mask image
+        plugin_settings['uniqueDocumentId']
+    )
+    console.log('standard_response:', standard_response)
+
+    // //get all images except last because it's the mask
+    // for (const image of json['images'].slice(0, -1)) {
+    //     await io.IO.base64ToLayer(image)
+    // }
+
+    return standard_response
+}
+
+async function isWebuiRunning() {
+    console.log('isWebuiRunning: ')
+    let json = []
+    const full_url = `${g_sd_url}/user`
+    try {
+        let request = await fetch(full_url)
+        json = await request.json()
+        console.log('json:')
+        console.dir(json)
+    } catch (e) {
+        console.warn(`issues requesting from ${full_url}`, e)
+        return false
+    }
+    return true
+}
 module.exports = {
     requestTxt2Img,
     requestImg2Img,
@@ -746,4 +891,5 @@ module.exports = {
     requestGetUpscalers,
     requestControlNetTxt2Img,
     requestControlNetImg2Img,
+    isWebuiRunning,
 }

@@ -345,12 +345,16 @@ async function inpaintFasterExe(session_id) {
                 documentID: app.activeDocument.id,
                 name: 'Inpaint Mask Related layers',
             })
+            const original_white_mark_layer = await app.activeDocument
+                .activeLayers[0]
+            original_white_mark_layer.visible = false
 
             const selectionInfo = await psapi.getSelectionInfoExe()
 
-            //hide the current white mark mask layer
-            const white_mark_layer = await app.activeDocument.activeLayers[0]
-
+            //duplicate the current active layer and use it as the white mark layer
+            const white_mark_layer =
+                await app.activeDocument.activeLayers[0].duplicate()
+            white_mark_layer.visible = true
             const mask_layer_opacity = await white_mark_layer.opacity
             white_mark_layer.opacity = 100 //make sure the opacity is full
             await psapi.selectLayers([white_mark_layer])
@@ -492,6 +496,7 @@ async function inpaintFasterExe(session_id) {
                 false
             )
             white_mark_layer.opacity = mask_layer_opacity // restore the opacity
+            // original_white_mark_layer.visible = true// leave it off so we can toggle using the viewer manager
             await context.hostControl.resumeHistory(history_id)
         })
         return inpaintLayers

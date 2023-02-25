@@ -3,7 +3,31 @@ const psapi = require('../../psapi')
 const html_manip = require('../html_manip')
 const layer_util = require('../layer')
 const dummy = require('../dummy')
+const io = require('../io')
+class HordeSettings {
+    static {}
+    static async saveSettings() {
+        try {
+            const settings = await getSettings()
 
+            let native_horde_settings = await mapPluginSettingsToHorde(settings)
+            const horde_api_key = html_manip.getHordeApiKey()
+            native_horde_settings['api_key'] = html_manip.getHordeApiKey()
+            await io.IOJson.saveHordeSettingsToFile(native_horde_settings)
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+    static async loadSettings() {
+        try {
+            let native_horde_settings =
+                await io.IOJson.loadHordeSettingsFromFile()
+            html_manip.setHordeApiKey(native_horde_settings['api_key'])
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+}
 class hordeGenerator {
     //horde generation process:
     //*) get the settings
@@ -38,8 +62,9 @@ class hordeGenerator {
         const workers_ids = getWorkerID(workers)
         const settings = await getSettings()
         this.plugin_settings = settings
-        let payload = mapPluginSettingsToHorde(settings)
-        payload['workers'] = workers_ids
+        let payload = await mapPluginSettingsToHorde(settings)
+        // payload['workers'] = workers_ids
+        payload['workers'] = []
 
         this.horde_settings = payload
         return this.horde_settings
@@ -240,11 +265,11 @@ class hordeGenerator {
         }
     }
 
-    async interruptRequest() {
+    async interruptRequest(horde_id) {
         try {
             console.log('interruptRquest():')
 
-            const full_url = `https://stablehorde.net/api/v2/generate/status/${this.horde_id}`
+            const full_url = `https://stablehorde.net/api/v2/generate/status/${horde_id}`
 
             console.log(full_url)
 
@@ -270,9 +295,12 @@ class hordeGenerator {
     async interrupt() {
         try {
             html_manip.updateProgressBarsHtml(0)
+            // g_generation_session.request_status = Enum.requestStatus['']
+            this.last_horde_id = this.horde_id
+            this.horde_id = null //horde_id could be used startCheckingprogress() so we need to nullify it as soon as possible. TODO: refactor this dependency.
             this.isCanceled = true
-            g_interval_id = clearTimeout(g_interval_id)
-            await this.interruptRequest()
+            // this.interval_id = clearTimeout(this.interval_id)
+            await this.interruptRequest(this.last_horde_id)
         } catch (e) {
             console.warn(e)
         }
@@ -364,16 +392,16 @@ class hordeGenerator {
         }
     }
     async startCheckingProgress() {
-        return new Promise((resolve, reject) => {
-            if (this.horde_id) {
-                g_interval_id = setTimeout(async () => {
+        console.log('startCheckingProgress is called')
+        return await new Promise((resolve, reject) => {
+            if (this.horde_id && !this.isCanceled) {
+                this.interval_id = setTimeout(async () => {
                     try {
-                        // if (this.isCanceled) {
-                        //     html_manip.updateProgressBarsHtml(0)
-                        //     return resolve()
-                        //     // return
-                        // }
-
+                        console.warn(
+                            'startCheckingProgress(): horde_id and isCanceled',
+                            this.horde_id,
+                            this.isCanceled
+                        )
                         //check the request status
                         const check_json = await requestHordeCheck(
                             this.horde_id
@@ -382,20 +410,21 @@ class hordeGenerator {
                         this.updateHordeProgressBar(check_json)
 
                         if (check_json['done']) {
-                            g_interval_id = clearTimeout(g_interval_id)
+                            // this.interval_id = clearTimeout(this.interval_id)
 
                             const images_info = await this.processHordeResult()
-                            this.last_horde_id = this.horde_id
-                            this.horde_id = null
+                            if (this.horde_id) {
+                                this.last_horde_id = this.horde_id
+                                this.horde_id = null
+                            }
                             return resolve(images_info)
-                        } else if (this.isCanceled) {
-                            //resolve the promise if we canceled the request
-                            this.last_horde_id = this.horde_id
-                            this.horde_id = null
-                            return resolve()
                         } else {
                             //the request is not done and the user hasn't canceled it
-
+                            console.warn(
+                                'startCheckingProgress(): reqursive startCheckingProgress call',
+                                this.horde_id,
+                                this.isCanceled
+                            )
                             const horde_result =
                                 await this.startCheckingProgress() // start another check
                             return resolve(horde_result) // return the result of the new check
@@ -407,6 +436,11 @@ class hordeGenerator {
                     }
                 }, 3000)
             } else {
+                console.warn(
+                    'startCheckingProgress: else block',
+                    this.horde_id,
+                    this.isCanceled
+                )
                 return resolve()
             }
         })
@@ -674,16 +708,15 @@ async function requestHordeStatus(id) {
     }
 }
 
-let g_interval_id
-
 let g_horde_generation_result
 let g_b_request_result = false
 function cancelRequestClientSide() {
-    g_interval_id = clearTimeout(g_interval_id)
+    this.interval_id = clearTimeout(this.interval_id)
     // g_id = null
     g_b_request_result = false
 }
 
 module.exports = {
     hordeGenerator,
+    HordeSettings,
 }

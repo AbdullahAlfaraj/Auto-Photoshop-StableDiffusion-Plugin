@@ -5,6 +5,7 @@ const io = require('./io')
 const { ViewerManager } = require('../viewer')
 const { base64ToBase64Url } = require('./general')
 const html_manip = require('./html_manip')
+const layer_util = require('./layer')
 const SessionState = {
     Active: 'active',
     Inactive: 'inactive',
@@ -36,6 +37,7 @@ class GenerationSession {
         this.progress_layer
         this.last_settings //the last settings been used for generation
         this.controlNetImage // base64 image
+        this.request_status
     }
     isActive() {
         return this.state === SessionState['Active']
@@ -129,7 +131,12 @@ class GenerationSession {
             console.warn(e)
         }
     }
-
+    // initializeInitImage(group, snapshot, solid_background, path) {
+    //     this.initGroup = group
+    //     this.init_solid_background = solid_background
+    //     this.InitSnapshot = snapshot
+    // }
+    deleteInitImageLayers() {}
     async closePreviousOutputGroup() {
         try {
             //close the previous output folder

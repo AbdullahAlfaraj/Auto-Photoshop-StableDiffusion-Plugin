@@ -323,9 +323,13 @@ function getSamplerElementByName(sampler_name) {
 function getCheckedSamplerName() {
     //we assume that the samplers exist and loaded in html
     //return the name of the first checked sampler
-    return [...document.getElementsByClassName('rbSampler')].filter(
-        (e) => e.checked == true
-    )[0].value
+    try {
+        return [...document.getElementsByClassName('rbSampler')].filter(
+            (elm) => elm.checked == true
+        )[0].value
+    } catch (e) {
+        console.warn(e)
+    }
 }
 function getMode() {
     return [...document.getElementsByClassName('rbMode')].filter(
@@ -333,11 +337,6 @@ function getMode() {
     )[0].value
 }
 
-function getExtensionType() {
-    return [...document.getElementsByClassName('rbExtensionType')].filter(
-        (e) => e.checked == true
-    )[0].value
-}
 function getBackendType() {
     return [...document.getElementsByClassName('rbBackendType')].filter(
         (e) => e.checked == true
@@ -348,6 +347,10 @@ function getHordeApiKey() {
     let key = document.getElementById('tiHordeApiKey').value
     const valid_key = key ? key : '0000000000'
     return valid_key
+}
+
+function setHordeApiKey(key) {
+    document.getElementById('tiHordeApiKey').value = key
 }
 function checkSampler(sampler_name) {
     sampler_element = getSamplerElementByName(sampler_name)
@@ -647,28 +650,6 @@ function setMaskBlur(mask_blur) {
     document.getElementById('slMaskBlur').value = mask_blur
 }
 
-function getUseSharpMask() {
-    const isChecked = document.getElementById('chUseSharpMask').checked
-    return isChecked
-}
-document.getElementById('chUseSharpMask').addEventListener('change', (ev) => {
-    const isChecked = ev.target.checked
-    if (isChecked) {
-        document.getElementById('slMaskBlur').setAttribute('disabled')
-    } else {
-        document.getElementById('slMaskBlur').removeAttribute('disabled')
-    }
-})
-
-document.getElementById('chUseSmartObject').addEventListener('change', (ev) => {
-    const isChecked = ev.target.checked
-    if (isChecked) {
-        g_b_use_smart_object = true
-    } else {
-        g_b_use_smart_object = false
-    }
-})
-
 function getPromptShortcut() {
     //read json string
     //converted into json object
@@ -773,6 +754,7 @@ function updateProgressBarsHtml(new_value) {
             console.warn(e) //value is not valid
         }
     })
+
     // document.querySelector('#pProgressBar').value
 }
 ///end selection mode////
@@ -834,7 +816,7 @@ module.exports = {
     autoFillSettings,
     getMaskBlur,
     setMaskBlur,
-    getUseSharpMask,
+
     autoFillInHRHeight,
     autoFillInHRWidth,
     getPromptShortcut,
@@ -853,7 +835,7 @@ module.exports = {
     getMaskContent,
     setMaskContent,
     addHistoryButtonsHtml,
-    getExtensionType,
+
     getSeed,
     setSeed,
     getMaskExpansion,
@@ -873,4 +855,5 @@ module.exports = {
     setControlImageSrc,
     setControlMaskSrc,
     getControlNetWeight,
+    setHordeApiKey,
 }

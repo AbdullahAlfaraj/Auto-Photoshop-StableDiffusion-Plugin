@@ -5,8 +5,8 @@ class Notification {
     static {}
     static async webuiIsOffline() {
         const r1 = await dialog_box.prompt(
-            "Automatic1111 is Offline, make sure it's running in the background",
-            '',
+            'Automatic1111 is Offline',
+            "make sure Automatic1111 is running in the background, or select the 'native horde' option from the horde tab",
             ['Cancel', 'How To', 'OK']
         )
 
