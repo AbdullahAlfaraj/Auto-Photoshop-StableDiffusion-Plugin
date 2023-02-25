@@ -283,7 +283,15 @@ async function createBackgroundLayer(r = 255, g = 255, b = 255) {
             //no need to create a background layer
             return null
         }
+
+        //reselect the selection area if it exist
+
         await executeAsModal(async () => {
+            //store the selection area and then unselected
+            const selectionInfo = await psapi.getSelectionInfoExe()
+            await psapi.unSelectMarqueeExe()
+            const active_layers = app.activeDocument.activeLayers
+
             // await createNewLayerCommand('background') //create layer
             //make the layer into background
             const result = await batchPlay(
@@ -293,6 +301,9 @@ async function createBackgroundLayer(r = 255, g = 255, b = 255) {
                     modalBehavior: 'execute',
                 }
             )
+
+            await psapi.reSelectMarqueeExe(selectionInfo)
+            await psapi.selectLayersExe(active_layers)
         })
     } catch (e) {
         console.warn(e)
