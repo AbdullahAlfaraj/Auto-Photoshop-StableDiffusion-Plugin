@@ -786,6 +786,38 @@ function getControlNetWeight() {
     const sd_value = general.mapRange(slider_value, 0, 100, 0, 2) // convert slider value to SD ready value
     return sd_value
 }
+
+// function createMenuItemHtml(item, item_html_element) {
+//     // menu_item_element.innerHTML = item.title
+//     // menu_item_element.dataset.model_hash = model.hash
+//     // menu_item_element.dataset.model_title = model.title
+// }
+
+async function populateMenu(
+    html_menu_id,
+    menu_item_class,
+    items,
+    createMenuItemHtml,
+    b_keep_old_selection = false
+) {
+    // let b_result = false
+
+    try {
+        document.getElementById(html_menu_id).innerHTML = '' // empty the menu
+
+        for (let item of items) {
+            const menu_item_element = document.createElement('sp-menu-item')
+            menu_item_element.className = menu_item_class
+            createMenuItemHtml(item, menu_item_element)
+            document.getElementById(html_menu_id).appendChild(menu_item_element)
+        }
+    } catch (e) {
+        b_result = false
+        console.warn(e)
+    }
+    return b_result
+}
+
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -856,4 +888,5 @@ module.exports = {
     setControlMaskSrc,
     getControlNetWeight,
     setHordeApiKey,
+    populateMenu,
 }
