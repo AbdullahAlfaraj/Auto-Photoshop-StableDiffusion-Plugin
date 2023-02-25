@@ -496,7 +496,7 @@ async function inpaintFasterExe(session_id) {
                 false
             )
             white_mark_layer.opacity = mask_layer_opacity // restore the opacity
-            original_white_mark_layer.visible = true
+            // original_white_mark_layer.visible = true// leave it off so we can toggle using the viewer manager
             await context.hostControl.resumeHistory(history_id)
         })
         return inpaintLayers
