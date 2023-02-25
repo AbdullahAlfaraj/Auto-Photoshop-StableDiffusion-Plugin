@@ -41,6 +41,7 @@ const thumbnail = require('./thumbnail')
 const note = require('./utility/notification')
 const sampler_data = require('./utility/sampler')
 const settings_tab = require('./utility/tab/settings')
+const control_net = require('./utility/tab/control_net')
 
 let g_horde_generator = new horde_native.hordeGenerator()
 let g_automatic_status = Enum.AutomaticStatusEnum['Offline']
@@ -765,6 +766,9 @@ async function initPlugin() {
     // promptShortcutExample()
     await loadPromptShortcut()
     await refreshPromptMenue()
+
+    //init ControlNet Tab
+    await control_net.initializeControlNetTab()
 }
 initPlugin()
 // refreshModels() // get the models when the plugin loads
@@ -2008,10 +2012,17 @@ async function getSettings() {
         }
 
         //save the control_net_image
-        payload['control_net_image'] = g_generation_session.controlNetImage
-        payload['enable_control_net'] =
+        const b_enable_control_net =
             document.getElementById('chEnableControlNet').checked
-        payload['control_net_weight'] = html_manip.getControlNetWeight()
+        if (b_enable_control_net) {
+            payload['control_net_image'] = g_generation_session.controlNetImage
+            payload['enable_control_net'] = b_enable_control_net //Note: this will never be false, either true or undefined
+            payload['control_net_weight'] = html_manip.getControlNetWeight()
+        } else {
+            delete payload['control_net_image']
+            delete payload['control_net_weight']
+            delete payload['enable_control_net']
+        }
         payload = {
             ...payload,
             // prompt: prompt,
@@ -2163,7 +2174,7 @@ async function generateImg2Img(settings) {
             backend_type === backendTypeEnum['Auto1111'] ||
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
-            if (settings['enable_control_net']) {
+            if (settings?.enable_control_net) {
                 //use control net
 
                 json = await sdapi.requestControlNetImg2Img(settings)
@@ -2190,7 +2201,7 @@ async function generateTxt2Img(settings) {
             backend_type === backendTypeEnum['Auto1111'] ||
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
-            if (settings['enable_control_net']) {
+            if (settings?.enable_control_net) {
                 //use control net
 
                 json = await sdapi.requestControlNetTxt2Img(settings)
