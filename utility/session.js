@@ -217,7 +217,7 @@ class GenerationSession {
         this.controlNetImage = base64_image
         html_manip.setControlImageSrc(base64ToBase64Url(base64_image))
         // console.log('base64_img:', base64_image)
-        await io.IO.base64ToLayer(base64_image)
+        // await io.IO.base64ToLayer(base64_image)
     }
 }
 
