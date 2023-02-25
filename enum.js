@@ -23,9 +23,22 @@ const RequestStateEnum = {
     Interrupted: 'interrupted', // canceled/ interrupted
     Finished: 'finished', // finished generating
 }
+const DocumentTypeEnum = {
+    NoBackground: 'no_background',
+    ImageBackground: 'image_background',
+    SolidBackground: 'solid_background',
+    ArtBoard: 'artboard',
+}
+const BackgroundHistoryEnum = {
+    CorrectBackground: 'correct_background',
+    NoBackground: 'no_background',
+}
+
 module.exports = {
     clickTypeEnum,
     AutomaticStatusEnum,
     ViewerObjectTypeEnum,
     RequestStateEnum,
+    DocumentTypeEnum,
+    BackgroundHistoryEnum,
 }
