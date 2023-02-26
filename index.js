@@ -2012,17 +2012,18 @@ async function getSettings() {
         }
 
         //save the control_net_image
-        const b_enable_control_net =
-            document.getElementById('chEnableControlNet').checked
-        if (b_enable_control_net) {
-            payload['control_net_image'] = g_generation_session.controlNetImage
-            payload['enable_control_net'] = b_enable_control_net //Note: this will never be false, either true or undefined
-            payload['control_net_weight'] = html_manip.getControlNetWeight()
-        } else {
-            delete payload['control_net_image']
-            delete payload['control_net_weight']
-            delete payload['enable_control_net']
-        }
+        // const b_enable_control_net =
+        //     document.getElementById('chEnableControlNet').checked
+        // if (b_enable_control_net) {
+        //     // payload['control_net_image'] = g_generation_session.controlNetImage
+        //     // payload['enable_control_net'] = b_enable_control_net //Note: this will never be false, either true or undefined
+        //     // payload['control_net_weight'] = control_net.getControlNetWeight()
+        //     // payload['control_net_weight'] = control_net.get
+        // } else {
+        //     // delete payload['control_net_image']
+        //     // delete payload['control_net_weight']
+        //     // delete payload['enable_control_net']
+        // }
         payload = {
             ...payload,
             // prompt: prompt,
