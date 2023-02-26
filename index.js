@@ -4,8 +4,11 @@
 // let g_sdapi_path = 'sdapi'
 let g_version = 'v1.1.10'
 let g_sd_url = 'http://127.0.0.1:7860'
+let g_online_data_url =
+    'https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/master/utility/online_data.json'
 const Enum = require('./enum')
 const helper = require('./helper')
+const sd_tab = require('./utility/tab/sd')
 // let g_sdapi_path = 'sdapi_py_re'
 // const sdapi = require(`./${g_sdapi_path}`)
 const sdapi = require('./sdapi_py_re')
@@ -4266,40 +4269,6 @@ function base64ToSrc(base64_image) {
 }
 
 const py_re = require('./utility/sdapi/python_replacement')
-
-async function prmoptForUpdate() {
-    const shell = require('uxp').shell
-
-    ;(async () => {
-        const r1 = await dialog_box.prompt(
-            'Please Update you Plugin. it will take about 10 seconds to update',
-            'update from discord, update from github',
-            ['Cancel', 'Discord', 'Github']
-        )
-        try {
-            let url
-            if (r1 === 'Cancel') {
-                /* cancelled or No */
-                console.log('cancel')
-            } else if (r1 === 'Github') {
-                url =
-                    'https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin'
-                await py_re.openUrlRequest(url)
-            } else if (r1 === 'Discord') {
-                console.log('Discord')
-                // url = 'https://discord.gg/3mVEtrddXJ'
-                url = 'https://discord.gg/YkUJXYWK3c'
-                await py_re.openUrlRequest(url)
-            }
-            console.log('url: ', url)
-        } catch (e) {
-            console.warn(e, url)
-        }
-    })()
-}
-document.getElementById('btnUpdate').addEventListener('click', async () => {
-    await prmoptForUpdate()
-})
 
 function getDimensions(image) {
     return new Promise((resolve, reject) => {
