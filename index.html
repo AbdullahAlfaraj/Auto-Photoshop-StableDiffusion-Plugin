@@ -875,6 +875,9 @@
                 </div>
 
                 <sp-checkbox id="chEnableControlNet">Enable</sp-checkbox>
+                <sp-checkbox checked id="chlowVram">Low VRAM</sp-checkbox>
+                <sp-checkbox id="chGuessMode">Guess Mode</sp-checkbox>
+
                 <div>
                     <div>
                         <sp-slider
@@ -887,6 +890,20 @@
                         >
                             <sp-label slot="label">Weight:</sp-label>
                             <sp-label slot="label" id="lControlNetWeight"
+                                >1.0</sp-label
+                            >
+                        </sp-slider>
+                        <sp-slider
+                            show-value="false"
+                            id="slControlNetGuidanceStrength"
+                            min="0"
+                            max="100"
+                            value="100"
+                        >
+                            <sp-label slot="label">Guidance strength:</sp-label>
+                            <sp-label
+                                slot="label"
+                                id="lControlNetGuidanceStrength"
                                 >1.0</sp-label
                             >
                         </sp-slider>
