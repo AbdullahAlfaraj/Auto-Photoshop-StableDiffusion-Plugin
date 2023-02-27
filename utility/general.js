@@ -109,6 +109,10 @@ async function requestOnlineData() {
     const online_data = await requestGet(g_online_data_url)
     return online_data
 }
+function nearestMultiple(input, multiple) {
+    const nearest_multiple = input - (input % multiple)
+    return nearest_multiple
+}
 module.exports = {
     newOutputImageName,
     makeImagePath,
@@ -122,4 +126,5 @@ module.exports = {
     mapRange,
     compareVersions,
     requestOnlineData,
+    nearestMultiple,
 }
