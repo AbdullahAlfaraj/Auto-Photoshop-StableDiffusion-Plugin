@@ -405,6 +405,7 @@ async function selectLayerChannelCommand() {
 }
 
 async function getSelectionInfoCommand() {
+    // console.warn('getSelectionInfoCommand is deprecated use SelectionInfoDesc')
     const result = await batchPlay(
         [
             {
@@ -433,6 +434,9 @@ async function getSelectionInfoCommand() {
 }
 
 function isSelectionValid(selection) {
+    // console.warn(
+    //     'isSelectionValid is deprecated use selection.isSelectionValid instead'
+    // )
     if (
         selection && // check if the selection is defined
         selection.hasOwnProperty('left') &&
@@ -447,8 +451,10 @@ function isSelectionValid(selection) {
 }
 
 async function getSelectionInfoExe() {
-    console.log('getSelectionInfo was called')
-
+    // console.log('getSelectionInfo was called')
+    // console.warn(
+    //     'getSelectionInfoExe is deprecated use selection.getSelectionInfoExe instead'
+    // )
     try {
         const selection = (await executeAsModal(getSelectionInfoCommand))[0]
             .selection
