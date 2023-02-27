@@ -4486,7 +4486,7 @@ async function findDocumentType() {
         document_type = Enum.DocumentTypeEnum['ArtBoard']
     } else if (layer_util.Layer.doesLayerExist(background_layer)) {
         //assume it's solid white background if correctHistory > 1 || layers.length > 5
-        const b_correct_background = await isCorrectBackground()
+        const b_correct_background = await isCorrectBackground() // check the history for correct operation
         if (b_correct_background) {
             document_type = Enum.DocumentTypeEnum['SolidBackground']
         } else {
@@ -4499,7 +4499,9 @@ async function findDocumentType() {
             let height = app.activeDocument.height
             let old_rgb
             let same_color = true
+
             await executeAsModal(async () => {
+                await layer_util.toggleBackgroundLayerExe() // hide all layers except the background layer
                 for (let i = 0; i < 10; ++i) {
                     let x = Math.floor(Math.random() * width)
                     let y = Math.floor(Math.random() * height)
@@ -4518,6 +4520,7 @@ async function findDocumentType() {
                     }
                     old_rgb = rgb
                 }
+                await layer_util.toggleBackgroundLayerExe() // undo the toggle operation
             })
 
             document_type = same_color
