@@ -3930,6 +3930,18 @@ function getHistoryMetadata(img) {
         metadata_json['seed'] = metadata_json?.auto_metadata?.Seed
     }
     convertAutoMetadataToPresset(metadata_json)
+
+    const b_use_original_prompt = settings_tab.getUseOriginalPrompt()
+    if (b_use_original_prompt) {
+        metadata_json['prompt'] = metadata_json?.original_prompt
+            ? metadata_json['original_prompt']
+            : metadata_json['prompt']
+
+        metadata_json['negative_prompt'] =
+            metadata_json?.original_negative_prompt
+                ? metadata_json['original_negative_prompt']
+                : metadata_json['negative_prompt']
+    }
     document.querySelector('#historySeedLabel').textContent =
         metadata_json?.seed
     // autoFillInSettings(metadata_json)
