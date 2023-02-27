@@ -770,29 +770,6 @@ function isSquareThumbnail() {
     return document.getElementById('chSquareThumbnail').checked
 }
 
-// sliderAddEventListener('slControlNetWeight', 'lControlNetWeight', 1 / 100)
-document
-    .getElementById('slControlNetWeight')
-    .addEventListener('input', (evt) => {
-        // debugger
-        const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 2) // convert slider value to SD ready value
-        document.getElementById('lControlNetWeight').textContent =
-            Number(sd_value).toFixed(2)
-    })
-function getControlNetWeight() {
-    const slider_value = document.getElementById('slControlNetWeight').value
-
-    // debugger
-    const sd_value = general.mapRange(slider_value, 0, 100, 0, 2) // convert slider value to SD ready value
-    return sd_value
-}
-
-// function createMenuItemHtml(item, item_html_element) {
-//     // menu_item_element.innerHTML = item.title
-//     // menu_item_element.dataset.model_hash = model.hash
-//     // menu_item_element.dataset.model_title = model.title
-// }
-
 async function populateMenu(
     html_menu_id,
     menu_item_class,
@@ -800,7 +777,11 @@ async function populateMenu(
     createMenuItemHtml,
     b_keep_old_selection = false
 ) {
-    // let b_result = false
+    // function createMenuItemHtml(item, item_html_element) {
+    //     // menu_item_element.innerHTML = item.title
+    //     // menu_item_element.dataset.model_hash = model.hash
+    //     // menu_item_element.dataset.model_title = model.title
+    // }
 
     try {
         document.getElementById(html_menu_id).innerHTML = '' // empty the menu
@@ -817,7 +798,22 @@ async function populateMenu(
     }
     return b_result
 }
-
+function getSelectedMenuItem(menu_id) {
+    try {
+        const menu_element = document.getElementById(menu_id)
+        return menu_element.selectedOptions[0]
+    } catch (e) {
+        console.warn(e)
+    }
+}
+function getSelectedMenuItemTextContent(menu_id) {
+    try {
+        const text_content = getSelectedMenuItem(menu_id).textContent
+        return text_content
+    } catch (e) {
+        console.warn(e)
+    }
+}
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -886,7 +882,9 @@ module.exports = {
     isSquareThumbnail,
     setControlImageSrc,
     setControlMaskSrc,
-    getControlNetWeight,
+
     setHordeApiKey,
     populateMenu,
+    getSelectedMenuItem,
+    getSelectedMenuItemTextContent,
 }
