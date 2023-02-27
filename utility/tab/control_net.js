@@ -4,10 +4,40 @@ async function requestControlNetModelList() {
     const control_net_json = await api.requestGet(
         `${g_sd_url}/controlnet/model_list`
     )
+
     const model_list = control_net_json?.model_list
+
+    // const model_list = [
+    //     'none',
+    //     'control_sd15_depth [fef5e48e]',
+    //     'control_sd15_openpose [fef5e48e]',
+    //     'control_sd15_scribble [fef5e48e]',
+    // ]
     return model_list
 }
 
+async function requestControlNetModuleList() {
+    // const control_net_json = await api.requestGet(
+    //     `${g_sd_url}/controlnet/model_list`
+    // )
+    const module_list = [
+        // 'none',
+        'canny',
+        'depth',
+        'depth_leres',
+        'hed',
+        'mlsd',
+        'normal_map',
+        'openpose',
+        // "openpose_hand",
+        'pidinet',
+        'scribble',
+        'fake_scribble',
+        'segmentation',
+    ]
+
+    return module_list
+}
 async function populateModelMenu() {
     try {
         const models = await requestControlNetModelList()
@@ -24,10 +54,38 @@ async function populateModelMenu() {
         console.warn(e)
     }
 }
+async function populatePreprocessorMenu() {
+    try {
+        const modules = await requestControlNetModuleList()
+        html_manip.populateMenu(
+            'mModuleMenuControlNet',
+            'mModuleMenuItemControlNet',
+            modules,
+            (item, item_html_element) => {
+                item_html_element.innerHTML = item
+            }
+        )
+    } catch (e) {
+        console.warn(e)
+    }
+}
 async function initializeControlNetTab() {
     await populateModelMenu()
 }
 
+function getSelectedModule() {
+    const module_name = html_manip.getSelectedMenuItemTextContent(
+        'mModuleMenuControlNet'
+    )
+
+    return module_name
+}
+function getSelectedModel() {
+    const model_name = html_manip.getSelectedMenuItemTextContent(
+        'mModelsMenuControlNet'
+    )
+    return model_name
+}
 function mapPluginSettingsToControlNet(plugin_settings) {
     const ps = plugin_settings // for shortness
     let control_net_payload = {}
@@ -97,4 +155,6 @@ module.exports = {
     requestControlNetModelList,
     populateModelMenu,
     initializeControlNetTab,
+    getSelectedModule,
+    getSelectedModel,
 }
