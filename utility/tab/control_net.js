@@ -1,5 +1,8 @@
 const api = require('../api')
 const html_manip = require('../html_manip')
+const selection = require('../../selection')
+const note = require('../notification')
+async function checkIfControlNetInstalled() {}
 async function requestControlNetModelList() {
     const control_net_json = await api.requestGet(
         `${g_sd_url}/controlnet/model_list`
@@ -71,6 +74,31 @@ async function populatePreprocessorMenu() {
 }
 async function initializeControlNetTab() {
     await populateModelMenu()
+    await populatePreprocessorMenu()
+}
+
+function getControlNetWeightGuidanceStrength() {
+    const slider_value = document.getElementById(
+        'slControlNetGuidanceStrength'
+    ).value
+    const sd_value = general.mapRange(slider_value, 0, 100, 0, 1) // convert slider value to SD ready value
+    return sd_value
+}
+
+function getControlNetWeight() {
+    const slider_value = document.getElementById('slControlNetWeight').value
+
+    // debugger
+    const sd_value = general.mapRange(slider_value, 0, 100, 0, 2) // convert slider value to SD ready value
+    return sd_value
+}
+function getUseLowVram() {
+    const b_result = document.getElementById('chlowVram').checked
+    return b_result
+}
+function getEnableControlNet() {
+    const is_enable = document.getElementById('chEnableControlNet').checked
+    return is_enable
 }
 
 function getSelectedModule() {
@@ -85,6 +113,10 @@ function getSelectedModel() {
         'mModelsMenuControlNet'
     )
     return model_name
+}
+function getUseGuessMode() {
+    const is_guess_mode = document.getElementById('chGuessMode').checked
+    return is_guess_mode
 }
 function mapPluginSettingsToControlNet(plugin_settings) {
     const ps = plugin_settings // for shortness
@@ -151,10 +183,43 @@ function mapPluginSettingsToControlNet(plugin_settings) {
 
     return control_net_payload
 }
+
+//event listeners
+document
+    .getElementById('slControlNetGuidanceStrength')
+    .addEventListener('input', (evt) => {
+        // debugger
+        const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 1) // convert slider value to SD ready value
+        document.getElementById('lControlNetGuidanceStrength').textContent =
+            Number(sd_value).toFixed(2)
+    })
+
+document
+    .getElementById('slControlNetWeight')
+    .addEventListener('input', (evt) => {
+        // debugger
+        const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 2) // convert slider value to SD ready value
+        document.getElementById('lControlNetWeight').textContent =
+            Number(sd_value).toFixed(2)
+    })
+document
+    .getElementById('bSetControlImage')
+    .addEventListener('click', async () => {
+        const selectionInfo = await selection.Selection.getSelectionInfoExe()
+        if (selectionInfo) {
+            await g_generation_session.setControlNetImage()
+        } else {
+            await note.Notification.inactiveSelectionArea()
+        }
+    })
+
 module.exports = {
     requestControlNetModelList,
     populateModelMenu,
     initializeControlNetTab,
+    getControlNetWeight,
+    mapPluginSettingsToControlNet,
+    getEnableControlNet,
     getSelectedModule,
     getSelectedModel,
 }
