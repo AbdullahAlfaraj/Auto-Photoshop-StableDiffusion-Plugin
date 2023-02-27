@@ -3,6 +3,7 @@ const { base64ToBase64Url } = require('./utility/general')
 const { getExtensionType } = require('./utility/html_manip')
 const py_re = require('./utility/sdapi/python_replacement')
 const Enum = require('./enum')
+const control_net = require('./utility/tab/control_net')
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
 async function getInitImage(init_image_name) {
     console.log('getInitImage(): get Init Image from the server :')
@@ -592,64 +593,26 @@ async function requestGetUpscalers() {
     return json
 }
 
-function mapPluginSettingsToControlNet(plugin_settings) {
-    const ps = plugin_settings // for shortness
-
-    let control_net_payload = {
-        ...ps,
-        prompt: ps['prompt'],
-        negative_prompt: ps['negative_prompt'],
-        controlnet_input_image: [ps['control_net_image']],
-        // controlnet_mask: [],
-
-        controlnet_module: 'depth',
-        controlnet_model: 'control_sd15_depth [fef5e48e]',
-
-        controlnet_weight: parseInt(ps['control_net_weight']),
-        controlnet_resize_mode: 'Scale to Fit (Inner Fit)',
-        controlnet_lowvram: true,
-        controlnet_processor_res: 512,
-        controlnet_threshold_a: 64,
-        controlnet_threshold_b: 64,
-        seed: ps['seed'],
-        subseed: -1,
-        // subseed_strength: -1,
-        // subseed_strength: 0,
-        controlnet_guidance: 1,
-        sampler_index: ps['sampler_index'],
-        batch_size: parseInt(ps['batch_size']),
-        n_iter: 1,
-        steps: parseInt(ps['steps']),
-        cfg_scale: ps['cfg_scale'],
-        width: ps['width'],
-        height: ps['height'],
-        restore_faces: ps['restore_faces'],
-        override_settings: {},
-        override_settings_restore_afterwards: true,
-    }
-    if (
-        plugin_settings['mode'] === Enum.generationModeEnum['Img2Img'] ||
-        plugin_settings['mode'] === Enum.generationModeEnum['Inpaint'] ||
-        plugin_settings['mode'] === Enum.generationModeEnum['Outpaint']
-    ) {
-        control_net_payload = {
-            ...control_net_payload,
-
-            guess_mode: true,
-
-            include_init_images: true,
-        }
-    }
-
-    return control_net_payload
-}
-
 async function requestControlNetTxt2Img(plugin_settings) {
     console.log('requestControlNetTxt2Img: ')
     // const full_url = 'http://127.0.0.1:8000/swapModel'
 
     const full_url = `${g_sd_url}/controlnet/txt2img`
-    const control_net_settings = mapPluginSettingsToControlNet(plugin_settings)
+    const control_net_settings =
+        control_net.mapPluginSettingsToControlNet(plugin_settings)
+    if (!control_net_settings['controlnet_input_image'][0]) {
+        app.showAlert('you need to add a valid ControlNet input image')
+        throw 'you need to add a valid ControlNet input image'
+    }
+
+    if (!control_net_settings['controlnet_module']) {
+        app.showAlert('you need to select a valid ControlNet Module')
+        throw 'you need to select a valid ControlNet Module'
+    }
+    if (!control_net_settings['controlnet_model']) {
+        app.showAlert('you need to select a valid ControlNet Model')
+        throw 'you need to select a valid ControlNet Model'
+    }
 
     let request = await fetch(full_url, {
         method: 'POST',
@@ -685,7 +648,8 @@ async function requestControlNetImg2Img(plugin_settings) {
     // const full_url = 'http://127.0.0.1:8000/swapModel'
 
     const full_url = `${g_sd_url}/controlnet/img2img`
-    const control_net_settings = mapPluginSettingsToControlNet(plugin_settings)
+    const control_net_settings =
+        control_net.mapPluginSettingsToControlNet(plugin_settings)
 
     let request = await fetch(full_url, {
         method: 'POST',
