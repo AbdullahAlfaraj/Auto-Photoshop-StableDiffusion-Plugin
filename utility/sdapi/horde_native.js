@@ -527,6 +527,7 @@ async function mapPluginSettingsToHorde(plugin_settings) {
     }
     const width = general.nearestMultiple(ps['width'], 64)
     const height = general.nearestMultiple(ps['height'], 64)
+    const nsfw = html_manip.getUseNsfw()
     let horde_payload = {
         prompt: horde_prompt,
         params: {
@@ -544,7 +545,7 @@ async function mapPluginSettingsToHorde(plugin_settings) {
             steps: parseInt(ps['steps']),
             n: 1,
         },
-        nsfw: false,
+        nsfw: nsfw,
         trusted_workers: true,
         censor_nsfw: false,
         // workers: ['4c79ab19-8e6c-4054-83b3-773b7ce71ece'],

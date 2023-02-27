@@ -814,6 +814,11 @@ function getSelectedMenuItemTextContent(menu_id) {
         console.warn(e)
     }
 }
+function getUseNsfw() {
+    //this method is shared between horde native and horde script
+    const b_nsfw = document.getElementById('chUseNSFW').checked
+    return b_nsfw
+}
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -887,4 +892,5 @@ module.exports = {
     populateMenu,
     getSelectedMenuItem,
     getSelectedMenuItemTextContent,
+    getUseNsfw,
 }
