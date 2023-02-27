@@ -110,6 +110,8 @@ async function requestOnlineData() {
     return online_data
 }
 function nearestMultiple(input, multiple) {
+    //use the following formula for finding the upper value instead of the lower.
+    //( ( x - 1 ) | ( m - 1 ) ) + 1
     const nearest_multiple = input - (input % multiple)
     return nearest_multiple
 }

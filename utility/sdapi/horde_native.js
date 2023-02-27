@@ -525,7 +525,8 @@ async function mapPluginSettingsToHorde(plugin_settings) {
         const random_seed = Math.floor(Math.random() * 100000000000 + 1) // Date.now() doesn't have enough resolution to avoid duplicate
         seed = random_seed.toString()
     }
-
+    const width = general.nearestMultiple(ps['width'], 64)
+    const height = general.nearestMultiple(ps['height'], 64)
     let horde_payload = {
         prompt: horde_prompt,
         params: {
@@ -534,8 +535,8 @@ async function mapPluginSettingsToHorde(plugin_settings) {
             cfg_scale: ps['cfg_scale'],
             denoising_strength: ps['denoising_strength'],
             seed: seed,
-            height: ps['height'],
-            width: ps['width'],
+            height: height,
+            width: width,
             seed_variation: 1,
             post_processing: ['GFPGAN'],
             karras: false,
