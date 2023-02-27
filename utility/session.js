@@ -72,9 +72,10 @@ class GenerationSession {
             console.warn(e)
         }
     }
+
     async endSession(garbage_collection_state) {
         try {
-            if (!g_generation_session.isActive()) {
+            if (!this.isActive()) {
                 //return if the session is not active
                 return null
             }
