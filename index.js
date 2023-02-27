@@ -408,6 +408,8 @@ async function refreshUI() {
             await g_sd_options_obj.getInpaintingMaskWeight()
         console.log('inpainting_mask_weight: ', inpainting_mask_weight)
         html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
+
+        await control_net.initializeControlNetTab()
     } catch (e) {
         console.warn(e)
     }
@@ -1675,6 +1677,19 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
     (element) => {
         element.addEventListener('click', async () => {
             try {
+                if (
+                    g_generation_session.request_status ===
+                    Enum.RequestStateEnum['Finished']
+                ) {
+                    toggleTwoButtonsByClass(
+                        false,
+                        'btnGenerateClass',
+                        'btnInterruptClass'
+                    )
+                    g_can_request_progress = false
+
+                    return null // cann't inturrept a finished generation
+                }
                 g_generation_session.request_status =
                     Enum.RequestStateEnum['Interrupted']
 
@@ -1686,8 +1701,13 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
                     await g_horde_generator.interrupt()
                 } else {
                     //interrupt auto1111
-
-                    json = await sdapi.requestInterrupt()
+                    if (g_generation_session.is_control_net) {
+                        //disable interrupt buttons in controlnet mode
+                        // return null
+                    } else {
+                        json = await sdapi.requestInterrupt()
+                    }
+                    // json = await sdapi.requestInterrupt()
                 }
 
                 toggleTwoButtonsByClass(
@@ -2178,9 +2198,10 @@ async function generateImg2Img(settings) {
             backend_type === backendTypeEnum['Auto1111'] ||
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
-            if (settings?.enable_control_net) {
-                //use control net
+            const b_enable_control_net = control_net.getEnableControlNet()
 
+            if (b_enable_control_net) {
+                //use control net
                 json = await sdapi.requestControlNetImg2Img(settings)
             } else {
                 json = await sdapi.requestImg2Img(settings)
@@ -2205,7 +2226,9 @@ async function generateTxt2Img(settings) {
             backend_type === backendTypeEnum['Auto1111'] ||
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
-            if (settings?.enable_control_net) {
+            const b_enable_control_net = control_net.getEnableControlNet()
+
+            if (b_enable_control_net) {
                 //use control net
 
                 json = await sdapi.requestControlNetTxt2Img(settings)
@@ -2236,6 +2259,18 @@ async function hasSelectionChanged(new_selection, old_selection) {
 
 async function easyModeGenerate(mode) {
     try {
+        if (
+            g_generation_session.request_status !==
+            Enum.RequestStateEnum['Finished']
+        ) {
+            app.showAlert(
+                'A generation is still active in the background. \nPlease check your Automatic1111 command line.'
+            )
+            return null
+        }
+
+        g_generation_session.request_status =
+            Enum.RequestStateEnum['Generating']
         await executeAsModal(async (context) => {
             const document_type = await findDocumentType()
 
@@ -2280,6 +2315,8 @@ async function easyModeGenerate(mode) {
                 g_automatic_status === Enum.AutomaticStatusEnum['Offline'] ||
                 g_automatic_status === Enum.AutomaticStatusEnum['RunningNoApi']
             ) {
+                g_generation_session.request_status =
+                    Enum.RequestStateEnum['Finished']
                 return false
             }
         }
@@ -2293,6 +2330,8 @@ async function easyModeGenerate(mode) {
                 g_generation_session.isActive()
             )) === false // means did not activate the session selection area if it's available
         ) {
+            g_generation_session.request_status =
+                Enum.RequestStateEnum['Finished']
             return null
         }
 
@@ -2367,6 +2406,7 @@ async function easyModeGenerate(mode) {
             mode === 'upscale' ? await getExtraSettings() : await getSettings()
 
         g_generation_session.last_settings = settings
+        g_generation_session.is_control_net = control_net.getEnableControlNet()
         await generate(settings, mode)
 
         // await g_generation_session.deleteProgressLayer() // delete the old progress layer
@@ -2374,7 +2414,13 @@ async function easyModeGenerate(mode) {
     } catch (e) {
         await g_generation_session.deleteProgressImage()
         console.warn(e)
+        g_generation_session.request_status = Enum.RequestStateEnum['Finished']
     }
+
+    toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
+    g_can_request_progress = false
+
+    g_generation_session.request_status = Enum.RequestStateEnum['Finished']
 }
 async function generate(settings, mode) {
     try {
@@ -2455,6 +2501,8 @@ async function generate(settings, mode) {
 
                 // //delete all mask related layers
             }
+            g_generation_session.request_status =
+                Enum.RequestStateEnum['Finished']
             return null
         }
 
@@ -2468,6 +2516,8 @@ async function generate(settings, mode) {
 
                 // //delete all mask related layers
             }
+            g_generation_session.request_status =
+                Enum.RequestStateEnum['Finished']
             return null
         }
 
@@ -2555,7 +2605,9 @@ async function generate(settings, mode) {
         updateProgressBarsHtml(0)
     } catch (e) {
         console.error(`btnGenerate.click(): `, e)
+        g_generation_session.request_status = Enum.RequestStateEnum['Finished']
     }
+    g_generation_session.request_status = Enum.RequestStateEnum['Finished']
 }
 
 Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
@@ -2733,7 +2785,7 @@ async function progressRecursive() {
                 Enum.RequestStateEnum['Generating']
         ) {
             const base64_url = general.base64ToBase64Url(json.current_image)
-            // debugger
+
             const progress_image_html = document.getElementById('progressImage')
             const container_width = document.querySelector(
                 '#divProgressImageViewerContainer'
@@ -3865,7 +3917,6 @@ document
     })
 
 function getHistoryMetadata(img) {
-    // debugger
     //auto fill the ui with metadata
     const metadata_json = JSON.parse(img.dataset.metadata_json_string)
     console.log('metadata_json: ', metadata_json)
@@ -4332,7 +4383,6 @@ document
     })
 
 Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
-    // debugger
     const tab_button_name = rb.dataset['tab-name']
     const tab_page_name = `${tab_button_name}-page`
 
@@ -4350,7 +4400,6 @@ Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
             })
 
         rb.onclick = () => {
-            // debugger
             document.getElementById(tab_button_name).click()
         }
     } catch (e) {
@@ -4649,9 +4698,3 @@ async function isCorrectBackground() {
     const is_correct_background = historylist.length > 0 ? true : false
     return is_correct_background
 }
-
-document
-    .getElementById('bSetControlImage')
-    .addEventListener('click', async () => {
-        await g_generation_session.setControlNetImage()
-    })
