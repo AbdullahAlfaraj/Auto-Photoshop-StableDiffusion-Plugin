@@ -66,7 +66,7 @@ for advance/professional users who want to use the smart masking mode, we have a
 # How to install Video Tutorial:
 we recommend you use [the one click installer](#one-click-installer). However watch the video on left if you don't have Automatic1111 Stable Diffusion installed, and the video on the right by Vladimir Chopine for clear instruction on how to install the plugin using UXP. 
 
-<a href="https://www.youtube.com/watch?v=evjSIfYIQq0&ab_channel=Abdsart" title="How To Install Auto Photoshop Stable Diffusion Plugin by Abdullah Alfaraj" rel="Click Here to Watch How To Install Tutorial by Abdullah Alfaraj"><img src="https://user-images.githubusercontent.com/7842232/217941315-8d4a3b25-1a83-4dac-b921-79b3f82e0536.png" style="width:500px"></a>
+<a href="https://www.youtube.com/watch?v=BNzdhEpFHrg&ab_channel=Abdsart" title="How To Install Auto Photoshop Stable Diffusion Plugin by Abdullah Alfaraj" rel="Click Here to Watch How To Install Tutorial by Abdullah Alfaraj"><img src="https://user-images.githubusercontent.com/7842232/217941315-8d4a3b25-1a83-4dac-b921-79b3f82e0536.png" style="width:500px"></a>
 <a href="https://www.youtube.com/watch?v=CJuTZw39Reg&t=145s&ab_channel=VladimirChopine%5BGeekatPlay%5D" title="How To Install Auto Photoshop Stable Diffusion Plugin by Vladimir Chopine" rel="Click Here to Watch How To Install Tutorial by Vladimir Chopine"><img src="https://i3.ytimg.com/vi/CJuTZw39Reg/maxresdefault.jpg" style="width:500px"></a>
 
 
