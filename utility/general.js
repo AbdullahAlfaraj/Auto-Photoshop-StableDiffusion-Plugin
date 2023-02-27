@@ -1,3 +1,5 @@
+const { requestGet } = require('./api')
+
 function newOutputImageName(format = 'png') {
     const random_id = Math.floor(Math.random() * 100000000000 + 1) // Date.now() doesn't have enough resolution to avoid duplicate
     const image_name = `output- ${Date.now()}-${random_id}.${format}`
@@ -85,6 +87,28 @@ function scaleToRatio(
     return [final_new_value_1, final_new_value_2]
 }
 
+function compareVersions(version_1, version_2) {
+    //remove the first character v
+    version_1 = version_1.slice(1)
+    const increments_1 = version_1.split('.').map((sn) => parseInt(sn))
+
+    version_2 = version_2.slice(1)
+    const increments_2 = version_2.split('.').map((sn) => parseInt(sn))
+
+    let b_older = false // true if version_1 is < than version_2, false if version_1 >= older
+    for (let i = 0; i < increments_1.length; ++i) {
+        if (increments_1[i] < increments_2[i]) {
+            b_older = true
+            break
+        }
+    }
+    return b_older
+}
+async function requestOnlineData() {
+    const { requestGet } = require('./api')
+    const online_data = await requestGet(g_online_data_url)
+    return online_data
+}
 module.exports = {
     newOutputImageName,
     makeImagePath,
@@ -96,4 +120,6 @@ module.exports = {
     scaleToClosestKeepRatio,
     scaleToRatio,
     mapRange,
+    compareVersions,
+    requestOnlineData,
 }
