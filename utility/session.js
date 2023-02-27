@@ -1,7 +1,7 @@
 const { cleanLayers } = require('../psapi')
 const psapi = require('../psapi')
 const io = require('./io')
-
+const Enum = require('../enum')
 const { ViewerManager } = require('../viewer')
 const { base64ToBase64Url } = require('./general')
 const html_manip = require('./html_manip')
@@ -37,7 +37,8 @@ class GenerationSession {
         this.progress_layer
         this.last_settings //the last settings been used for generation
         this.controlNetImage // base64 image
-        this.request_status
+        this.request_status = Enum.RequestStateEnum['Finished'] //finish or ideal state
+        this.is_control_net = false
     }
     isActive() {
         return this.state === SessionState['Active']
