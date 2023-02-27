@@ -119,7 +119,7 @@ const eventHandler = async (event, descriptor) => {
                 await hasSelectionChanged(
                     current_selection,
                     g_generation_session.selectionInfo
-                )
+                ) //new selection
             ) {
                 // endSessionUI //red color
                 // if selection has changed : change the color and text generate btn  "Generate" color "red"
@@ -128,10 +128,15 @@ const eventHandler = async (event, descriptor) => {
                 const selected_mode = getCurrentGenerationModeByValue(g_sd_mode)
                 g_ui.generateModeUI(selected_mode)
             } else {
+                // it's the same selection and the session is active
+
                 //indicate that the session will continue. only if the session we are in the same mode as the session's mode
                 // startSessionUI// green color
                 const current_mode = html_manip.getMode()
-                if (g_generation_session.isSameMode(current_mode)) {
+                if (
+                    g_generation_session.isActive() && // the session is active
+                    g_generation_session.isSameMode(current_mode) //same mode
+                ) {
                     // g_ui.startSessionUI()
                     g_ui.generateMoreUI()
                 }
