@@ -2032,6 +2032,9 @@ async function getSettings() {
             //use the same prompt as in the prompt textarea
             payload['prompt'] = prompt
             payload['negative_prompt'] = negative_prompt
+
+            payload['original_prompt'] = prompt
+            payload['original_negative_prompt'] = negative_prompt
         }
 
         //save the control_net_image
