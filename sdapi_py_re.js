@@ -651,6 +651,20 @@ async function requestControlNetImg2Img(plugin_settings) {
     const control_net_settings =
         control_net.mapPluginSettingsToControlNet(plugin_settings)
 
+    if (!control_net_settings['controlnet_input_image'][0]) {
+        app.showAlert('you need to add a valid ControlNet input image')
+        throw 'you need to add a valid ControlNet input image'
+    }
+
+    if (!control_net_settings['controlnet_module']) {
+        app.showAlert('you need to select a valid ControlNet Module')
+        throw 'you need to select a valid ControlNet Module'
+    }
+    if (!control_net_settings['controlnet_model']) {
+        app.showAlert('you need to select a valid ControlNet Model')
+        throw 'you need to select a valid ControlNet Model'
+    }
+
     let request = await fetch(full_url, {
         method: 'POST',
         headers: {
