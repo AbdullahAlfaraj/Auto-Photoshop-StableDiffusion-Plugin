@@ -330,13 +330,15 @@ function getCommentedString() {
 
 //REFACTOR: move to helpers.js
 function tempDisableElement(element, time) {
+    element.classList.add('disableBtn')
     element.disabled = true
-    element.style.opacity = '0.65'
-    element.style.cursor = 'not-allowed'
+    // element.style.opacity = '0.65'
+    // element.style.cursor = 'not-allowed'
     setTimeout(function () {
         element.disabled = false
-        element.style.opacity = '1.0'
-        element.style.cursor = 'default'
+        element.classList.remove('disableBtn')
+        // element.style.opacity = '1.0'
+        // element.style.cursor = 'default'
     }, time)
 }
 
@@ -857,6 +859,7 @@ async function createTempInpaintMaskLayer() {
         )
     }
 }
+
 async function deleteTempInpaintMaskLayer() {
     console.log(
         'g_inpaint_mask_layer_history_id: ',
@@ -1209,7 +1212,7 @@ function selectTool() {
     //rectanglemarquee
     // await require('photoshop').core.executeAsModal(newNormalLayer);
 }
-
+//Refactor: Delete testServerPath() method
 async function testServerPath() {
     // const serverPath = "https://api.github.com/users/abdullah"
 
@@ -2620,7 +2623,8 @@ async function generate(settings, mode) {
 
 Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
     (btn) => {
-        btn.addEventListener('click', async () => {
+        btn.addEventListener('click', async (evt) => {
+            tempDisableElement(evt.target, 5000)
             await easyModeGenerate(g_sd_mode)
         })
     }
