@@ -632,7 +632,7 @@ async function requestControlNetTxt2Img(plugin_settings) {
     const base64_mask = json['images'][numOfImages - 1]
 
     html_manip.setControlMaskSrc(base64ToBase64Url(base64_mask))
-
+    g_generation_session.controlNetMask = base64_mask
     const standard_response = await py_re.convertToStandardResponse(
         control_net_settings,
         json['images'].slice(0, -1),
@@ -681,7 +681,7 @@ async function requestControlNetImg2Img(plugin_settings) {
     //update the mask in controlNet tab
     const numOfImages = json['images'].length
     const base64_mask = json['images'][numOfImages - 1]
-
+    g_generation_session.controlNetMask = base64_mask
     html_manip.setControlMaskSrc(base64ToBase64Url(base64_mask))
 
     const standard_response = await py_re.convertToStandardResponse(

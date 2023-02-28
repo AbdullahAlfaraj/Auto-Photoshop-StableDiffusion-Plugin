@@ -2,6 +2,7 @@ const api = require('../api')
 const html_manip = require('../html_manip')
 const selection = require('../../selection')
 const note = require('../notification')
+const { appendConstructorOption } = require('jimp/types')
 async function checkIfControlNetInstalled() {}
 async function requestControlNetModelList() {
     const control_net_json = await api.requestGet(
@@ -212,6 +213,29 @@ document
             await note.Notification.inactiveSelectionArea()
         }
     })
+
+document.getElementById('bControlMask').addEventListener('click', async () => {
+    // const selectionInfo = await selection.Selection.getSelectionInfoExe()
+
+    if (
+        g_generation_session.control_net_selection_info &&
+        g_generation_session.controlNetMask
+    ) {
+        // await g_generation_session.setControlNetImage()
+        const selection_info = g_generation_session.control_net_selection_info
+        const layer = await io.IO.base64ToLayer(
+            g_generation_session.controlNetMask,
+            'ControlNet Mask.png',
+            selection_info.left,
+            selection_info.top,
+            selection_info.width,
+            selection_info.height
+        )
+    } else {
+        // await note.Notification.inactiveSelectionArea()
+        app.showAlert('Mask Image is not available')
+    }
+})
 
 module.exports = {
     requestControlNetModelList,
