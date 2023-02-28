@@ -77,6 +77,9 @@ class hordeGenerator {
         try {
             this.horde_id = null //reset request_id
             this.requestStatus = await requestHorde(settings)
+            if (this.requestStatus?.message) {
+                await app.showAlert(this.requestStatus?.message)
+            }
             this.horde_id = this.requestStatus.id
             console.log(
                 'generateRequest this.requestStatus: ',
