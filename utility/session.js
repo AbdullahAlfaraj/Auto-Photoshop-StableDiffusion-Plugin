@@ -39,6 +39,7 @@ class GenerationSession {
         this.controlNetImage // base64 image
         this.request_status = Enum.RequestStateEnum['Finished'] //finish or ideal state
         this.is_control_net = false
+        this.sudo_timer_id
     }
     isActive() {
         return this.state === SessionState['Active']

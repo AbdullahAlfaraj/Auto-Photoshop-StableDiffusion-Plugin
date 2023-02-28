@@ -2432,6 +2432,13 @@ async function easyModeGenerate(mode) {
     g_can_request_progress = false
 
     g_generation_session.request_status = Enum.RequestStateEnum['Finished']
+
+    if (g_generation_session.sudo_timer_id) {
+        //disable the sudo timer at the end of the generation
+        g_generation_session.sudo_timer_id = clearInterval(
+            g_generation_session.sudo_timer_id
+        )
+    }
 }
 async function generate(settings, mode) {
     try {
@@ -2451,11 +2458,19 @@ async function generate(settings, mode) {
         g_can_request_progress = true
         //wait 2 seconds till you check for progress
 
-        if (html_manip.getBackendType() !== backendTypeEnum['HordeNative']) {
+        if (
+            html_manip.getBackendType() !== backendTypeEnum['HordeNative'] && // anything other than horde native
+            g_generation_session.is_control_net === false // and must not be controlnet mode
+        ) {
             setTimeout(async function () {
                 // change this to setInterval()
                 await progressRecursive()
             }, 2000)
+        } else if (
+            html_manip.getBackendType() === backendTypeEnum['Auto1111'] &&
+            g_generation_session.is_control_net
+        ) {
+            g_generation_session.sudo_timer_id = general.sudoTimer()
         }
 
         console.log(settings)

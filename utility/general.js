@@ -115,6 +115,27 @@ function nearestMultiple(input, multiple) {
     const nearest_multiple = input - (input % multiple)
     return nearest_multiple
 }
+
+function sudoTimer() {
+    //sudo timer that will count to 100 and update the progress bar.
+    //use it for controlNet since block api progress call
+    let current_time = 0
+    let max_time = 100
+    var timerId = setInterval(countdown, 1000)
+
+    function countdown() {
+        if (current_time > max_time) {
+            clearTimeout(timerId)
+            // doSomething()
+            // html_manip.updateProgressBarsHtml(0)
+        } else {
+            html_manip.updateProgressBarsHtml(current_time)
+            console.log(current_time + ' seconds remaining')
+            current_time++
+        }
+    }
+    return timerId
+}
 module.exports = {
     newOutputImageName,
     makeImagePath,
@@ -129,4 +150,5 @@ module.exports = {
     compareVersions,
     requestOnlineData,
     nearestMultiple,
+    sudoTimer,
 }
