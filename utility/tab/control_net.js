@@ -2,7 +2,7 @@ const api = require('../api')
 const html_manip = require('../html_manip')
 const selection = require('../../selection')
 const note = require('../notification')
-const { appendConstructorOption } = require('jimp/types')
+
 async function checkIfControlNetInstalled() {}
 async function requestControlNetModelList() {
     const control_net_json = await api.requestGet(

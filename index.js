@@ -4648,69 +4648,69 @@ async function getColor(X, Y) {
     }
 }
 
-async function findDocumentType() {
-    //check if the background layer exsit
-    //if it doesn't return false
-    //if it does:
-    //duplicate the background layer and place it on the top of the document.
-    //sampler 10 random pixles
-    //and check if all the pixels has the same values.
-    //if it doesn't duplicate the background layer and place it above the background layer.
-    // make a white background layer.
-    //return true
+// async function findDocumentType() {
+//     //check if the background layer exsit
+//     //if it doesn't return false
+//     //if it does:
+//     //duplicate the background layer and place it on the top of the document.
+//     //sampler 10 random pixles
+//     //and check if all the pixels has the same values.
+//     //if it doesn't duplicate the background layer and place it above the background layer.
+//     // make a white background layer.
+//     //return true
 
-    let document_type
-    const background_layer = await app.activeDocument.backgroundLayer
-    const artboards = Array.from(await app.activeDocument.artboards)
-    if (artboards.length > 0) {
-        document_type = Enum.DocumentTypeEnum['ArtBoard']
-    } else if (layer_util.Layer.doesLayerExist(background_layer)) {
-        //assume it's solid white background if correctHistory > 1 || layers.length > 5
-        const b_correct_background = await isCorrectBackground()
-        if (b_correct_background) {
-            document_type = Enum.DocumentTypeEnum['SolidBackground']
-        } else {
-            //else
+//     let document_type
+//     const background_layer = await app.activeDocument.backgroundLayer
+//     const artboards = Array.from(await app.activeDocument.artboards)
+//     if (artboards.length > 0) {
+//         document_type = Enum.DocumentTypeEnum['ArtBoard']
+//     } else if (layer_util.Layer.doesLayerExist(background_layer)) {
+//         //assume it's solid white background if correctHistory > 1 || layers.length > 5
+//         const b_correct_background = await isCorrectBackground()
+//         if (b_correct_background) {
+//             document_type = Enum.DocumentTypeEnum['SolidBackground']
+//         } else {
+//             //else
 
-            //background layer does exist
-            //check if it's solid color background or an image background
-            //sampler 10 random pixels
-            let width = app.activeDocument.width
-            let height = app.activeDocument.height
-            let old_rgb
-            let same_color = true
-            await executeAsModal(async () => {
-                for (let i = 0; i < 10; ++i) {
-                    let x = Math.floor(Math.random() * width)
-                    let y = Math.floor(Math.random() * height)
+//             //background layer does exist
+//             //check if it's solid color background or an image background
+//             //sampler 10 random pixels
+//             let width = app.activeDocument.width
+//             let height = app.activeDocument.height
+//             let old_rgb
+//             let same_color = true
+//             await executeAsModal(async () => {
+//                 for (let i = 0; i < 10; ++i) {
+//                     let x = Math.floor(Math.random() * width)
+//                     let y = Math.floor(Math.random() * height)
 
-                    const rgb = await getColor(x, y)
-                    if (old_rgb) {
-                        if (
-                            Math.round(old_rgb[0]) === Math.round(rgb[0]) &&
-                            Math.round(old_rgb[1]) === Math.round(rgb[1]) &&
-                            Math.round(old_rgb[2]) === Math.round(rgb[2])
-                        ) {
-                        } else {
-                            same_color = false //it's an image background
-                            break
-                        }
-                    }
-                    old_rgb = rgb
-                }
-            })
+//                     const rgb = await getColor(x, y)
+//                     if (old_rgb) {
+//                         if (
+//                             Math.round(old_rgb[0]) === Math.round(rgb[0]) &&
+//                             Math.round(old_rgb[1]) === Math.round(rgb[1]) &&
+//                             Math.round(old_rgb[2]) === Math.round(rgb[2])
+//                         ) {
+//                         } else {
+//                             same_color = false //it's an image background
+//                             break
+//                         }
+//                     }
+//                     old_rgb = rgb
+//                 }
+//             })
 
-            document_type = same_color
-                ? Enum.DocumentTypeEnum['SolidBackground']
-                : Enum.DocumentTypeEnum['ImageBackground']
-        }
-    } else {
-        //create the background layer since it doesn't exsit
-        document_type = Enum.DocumentTypeEnum['NoBackground']
-    }
+//             document_type = same_color
+//                 ? Enum.DocumentTypeEnum['SolidBackground']
+//                 : Enum.DocumentTypeEnum['ImageBackground']
+//         }
+//     } else {
+//         //create the background layer since it doesn't exsit
+//         document_type = Enum.DocumentTypeEnum['NoBackground']
+//     }
 
-    return document_type
-}
+//     return document_type
+// }
 
 async function correctDocumentType(documentType) {
     if (documentType === Enum.DocumentTypeEnum['SolidBackground']) {
