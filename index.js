@@ -1809,44 +1809,43 @@ async function restoreActiveSelection() {
 }
 
 document.querySelector('#taPrompt').addEventListener('focus', async () => {
-    if (!g_generation_session.isLoadingActive) {
-        console.log('taPrompt focus')
-        // console.log('we are in prompt textarea')
-        // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
-        await storeActiveLayers()
-        await storeActiveSelection()
-        // await psapi.unselectActiveLayersExe()
-    }
+    // if (!g_generation_session.isLoadingActive) {
+    //     console.log('taPrompt focus')
+    //     // console.log('we are in prompt textarea')
+    //     // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
+    //     await storeActiveLayers()
+    //     await storeActiveSelection()
+    //     // await psapi.unselectActiveLayersExe()
+    // }
 })
 document.querySelector('#taPrompt').addEventListener('blur', async () => {
-    console.log('taPrompt blur')
-    // console.log('we are out of prompt textarea')
-    // await psapi.unselectActiveLayersExe()
-    // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
-    await restoreActiveLayers()
-    await restoreActiveSelection()
+    // console.log('taPrompt blur')
+    // // console.log('we are out of prompt textarea')
+    // // await psapi.unselectActiveLayersExe()
+    // // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
+    // await restoreActiveLayers()
+    // await restoreActiveSelection()
 })
 
 document
     .querySelector('#taNegativePrompt')
     .addEventListener('focus', async () => {
-        if (!g_generation_session.isLoadingActive) {
-            console.log('taNegativePrompt focus')
-            // console.log('we are in prompt textarea')
-
-            await storeActiveLayers()
-            await storeActiveSelection()
-            // await psapi.unselectActiveLayersExe()
-        }
+        // if (!g_generation_session.isLoadingActive) {
+        //     console.log('taNegativePrompt focus')
+        //     // console.log('we are in prompt textarea')
+        //     await storeActiveLayers()
+        //     await storeActiveSelection()
+        //     // await psapi.unselectActiveLayersExe()
+        // }
     })
 document
     .querySelector('#taNegativePrompt')
     .addEventListener('blur', async () => {
-        console.log('taNegativePrompt blur')
-        // console.log('we are out of prompt textarea')
-        // await psapi.unselectActiveLayersExe()
-        await restoreActiveLayers()
-        await restoreActiveSelection()
+        // console.log('taNegativePrompt blur')
+        // // console.log('we are out of prompt textarea')
+        // // await psapi.unselectActiveLayersExe()
+        // await restoreActiveLayers()
+        // await restoreActiveSelection()
     })
 
 function updateMetadata(new_metadata) {
