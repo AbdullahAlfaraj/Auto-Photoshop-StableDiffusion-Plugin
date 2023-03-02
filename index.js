@@ -1869,7 +1869,9 @@ async function getSettings() {
         const extension_type = settings_tab.getExtensionType() // get the extension type
         const selectionInfo = await psapi.getSelectionInfoExe()
         payload['selection_info'] = selectionInfo
-        const numberOfImages = document.querySelector('#tiNumberOfImages').value
+        const numberOfImages = parseInt(
+            document.querySelector('#tiNumberOfImages').value
+        )
         const numberOfSteps = document.querySelector('#tiNumberOfSteps').value
         const prompt = html_manip.getPrompt()
         const negative_prompt = html_manip.getNegativePrompt()
@@ -2844,7 +2846,7 @@ async function progressRecursive() {
             // progress_image_html.style.height = progress_image_html.naturalHeight
 
             if (
-                g_generation_session.last_settings.batch_size === '1' &&
+                g_generation_session.last_settings.batch_size === 1 &&
                 settings_tab.getUseLiveProgressImage()
             ) {
                 //only update the canvas if the number of images are one
