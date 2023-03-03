@@ -576,12 +576,72 @@ async function snapshot_layer() {
     console.log('snapshot_layer: result: ', result)
     return result
 }
+async function snapshot_layer_new() {
+    //similar to snapshot_layer() but fixes the problem with smart effects
+
+    let psAction = require('photoshop').action
+
+    const ids = await app.activeDocument.layers.map((layer) => layer.id)
+    const selection_info = await getSelectionInfoExe()
+
+    let create_snapshot_layer_command = [
+        // Select All Layers current layer
+        {
+            _obj: 'selectAllLayers',
+            _target: [
+                { _enum: 'ordinal', _ref: 'layer', _value: 'targetEnum' },
+            ],
+        },
+        // Duplicate current layer
+
+        {
+            ID: ids,
+            _obj: 'duplicate',
+            _target: [
+                { _enum: 'ordinal', _ref: 'layer', _value: 'targetEnum' },
+            ],
+            // version: 5
+        },
+
+        // Merge Layers
+        { _obj: 'mergeLayersNew' },
+    ]
+    const result = await psAction.batchPlay(create_snapshot_layer_command, {
+        synchronousExecution: true,
+        modalBehavior: 'execute',
+    })
+    await reSelectMarqueeExe(selection_info) //reselect the selection area for the mask
+    //make a mask of the selection area
+    const make_mask_command = [
+        // Make
+        {
+            _obj: 'make',
+            at: { _enum: 'channel', _ref: 'channel', _value: 'mask' },
+            new: { _class: 'channel' },
+            using: { _enum: 'userMaskEnabled', _value: 'revealSelection' },
+        },
+        // // Set Selection
+        // {
+        //     _obj: 'set',
+        //     _target: [{ _property: 'selection', _ref: 'channel' }],
+        //     to: { _enum: 'ordinal', _ref: 'channel', _value: 'targetEnum' },
+        // },
+    ]
+    const result_2 = await psAction.batchPlay(make_mask_command, {
+        synchronousExecution: true,
+        modalBehavior: 'execute',
+    })
+    await reSelectMarqueeExe(selection_info) //reselect the selection area again so we don't break other functionality
+
+    console.log('snapshot_layer: result: ', result)
+    return result
+}
 
 async function snapshot_layerExe() {
     try {
         await executeAsModal(
             async () => {
-                await snapshot_layer()
+                await snapshot_layer_new()
             },
             {
                 commandName: 'Action Commands',
