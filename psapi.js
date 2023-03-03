@@ -1501,6 +1501,19 @@ function executeCommandExe(commandFunc) {
         console.warn(e)
     }
 }
+async function executeDescExe(Desc) {
+    try {
+        await executeAsModal(async () => {
+            const result = await batchPlay([Desc], {
+                synchronousExecution: true,
+                modalBehavior: 'execute',
+            })
+            console.log(result)
+        })
+    } catch (e) {
+        console.warn(e)
+    }
+}
 module.exports = {
     createSolidLayer,
     createEmptyGroup,
@@ -1547,4 +1560,5 @@ module.exports = {
     silentSetInitImage,
     silentSetInitImageMask,
     executeCommandExe,
+    executeDescExe,
 }
