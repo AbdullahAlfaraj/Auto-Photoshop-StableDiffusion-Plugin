@@ -44,7 +44,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 	
  		
 # One Click Installer
-Download the [.ccx](https://www.dropbox.com/t/HittPW2SH8PqlEFN) file and run it. that's all.  you will be able to use all of stable diffusion modes (txt2img, img2img, inpainting and outpainting), check the [tutorials](https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/wiki) section to master the tool. 
+Download the [.ccx](https://www.dropbox.com/t/dLNPZu2V8rS4j9Bd) file and run it. that's all.  you will be able to use all of stable diffusion modes (txt2img, img2img, inpainting and outpainting), check the [tutorials](https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/wiki) section to master the tool. 
 
 ![install_plugin_1](https://user-images.githubusercontent.com/7842232/217213943-3e2a588d-3ed8-4757-ba69-9846b55a1b36.gif)
 
