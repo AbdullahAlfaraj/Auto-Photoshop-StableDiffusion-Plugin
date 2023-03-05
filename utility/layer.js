@@ -276,6 +276,35 @@ const createSolidLayerDesc = (r, g, b) => ({
         dialogOptions: 'dontDisplay',
     },
 })
+
+const toggleBackgroundLayerDesc = () => ({
+    _obj: 'show',
+    null: [
+        {
+            _ref: 'layer',
+            _property: 'background',
+        },
+    ],
+    toggleOptionsPalette: true,
+    _options: {
+        dialogOptions: 'dontDisplay',
+    },
+})
+
+async function toggleBackgroundLayerExe() {
+    try {
+        await executeAsModal(async () => {
+            const result = await batchPlay([toggleBackgroundLayerDesc()], {
+                synchronousExecution: true,
+                modalBehavior: 'execute',
+            })
+            console.log('toggleBackgroundLayerExe result: ', result)
+        })
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
 async function createBackgroundLayer(r = 255, g = 255, b = 255) {
     try {
         const has_background = await hasBackgroundLayer()
@@ -324,4 +353,5 @@ module.exports = {
     createBackgroundLayer,
     createSolidLayerDesc,
     makeBackgroundLayerDesc,
+    toggleBackgroundLayerExe,
 }

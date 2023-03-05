@@ -77,6 +77,9 @@ class hordeGenerator {
         try {
             this.horde_id = null //reset request_id
             this.requestStatus = await requestHorde(settings)
+            if (this.requestStatus?.message) {
+                await app.showAlert(this.requestStatus?.message)
+            }
             this.horde_id = this.requestStatus.id
             console.log(
                 'generateRequest this.requestStatus: ',
@@ -520,12 +523,14 @@ async function mapPluginSettingsToHorde(plugin_settings) {
         // payload["source_mask"] = base64.b64encode(buffer.getvalue()).decode()//does it need to be webp?
     }
 
-    let seed = ps['Seed']
-    if (ps['Seed'] === '-1') {
+    let seed = ps['seed']
+    if (ps['seed'] === '-1') {
         const random_seed = Math.floor(Math.random() * 100000000000 + 1) // Date.now() doesn't have enough resolution to avoid duplicate
         seed = random_seed.toString()
     }
-
+    const width = general.nearestMultiple(ps['width'], 64)
+    const height = general.nearestMultiple(ps['height'], 64)
+    const nsfw = html_manip.getUseNsfw()
     let horde_payload = {
         prompt: horde_prompt,
         params: {
@@ -534,8 +539,8 @@ async function mapPluginSettingsToHorde(plugin_settings) {
             cfg_scale: ps['cfg_scale'],
             denoising_strength: ps['denoising_strength'],
             seed: seed,
-            height: ps['height'],
-            width: ps['width'],
+            height: height,
+            width: width,
             seed_variation: 1,
             post_processing: ['GFPGAN'],
             karras: false,
@@ -543,7 +548,7 @@ async function mapPluginSettingsToHorde(plugin_settings) {
             steps: parseInt(ps['steps']),
             n: 1,
         },
-        nsfw: false,
+        nsfw: nsfw,
         trusted_workers: true,
         censor_nsfw: false,
         // workers: ['4c79ab19-8e6c-4054-83b3-773b7ce71ece'],

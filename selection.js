@@ -31,9 +31,9 @@ function finalWidthHeight(
 }
 
 async function selectionToFinalWidthHeight() {
-    const { getSelectionInfoExe } = require('./psapi')
+    // const { getSelectionInfoExe } = require('./psapi')
     try {
-        const selectionInfo = await getSelectionInfoExe()
+        const selectionInfo = await psapi.getSelectionInfoExe()
         const [finalWidth, finalHeight] = finalWidthHeight(
             selectionInfo.width,
             selectionInfo.height,
@@ -71,10 +71,66 @@ function convertSelectionObjectToSelectionInfo(selection_obj) {
     return selection_info
 }
 
+const SelectionInfoDesc = () => ({
+    _obj: 'get',
+    _target: [
+        {
+            _property: 'selection',
+        },
+        {
+            _ref: 'document',
+            _id: app.activeDocument._id,
+        },
+    ],
+    _options: {
+        dialogOptions: 'dontDisplay',
+    },
+})
 class Selection {
-    static getSelectionInfo() {}
-    static isValidSelection() {
-        selection_info
+    static async getSelectionInfoExe() {
+        //return a selectionInfo object or undefined
+        try {
+            const selection = await executeAsModal(async () => {
+                const result = await batchPlay([SelectionInfoDesc()], {
+                    synchronousExecution: true,
+                    modalBehavior: 'execute',
+                })
+
+                return result[0]?.selection
+            })
+
+            if (this.isSelectionValid(selection)) {
+                let selection_info = {
+                    left: selection.left._value,
+                    right: selection.right._value,
+                    bottom: selection.bottom._value,
+                    top: selection.top._value,
+                    height: selection.bottom._value - selection.top._value,
+                    width: selection.right._value - selection.left._value,
+                }
+                // console.dir({selection_info})
+                return selection_info
+            }
+        } catch (e) {
+            console.warn('selection info error', e)
+        }
+    }
+
+    static isSelectionValid(selection) {
+        console.warn(
+            'isSelectionValid is deprecated use selection.isSelectionValid instead'
+        )
+        if (
+            selection && // check if the selection is defined
+            selection.hasOwnProperty('left') &&
+            selection.hasOwnProperty('right') &&
+            selection.hasOwnProperty('top') &&
+            selection.hasOwnProperty('bottom')
+        ) {
+            return true
+        }
+
+        return false
     }
     static reselectArea(selection_info) {}
     static isSameSelection(selection_info_1, selection_info_2) {}

@@ -7,7 +7,7 @@ class Notification {
         const r1 = await dialog_box.prompt(
             'Automatic1111 is Offline',
             "make sure Automatic1111 is running in the background, or select the 'native horde' option from the horde tab",
-            ['Cancel', 'How To', 'OK']
+            ['Cancel', 'OK']
         )
 
         try {
@@ -16,8 +16,6 @@ class Notification {
                 console.log('cancel')
             } else if (r1 === 'OK') {
                 console.log('ok')
-            } else if (r1 === 'How To') {
-                console.log('How to')
             }
         } catch (e) {
             console.warn(e)
@@ -25,9 +23,9 @@ class Notification {
     }
     static async webuiAPIMissing() {
         const r1 = await dialog_box.prompt(
-            "Automatic1111 is running, but you've forgotten to add --api flag, so the plugin can communicate with it",
-            '',
-            ['Cancel', 'How To', 'OK']
+            "The Plugin can't communicate with Automatic1111",
+            'Automatic1111 is running, but you forgot to add --api flag to the webui command flags',
+            ['Cancel', 'OK']
         )
 
         try {
@@ -36,8 +34,6 @@ class Notification {
                 console.log('cancel')
             } else if (r1 === 'OK') {
                 console.log('ok')
-            } else if (r1 === 'How To') {
-                console.log('How to')
             }
         } catch (e) {
             console.warn(e)

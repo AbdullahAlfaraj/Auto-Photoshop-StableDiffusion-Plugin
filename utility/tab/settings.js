@@ -8,24 +8,6 @@ function setUseSharpMask() {
     console.warn('setUseSharpMask is not setup')
 }
 
-document.getElementById('chUseSharpMask').addEventListener('change', (ev) => {
-    const isChecked = ev.target.checked
-    if (isChecked) {
-        document.getElementById('slMaskBlur').setAttribute('disabled')
-    } else {
-        document.getElementById('slMaskBlur').removeAttribute('disabled')
-    }
-})
-
-document.getElementById('chUseSmartObject').addEventListener('change', (ev) => {
-    const isChecked = ev.target.checked
-    if (isChecked) {
-        g_b_use_smart_object = true
-    } else {
-        g_b_use_smart_object = false
-    }
-})
-
 function getUseLiveProgressImage() {
     const b_live_update = document.getElementById('chLiveProgressImage').checked
     return b_live_update
@@ -76,11 +58,6 @@ async function changeSdUrl(sd_url) {
         await sdapi.changeSdUrl(sd_url)
     }
 }
-document
-    .getElementById('btnSaveSettingsTabs')
-    .addEventListener('click', async () => {
-        await saveSettings()
-    })
 
 async function saveSettings() {
     const settings_tab_settings = {
@@ -110,6 +87,37 @@ async function loadSettings() {
     }
 }
 
+document.getElementById('chUseSharpMask').addEventListener('change', (ev) => {
+    const isChecked = ev.target.checked
+    if (isChecked) {
+        document.getElementById('slMaskBlur').setAttribute('disabled')
+    } else {
+        document.getElementById('slMaskBlur').removeAttribute('disabled')
+    }
+})
+
+document.getElementById('chUseSmartObject').addEventListener('change', (ev) => {
+    const isChecked = ev.target.checked
+    if (isChecked) {
+        g_b_use_smart_object = true
+    } else {
+        g_b_use_smart_object = false
+    }
+})
+
+function getUseOriginalPrompt() {
+    const b_use_original_prompt = document.getElementById(
+        'chUseOriginalPrompt'
+    ).checked
+    return b_use_original_prompt
+}
+
+document
+    .getElementById('btnSaveSettingsTabs')
+    .addEventListener('click', async () => {
+        await saveSettings()
+    })
+
 module.exports = {
     getUseSharpMask,
     setUseSharpMask,
@@ -121,4 +129,5 @@ module.exports = {
     saveSettings,
     getUseLiveProgressImage,
     setUseLiveProgressImage,
+    getUseOriginalPrompt,
 }

@@ -322,21 +322,23 @@ async function selectMarqueeRectangularToolExe() {
 }
 
 async function promptForMarqueeTool() {
-    ;(async () => {
-        const r1 = await dialog_box.prompt(
-            'Please Select a Rectangular Area',
-            'You Forgot to select a Rectangular Area',
-            ['Cancel', 'Rectangular Marquee']
-        )
-        if ((r1 || 'Rectangular Marquee') !== 'Rectangular Marquee') {
-            /* cancelled or No */
-            console.log('cancel')
-        } else {
-            /* Yes */
-            console.log('Rectangular Marquee')
-            selectMarqueeRectangularToolExe()
+    console.warn('promptForMarqueeTool is deprecated use Notification class')(
+        async () => {
+            const r1 = await dialog_box.prompt(
+                'Please Select a Rectangular Area',
+                'You Forgot to select a Rectangular Area',
+                ['Cancel', 'Rectangular Marquee']
+            )
+            if ((r1 || 'Rectangular Marquee') !== 'Rectangular Marquee') {
+                /* cancelled or No */
+                console.log('cancel')
+            } else {
+                /* Yes */
+                console.log('Rectangular Marquee')
+                selectMarqueeRectangularToolExe()
+            }
         }
-    })()
+    )()
 }
 
 async function selectLayerChannelCommand() {
@@ -403,6 +405,7 @@ async function selectLayerChannelCommand() {
 }
 
 async function getSelectionInfoCommand() {
+    // console.warn('getSelectionInfoCommand is deprecated use SelectionInfoDesc')
     const result = await batchPlay(
         [
             {
@@ -431,6 +434,9 @@ async function getSelectionInfoCommand() {
 }
 
 function isSelectionValid(selection) {
+    // console.warn(
+    //     'isSelectionValid is deprecated use selection.isSelectionValid instead'
+    // )
     if (
         selection && // check if the selection is defined
         selection.hasOwnProperty('left') &&
@@ -445,8 +451,10 @@ function isSelectionValid(selection) {
 }
 
 async function getSelectionInfoExe() {
-    console.log('getSelectionInfo was called')
-
+    // console.log('getSelectionInfo was called')
+    // console.warn(
+    //     'getSelectionInfoExe is deprecated use selection.getSelectionInfoExe instead'
+    // )
     try {
         const selection = (await executeAsModal(getSelectionInfoCommand))[0]
             .selection
@@ -568,12 +576,72 @@ async function snapshot_layer() {
     console.log('snapshot_layer: result: ', result)
     return result
 }
+async function snapshot_layer_new() {
+    //similar to snapshot_layer() but fixes the problem with smart effects
+
+    let psAction = require('photoshop').action
+
+    const ids = await app.activeDocument.layers.map((layer) => layer.id)
+    const selection_info = await getSelectionInfoExe()
+
+    let create_snapshot_layer_command = [
+        // Select All Layers current layer
+        {
+            _obj: 'selectAllLayers',
+            _target: [
+                { _enum: 'ordinal', _ref: 'layer', _value: 'targetEnum' },
+            ],
+        },
+        // Duplicate current layer
+
+        {
+            ID: ids,
+            _obj: 'duplicate',
+            _target: [
+                { _enum: 'ordinal', _ref: 'layer', _value: 'targetEnum' },
+            ],
+            // version: 5
+        },
+
+        // Merge Layers
+        { _obj: 'mergeLayersNew' },
+    ]
+    const result = await psAction.batchPlay(create_snapshot_layer_command, {
+        synchronousExecution: true,
+        modalBehavior: 'execute',
+    })
+    await reSelectMarqueeExe(selection_info) //reselect the selection area for the mask
+    //make a mask of the selection area
+    const make_mask_command = [
+        // Make
+        {
+            _obj: 'make',
+            at: { _enum: 'channel', _ref: 'channel', _value: 'mask' },
+            new: { _class: 'channel' },
+            using: { _enum: 'userMaskEnabled', _value: 'revealSelection' },
+        },
+        // // Set Selection
+        // {
+        //     _obj: 'set',
+        //     _target: [{ _property: 'selection', _ref: 'channel' }],
+        //     to: { _enum: 'ordinal', _ref: 'channel', _value: 'targetEnum' },
+        // },
+    ]
+    const result_2 = await psAction.batchPlay(make_mask_command, {
+        synchronousExecution: true,
+        modalBehavior: 'execute',
+    })
+    await reSelectMarqueeExe(selection_info) //reselect the selection area again so we don't break other functionality
+
+    console.log('snapshot_layer: result: ', result)
+    return result
+}
 
 async function snapshot_layerExe() {
     try {
         await executeAsModal(
             async () => {
-                await snapshot_layer()
+                await snapshot_layer_new()
             },
             {
                 commandName: 'Action Commands',
@@ -736,7 +804,9 @@ async function silentSetInitImage(layer, session_id) {
         const height = html_manip.getHeight()
 
         //get the selection from the canvas as base64 png, make sure to resize to the width and height slider
+        const selectionInfo = g_generation_session.selectionInfo
         const base64_image = await io.IO.getSelectionFromCanvasAsBase64(
+            selectionInfo,
             true,
             width,
             height
@@ -776,7 +846,9 @@ async function silentSetInitImageMask(layer, session_id) {
         const height = html_manip.getHeight()
 
         //get the selection from the canvas as base64 png, make sure to resize to the width and height slider
+        const selectionInfo = g_generation_session.selectionInfo
         const base64_image = await io.IO.getSelectionFromCanvasAsBase64(
+            selectionInfo,
             true,
             width,
             height
@@ -1429,6 +1501,19 @@ function executeCommandExe(commandFunc) {
         console.warn(e)
     }
 }
+async function executeDescExe(Desc) {
+    try {
+        await executeAsModal(async () => {
+            const result = await batchPlay([Desc], {
+                synchronousExecution: true,
+                modalBehavior: 'execute',
+            })
+            console.log(result)
+        })
+    } catch (e) {
+        console.warn(e)
+    }
+}
 module.exports = {
     createSolidLayer,
     createEmptyGroup,
@@ -1475,4 +1560,5 @@ module.exports = {
     silentSetInitImage,
     silentSetInitImageMask,
     executeCommandExe,
+    executeDescExe,
 }
