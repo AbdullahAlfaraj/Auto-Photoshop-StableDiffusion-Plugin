@@ -2,7 +2,7 @@
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
 // let g_sdapi_path = 'sdapi'
-let g_version = 'v1.1.10'
+let g_version = 'v1.2.0'
 let g_sd_url = 'http://127.0.0.1:7860'
 let g_online_data_url =
     'https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/master/utility/online_data.json'
@@ -2839,8 +2839,13 @@ async function progressRecursive() {
             // )
 
             // progress_image_html.style.width = '100%'
-            progress_image_html.style.width = 'auto'
-            progress_image_html.style.height = 'auto'
+            if (progress_image_html.style.width !== 'auto') {
+                progress_image_html.style.width = 'auto'
+            }
+            if ((progress_image_html.style.height = 'auto' !== 'auto')) {
+                progress_image_html.style.height = 'auto'
+            }
+
             // progress_image_html = new_height
             // progress_image_html.style.width = progress_image_html.naturalWidth
             // progress_image_html.style.height = progress_image_html.naturalHeight
@@ -2858,7 +2863,7 @@ async function progressRecursive() {
             //refactor this code
             setTimeout(async () => {
                 await progressRecursive()
-            }, 500)
+            }, 1000)
         }
     } catch (e) {
         if (
