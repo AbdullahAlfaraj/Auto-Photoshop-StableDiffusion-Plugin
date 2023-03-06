@@ -213,12 +213,32 @@ class GenerationSession {
         //get the selection from the canvas as base64 png, make sure to resize to the width and height slider
         const selectionInfo = await psapi.getSelectionInfoExe()
         this.control_net_selection_info = selectionInfo
-        const base64_image = await io.IO.getSelectionFromCanvasAsBase64(
-            selectionInfo,
-            true,
-            width,
-            height
-        )
+        // const base64_image = await io.IO.getSelectionFromCanvasAsBase64Silent(
+        //     selectionInfo,
+        //     true,
+        //     width,
+        //     height
+        // )
+
+        const use_silent_mode = html_manip.getUseSilentMode()
+        let layer = null
+        if (!use_silent_mode) {
+            await psapi.snapshot_layerExe()
+            const snapshotLayer = await app.activeDocument.activeLayers[0]
+            layer = snapshotLayer
+        }
+        const base64_image =
+            await io.IO.getSelectionFromCanvasAsBase64Interface(
+                width,
+                height,
+                layer,
+                selectionInfo,
+                true,
+                use_silent_mode
+            )
+
+        await layer_util.deleteLayers([layer]) //delete the snapshot layer if it exists
+
         this.controlNetImage = base64_image
         html_manip.setControlImageSrc(base64ToBase64Url(base64_image))
         // console.log('base64_img:', base64_image)

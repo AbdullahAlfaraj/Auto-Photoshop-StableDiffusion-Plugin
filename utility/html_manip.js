@@ -819,6 +819,10 @@ function getUseNsfw() {
     const b_nsfw = document.getElementById('chUseNSFW').checked
     return b_nsfw
 }
+function getUseSilentMode() {
+    const b_use_silent_mode = document.getElementById('chUseSilentMode').checked
+    return b_use_silent_mode
+}
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -893,4 +897,5 @@ module.exports = {
     getSelectedMenuItem,
     getSelectedMenuItemTextContent,
     getUseNsfw,
+    getUseSilentMode,
 }
