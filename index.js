@@ -416,7 +416,7 @@ async function refreshUI() {
         console.log('inpainting_mask_weight: ', inpainting_mask_weight)
         html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
 
-        await control_net.initializeControlNetTab()
+        await control_net.initializeControlNetTab(g_controlnet_max_models)
     } catch (e) {
         console.warn(e)
     }
@@ -712,11 +712,14 @@ let g_old_slider_width = 512
 let g_old_slider_height = 512
 let g_sd_config_obj
 let g_hi_res_upscaler_models
+let g_controlnet_max_models
 ;(async function () {
     let temp_config = new sd_config.SdConfig()
     await temp_config.getConfig()
     g_hi_res_upscaler_models = temp_config.getUpscalerModels()
     g_sd_config_obj = temp_config
+    g_controlnet_max_models = temp_config.getControlNetMaxModelsNum()
+
 
     for (let model of g_hi_res_upscaler_models) {
         //update the hi res upscaler models menu
@@ -781,7 +784,7 @@ async function initPlugin() {
     await refreshPromptMenue()
 
     //init ControlNet Tab
-    await control_net.initializeControlNetTab()
+    await control_net.initializeControlNetTab(g_controlnet_max_models)
 }
 initPlugin()
 // refreshModels() // get the models when the plugin loads
@@ -2067,19 +2070,6 @@ async function getSettings() {
             payload['original_negative_prompt'] = negative_prompt
         }
 
-        //save the control_net_image
-        // const b_enable_control_net =
-        //     document.getElementById('chEnableControlNet').checked
-        // if (b_enable_control_net) {
-        //     // payload['control_net_image'] = g_generation_session.controlNetImage
-        //     // payload['enable_control_net'] = b_enable_control_net //Note: this will never be false, either true or undefined
-        //     // payload['control_net_weight'] = control_net.getControlNetWeight()
-        //     // payload['control_net_weight'] = control_net.get
-        // } else {
-        //     // delete payload['control_net_image']
-        //     // delete payload['control_net_weight']
-        //     // delete payload['enable_control_net']
-        // }
         payload = {
             ...payload,
             // prompt: prompt,
@@ -2231,7 +2221,8 @@ async function generateImg2Img(settings) {
             backend_type === backendTypeEnum['Auto1111'] ||
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
-            const b_enable_control_net = control_net.getEnableControlNet()
+            //checks on index 0 as if not enabled ingores the rest
+            const b_enable_control_net = control_net.getEnableControlNet(0)
 
             if (b_enable_control_net) {
                 //use control net

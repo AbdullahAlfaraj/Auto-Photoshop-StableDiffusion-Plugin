@@ -34,6 +34,27 @@ class SdConfig {
             console.warn(e)
         }
     }
+
+    getControlNetMaxModelsNum() {
+        try {
+            let max_models_num
+            for (let comp of this.config.components) {
+                if (comp?.props?.elem_id) {
+                    const elem_id = comp?.props?.elem_id
+                    if (elem_id === 'setting_control_net_max_models_num') {
+                        console.log('setting_control_net_max_models_num: ', comp?.props?.value)
+                        max_models_num = comp?.props?.value
+                        break
+                    }
+                }
+            }
+            console.log('max_models_num: ', max_models_num)
+            return max_models_num
+
+        } catch (e) {
+            console.warn(e)
+        }
+    }
 }
 
 module.exports = {
