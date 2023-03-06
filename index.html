@@ -170,6 +170,10 @@
             margin: 0;
         }
 
+        .disableBtn {
+            opacity: 0.65;
+            cursor: not-allowed !important;
+        }
         .btnSquare,
         #btnRefreshModels {
             background-color: #777;
@@ -187,7 +191,7 @@
         #btnRefreshModels:focus {
             background-color: #f0f0f0;
         }
-        .btnSquare:hover {
+        .btnSquare:not(.btnGenerateClass):hover {
             background-color: #333;
         }
         .btnSquare:focus {
@@ -580,6 +584,9 @@
         .res-decrease {
             color: #ff595e;
         }
+        .controlNetImaageContainer {
+            margin-right: 3px;
+        }
         #divInitImageViewerContainer {
             display: flex;
         }
@@ -606,6 +613,9 @@
                 </div>
                 <div class="sp-tab" id="sp-viewer-tab">
                     <sp-label>Viewer</sp-label>
+                </div>
+                <div class="sp-tab" id="sp-control_net-tab">
+                    <sp-label>ControlNet</sp-label>
                 </div>
                 <div class="sp-tab" id="sp-history-tab" style="display: none">
                     <sp-label>History</sp-label>
@@ -813,6 +823,113 @@
                 </div>
                 <!-- </div> -->
             </div>
+            <div class="sp-tab-page" id="sp-control_net-tab-page">
+                <!-- Horde tab page -->
+                <div></div>
+                <div style="display: flex">
+                    <div
+                        id="control_net_image_container"
+                        class="imgContainer controlNetImaageContainer"
+                    >
+                        <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+
+                        <div>
+                            <img
+                                id="control_net_image"
+                                class="column-item-image"
+                                src="https://source.unsplash.com/random"
+                                width="300px"
+                                height="100px"
+                            />
+                        </div>
+                        <div class="imgButton">
+                            <button
+                                class="column-item button-style btnSquare"
+                                id="bSetControlImage"
+                            >
+                                Set CtrlNet Img
+                            </button>
+                        </div>
+                    </div>
+                    <div
+                        id="control_net_mask_container"
+                        class="imgContainer controlNetImaageContainer"
+                    >
+                        <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+
+                        <div>
+                            <img
+                                id="control_net_mask"
+                                class="column-item-image"
+                                src="https://source.unsplash.com/random"
+                                width="300px"
+                                height="100px"
+                            />
+                        </div>
+                        <div class="imgButton btnClass">
+                            <button
+                                class="column-item button-style btnSquare"
+                                id="bControlMask"
+                            >
+                                View Mask
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <sp-checkbox id="chEnableControlNet">Enable</sp-checkbox>
+                <sp-checkbox checked id="chlowVram">Low VRAM</sp-checkbox>
+                <sp-checkbox id="chGuessMode">Guess Mode</sp-checkbox>
+
+                <div>
+                    <div>
+                        <sp-slider
+                            show-value="false"
+                            id="slControlNetWeight"
+                            min="0"
+                            max="100"
+                            value="50"
+                            title="2 will keep the composition; 0 will allow composition to change"
+                        >
+                            <sp-label slot="label">Weight:</sp-label>
+                            <sp-label slot="label" id="lControlNetWeight"
+                                >1.0</sp-label
+                            >
+                        </sp-slider>
+                        <sp-slider
+                            show-value="false"
+                            id="slControlNetGuidanceStrength"
+                            min="0"
+                            max="100"
+                            value="100"
+                        >
+                            <sp-label slot="label">Guidance strength:</sp-label>
+                            <sp-label
+                                slot="label"
+                                id="lControlNetGuidanceStrength"
+                                >1.0</sp-label
+                            >
+                        </sp-slider>
+                    </div>
+                </div>
+                <div id="menu-bar-control_net" style="display: flex">
+                    <sp-picker size="m" label="Selection type">
+                        <sp-menu id="mModuleMenuControlNet" slot="options">
+                            <!-- <sp-menu-item> item </sp-menu-item> -->
+                        </sp-menu>
+                    </sp-picker>
+                    <sp-picker size="m" label="Selection type">
+                        <sp-menu id="mModelsMenuControlNet" slot="options">
+                            <!-- <sp-menu-item> item </sp-menu-item> -->
+                        </sp-menu>
+                    </sp-picker>
+
+                    <!-- <button class="btnSquare" id="btnRefreshModelsHorde">
+                        Refresh Models
+                    </button> -->
+                </div>
+            </div>
+
             <div class="sp-tab-page" id="sp-history-tab-page">
                 <div class="subTabOptionsContainer"></div>
 
@@ -1240,6 +1357,10 @@
                 <sp-checkbox checked id="chLiveProgressImage"
                     >Live Progress Image</sp-checkbox
                 >
+
+                <sp-checkbox checked id="chUseOriginalPrompt"
+                    >Restore Original Prompt</sp-checkbox
+                >
                 <!-- <sp-checkbox checked id="chUseSilentImport"
                     >Use Silent Import</sp-checkbox
                 > -->
@@ -1498,7 +1619,7 @@
                                 id="taNegativePrompt"
                                 placeholder="Negative Prompt"
                                 id="taNegativePrompt"
-                                value="{ugly}"
+                                value=""
                                 multiline
                                 grows
                             ></sp-textarea>

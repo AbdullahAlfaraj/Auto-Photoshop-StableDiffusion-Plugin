@@ -15,7 +15,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 - [One Click Installer](#one-click-installer) 
 - [How To Install Video Tutorial](#how-to-install-video-tutorial)
 - [Instructional Tutorial (outpaint, inpaint, img2img and txt2img):](#instructional-tutorial-outpaint-inpaint-img2img-and-txt2img)
-- [How to install:](#how-to-install)
+- [How to install (Developers):](#how-to-install-instruction-for-developers)
 	- [First time running the plugin (local Automatic1111):](#first-time-running-the-plugin-local-automatic1111)
 	- [First time running the plugin (remote Automatic1111):](#first-time-running-the-plugin-remote-automatic1111)
 	- [Steps to run the plugin for second time and onward:](#steps-to-run-the-plugin-for-second-time-and-onward)
@@ -44,7 +44,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 	
  		
 # One Click Installer
-Download the [.ccx](https://www.dropbox.com/t/HittPW2SH8PqlEFN) file and run it. that's all.  you will be able to use all of stable diffusion modes (txt2img, img2img, inpainting and outpainting), check the [tutorials](https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/wiki) section to master the tool. 
+Download the [.ccx](https://www.dropbox.com/t/dLNPZu2V8rS4j9Bd) file and run it. that's all.  you will be able to use all of stable diffusion modes (txt2img, img2img, inpainting and outpainting), check the [tutorials](https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/wiki) section to master the tool. 
 
 ![install_plugin_1](https://user-images.githubusercontent.com/7842232/217213943-3e2a588d-3ed8-4757-ba69-9846b55a1b36.gif)
 
@@ -75,15 +75,14 @@ we recommend you check the [tutorials](https://github.com/AbdullahAlfaraj/Auto-P
  
 [![Click Here to Watch Tutorial](http://i3.ytimg.com/vi/evjSIfYIQq0/hqdefault.jpg)](https://www.youtube.com/watch?v=evjSIfYIQq0&ab_channel=Abdsart "Tutorial - Auto Photoshop Stable Diffusion Plugin")
 
-# How to install:
-we recommend you use [the one click installer](#one-click-installer)
+# How to install (Instruction for Developers):
+for normal users we recommend you use [the one click installer](#one-click-installer)
 ## First time running the plugin (local Automatic1111):
 1) download the plugin:
 ```
 git clone https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin.git
 ```
-2) run "start_se![Uploading How to Install Tutorial 1.png…]()
-rver.bat" inside "Auto-Photoshop-StableDiffusion-Plugin" directory
+2) run "start_server.bat" inside "Auto-Photoshop-StableDiffusion-Plugin" directory
 3) go to where you have [automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) installed. 
 Edit the "webui-user.bat" in automatic1111 
  change this line 

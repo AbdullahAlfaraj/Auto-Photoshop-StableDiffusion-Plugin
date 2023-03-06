@@ -2,10 +2,13 @@
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
 // let g_sdapi_path = 'sdapi'
-let g_version = 'v1.1.10'
+let g_version = 'v1.2.0'
 let g_sd_url = 'http://127.0.0.1:7860'
+let g_online_data_url =
+    'https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/master/utility/online_data.json'
 const Enum = require('./enum')
 const helper = require('./helper')
+const sd_tab = require('./utility/tab/sd')
 // let g_sdapi_path = 'sdapi_py_re'
 // const sdapi = require(`./${g_sdapi_path}`)
 const sdapi = require('./sdapi_py_re')
@@ -41,6 +44,7 @@ const thumbnail = require('./thumbnail')
 const note = require('./utility/notification')
 const sampler_data = require('./utility/sampler')
 const settings_tab = require('./utility/tab/settings')
+const control_net = require('./utility/tab/control_net')
 
 let g_horde_generator = new horde_native.hordeGenerator()
 let g_automatic_status = Enum.AutomaticStatusEnum['Offline']
@@ -115,7 +119,7 @@ const eventHandler = async (event, descriptor) => {
                 await hasSelectionChanged(
                     current_selection,
                     g_generation_session.selectionInfo
-                )
+                ) //new selection
             ) {
                 // endSessionUI //red color
                 // if selection has changed : change the color and text generate btn  "Generate" color "red"
@@ -124,10 +128,15 @@ const eventHandler = async (event, descriptor) => {
                 const selected_mode = getCurrentGenerationModeByValue(g_sd_mode)
                 g_ui.generateModeUI(selected_mode)
             } else {
+                // it's the same selection and the session is active
+
                 //indicate that the session will continue. only if the session we are in the same mode as the session's mode
                 // startSessionUI// green color
                 const current_mode = html_manip.getMode()
-                if (g_generation_session.isSameMode(current_mode)) {
+                if (
+                    g_generation_session.isActive() && // the session is active
+                    g_generation_session.isSameMode(current_mode) //same mode
+                ) {
                     // g_ui.startSessionUI()
                     g_ui.generateMoreUI()
                 }
@@ -321,13 +330,15 @@ function getCommentedString() {
 
 //REFACTOR: move to helpers.js
 function tempDisableElement(element, time) {
+    element.classList.add('disableBtn')
     element.disabled = true
-    element.style.opacity = '0.65'
-    element.style.cursor = 'not-allowed'
+    // element.style.opacity = '0.65'
+    // element.style.cursor = 'not-allowed'
     setTimeout(function () {
         element.disabled = false
-        element.style.opacity = '1.0'
-        element.style.cursor = 'default'
+        element.classList.remove('disableBtn')
+        // element.style.opacity = '1.0'
+        // element.style.cursor = 'default'
     }, time)
 }
 
@@ -404,6 +415,8 @@ async function refreshUI() {
             await g_sd_options_obj.getInpaintingMaskWeight()
         console.log('inpainting_mask_weight: ', inpainting_mask_weight)
         html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
+
+        await control_net.initializeControlNetTab()
     } catch (e) {
         console.warn(e)
     }
@@ -724,6 +737,14 @@ g_generation_session.deactivate() //session starte as inactive
 let g_ui = new ui.UI()
 let g_ui_settings = new ui.UISettings()
 
+const requestState = {
+    Generate: 'generate',
+    Interrupt: 'interrupt',
+}
+
+let g_request_status = '' //
+
+//REFACTOR: move to Enum.js
 const generationMode = {
     Txt2Img: 'txt2img',
     Img2Img: 'img2img',
@@ -758,6 +779,9 @@ async function initPlugin() {
     // promptShortcutExample()
     await loadPromptShortcut()
     await refreshPromptMenue()
+
+    //init ControlNet Tab
+    await control_net.initializeControlNetTab()
 }
 initPlugin()
 // refreshModels() // get the models when the plugin loads
@@ -1193,7 +1217,7 @@ function selectTool() {
     //rectanglemarquee
     // await require('photoshop').core.executeAsModal(newNormalLayer);
 }
-//REFACTOR: unused, remove?
+//Refactor: Delete testServerPath() method
 async function testServerPath() {
     // const serverPath = "https://api.github.com/users/abdullah"
 
@@ -1677,6 +1701,19 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
     (element) => {
         element.addEventListener('click', async () => {
             try {
+                if (
+                    g_generation_session.request_status ===
+                    Enum.RequestStateEnum['Finished']
+                ) {
+                    toggleTwoButtonsByClass(
+                        false,
+                        'btnGenerateClass',
+                        'btnInterruptClass'
+                    )
+                    g_can_request_progress = false
+
+                    return null // cann't inturrept a finished generation
+                }
                 g_generation_session.request_status =
                     Enum.RequestStateEnum['Interrupted']
 
@@ -1688,8 +1725,13 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
                     await g_horde_generator.interrupt()
                 } else {
                     //interrupt auto1111
-
-                    json = await sdapi.requestInterrupt()
+                    if (g_generation_session.is_control_net) {
+                        //disable interrupt buttons in controlnet mode
+                        // return null
+                    } else {
+                        json = await sdapi.requestInterrupt()
+                    }
+                    // json = await sdapi.requestInterrupt()
                 }
 
                 toggleTwoButtonsByClass(
@@ -1786,46 +1828,45 @@ async function restoreActiveSelection() {
 }
 //REFACTOR: move to events.js
 document.querySelector('#taPrompt').addEventListener('focus', async () => {
-    if (!g_generation_session.isLoadingActive) {
-        console.log('taPrompt focus')
-        // console.log('we are in prompt textarea')
-        // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
-        await storeActiveLayers()
-        await storeActiveSelection()
-        // await psapi.unselectActiveLayersExe()
-    }
+    // if (!g_generation_session.isLoadingActive) {
+    //     console.log('taPrompt focus')
+    //     // console.log('we are in prompt textarea')
+    //     // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
+    //     await storeActiveLayers()
+    //     await storeActiveSelection()
+    //     // await psapi.unselectActiveLayersExe()
+    // }
 })
 //REFACTOR: move to events.js
 document.querySelector('#taPrompt').addEventListener('blur', async () => {
-    console.log('taPrompt blur')
-    // console.log('we are out of prompt textarea')
-    // await psapi.unselectActiveLayersExe()
-    // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
-    await restoreActiveLayers()
-    await restoreActiveSelection()
+    // console.log('taPrompt blur')
+    // // console.log('we are out of prompt textarea')
+    // // await psapi.unselectActiveLayersExe()
+    // // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
+    // await restoreActiveLayers()
+    // await restoreActiveSelection()
 })
 //REFACTOR: move to events.js
 document
     .querySelector('#taNegativePrompt')
     .addEventListener('focus', async () => {
-        if (!g_generation_session.isLoadingActive) {
-            console.log('taNegativePrompt focus')
-            // console.log('we are in prompt textarea')
-
-            await storeActiveLayers()
-            await storeActiveSelection()
-            // await psapi.unselectActiveLayersExe()
-        }
+        // if (!g_generation_session.isLoadingActive) {
+        //     console.log('taNegativePrompt focus')
+        //     // console.log('we are in prompt textarea')
+        //     await storeActiveLayers()
+        //     await storeActiveSelection()
+        //     // await psapi.unselectActiveLayersExe()
+        // }
     })
 //REFACTOR: move to events.js
 document
     .querySelector('#taNegativePrompt')
     .addEventListener('blur', async () => {
-        console.log('taNegativePrompt blur')
-        // console.log('we are out of prompt textarea')
-        // await psapi.unselectActiveLayersExe()
-        await restoreActiveLayers()
-        await restoreActiveSelection()
+        // console.log('taNegativePrompt blur')
+        // // console.log('we are out of prompt textarea')
+        // // await psapi.unselectActiveLayersExe()
+        // await restoreActiveLayers()
+        // await restoreActiveSelection()
     })
 //REFACTOR: unused, remove?
 function updateMetadata(new_metadata) {
@@ -1849,7 +1890,9 @@ async function getSettings() {
         const extension_type = settings_tab.getExtensionType() // get the extension type
         const selectionInfo = await psapi.getSelectionInfoExe()
         payload['selection_info'] = selectionInfo
-        const numberOfImages = document.querySelector('#tiNumberOfImages').value
+        const numberOfImages = parseInt(
+            document.querySelector('#tiNumberOfImages').value
+        )
         const numberOfSteps = document.querySelector('#tiNumberOfSteps').value
         const prompt = html_manip.getPrompt()
         const negative_prompt = html_manip.getNegativePrompt()
@@ -2019,8 +2062,24 @@ async function getSettings() {
             //use the same prompt as in the prompt textarea
             payload['prompt'] = prompt
             payload['negative_prompt'] = negative_prompt
+
+            payload['original_prompt'] = prompt
+            payload['original_negative_prompt'] = negative_prompt
         }
 
+        //save the control_net_image
+        // const b_enable_control_net =
+        //     document.getElementById('chEnableControlNet').checked
+        // if (b_enable_control_net) {
+        //     // payload['control_net_image'] = g_generation_session.controlNetImage
+        //     // payload['enable_control_net'] = b_enable_control_net //Note: this will never be false, either true or undefined
+        //     // payload['control_net_weight'] = control_net.getControlNetWeight()
+        //     // payload['control_net_weight'] = control_net.get
+        // } else {
+        //     // delete payload['control_net_image']
+        //     // delete payload['control_net_weight']
+        //     // delete payload['enable_control_net']
+        // }
         payload = {
             ...payload,
             // prompt: prompt,
@@ -2172,7 +2231,14 @@ async function generateImg2Img(settings) {
             backend_type === backendTypeEnum['Auto1111'] ||
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
-            json = await sdapi.requestImg2Img(settings)
+            const b_enable_control_net = control_net.getEnableControlNet()
+
+            if (b_enable_control_net) {
+                //use control net
+                json = await sdapi.requestControlNetImg2Img(settings)
+            } else {
+                json = await sdapi.requestImg2Img(settings)
+            }
         }
     } catch (e) {
         console.warn(e)
@@ -2194,7 +2260,15 @@ async function generateTxt2Img(settings) {
             backend_type === backendTypeEnum['Auto1111'] ||
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
-            json = await sdapi.requestTxt2Img(settings)
+            const b_enable_control_net = control_net.getEnableControlNet()
+
+            if (b_enable_control_net) {
+                //use control net
+
+                json = await sdapi.requestControlNetTxt2Img(settings)
+            } else {
+                json = await sdapi.requestTxt2Img(settings)
+            }
         }
     } catch (e) {
         console.warn(e)
@@ -2219,6 +2293,18 @@ async function hasSelectionChanged(new_selection, old_selection) {
 //REFACTOR: move to generation.js
 async function easyModeGenerate(mode) {
     try {
+        if (
+            g_generation_session.request_status !==
+            Enum.RequestStateEnum['Finished']
+        ) {
+            app.showAlert(
+                'A generation is still active in the background. \nPlease check your Automatic1111 command line.'
+            )
+            return null
+        }
+
+        g_generation_session.request_status =
+            Enum.RequestStateEnum['Generating']
         await executeAsModal(async (context) => {
             const document_type = await findDocumentType()
 
@@ -2263,6 +2349,8 @@ async function easyModeGenerate(mode) {
                 g_automatic_status === Enum.AutomaticStatusEnum['Offline'] ||
                 g_automatic_status === Enum.AutomaticStatusEnum['RunningNoApi']
             ) {
+                g_generation_session.request_status =
+                    Enum.RequestStateEnum['Finished']
                 return false
             }
         }
@@ -2276,6 +2364,8 @@ async function easyModeGenerate(mode) {
                 g_generation_session.isActive()
             )) === false // means did not activate the session selection area if it's available
         ) {
+            g_generation_session.request_status =
+                Enum.RequestStateEnum['Finished']
             return null
         }
 
@@ -2350,6 +2440,7 @@ async function easyModeGenerate(mode) {
             mode === 'upscale' ? await getExtraSettings() : await getSettings()
 
         g_generation_session.last_settings = settings
+        g_generation_session.is_control_net = control_net.getEnableControlNet()
         await generate(settings, mode)
 
         // await g_generation_session.deleteProgressLayer() // delete the old progress layer
@@ -2357,8 +2448,21 @@ async function easyModeGenerate(mode) {
     } catch (e) {
         await g_generation_session.deleteProgressImage()
         console.warn(e)
+        g_generation_session.request_status = Enum.RequestStateEnum['Finished']
+    }
+    toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
+    g_can_request_progress = false
+
+    g_generation_session.request_status = Enum.RequestStateEnum['Finished']
+
+    if (g_generation_session.sudo_timer_id) {
+        //disable the sudo timer at the end of the generation
+        g_generation_session.sudo_timer_id = clearInterval(
+            g_generation_session.sudo_timer_id
+        )
     }
 }
+
 //REFACTOR: move to generation.js
 async function generate(settings, mode) {
     try {
@@ -2378,11 +2482,19 @@ async function generate(settings, mode) {
         g_can_request_progress = true
         //wait 2 seconds till you check for progress
 
-        if (html_manip.getBackendType() !== backendTypeEnum['HordeNative']) {
+        if (
+            html_manip.getBackendType() !== backendTypeEnum['HordeNative'] && // anything other than horde native
+            g_generation_session.is_control_net === false // and must not be controlnet mode
+        ) {
             setTimeout(async function () {
                 // change this to setInterval()
                 await progressRecursive()
             }, 2000)
+        } else if (
+            html_manip.getBackendType() === backendTypeEnum['Auto1111'] &&
+            g_generation_session.is_control_net
+        ) {
+            g_generation_session.sudo_timer_id = general.sudoTimer()
         }
 
         console.log(settings)
@@ -2439,6 +2551,8 @@ async function generate(settings, mode) {
 
                 // //delete all mask related layers
             }
+            g_generation_session.request_status =
+                Enum.RequestStateEnum['Finished']
             return null
         }
 
@@ -2452,6 +2566,8 @@ async function generate(settings, mode) {
 
                 // //delete all mask related layers
             }
+            g_generation_session.request_status =
+                Enum.RequestStateEnum['Finished']
             return null
         }
 
@@ -2539,12 +2655,15 @@ async function generate(settings, mode) {
         updateProgressBarsHtml(0)
     } catch (e) {
         console.error(`btnGenerate.click(): `, e)
+        g_generation_session.request_status = Enum.RequestStateEnum['Finished']
     }
+    g_generation_session.request_status = Enum.RequestStateEnum['Finished']
 }
 //REFACTOR: move to events.js
 Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
     (btn) => {
-        btn.addEventListener('click', async () => {
+        btn.addEventListener('click', async (evt) => {
+            tempDisableElement(evt.target, 5000)
             await easyModeGenerate(g_sd_mode)
         })
     }
@@ -2720,7 +2839,7 @@ async function progressRecursive() {
                 Enum.RequestStateEnum['Generating']
         ) {
             const base64_url = general.base64ToBase64Url(json.current_image)
-            // debugger
+
             const progress_image_html = document.getElementById('progressImage')
             const container_width = document.querySelector(
                 '#divProgressImageViewerContainer'
@@ -2746,14 +2865,19 @@ async function progressRecursive() {
             // )
 
             // progress_image_html.style.width = '100%'
-            progress_image_html.style.width = 'auto'
-            progress_image_html.style.height = 'auto'
+            if (progress_image_html.style.width !== 'auto') {
+                progress_image_html.style.width = 'auto'
+            }
+            if ((progress_image_html.style.height = 'auto' !== 'auto')) {
+                progress_image_html.style.height = 'auto'
+            }
+
             // progress_image_html = new_height
             // progress_image_html.style.width = progress_image_html.naturalWidth
             // progress_image_html.style.height = progress_image_html.naturalHeight
 
             if (
-                g_generation_session.last_settings.batch_size === '1' &&
+                g_generation_session.last_settings.batch_size === 1 &&
                 settings_tab.getUseLiveProgressImage()
             ) {
                 //only update the canvas if the number of images are one
@@ -2765,7 +2889,7 @@ async function progressRecursive() {
             //refactor this code
             setTimeout(async () => {
                 await progressRecursive()
-            }, 500)
+            }, 1000)
         }
     } catch (e) {
         if (
@@ -3824,14 +3948,17 @@ document
                 container.removeChild(container.firstChild)
             }
 
-            let i = 0
-            for (image_path of image_paths) {
+            const length = image_paths.length
+            // let i = length -1
+
+            // for (image_path of image_paths) {
+            for (let i = length - 1; i >= 0; --i) {
                 const img = document.createElement('img')
                 // img.src = `${output_dir_relative}/${image_path}`
                 const image_src = `data:image/png;base64, ${base64_images[i]}`
                 img.src = image_src
 
-                img.dataset.path = `${output_dir_relative}/${image_path}`
+                img.dataset.path = `${output_dir_relative}/${image_paths[i]}`
                 img.className = 'history-image'
                 img.dataset.metadata_json_string = JSON.stringify(
                     metadata_jsons[i]
@@ -3845,19 +3972,19 @@ document
                 thumbnail.Thumbnail.addSPButtonToContainer(
                     img_container,
                     'svg_sp_btn',
-                    'place the image on the canvas',
-                    moveHistoryImageToLayer,
+                    'copy metadata to settings',
+                    getHistoryMetadata,
                     img
                 )
                 thumbnail.Thumbnail.addSPButtonToContainer(
                     img_container,
                     'svg_sp_btn_datadownload',
-                    'download history data to current settings',
-                    getHistoryMetadata,
+                    'place the image on the canvas',
+                    moveHistoryImageToLayer,
                     img
                 )
                 container.appendChild(img_container)
-                i++
+                // i++
             }
         } catch (e) {
             console.warn(`loadHistory warning: ${e}`)
@@ -3865,7 +3992,6 @@ document
     })
 //REFACTOR: move to document.js
 function getHistoryMetadata(img) {
-    // debugger
     //auto fill the ui with metadata
     const metadata_json = JSON.parse(img.dataset.metadata_json_string)
     console.log('metadata_json: ', metadata_json)
@@ -3876,6 +4002,18 @@ function getHistoryMetadata(img) {
         metadata_json['seed'] = metadata_json?.auto_metadata?.Seed
     }
     convertAutoMetadataToPresset(metadata_json)
+
+    const b_use_original_prompt = settings_tab.getUseOriginalPrompt()
+    if (b_use_original_prompt) {
+        metadata_json['prompt'] = metadata_json?.original_prompt
+            ? metadata_json['original_prompt']
+            : metadata_json['prompt']
+
+        metadata_json['negative_prompt'] =
+            metadata_json?.original_negative_prompt
+                ? metadata_json['original_negative_prompt']
+                : metadata_json['negative_prompt']
+    }
     document.querySelector('#historySeedLabel').textContent =
         metadata_json?.seed
     // autoFillInSettings(metadata_json)
@@ -4276,42 +4414,7 @@ function base64ToSrc(base64_image) {
 }
 
 const py_re = require('./utility/sdapi/python_replacement')
-//REFACTOR: move to ui.js
-async function prmoptForUpdate() {
-    const shell = require('uxp').shell
 
-    ;(async () => {
-        const r1 = await dialog_box.prompt(
-            'Please Update you Plugin. it will take about 10 seconds to update',
-            'update from discord, update from github',
-            ['Cancel', 'Discord', 'Github']
-        )
-        try {
-            let url
-            if (r1 === 'Cancel') {
-                /* cancelled or No */
-                console.log('cancel')
-            } else if (r1 === 'Github') {
-                url =
-                    'https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin'
-                await py_re.openUrlRequest(url)
-            } else if (r1 === 'Discord') {
-                console.log('Discord')
-                // url = 'https://discord.gg/3mVEtrddXJ'
-                url = 'https://discord.gg/YkUJXYWK3c'
-                await py_re.openUrlRequest(url)
-            }
-            console.log('url: ', url)
-        } catch (e) {
-            console.warn(e, url)
-        }
-    })()
-}
-//REFACTOR: move to events.js
-document.getElementById('btnUpdate').addEventListener('click', async () => {
-    await prmoptForUpdate()
-})
-//REFACTOR: move to psapi.js
 function getDimensions(image) {
     return new Promise((resolve, reject) => {
         var img = new Image()
@@ -4376,7 +4479,6 @@ document
     })
 //REFACTOR: move to events.js
 Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
-    // debugger
     const tab_button_name = rb.dataset['tab-name']
     const tab_page_name = `${tab_button_name}-page`
 
@@ -4394,7 +4496,6 @@ Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
             })
 
         rb.onclick = () => {
-            // debugger
             document.getElementById(tab_button_name).click()
         }
     } catch (e) {
@@ -4481,7 +4582,7 @@ async function findDocumentType() {
         document_type = Enum.DocumentTypeEnum['ArtBoard']
     } else if (layer_util.Layer.doesLayerExist(background_layer)) {
         //assume it's solid white background if correctHistory > 1 || layers.length > 5
-        const b_correct_background = await isCorrectBackground()
+        const b_correct_background = await isCorrectBackground() // check the history for correct operation
         if (b_correct_background) {
             document_type = Enum.DocumentTypeEnum['SolidBackground']
         } else {
@@ -4494,7 +4595,9 @@ async function findDocumentType() {
             let height = app.activeDocument.height
             let old_rgb
             let same_color = true
+
             await executeAsModal(async () => {
+                await layer_util.toggleBackgroundLayerExe() // hide all layers except the background layer
                 for (let i = 0; i < 10; ++i) {
                     let x = Math.floor(Math.random() * width)
                     let y = Math.floor(Math.random() * height)
@@ -4513,6 +4616,7 @@ async function findDocumentType() {
                     }
                     old_rgb = rgb
                 }
+                await layer_util.toggleBackgroundLayerExe() // undo the toggle operation
             })
 
             document_type = same_color
@@ -4549,7 +4653,142 @@ async function correctDocumentType(documentType) {
         await layer_util.createBackgroundLayer(255, 255, 255)
     }
 }
-//REFACTOR: move to document.js
+
+async function isCorrectBackground() {
+    const historylist = app.activeDocument.historyStates.filter(
+        (h) => h.name === 'Correct Background'
+    )
+    console.log('historylist:', historylist)
+    const is_correct_background = historylist.length > 0 ? true : false
+    return is_correct_background
+}
+
+document
+    .getElementById('btnSaveHordeSettings')
+    .addEventListener('click', async () => {
+        await horde_native.HordeSettings.saveSettings()
+    })
+
+async function getColor(X, Y) {
+    // const background_layer_id = await app.activeDocument.backgroundLayer.id
+
+    const batchPlay = require('photoshop').action.batchPlay
+    try {
+        const result = await batchPlay(
+            [
+                {
+                    _obj: 'colorSampler',
+                    _target: {
+                        _ref: 'document',
+                        _enum: 'ordinal',
+                        _value: 'targetEnum',
+                    },
+                    samplePoint: {
+                        horizontal: X,
+                        vertical: Y,
+                    },
+                },
+            ],
+            {}
+        )
+
+        const red = result[0].colorSampler.red
+        const green = result[0].colorSampler.grain
+        const blue = result[0].colorSampler.blue
+
+        return [red, green, blue]
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+// async function findDocumentType() {
+//     //check if the background layer exsit
+//     //if it doesn't return false
+//     //if it does:
+//     //duplicate the background layer and place it on the top of the document.
+//     //sampler 10 random pixles
+//     //and check if all the pixels has the same values.
+//     //if it doesn't duplicate the background layer and place it above the background layer.
+//     // make a white background layer.
+//     //return true
+
+//     let document_type
+//     const background_layer = await app.activeDocument.backgroundLayer
+//     const artboards = Array.from(await app.activeDocument.artboards)
+//     if (artboards.length > 0) {
+//         document_type = Enum.DocumentTypeEnum['ArtBoard']
+//     } else if (layer_util.Layer.doesLayerExist(background_layer)) {
+//         //assume it's solid white background if correctHistory > 1 || layers.length > 5
+//         const b_correct_background = await isCorrectBackground()
+//         if (b_correct_background) {
+//             document_type = Enum.DocumentTypeEnum['SolidBackground']
+//         } else {
+//             //else
+
+//             //background layer does exist
+//             //check if it's solid color background or an image background
+//             //sampler 10 random pixels
+//             let width = app.activeDocument.width
+//             let height = app.activeDocument.height
+//             let old_rgb
+//             let same_color = true
+//             await executeAsModal(async () => {
+//                 for (let i = 0; i < 10; ++i) {
+//                     let x = Math.floor(Math.random() * width)
+//                     let y = Math.floor(Math.random() * height)
+
+//                     const rgb = await getColor(x, y)
+//                     if (old_rgb) {
+//                         if (
+//                             Math.round(old_rgb[0]) === Math.round(rgb[0]) &&
+//                             Math.round(old_rgb[1]) === Math.round(rgb[1]) &&
+//                             Math.round(old_rgb[2]) === Math.round(rgb[2])
+//                         ) {
+//                         } else {
+//                             same_color = false //it's an image background
+//                             break
+//                         }
+//                     }
+//                     old_rgb = rgb
+//                 }
+//             })
+
+//             document_type = same_color
+//                 ? Enum.DocumentTypeEnum['SolidBackground']
+//                 : Enum.DocumentTypeEnum['ImageBackground']
+//         }
+//     } else {
+//         //create the background layer since it doesn't exsit
+//         document_type = Enum.DocumentTypeEnum['NoBackground']
+//     }
+
+//     return document_type
+// }
+
+async function correctDocumentType(documentType) {
+    if (documentType === Enum.DocumentTypeEnum['SolidBackground']) {
+        //do nothing
+    } else if (documentType === Enum.DocumentTypeEnum['ImageBackground']) {
+        //duplicate the layer
+        await executeAsModal(async () => {
+            const image_layer =
+                await app.activeDocument.backgroundLayer.duplicate() //
+            image_layer.name = 'Image'
+            await app.activeDocument.backgroundLayer.delete()
+            await layer_util.createBackgroundLayer(255, 255, 255)
+        })
+    } else if (documentType === Enum.DocumentTypeEnum['ArtBoard']) {
+        //duplicate the layer
+        await app.showAlert(
+            "the plugin doesn't work with artboards, create normal document with no artboard to use the plugin"
+        )
+        throw "the plugin doesn't work with artboards, create normal document with no artboard to use the plugin"
+    } else if (documentType === Enum.DocumentTypeEnum['NoBackground']) {
+        await layer_util.createBackgroundLayer(255, 255, 255)
+    }
+}
+
 async function isCorrectBackground() {
     const historylist = app.activeDocument.historyStates.filter(
         (h) => h.name === 'Correct Background'

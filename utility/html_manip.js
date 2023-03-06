@@ -423,6 +423,16 @@ function setInitImageSrc(image_src) {
     const ini_image_element = getInitImageElement()
     ini_image_element.src = image_src
 }
+function setControlImageSrc(image_src) {
+    const control_net_image_element =
+        document.getElementById('control_net_image')
+    control_net_image_element.src = image_src
+}
+function setControlMaskSrc(image_src) {
+    const control_net_image_element =
+        document.getElementById('control_net_mask')
+    control_net_image_element.src = image_src
+}
 
 function setProgressImageSrc(image_src) {
     const progress_image_element = document.getElementById('progressImage')
@@ -759,6 +769,56 @@ function setLinkWidthHeightState(state) {
 function isSquareThumbnail() {
     return document.getElementById('chSquareThumbnail').checked
 }
+
+async function populateMenu(
+    html_menu_id,
+    menu_item_class,
+    items,
+    createMenuItemHtml,
+    b_keep_old_selection = false
+) {
+    // function createMenuItemHtml(item, item_html_element) {
+    //     // menu_item_element.innerHTML = item.title
+    //     // menu_item_element.dataset.model_hash = model.hash
+    //     // menu_item_element.dataset.model_title = model.title
+    // }
+
+    try {
+        document.getElementById(html_menu_id).innerHTML = '' // empty the menu
+
+        for (let item of items) {
+            const menu_item_element = document.createElement('sp-menu-item')
+            menu_item_element.className = menu_item_class
+            createMenuItemHtml(item, menu_item_element)
+            document.getElementById(html_menu_id).appendChild(menu_item_element)
+        }
+    } catch (e) {
+        b_result = false
+        console.warn(e)
+    }
+    return b_result
+}
+function getSelectedMenuItem(menu_id) {
+    try {
+        const menu_element = document.getElementById(menu_id)
+        return menu_element.selectedOptions[0]
+    } catch (e) {
+        console.warn(e)
+    }
+}
+function getSelectedMenuItemTextContent(menu_id) {
+    try {
+        const text_content = getSelectedMenuItem(menu_id).textContent
+        return text_content
+    } catch (e) {
+        console.warn(e)
+    }
+}
+function getUseNsfw() {
+    //this method is shared between horde native and horde script
+    const b_nsfw = document.getElementById('chUseNSFW').checked
+    return b_nsfw
+}
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -825,5 +885,12 @@ module.exports = {
     getLinkWidthHeightState,
     setLinkWidthHeightState,
     isSquareThumbnail,
+    setControlImageSrc,
+    setControlMaskSrc,
+
     setHordeApiKey,
+    populateMenu,
+    getSelectedMenuItem,
+    getSelectedMenuItemTextContent,
+    getUseNsfw,
 }

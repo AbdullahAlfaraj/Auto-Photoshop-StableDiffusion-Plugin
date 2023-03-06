@@ -70,7 +70,51 @@ async function getAuto1111Metadata(base64_image) {
         console.warn(e)
     }
 }
+async function convertToStandardResponse(settings, images, uuid) {
+    try {
+        //standardized the response between modes and backends
+        const uniqueDocumentId = uuid // maybe use the generation_session uuid
 
+        const image_paths = []
+
+        const metadata = []
+        const images_info = []
+
+        for (i of images) {
+            let auto_metadata_json = {}
+            try {
+                const auto_metadata_str = await getAuto1111Metadata(i)
+                auto_metadata_json = convertMetadataToJson(auto_metadata_str)
+                console.warn(
+                    'auto_metadata_json.Seed:',
+                    auto_metadata_json?.Seed
+                )
+            } catch (e) {
+                console.warn(e)
+                auto_metadata_json = {} // set the metadata to empty if there an error while getting the metadata
+            }
+
+            const image_name = general.newOutputImageName()
+            const image_path = `${uniqueDocumentId}/${image_name}`
+
+            images_info.push({
+                base64: i,
+                path: image_path,
+                auto_metadata: auto_metadata_json,
+            })
+            // console.log("metadata_json: ", metadata_json)
+        }
+        const dir_name = 'temp_dir_name'
+        return {
+            payload: settings,
+            dir_name: dir_name,
+            images_info: images_info,
+            metadata: metadata,
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+}
 function replacePromptsWithShortcuts(
     prompt,
     negative_prompt,
@@ -546,4 +590,5 @@ module.exports = {
     openUrlRequest,
     replacePromptsWithShortcuts,
     extraSingleImageRequest,
+    convertToStandardResponse,
 }
