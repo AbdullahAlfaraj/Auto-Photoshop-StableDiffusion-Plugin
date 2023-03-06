@@ -407,7 +407,7 @@ class IOHelper {
                     Jimp.MIME_PNG
                 )
 
-                console.log('jimp: base64_url: ', base64_url)
+                // console.log('jimp: base64_url: ', base64_url)
                 // document.getElementById("image").setAttribute("src", data);
 
                 return base64_url
