@@ -720,7 +720,6 @@ let g_controlnet_max_models
     g_sd_config_obj = temp_config
     g_controlnet_max_models = temp_config.getControlNetMaxModelsNum()
 
-
     for (let model of g_hi_res_upscaler_models) {
         //update the hi res upscaler models menu
         let hrModelsMenuClass =
@@ -1728,13 +1727,8 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
                     await g_horde_generator.interrupt()
                 } else {
                     //interrupt auto1111
-                    if (g_generation_session.is_control_net) {
-                        //disable interrupt buttons in controlnet mode
-                        // return null
-                    } else {
-                        json = await sdapi.requestInterrupt()
-                    }
-                    // json = await sdapi.requestInterrupt()
+
+                    json = await sdapi.requestInterrupt()
                 }
 
                 toggleTwoButtonsByClass(
@@ -2474,18 +2468,12 @@ async function generate(settings, mode) {
         //wait 2 seconds till you check for progress
 
         if (
-            html_manip.getBackendType() !== backendTypeEnum['HordeNative'] && // anything other than horde native
-            g_generation_session.is_control_net === false // and must not be controlnet mode
+            html_manip.getBackendType() !== backendTypeEnum['HordeNative'] // anything other than horde native
         ) {
             setTimeout(async function () {
                 // change this to setInterval()
                 await progressRecursive()
             }, 2000)
-        } else if (
-            html_manip.getBackendType() === backendTypeEnum['Auto1111'] &&
-            g_generation_session.is_control_net
-        ) {
-            g_generation_session.sudo_timer_id = general.sudoTimer()
         }
 
         console.log(settings)
@@ -2658,7 +2646,7 @@ Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
             await easyModeGenerate(g_sd_mode)
         })
     }
-)//REFACTOR: move to events.js
+) //REFACTOR: move to events.js
 
 document
     .getElementById('btnRefreshModels')
@@ -4222,7 +4210,7 @@ document
         changePromptShortcutKey(key)
         changePromptShortcutValue(prompt_shortcut[key])
     })
-//REFACTOR: move to events.js    
+//REFACTOR: move to events.js
 document
     .getElementById('btnRefreshPromptShortcutMenu')
     .addEventListener('click', async () => {
