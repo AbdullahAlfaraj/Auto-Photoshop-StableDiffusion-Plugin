@@ -25,22 +25,23 @@ async function requestControlNetModuleList() {
     // const control_net_json = await api.requestGet(
     //     `${g_sd_url}/controlnet/model_list`
     // )
-    const module_list = [
-        // 'none',
-        'canny',
-        'depth',
-        'depth_leres',
-        'hed',
-        'mlsd',
-        'normal_map',
-        'openpose',
-        // "openpose_hand",
-        'pidinet',
-        'scribble',
-        'fake_scribble',
-        'segmentation',
-    ]
-
+    // const module_list = [
+    //     // 'none',
+    //     'canny',
+    //     'depth',
+    //     'depth_leres',
+    //     'hed',
+    //     'mlsd',
+    //     'normal_map',
+    //     'openpose',
+    //     // "openpose_hand",
+    //     'pidinet',
+    //     'scribble',
+    //     'fake_scribble',
+    //     'segmentation',
+    // ]
+    const module_list = g_sd_config_obj.getControlNetPreprocessors()
+    // const module_list = g_controlnet_preprocessors
     return module_list
 }
 async function populateModelMenu() {
@@ -199,6 +200,7 @@ function mapPluginSettingsToControlNet(plugin_settings) {
 
     return controlnet_payload
 }
+function refreshControlNetTab() {}
 
 for (let index = 0; index < g_controlnet_max_supported_models; index++) {
     //event listeners
