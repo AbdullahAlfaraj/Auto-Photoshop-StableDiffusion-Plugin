@@ -423,14 +423,14 @@ function setInitImageSrc(image_src) {
     const ini_image_element = getInitImageElement()
     ini_image_element.src = image_src
 }
-function setControlImageSrc(image_src) {
+function setControlImageSrc(image_src, element_index = 0) {
     const control_net_image_element =
-        document.getElementById('control_net_image')
+        document.getElementById('control_net_image'+'_'+element_index)
     control_net_image_element.src = image_src
 }
-function setControlMaskSrc(image_src) {
+function setControlMaskSrc(image_src, element_index = 0) {
     const control_net_image_element =
-        document.getElementById('control_net_mask')
+        document.getElementById('control_net_mask'+'_'+element_index)
     control_net_image_element.src = image_src
 }
 

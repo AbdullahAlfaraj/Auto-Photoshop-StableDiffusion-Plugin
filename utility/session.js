@@ -36,8 +36,8 @@ class GenerationSession {
         this.image_paths_to_layers = {}
         this.progress_layer
         this.last_settings //the last settings been used for generation
-        this.controlNetImage // base64 image
-        this.controlNetMask //base64 image
+        this.controlNetImage = [] // base64 images (one for each control net)
+        this.controlNetMask = []// base64 images (one for each control net)
         this.request_status = Enum.RequestStateEnum['Finished'] //finish or ideal state
         this.is_control_net = false
         this.control_net_selection_info
@@ -201,8 +201,7 @@ class GenerationSession {
         this.deleteProgressImageHtml()
         await this.deleteProgressLayer()
     }
-    async setControlNetImage() {
-        // debugger
+    async setControlNetImage(control_net_index = 0) {
         //check if the selection area is active
         //convert layer to base64
         //the width and height of the exported image
@@ -219,8 +218,8 @@ class GenerationSession {
             width,
             height
         )
-        this.controlNetImage = base64_image
-        html_manip.setControlImageSrc(base64ToBase64Url(base64_image))
+        this.controlNetImage[control_net_index] = base64_image
+        html_manip.setControlImageSrc(base64ToBase64Url(base64_image), control_net_index)
         // console.log('base64_img:', base64_image)
         // await io.IO.base64ToLayer(base64_image)
     }

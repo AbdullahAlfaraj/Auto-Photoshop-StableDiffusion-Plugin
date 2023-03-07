@@ -2,6 +2,7 @@ const api = require('../api')
 const html_manip = require('../html_manip')
 const selection = require('../../selection')
 const note = require('../notification')
+const g_controlnet_max_supported_models = 3
 
 async function checkIfControlNetInstalled() {}
 async function requestControlNetModelList() {
@@ -45,197 +46,202 @@ async function requestControlNetModuleList() {
 async function populateModelMenu() {
     try {
         const models = await requestControlNetModelList()
-
-        html_manip.populateMenu(
-            'mModelsMenuControlNet',
-            'mModelsMenuItemControlNet',
-            models,
-            (item, item_html_element) => {
-                item_html_element.innerHTML = item
-            }
-        )
+        for (let index = 0; index < g_controlnet_max_supported_models; index++) {
+            html_manip.populateMenu(
+                'mModelsMenuControlNet_' + index,
+                'mModelsMenuItemControlNet_' + index,
+                models,
+                (item, item_html_element) => {
+                    item_html_element.innerHTML = item
+                }
+            )
+        }
     } catch (e) {
         console.warn(e)
     }
 }
+
 async function populatePreprocessorMenu() {
     try {
         const modules = await requestControlNetModuleList()
-        html_manip.populateMenu(
-            'mModuleMenuControlNet',
-            'mModuleMenuItemControlNet',
-            modules,
-            (item, item_html_element) => {
-                item_html_element.innerHTML = item
-            }
-        )
+        for (let index = 0; index < g_controlnet_max_supported_models; index++) {
+
+            html_manip.populateMenu(
+                'mModuleMenuControlNet_' + index,
+                'mModuleMenuItemControlNet_' + index,
+                modules,
+                (item, item_html_element) => {
+                    item_html_element.innerHTML = item
+                }
+            )
+        }
     } catch (e) {
         console.warn(e)
     }
 }
-async function initializeControlNetTab() {
-    await populateModelMenu()
-    await populatePreprocessorMenu()
-}
+async function initializeControlNetTab(controlnet_max_models) {
+    if(controlnet_max_models > g_controlnet_max_supported_models)
+        controlnet_max_models = g_controlnet_max_supported_models
+    
+    for (let index = 0; index < controlnet_max_models; index++) {
+        await populateModelMenu(index)
+        await populatePreprocessorMenu(index)
+        document.getElementById('controlnet_settings_' + index).style.display = "block";
+    }
 
-function getControlNetWeightGuidanceStrength() {
+
+    
+}
+// controlnet settings getters
+function getControlNetWeightGuidanceStrength(controlnet_index = 0) {
     const slider_value = document.getElementById(
-        'slControlNetGuidanceStrength'
+        'slControlNetGuidanceStrength_' + controlnet_index
     ).value
     const sd_value = general.mapRange(slider_value, 0, 100, 0, 1) // convert slider value to SD ready value
     return sd_value
 }
 
-function getControlNetWeight() {
-    const slider_value = document.getElementById('slControlNetWeight').value
+function getControlNetWeight(controlnet_index = 0) {
+    const slider_value = document.getElementById('slControlNetWeight_' + controlnet_index).value
 
-    // debugger
     const sd_value = general.mapRange(slider_value, 0, 100, 0, 2) // convert slider value to SD ready value
     return sd_value
 }
-function getUseLowVram() {
-    const b_result = document.getElementById('chlowVram').checked
+function getUseLowVram(controlnet_index = 0) {
+    const b_result = document.getElementById('chlowVram_' + controlnet_index).checked
     return b_result
 }
-function getEnableControlNet() {
-    const is_enable = document.getElementById('chEnableControlNet').checked
+function getEnableControlNet(controlnet_index = 0) {
+    const is_enable = document.getElementById('chEnableControlNet_' + controlnet_index).checked
     return is_enable
 }
 
-function getSelectedModule() {
+function getSelectedModule(controlnet_index = 0) {
     const module_name = html_manip.getSelectedMenuItemTextContent(
-        'mModuleMenuControlNet'
+        'mModuleMenuControlNet_' + controlnet_index
     )
 
     return module_name
 }
-function getSelectedModel() {
+function getSelectedModel(controlnet_index = 0) {
     const model_name = html_manip.getSelectedMenuItemTextContent(
-        'mModelsMenuControlNet'
+        'mModelsMenuControlNet_' + controlnet_index
     )
     return model_name
 }
-function getUseGuessMode() {
-    const is_guess_mode = document.getElementById('chGuessMode').checked
+function getUseGuessMode(controlnet_index = 0) {
+    const is_guess_mode = document.getElementById('chGuessMode_' + controlnet_index).checked
     return is_guess_mode
 }
-function mapPluginSettingsToControlNet(plugin_settings) {
-    const ps = plugin_settings // for shortness
-    let control_net_payload = {}
-    control_net_payload['control_net_weight'] = getControlNetWeight()
-    control_net_payload['controlnet_guidance'] =
-        getControlNetWeightGuidanceStrength()
-    control_net_payload['controlnet_lowvram'] = getUseLowVram()
-    control_net_payload['controlnet_input_image'] = [
-        g_generation_session.controlNetImage,
-    ]
 
-    control_net_payload['controlnet_module'] = getSelectedModule()
-
-    control_net_payload['controlnet_model'] = getSelectedModel()
-    getUseGuessMode()
-    control_net_payload = {
-        ...ps, //all plugin settings
-        ...control_net_payload, //all control net ui settings
-        // prompt: ps['prompt'],
-        // negative_prompt: ps['negative_prompt'],
-        // controlnet_input_image: [ps['control_net_image']],
-        // controlnet_mask: [],
-
-        // controlnet_module: 'depth',
-        // controlnet_model: 'control_sd15_depth [fef5e48e]',
-
-        // controlnet_weight: parseInt(ps['control_net_weight']),
-        controlnet_resize_mode: 'Scale to Fit (Inner Fit)',
-        // controlnet_lowvram: true,
-        controlnet_processor_res: 512,
-        controlnet_threshold_a: 64,
-        controlnet_threshold_b: 64,
-        // seed: ps['seed'],
-        subseed: -1,
-        // subseed_strength: -1,
-        // subseed_strength: 0,
-        // controlnet_guidance: 1,
-        // sampler_index: ps['sampler_index'],
-        // batch_size: parseInt(ps['batch_size']),
-        // n_iter: 1,
-        // steps: parseInt(ps['steps']),
-        // cfg_scale: ps['cfg_scale'],
-        // width: ps['width'],
-        // height: ps['height'],
-        // restore_faces: ps['restore_faces'],
-        override_settings: {},
-        override_settings_restore_afterwards: true,
-    }
-    if (
-        plugin_settings['mode'] === Enum.generationModeEnum['Img2Img'] ||
-        plugin_settings['mode'] === Enum.generationModeEnum['Inpaint'] ||
-        plugin_settings['mode'] === Enum.generationModeEnum['Outpaint']
-    ) {
-        const b_use_guess_mode = getUseGuessMode()
-        control_net_payload = {
-            ...control_net_payload,
-
-            guess_mode: b_use_guess_mode,
-
-            include_init_images: true,
-        }
-    }
-
-    return control_net_payload
+function getControlNetMaxModelsNumber() {
+    return g_controlnet_max_supported_models
 }
 
-//event listeners
-document
-    .getElementById('slControlNetGuidanceStrength')
-    .addEventListener('input', (evt) => {
-        // debugger
-        const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 1) // convert slider value to SD ready value
-        document.getElementById('lControlNetGuidanceStrength').textContent =
-            Number(sd_value).toFixed(2)
-    })
+function mapPluginSettingsToControlNet(plugin_settings) {
+    const ps = plugin_settings; // for shortness
+    let controlnet_units = [];
 
-document
-    .getElementById('slControlNetWeight')
-    .addEventListener('input', (evt) => {
-        // debugger
-        const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 2) // convert slider value to SD ready value
-        document.getElementById('lControlNetWeight').textContent =
-            Number(sd_value).toFixed(2)
-    })
-document
-    .getElementById('bSetControlImage')
-    .addEventListener('click', async () => {
-        const selectionInfo = await selection.Selection.getSelectionInfoExe()
-        if (selectionInfo) {
-            await g_generation_session.setControlNetImage()
+    for (let index = 0; index < g_controlnet_max_supported_models; index++) {
+        if(!getEnableControlNet(index))
+            break;
+        controlnet_units[index] =
+        {
+            input_image: g_generation_session.controlNetImage[index],
+            mask: "",
+            module: getSelectedModule(index),
+            model: getSelectedModel(index),
+            weight: getControlNetWeight(index),
+            resize_mode: "Scale to Fit (Inner Fit)",
+            lowvram: getUseLowVram(index),
+            processor_res: 512,
+            threshold_a: 64,
+            threshold_b: 64,
+            guidance: getControlNetWeightGuidanceStrength(index),
+            guidance_start: 0,
+            guidance_end: 1,
+            guessmode: false,
+        }
+    }
+
+  
+    if (
+      plugin_settings["mode"] ===
+        Enum.generationModeEnum["Img2Img"] ||
+      plugin_settings["mode"] ===
+        Enum.generationModeEnum["Inpaint"] ||
+      plugin_settings["mode"] ===
+        Enum.generationModeEnum["Outpaint"]
+    ) {
+      const b_use_guess_mode = getUseGuessMode();
+      controlnet_units[0]["guessmode"] = b_use_guess_mode;
+    }
+  
+    const controlnet_payload = {
+      ...ps,
+      controlnet_units,
+      subseed: -1,
+      override_settings: {},
+      override_settings_restore_afterwards: true,
+    };
+  
+    return controlnet_payload;
+  }  
+
+
+for (let index = 0; index < g_controlnet_max_supported_models; index++) {
+    //event listeners
+    document
+        .getElementById('slControlNetGuidanceStrength_' + index)
+        .addEventListener('input', (evt) => {
+            // debugger
+            const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 1) // convert slider value to SD ready value
+            document.getElementById('lControlNetGuidanceStrength_' + index).textContent =
+                Number(sd_value).toFixed(2)
+        })
+
+    document
+        .getElementById('slControlNetWeight_' + index)
+        .addEventListener('input', (evt) => {
+            // debugger
+            const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 2) // convert slider value to SD ready value
+            document.getElementById('lControlNetWeight_' + index).textContent =
+                Number(sd_value).toFixed(2)
+        })
+    document
+        .getElementById('bSetControlImage_' + index)
+        .addEventListener('click', async () => {
+            const selectionInfo = await selection.Selection.getSelectionInfoExe()
+            if (selectionInfo) {
+                await g_generation_session.setControlNetImage(index)
+            } else {
+                await note.Notification.inactiveSelectionArea()
+            }
+        })
+
+    document.getElementById('bControlMask_' + index).addEventListener('click', async () => {
+        // const selectionInfo = await selection.Selection.getSelectionInfoExe()
+
+        if (
+            g_generation_session.control_net_selection_info &&
+            g_generation_session.controlNetMask[index]
+        ) {
+            const selection_info = g_generation_session.control_net_selection_info
+            const layer = await io.IO.base64ToLayer(
+                g_generation_session.controlNetMask[index],
+                'ControlNet Mask.png',
+                selection_info.left,
+                selection_info.top,
+                selection_info.width,
+                selection_info.height
+            )
         } else {
-            await note.Notification.inactiveSelectionArea()
+            // await note.Notification.inactiveSelectionArea()
+            app.showAlert('Mask Image is not available')
         }
     })
+}
 
-document.getElementById('bControlMask').addEventListener('click', async () => {
-    // const selectionInfo = await selection.Selection.getSelectionInfoExe()
-
-    if (
-        g_generation_session.control_net_selection_info &&
-        g_generation_session.controlNetMask
-    ) {
-        // await g_generation_session.setControlNetImage()
-        const selection_info = g_generation_session.control_net_selection_info
-        const layer = await io.IO.base64ToLayer(
-            g_generation_session.controlNetMask,
-            'ControlNet Mask.png',
-            selection_info.left,
-            selection_info.top,
-            selection_info.width,
-            selection_info.height
-        )
-    } else {
-        // await note.Notification.inactiveSelectionArea()
-        app.showAlert('Mask Image is not available')
-    }
-})
 
 module.exports = {
     requestControlNetModelList,
@@ -246,4 +252,5 @@ module.exports = {
     getEnableControlNet,
     getSelectedModule,
     getSelectedModel,
+    getControlNetMaxModelsNumber,
 }
