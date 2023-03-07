@@ -713,12 +713,14 @@ let g_old_slider_height = 512
 let g_sd_config_obj
 let g_hi_res_upscaler_models
 let g_controlnet_max_models
+    // let g_controlnet_preprocessors
 ;(async function () {
     let temp_config = new sd_config.SdConfig()
     await temp_config.getConfig()
     g_hi_res_upscaler_models = temp_config.getUpscalerModels()
-    g_sd_config_obj = temp_config
     g_controlnet_max_models = temp_config.getControlNetMaxModelsNum()
+    // g_controlnet_preprocessors = temp_config.getControlNetPreprocessors()
+    g_sd_config_obj = temp_config
 
     for (let model of g_hi_res_upscaler_models) {
         //update the hi res upscaler models menu

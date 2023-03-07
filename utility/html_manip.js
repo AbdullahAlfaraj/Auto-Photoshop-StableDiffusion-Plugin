@@ -404,12 +404,16 @@ function selectModelUi(model_hash) {
 }
 
 function autoFillInModel(model_hash) {
-    // unCheckAllSamplers()
-    model_element = getModelElementByHash(model_hash)
-    selectModelUi(model_hash)
-    // model_element.
-    const model_title = model_element.dataset.model_title
-    return model_title
+    try {
+        // unCheckAllSamplers()
+        model_element = getModelElementByHash(model_hash)
+        selectModelUi(model_hash)
+        // model_element.
+        const model_title = model_element.dataset.model_title
+        return model_title
+    } catch (e) {
+        console.warn(e)
+    }
 }
 ////// End Models//////////
 
@@ -424,13 +428,15 @@ function setInitImageSrc(image_src) {
     ini_image_element.src = image_src
 }
 function setControlImageSrc(image_src, element_index = 0) {
-    const control_net_image_element =
-        document.getElementById('control_net_image'+'_'+element_index)
+    const control_net_image_element = document.getElementById(
+        'control_net_image' + '_' + element_index
+    )
     control_net_image_element.src = image_src
 }
 function setControlMaskSrc(image_src, element_index = 0) {
-    const control_net_image_element =
-        document.getElementById('control_net_mask'+'_'+element_index)
+    const control_net_image_element = document.getElementById(
+        'control_net_mask' + '_' + element_index
+    )
     control_net_image_element.src = image_src
 }
 
