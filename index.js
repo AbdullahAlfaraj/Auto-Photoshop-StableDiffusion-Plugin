@@ -234,7 +234,7 @@ Array.from(document.querySelectorAll('.sp-tab')).forEach((theTab) => {
         }
     }
 })
-//REFACTOR: move to html_manip.js (?)
+//REFACTOR: move to events.js
 document.getElementById('sp-viewer-tab').addEventListener('click', async () => {
     if (
         g_generation_session.isActive() &&
@@ -245,12 +245,12 @@ document.getElementById('sp-viewer-tab').addEventListener('click', async () => {
         g_sd_mode = html_manip.getMode()
     }
 })
-//REFACTOR: move to html_manip.js (?)
+//REFACTOR: move to events.js
 document.getElementById('sp-viewer-tab').addEventListener('click', async () => {
     moveElementToAnotherTab('batchNumberUi', 'batchNumberViewerTabContainer')
     await displayUpdate()
 })
-//REFACTOR: move to html_manip.js (?)
+//REFACTOR: move to events.js
 document
     .getElementById('sp-stable-diffusion-ui-tab')
     .addEventListener('click', () => {
@@ -416,7 +416,7 @@ async function refreshUI() {
         console.log('inpainting_mask_weight: ', inpainting_mask_weight)
         html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
 
-        await control_net.initializeControlNetTab()
+        await control_net.initializeControlNetTab(g_controlnet_max_models)
     } catch (e) {
         console.warn(e)
     }
@@ -712,11 +712,13 @@ let g_old_slider_width = 512
 let g_old_slider_height = 512
 let g_sd_config_obj
 let g_hi_res_upscaler_models
+let g_controlnet_max_models
 ;(async function () {
     let temp_config = new sd_config.SdConfig()
     await temp_config.getConfig()
     g_hi_res_upscaler_models = temp_config.getUpscalerModels()
     g_sd_config_obj = temp_config
+    g_controlnet_max_models = temp_config.getControlNetMaxModelsNum()
 
     for (let model of g_hi_res_upscaler_models) {
         //update the hi res upscaler models menu
@@ -764,6 +766,7 @@ let g_viewer_manager = new viewer.ViewerManager()
 //********** End: global variables */
 
 //***********Start: init function calls */
+//REFACTOR: keep in index.js
 async function initPlugin() {
     //*) load plugin settings
     //*) load horde settings
@@ -780,7 +783,7 @@ async function initPlugin() {
     await refreshPromptMenue()
 
     //init ControlNet Tab
-    await control_net.initializeControlNetTab()
+    await control_net.initializeControlNetTab(g_controlnet_max_models)
 }
 initPlugin()
 // refreshModels() // get the models when the plugin loads
@@ -794,6 +797,7 @@ initPlugin()
 //***********End: init function calls */
 
 //add click event on radio button mode, so that when a button is clicked it change g_sd_mode globally
+//REFACTOR: move to events.js
 rbModeElements = document.getElementsByClassName('rbMode')
 for (let rbModeElement of rbModeElements) {
     rbModeElement.addEventListener('click', async (evt) => {
@@ -809,6 +813,7 @@ for (let rbModeElement of rbModeElements) {
 }
 
 //swaps g_sd_mode when clicking on extras tab and swaps it back to previous value when clicking on main tab
+//REFACTOR: move to events.js
 document
     .getElementById('sp-extras-tab')
     .addEventListener('click', async (evt) => {
@@ -822,7 +827,7 @@ document
             console.warn(e)
         }
     })
-
+//REFACTOR: move to events.js
 document
     .getElementById('sp-stable-diffusion-ui-tab')
     .addEventListener('click', async (evt) => {
@@ -836,7 +841,7 @@ document
             console.warn(e)
         }
     })
-
+//REFACTOR: move to psapi.js
 async function createTempInpaintMaskLayer() {
     if (!g_b_mask_layer_exist) {
         //make new layer "Mask -- Paint White to Mask -- temporary"
@@ -859,7 +864,7 @@ async function createTempInpaintMaskLayer() {
         )
     }
 }
-
+//REFACTOR: move to psapi.js
 async function deleteTempInpaintMaskLayer() {
     console.log(
         'g_inpaint_mask_layer_history_id: ',
@@ -875,6 +880,7 @@ async function deleteTempInpaintMaskLayer() {
         g_b_mask_layer_exist = false
     }
 }
+//REFACTOR: move to ui.js
 async function postModeSelection() {
     //
     try {
@@ -891,7 +897,7 @@ async function postModeSelection() {
     }
 }
 rbMaskContentElements = document.getElementsByClassName('rbMaskContent')
-
+//REFACTOR: move to events.js
 for (let rbMaskContentElement of rbMaskContentElements) {
     rbMaskContentElement.addEventListener('click', async (evt) => {
         // g_inpainting_fill = evt.target.value
@@ -900,7 +906,7 @@ for (let rbMaskContentElement of rbMaskContentElements) {
 }
 
 btnSquareClass = document.getElementsByClassName('btnSquare')
-
+//REFACTOR: move to events.js
 for (let btnSquareButton of btnSquareClass) {
     btnSquareButton.addEventListener('click', async (evt) => {
         // document.activeElement.blur()
@@ -915,7 +921,7 @@ for (let btnSquareButton of btnSquareClass) {
 }
 
 btnRefreshModelsClass = document.getElementsByClassName('btnRefreshModels')
-
+//REFACTOR: move to events.js
 for (let btnRefreshModel of btnRefreshModelsClass) {
     btnRefreshModel.addEventListener('click', async (evt) => {
         // document.activeElement.blur()
@@ -928,7 +934,7 @@ for (let btnRefreshModel of btnRefreshModelsClass) {
         }, 500)
     })
 }
-
+//REFACTOR: move to events.js
 document.addEventListener('mouseenter', async (event) => {
     try {
         //only check if the generation mode has not changed( e.g a session.mode === img2img and the current selection is "img2img"  ).
@@ -1029,6 +1035,7 @@ document.addEventListener('mouseenter', async (event) => {
 // });
 
 // show the interface that need to be shown and hide the interface that need to be hidden
+//REFACTOR: move to ui.js
 async function displayUpdate() {
     try {
         if (g_sd_mode == 'txt2img') {
@@ -1191,7 +1198,7 @@ async function displayUpdate() {
 //   document.getElementById('layers').innerHTML = `
 //         <ul>${sortedNames.map(name => `<li>${name}</li>`).join('')}</ul>`
 // }
-
+//REFACTOR: move to psapi.js
 function selectTool() {
     var doc = app.activeDocument
     var activeTool = app.currentTool
@@ -1243,6 +1250,7 @@ async function testServerPath() {
 
 // User picks an image file
 // open a explorer for user to select a image file
+//REFACTOR: move to psapi.js
 async function fillImage() {
     const storage = require('uxp').storage
     const fs = storage.localFileSystem
@@ -1258,7 +1266,7 @@ async function fillImage() {
     selection.items[0].fill = fill
 }
 // fillImage()
-
+//REFACTOR: move to psapi.js
 function pastImage2Layer() {
     const { batchPlay } = require('photoshop').action
     const { executeAsModal } = require('photoshop').core
@@ -1293,6 +1301,7 @@ function pastImage2Layer() {
         }
     )
 }
+//REFACTOR: move to ui.js
 function sliderToResolution(sliderValue) {
     return sliderValue * 64
 }
@@ -1313,11 +1322,12 @@ function sliderToResolution(sliderValue) {
 //   // gWidth = sliderToResolution(evt.target.value)
 //   document.querySelector('#lWidth').textContent = width
 // })
-
+//REFACTOR: move to events.js
 document.querySelector('#hrHeight').addEventListener('input', (evt) => {
     hHeight = sliderToResolution(evt.target.value)
     document.querySelector('#hHeight').textContent = hHeight
 })
+//REFACTOR: move to events.js
 document.querySelector('#hrWidth').addEventListener('input', (evt) => {
     hWidth = sliderToResolution(evt.target.value)
     document.querySelector('#hWidth').textContent = hWidth
@@ -1326,6 +1336,7 @@ document.querySelector('#hrWidth').addEventListener('input', (evt) => {
 //  hScale = sliderToResolution(evt.target.value)
 //  document.querySelector('#hScale').textContent = hScale
 //})
+//REFACTOR: move to events.js
 document.querySelector('#slInpaintPadding').addEventListener('input', (evt) => {
     padding = evt.target.value * 4
     document.querySelector('#lInpaintPadding').textContent = padding
@@ -1356,7 +1367,7 @@ document.querySelector('#slInpaintPadding').addEventListener('input', (evt) => {
 //     // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
 //   })
 // // document.getElementById('btnPopulate').addEventListener('click', showLayerNames)
-
+//REFACTOR: move to psapi.js
 async function snapAndFillHandler() {
     try {
         const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
@@ -1390,7 +1401,7 @@ async function snapAndFillHandler() {
 
 //   await snapAndFillHandler()
 //   })
-
+//REFACTOR: move to generation.js
 async function easyModeOutpaint() {
     try {
         if (g_generation_session.isFirstGeneration) {
@@ -1405,7 +1416,7 @@ async function easyModeOutpaint() {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to generation.js
 async function btnInitInpaintHandler() {
     try {
         if (g_generation_session.isFirstGeneration) {
@@ -1426,7 +1437,7 @@ async function btnInitInpaintHandler() {
 //   .addEventListener('click', async () => {
 //  await btnInitInpaintHandler()
 //   })
-
+//REFACTOR: move to ui.js
 function toggleTwoButtonsByClass(isVisible, first_class, second_class) {
     const first_class_btns = Array.from(
         document.getElementsByClassName(first_class)
@@ -1470,7 +1481,7 @@ function toggleTwoButtonsByClass(isVisible, first_class, second_class) {
     }
     return isVisible
 }
-
+//REFACTOR: move to session.js
 async function discardAll() {
     //discard all generated images setting highlight to false
     //then call discard() to garbage collect the mask related layers
@@ -1490,7 +1501,7 @@ async function discardAll() {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to session.js
 async function acceptAll() {
     //accept all generated images by highlighting them
     //then call discard() to garbage collect the mask related layers
@@ -1523,7 +1534,7 @@ async function acceptAll() {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to session.js
 async function discardSelected() {
     //discard all generated images setting highlight to false
     //then call discard() to garbage collect the mask related layers
@@ -1547,10 +1558,11 @@ async function discardSelected() {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to events.js
 const discard_selected_class_btns = Array.from(
     document.getElementsByClassName('discardSelectedClass')
 )
+//REFACTOR: move to events.js
 discard_selected_class_btns.forEach((element) =>
     element.addEventListener('click', async () => {
         try {
@@ -1564,9 +1576,11 @@ discard_selected_class_btns.forEach((element) =>
     })
 )
 
+//REFACTOR: move to events.js
 const accept_selected_class_btns = Array.from(
     document.getElementsByClassName('acceptSelectedClass')
 )
+//REFACTOR: move to events.js
 accept_selected_class_btns.forEach((element) =>
     element.addEventListener('click', async () => {
         try {
@@ -1579,10 +1593,11 @@ accept_selected_class_btns.forEach((element) =>
         }
     })
 )
-
+//REFACTOR: move to events.js
 const accept_class_btns = Array.from(
     document.getElementsByClassName('acceptClass')
 )
+//REFACTOR: move to events.js
 accept_class_btns.forEach((element) =>
     element.addEventListener('click', async () => {
         try {
@@ -1597,7 +1612,7 @@ accept_class_btns.forEach((element) =>
         }
     })
 )
-
+//REFACTOR: move to ui.js
 function toggleTwoButtons(defaultVal, first_btn_id, second_btn_id) {
     if (defaultVal) {
         document.getElementById(first_btn_id).style.display = 'none' // hide generate button
@@ -1608,10 +1623,11 @@ function toggleTwoButtons(defaultVal, first_btn_id, second_btn_id) {
     }
     return defaultVal
 }
-
+//REFACTOR: move to events.js
 document.getElementById('btnRandomSeed').addEventListener('click', async () => {
     document.querySelector('#tiSeed').value = '-1'
 })
+//REFACTOR: move to events.js
 document.getElementById('btnLastSeed').addEventListener('click', async () => {
     try {
         console.log('click on Last seed')
@@ -1627,6 +1643,7 @@ document.getElementById('btnLastSeed').addEventListener('click', async () => {
         console.warn(e)
     }
 })
+//REFACTOR: move to session.js
 async function discard() {
     try {
         // console.log(
@@ -1667,6 +1684,7 @@ async function discard() {
         console.warn(e)
     }
 }
+//REFACTOR: move to events.js
 Array.from(document.getElementsByClassName('discardClass')).forEach(
     (element) => {
         element.addEventListener('click', async () => {
@@ -1680,7 +1698,7 @@ Array.from(document.getElementsByClassName('discardClass')).forEach(
         })
     }
 )
-
+//REFACTOR: move to events.js
 Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
     (element) => {
         element.addEventListener('click', async () => {
@@ -1709,13 +1727,8 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
                     await g_horde_generator.interrupt()
                 } else {
                     //interrupt auto1111
-                    if (g_generation_session.is_control_net) {
-                        //disable interrupt buttons in controlnet mode
-                        // return null
-                    } else {
-                        json = await sdapi.requestInterrupt()
-                    }
-                    // json = await sdapi.requestInterrupt()
+
+                    json = await sdapi.requestInterrupt()
                 }
 
                 toggleTwoButtonsByClass(
@@ -1739,7 +1752,7 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
         })
     }
 )
-
+//REFACTOR: move to psapi.js
 //store active layers only if they are not stored.
 async function storeActiveLayers() {
     setTimeout(async () => {
@@ -1759,6 +1772,7 @@ async function storeActiveLayers() {
     // } else {
     // }
 }
+//REFACTOR: move to psapi.js
 async function restoreActiveLayers() {
     const layers = await app.activeDocument.activeLayers
     console.log('restoreActiveLayers: ', layers.length)
@@ -1775,6 +1789,7 @@ async function restoreActiveLayers() {
 }
 
 //store active selection only if they are not stored.
+//REFACTOR: move to psapi.js
 async function storeActiveSelection() {
     try {
         setTimeout(async () => {
@@ -1791,6 +1806,7 @@ async function storeActiveSelection() {
         console.warn(e)
     }
 }
+//REFACTOR: move to psapi.js
 async function restoreActiveSelection() {
     try {
         const current_selection = await psapi.checkIfSelectionAreaIsActive()
@@ -1807,7 +1823,7 @@ async function restoreActiveSelection() {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to events.js
 document.querySelector('#taPrompt').addEventListener('focus', async () => {
     // if (!g_generation_session.isLoadingActive) {
     //     console.log('taPrompt focus')
@@ -1818,6 +1834,7 @@ document.querySelector('#taPrompt').addEventListener('focus', async () => {
     //     // await psapi.unselectActiveLayersExe()
     // }
 })
+//REFACTOR: move to events.js
 document.querySelector('#taPrompt').addEventListener('blur', async () => {
     // console.log('taPrompt blur')
     // // console.log('we are out of prompt textarea')
@@ -1826,7 +1843,7 @@ document.querySelector('#taPrompt').addEventListener('blur', async () => {
     // await restoreActiveLayers()
     // await restoreActiveSelection()
 })
-
+//REFACTOR: move to events.js
 document
     .querySelector('#taNegativePrompt')
     .addEventListener('focus', async () => {
@@ -1838,6 +1855,7 @@ document
         //     // await psapi.unselectActiveLayersExe()
         // }
     })
+//REFACTOR: move to events.js
 document
     .querySelector('#taNegativePrompt')
     .addEventListener('blur', async () => {
@@ -1847,7 +1865,7 @@ document
         // await restoreActiveLayers()
         // await restoreActiveSelection()
     })
-
+//REFACTOR: unused, remove?
 function updateMetadata(new_metadata) {
     const metadatas = []
     try {
@@ -1861,7 +1879,7 @@ function updateMetadata(new_metadata) {
     }
     return metadatas
 }
-
+//REFACTOR: move to generation_settings.js
 async function getSettings() {
     let payload = {}
 
@@ -2046,19 +2064,6 @@ async function getSettings() {
             payload['original_negative_prompt'] = negative_prompt
         }
 
-        //save the control_net_image
-        // const b_enable_control_net =
-        //     document.getElementById('chEnableControlNet').checked
-        // if (b_enable_control_net) {
-        //     // payload['control_net_image'] = g_generation_session.controlNetImage
-        //     // payload['enable_control_net'] = b_enable_control_net //Note: this will never be false, either true or undefined
-        //     // payload['control_net_weight'] = control_net.getControlNetWeight()
-        //     // payload['control_net_weight'] = control_net.get
-        // } else {
-        //     // delete payload['control_net_image']
-        //     // delete payload['control_net_weight']
-        //     // delete payload['enable_control_net']
-        // }
         payload = {
             ...payload,
             // prompt: prompt,
@@ -2087,7 +2092,7 @@ async function getSettings() {
     }
     return payload
 }
-
+//REFACTOR: move to generation_settings.js
 async function getExtraSettings() {
     let payload = {}
     try {
@@ -2142,7 +2147,7 @@ async function getExtraSettings() {
     }
     return payload
 }
-
+//REFACTOR: move to generation_settings.js
 async function getExtraSettings() {
     let payload = {}
     try {
@@ -2197,7 +2202,7 @@ async function getExtraSettings() {
     }
     return payload
 }
-
+//REFACTOR: move to generation.js
 async function generateImg2Img(settings) {
     let json = {}
     try {
@@ -2210,7 +2215,8 @@ async function generateImg2Img(settings) {
             backend_type === backendTypeEnum['Auto1111'] ||
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
-            const b_enable_control_net = control_net.getEnableControlNet()
+            //checks on index 0 as if not enabled ingores the rest
+            const b_enable_control_net = control_net.getEnableControlNet(0)
 
             if (b_enable_control_net) {
                 //use control net
@@ -2226,6 +2232,7 @@ async function generateImg2Img(settings) {
 
     return json
 }
+//REFACTOR: move to generation.js
 async function generateTxt2Img(settings) {
     let json = {}
     try {
@@ -2268,7 +2275,7 @@ async function hasSelectionChanged(new_selection, old_selection) {
         return true
     }
 }
-
+//REFACTOR: move to generation.js
 async function easyModeGenerate(mode) {
     try {
         if (
@@ -2428,7 +2435,6 @@ async function easyModeGenerate(mode) {
         console.warn(e)
         g_generation_session.request_status = Enum.RequestStateEnum['Finished']
     }
-
     toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
     g_can_request_progress = false
 
@@ -2441,6 +2447,8 @@ async function easyModeGenerate(mode) {
         )
     }
 }
+
+//REFACTOR: move to generation.js
 async function generate(settings, mode) {
     try {
         //pre generation
@@ -2460,18 +2468,12 @@ async function generate(settings, mode) {
         //wait 2 seconds till you check for progress
 
         if (
-            html_manip.getBackendType() !== backendTypeEnum['HordeNative'] && // anything other than horde native
-            g_generation_session.is_control_net === false // and must not be controlnet mode
+            html_manip.getBackendType() !== backendTypeEnum['HordeNative'] // anything other than horde native
         ) {
             setTimeout(async function () {
                 // change this to setInterval()
                 await progressRecursive()
             }, 2000)
-        } else if (
-            html_manip.getBackendType() === backendTypeEnum['Auto1111'] &&
-            g_generation_session.is_control_net
-        ) {
-            g_generation_session.sudo_timer_id = general.sudoTimer()
         }
 
         console.log(settings)
@@ -2636,7 +2638,7 @@ async function generate(settings, mode) {
     }
     g_generation_session.request_status = Enum.RequestStateEnum['Finished']
 }
-
+//REFACTOR: move to events.js
 Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
     (btn) => {
         btn.addEventListener('click', async (evt) => {
@@ -2644,7 +2646,7 @@ Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
             await easyModeGenerate(g_sd_mode)
         })
     }
-)
+) //REFACTOR: move to events.js
 
 document
     .getElementById('btnRefreshModels')
@@ -2652,7 +2654,7 @@ document
         await refreshUI()
         tempDisableElement(e.target, 3000)
     })
-
+//REFACTOR: move to events.js
 document.querySelector('#mModelsMenu').addEventListener('change', (evt) => {
     const model_index = evt.target.selectedIndex
     console.log(`Selected item: ${evt.target.selectedIndex}`)
@@ -2665,7 +2667,7 @@ document.querySelector('#mModelsMenu').addEventListener('change', (evt) => {
     console.log('g_model_title: ', g_model_title)
     sdapi.requestSwapModel(g_model_title)
 })
-
+//REFACTOR: move to events.js
 document
     .getElementById('btnLayerToSelection')
     .addEventListener('click', async () => {
@@ -2682,7 +2684,7 @@ document
             console.warn(e)
         }
     })
-
+//REFACTOR: move to events.js
 document
     .getElementById('btnSetInitImageViewer')
     .addEventListener('click', async () => {
@@ -2705,7 +2707,7 @@ document
         //     base64_image
         // )
     })
-
+//REFACTOR: move to psapi.js
 async function setMaskViewer() {
     try {
         await executeAsModal(async () => {
@@ -2727,6 +2729,7 @@ async function setMaskViewer() {
         console.warn(e)
     }
 }
+//REFACTOR: move to events.js
 document
     .getElementById('btnSetMaskViewer')
     .addEventListener('click', async () => {
@@ -2744,12 +2747,14 @@ document
 //         const layer = await app.activeDocument.activeLayers[0]
 //         await psapi.setInitImageMask(layer, random_session_id)
 //     })
+//REFACTOR: move to psapi.js
 function moveElementToAnotherTab(elementId, newParentId) {
     const element = document.getElementById(elementId)
     document.getElementById(newParentId).appendChild(element)
 }
 
 // moveElementToAnotherTab("batchNumberUi","batchNumberViewerTabContainer")
+//REFACTOR: move to ui.js
 function updateProgressBarsHtml(new_value) {
     document.querySelectorAll('.pProgressBars').forEach((el) => {
         // id = el.getAttribute("id")
@@ -2763,7 +2768,7 @@ function updateProgressBarsHtml(new_value) {
     })
     // document.querySelector('#pProgressBar').value
 }
-
+//REFACTOR: move to ui.js
 async function updateProgressImage(progress_base64) {
     try {
         await executeAsModal(async (context) => {
@@ -2800,7 +2805,7 @@ async function updateProgressImage(progress_base64) {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to ui.js
 async function progressRecursive() {
     try {
         let json = await sdapi.requestProgress()
@@ -2876,14 +2881,14 @@ async function progressRecursive() {
         }
     }
 }
-
+//REFACTOR: move to ui.js
 function changeImage() {
     let img = document.getElementById('img1')
     img.src = 'https://source.unsplash.com/random'
 }
 
 // document.getElementById('btnChangeImage').addEventListener('click', changeImage)
-
+//REFACTOR: move to psapi.js
 async function imageToSmartObject() {
     const { batchPlay } = require('photoshop').action
     const { executeAsModal } = require('photoshop').core
@@ -2960,7 +2965,7 @@ async function imageToSmartObject() {
 }
 
 // document.getElementById('btnNewLayer').addEventListener('click', imageToSmartObject )
-
+//REFACTOR: move to psapi.js
 async function placeEmbedded(image_name, dir_entery) {
     //silent importer
 
@@ -3032,7 +3037,7 @@ async function placeEmbedded(image_name, dir_entery) {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to psapi.js
 function _base64ToArrayBuffer(base64) {
     var binary_string = window.atob(base64)
     var len = binary_string.length
@@ -3042,6 +3047,7 @@ function _base64ToArrayBuffer(base64) {
     }
     return bytes.buffer
 }
+//REFACTOR: move to psapi.js
 function _arrayBufferToBase64(buffer) {
     var binary = ''
     var bytes = new Uint8Array(buffer)
@@ -3072,7 +3078,7 @@ async function getDocFolder(doc_uuid) {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to document.js
 async function getCurrentDocFolder() {
     //move to a global utililty lib
     const uuid = await getUniqueDocumentId()
@@ -3080,6 +3086,7 @@ async function getCurrentDocFolder() {
     let doc_folder = await getDocFolder(uuid)
     return doc_folder
 }
+//REFACTOR: move to document.js
 async function getInitImagesDir() {
     const uuid = await getUniqueDocumentId()
 
@@ -3094,6 +3101,7 @@ async function getInitImagesDir() {
     }
     return init_folder
 }
+//REFACTOR: move to document.js
 async function saveFileInSubFolder(b64Image, sub_folder_name, file_name) {
     // const b64Image =
     //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
@@ -3120,6 +3128,7 @@ async function saveFileInSubFolder(b64Image, sub_folder_name, file_name) {
 
     const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
 }
+//REFACTOR: move to document.js
 async function saveJsonFileInSubFolder(json, sub_folder_name, file_name) {
     // const b64Image =
     //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
@@ -3153,7 +3162,7 @@ async function saveJsonFileInSubFolder(json, sub_folder_name, file_name) {
 
     const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
 }
-
+//REFACTOR: move to document.js
 async function base64ToFile(b64Image, image_name = 'output_image.png') {
     // const b64Image =
     //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
@@ -3219,7 +3228,7 @@ async function base64ToFile(b64Image, image_name = 'output_image.png') {
 
     // return place_event_result
 }
-
+//REFACTOR: move to psapi.js
 async function placeImageB64ToLayer(image_path, entery) {
     //silent importer
 
@@ -3297,6 +3306,7 @@ async function placeImageB64ToLayer(image_path, entery) {
 // document.getElementById('btnImageFileToLayer').addEventListener('click', placeEmbedded)
 
 // open an image in the plugin folder as new document
+//REFACTOR: move to document.js
 async function openImageAction() {
     const storage = require('uxp').storage
     const fs = storage.localFileSystem
@@ -3315,7 +3325,7 @@ async function openImageAction() {
         console.warn("couldn't open image ", e)
     }
 }
-
+//REFACTOR: move to psapi.js
 async function openImageExe() {
     await require('photoshop').core.executeAsModal(openImageAction)
 }
@@ -3337,6 +3347,7 @@ async function convertToSmartObjectAction() {
         {}
     )
 }
+//REFACTOR: move to psapi.js
 async function convertToSmartObjectExe() {
     await require('photoshop').core.executeAsModal(convertToSmartObjectAction)
 }
@@ -3365,7 +3376,7 @@ async function ImagesToLayersExe(images_paths) {
     }
     return image_path_to_layer
 }
-
+//REFACTOR: unused, remove?
 async function silentImagesToLayersExe_old(images_info) {
     try {
         g_generation_session.isLoadingActive = true
@@ -3451,6 +3462,7 @@ async function silentImagesToLayersExe_old(images_info) {
     }
     g_generation_session.isLoadingActive = false
 }
+//REFACTOR: move to psapi.js
 async function silentImagesToLayersExe(images_info) {
     //use active layer instead of placeEventResult
     try {
@@ -3532,6 +3544,7 @@ async function silentImagesToLayersExe(images_info) {
 // document.getElementById('btnLoadImages').addEventListener('click',ImagesToLayersExe)
 
 //stack layer to original document
+//REFACTOR: move to psapi.js
 async function stackLayers() {
     //workingDoc is the project you are using stable diffusion in
     const workingDoc = app.documents[0]
@@ -3567,6 +3580,7 @@ async function stackLayers() {
         }
     })
 }
+//REFACTOR: move to events.js
 document.getElementById('collapsible').addEventListener('click', function () {
     this.classList.toggle('active')
     var content = this.nextElementSibling
@@ -3582,7 +3596,7 @@ document.getElementById('collapsible').addEventListener('click', function () {
 
 function removeInitImageFromViewer() {}
 function removeMaskFromViewer() {}
-
+//REFACTOR: move to viewer.js
 async function viewerThumbnailclickHandler(e, viewer_obj_owner) {
     if (g_isViewerMenuDisabled) {
         return g_isViewerMenuDisabled
@@ -3618,6 +3632,7 @@ async function viewerThumbnailclickHandler(e, viewer_obj_owner) {
 //         console.warn(e)
 //     }
 // }
+//REFACTOR: move to viewer.js
 function createViewerImgHtml(output_dir_relative, image_path, base64_image) {
     const img = document.createElement('img')
     // img.src = `${output_dir_relative}/${image_path}`
@@ -3629,6 +3644,7 @@ function createViewerImgHtml(output_dir_relative, image_path, base64_image) {
     return img
 }
 
+//REFACTOR: move to psapi.js
 function toggleLayerVisibility(layer, b_on) {
     try {
         layer.visible = b_on
@@ -3636,6 +3652,7 @@ function toggleLayerVisibility(layer, b_on) {
         console.warn(e)
     }
 }
+//REFACTOR: move to psapi.js
 async function turnMaskVisible(
     b_mask_group_on,
     b_white_mask_on,
@@ -3652,7 +3669,7 @@ async function turnMaskVisible(
         console.warn(e)
     }
 }
-
+//REFACTOR: move to viewer.js
 async function loadInitImageViewerObject(
     group,
     snapshot,
@@ -3684,6 +3701,7 @@ async function loadInitImageViewerObject(
         await viewerThumbnailclickHandler(e, initImage)
     })
 }
+//REFACTOR: move to viewer.js
 async function loadViewerImages() {
     try {
         //get the images path
@@ -3847,7 +3865,7 @@ async function loadViewerImages() {
         console.error(`loadViewer images: `, e)
     }
 }
-
+//REFACTOR: move to session.js
 async function deleteNoneSelected(viewer_objects) {
     try {
         // visible layer
@@ -3892,7 +3910,7 @@ async function deleteNoneSelected(viewer_objects) {
 }
 
 // document.getElementById('btnLoadViewer').addEventListener('click', loadViewerImages)
-
+//REFACTOR: move to events.js
 document
     .getElementById('btnLoadHistory')
     .addEventListener('click', async function () {
@@ -3951,7 +3969,7 @@ document
             console.warn(`loadHistory warning: ${e}`)
         }
     })
-
+//REFACTOR: move to document.js
 function getHistoryMetadata(img) {
     //auto fill the ui with metadata
     const metadata_json = JSON.parse(img.dataset.metadata_json_string)
@@ -3980,7 +3998,7 @@ function getHistoryMetadata(img) {
     // autoFillInSettings(metadata_json)
     g_ui_settings.autoFillInSettings(metadata_json)
 }
-
+//REFACTOR: move to document.js
 async function moveHistoryImageToLayer(img) {
     let image_path = img.dataset.path
     const image_path_escape = image_path.replace(/\o/g, '/o') //escape string "\o" in "\output"
@@ -4002,7 +4020,7 @@ async function moveHistoryImageToLayer(img) {
         height
     )
 }
-
+//REFACTOR: move to events.js
 document
     .getElementById('btnImageSearch')
     .addEventListener('click', async function () {
@@ -4047,7 +4065,7 @@ document
             console.warn(`imageSearch warning: ${e}`)
         }
     })
-
+//REFACTOR: move to document.js
 async function loadPromptShortcut() {
     try {
         let prompt_shortcut = await sdapi.loadPromptShortcut()
@@ -4063,12 +4081,13 @@ async function loadPromptShortcut() {
         console.warn(`loadPromptShortcut warning: ${e}`)
     }
 }
+//REFACTOR: move to events.js
 document
     .getElementById('btnLoadPromptShortcut')
     .addEventListener('click', async function () {
         await loadPromptShortcut()
     })
-
+//REFACTOR: move to events.js
 document
     .getElementById('btnUpdatePromptShortcut')
     .addEventListener('click', async function () {
@@ -4095,7 +4114,7 @@ document
             console.warn(`loadPromptShortcut warning: ${e}`)
         }
     })
-
+//REFACTOR: move to events.js
 document
     .getElementById('btnSavePromptShortcut')
     .addEventListener('click', async function () {
@@ -4148,6 +4167,7 @@ document
 
 var chHiResFixs = document.getElementById('chHiResFixs')
 var div = document.getElementById('HiResDiv')
+//REFACTOR: move to events.js
 chHiResFixs.addEventListener('change', function () {
     if (chHiResFixs.checked) {
         div.style.display = 'block'
@@ -4155,7 +4175,7 @@ chHiResFixs.addEventListener('change', function () {
         div.style.display = 'none'
     }
 })
-
+//REFACTOR: move to ui.js
 async function refreshPromptMenue() {
     try {
         //get the prompt_shortcut_json
@@ -4180,7 +4200,7 @@ async function refreshPromptMenue() {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to events.js
 document
     .getElementById('mPromptShortcutMenu')
     .addEventListener('change', (evt) => {
@@ -4190,21 +4210,24 @@ document
         changePromptShortcutKey(key)
         changePromptShortcutValue(prompt_shortcut[key])
     })
+//REFACTOR: move to events.js
 document
     .getElementById('btnRefreshPromptShortcutMenu')
     .addEventListener('click', async () => {
         await refreshPromptMenue()
     })
-
+//REFACTOR: move to ui.js
 function changePromptShortcutKey(new_key) {
     document.getElementById('KeyPromptShortcut').value = new_key
 }
+//REFACTOR: move to ui.js
 function changePromptShortcutValue(new_value) {
     document.getElementById('ValuePromptShortcut').value = new_value
 }
 
 // adding a listner here for the inpaint_mask_strengh to be able to use api calls, allowing to dynamicly change the value
 // a set button could be added to the ui to reduce the number of api calls in case of a slow connection
+//REFACTOR: move to events.js
 document
     .querySelector('#slInpaintingMaskWeight')
     .addEventListener('input', async (evt) => {
@@ -4214,7 +4237,7 @@ document
         ).innerHTML = `${label_value}`
         // await sdapi.setInpaintMaskWeight(label_value)
     })
-
+//REFACTOR: move to events.js
 document
     .querySelector('#slInpaintingMaskWeight')
     .addEventListener('change', async (evt) => {
@@ -4239,7 +4262,7 @@ document
             console.warn(e)
         }
     })
-
+//REFACTOR: move to document.js
 async function downloadIt(link, writeable_entry, image_file_name) {
     const image = await fetch(link)
     console.log(link)
@@ -4279,7 +4302,7 @@ async function downloadIt(link, writeable_entry, image_file_name) {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to document.js
 async function downloadItExe(link, writeable_entry, image_file_name) {
     let new_layer
     await executeAsModal(async () => {
@@ -4303,6 +4326,7 @@ async function activateSessionSelectionArea() {
         console.warn(e)
     }
 }
+//REFACTOR: move to events.js
 document
     .getElementById('btnSelectionArea')
     .addEventListener('click', async () => {
@@ -4318,7 +4342,7 @@ document
         // }
         await activateSessionSelectionArea()
     })
-
+//REFACTOR: move to ui.js
 function addPresetMenuItem(preset_title) {
     // console.log(model_title,model_name)
     const menu_item_element = document.createElement('sp-menu-item')
@@ -4330,7 +4354,7 @@ function addPresetMenuItem(preset_title) {
     // })
     return menu_item_element
 }
-
+//REFACTOR: move to ui.js
 function populatePresetMenu() {
     const divider_elem = document.createElement('sp-menu-divider')
     const preset_name = 'Select Smart Preset'
@@ -4345,8 +4369,9 @@ function populatePresetMenu() {
         document.getElementById('mPresetMenu').appendChild(preset_menu_item)
     }
 }
-
+//REFACTOR: move to ui.js
 populatePresetMenu()
+//REFACTOR: move to events.js
 document
     .getElementById('mPresetMenu')
     .addEventListener('change', async (evt) => {
@@ -4361,7 +4386,7 @@ document
             }
         }
     })
-
+//REFACTOR: move to psapi.js
 function base64ToSrc(base64_image) {
     const image_src = `data:image/png;base64, ${base64_image}`
     return image_src
@@ -4386,7 +4411,7 @@ function getDimensions(image) {
         // }
     })
 }
-
+//REFACTOR: move to ui.js
 function scaleThumbnailsEvenHandler(scale_index, max_index, min_index) {
     const slider_max = max_index
     const slider_min = min_index
@@ -4405,15 +4430,17 @@ function scaleThumbnailsEvenHandler(scale_index, max_index, min_index) {
         console.warn(e)
     }
 }
+//REFACTOR: move to events.js
 document.getElementById('slThumbnailSize').addEventListener('input', (evt) => {
     scaleThumbnailsEvenHandler(evt.target.value, evt.target.max, evt.target.min)
 })
-
+//REFACTOR: move to events.js
 document.getElementById('linkWidthHeight').addEventListener('click', (evt) => {
     evt.target.classList.toggle('blackChain')
     const b_state = !evt.target.classList.contains('blackChain') //if doesn't has blackChain means => it's white => b_state == true
     html_manip.setLinkWidthHeightState(b_state)
 })
+//REFACTOR: move to events.js
 document
     .getElementById('chSquareThumbnail')
     .addEventListener('click', (evt) => {
@@ -4429,7 +4456,7 @@ document
             thumbnail_size_slider.min
         )
     })
-
+//REFACTOR: move to events.js
 Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
     const tab_button_name = rb.dataset['tab-name']
     const tab_page_name = `${tab_button_name}-page`
@@ -4454,7 +4481,7 @@ Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
         console.warn(e)
     }
 })
-
+//REFACTOR: move to ui.js
 async function updateResDifferenceLabel() {
     const ratio = await selection.Selection.getImageToSelectionDifference()
     const arrow = ratio >= 1 ? '↑' : '↓'
@@ -4476,13 +4503,13 @@ async function updateResDifferenceLabel() {
     const ratio_str = `${arrow}x${final_ratio.toFixed(2)}`
     document.getElementById('res-difference').innerText = ratio_str
 }
-
+//REFACTOR: move to events.js
 document
     .getElementById('btnSaveHordeSettings')
     .addEventListener('click', async () => {
         await horde_native.HordeSettings.saveSettings()
     })
-
+//REFACTOR: move to psapi.js
 async function getColor(X, Y) {
     // const background_layer_id = await app.activeDocument.backgroundLayer.id
 
@@ -4515,7 +4542,7 @@ async function getColor(X, Y) {
         console.warn(e)
     }
 }
-
+//REFACTOR: move to document.js
 async function findDocumentType() {
     //check if the background layer exsit
     //if it doesn't return false
@@ -4582,7 +4609,7 @@ async function findDocumentType() {
 
     return document_type
 }
-
+//REFACTOR: move to document.js
 async function correctDocumentType(documentType) {
     if (documentType === Enum.DocumentTypeEnum['SolidBackground']) {
         //do nothing
