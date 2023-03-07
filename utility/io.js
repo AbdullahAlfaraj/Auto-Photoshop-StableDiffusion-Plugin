@@ -1,5 +1,6 @@
 const batchPlay = require('photoshop').action.batchPlay
 const psapi = require('../psapi')
+// const sdapi = require('../sdapi_py_re')
 const layer_util = require('../utility/layer')
 const general = require('./general')
 const Jimp = require('../jimp/browser/lib/jimp.min')
@@ -248,7 +249,7 @@ class IO {
         return layer
     }
 
-    static async getSelectionFromCanvasAsBase64(
+    static async getSelectionFromCanvasAsBase64Silent(
         selectionInfo,
         b_resize = false,
         resize_width = 0,
@@ -296,6 +297,59 @@ class IO {
         } catch (e) {
             console.warn(e)
         }
+    }
+    static async getSelectionFromCanvasAsBase64NonSilent(
+        layer,
+        image_name,
+        width,
+        height
+    ) {
+        try {
+            const image_buffer = await psapi.newExportPng(
+                layer,
+                image_name,
+                width,
+                height
+            )
+
+            const base64_image = _arrayBufferToBase64(image_buffer) //convert the buffer to base64
+            //send the base64 to the server to save the file in the desired directory
+            // await sdapi.requestSavePng(base64_image, image_name)
+            // await saveFileInSubFolder(base64_image, document_name, image_name)
+            // debugger
+            const { requestSavePng } = require('../sdapi_py_re')
+            await requestSavePng(base64_image, image_name)
+            return base64_image
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+    static async getSelectionFromCanvasAsBase64Interface(
+        width,
+        height,
+        layer,
+        selectionInfo,
+        resize = true,
+        use_silent_mode = true,
+        image_name = 'temp.png'
+    ) {
+        let base64_image
+        if (use_silent_mode) {
+            base64_image = await this.getSelectionFromCanvasAsBase64Silent(
+                selectionInfo,
+                resize,
+                width,
+                height
+            )
+        } else {
+            base64_image = await this.getSelectionFromCanvasAsBase64NonSilent(
+                layer,
+                image_name,
+                width,
+                height
+            )
+        }
+        return base64_image
     }
 }
 
@@ -407,7 +461,7 @@ class IOHelper {
                     Jimp.MIME_PNG
                 )
 
-                console.log('jimp: base64_url: ', base64_url)
+                // console.log('jimp: base64_url: ', base64_url)
                 // document.getElementById("image").setAttribute("src", data);
 
                 return base64_url

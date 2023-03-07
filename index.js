@@ -2566,7 +2566,7 @@ async function generate(settings, mode) {
         // gImage_paths = images_info.images_paths
         //open the generated images from disk and load them onto the canvas
         // const b_use_silent_import =
-        //     document.getElementById('chUseSilentImport').checked
+        //     document.getElementById('chUseSilentMode').checked
 
         if (isFirstGeneration) {
             //this is new generation session
