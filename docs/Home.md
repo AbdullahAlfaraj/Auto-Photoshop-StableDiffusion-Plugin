@@ -151,8 +151,24 @@ Coming Soon
 4. (optional) use the Viewer to select which images to keep in case of multiple image generation
 
 ## Prompts Shortcut
+you can substitute a whole sequence of words with one word. 
 
-Ensure the *prompt_shortcut.json* file exists in the auto photoshop plugin folder, if not create an empty one.
+Instead of writing the following as a prompt :
+```
+Unreal Engine, Octane Render, arcane card game ui, hearthstone art style, epic fantasy style art
+```
+you could write: 
+```
+{game_like}
+```
+
+as long as you have defined the relationship in the prompt library tab
+```
+{
+"game_like": "Unreal Engine, Octane Render, arcane card game ui, hearthstone art style, epic fantasy style art"
+}
+```
+
 
 [[prompt_shortcut_file.gif]]
 
@@ -191,3 +207,11 @@ Ensure the *prompt_shortcut.json* file exists in the auto photoshop plugin folde
 7. Hit Generate
 
 
+## Heal Brush
+[[heal_brush.gif]]
+1. Select the "Heal Brush" from the Smart Preset dropdown menu in the Stable Diffusion tab
+2. Select the target area where to produce the image using rectangular marquee tool
+3. With a 100% opacity white brush paint the area that you wish to erase
+4. Ensure that you have a -inpainting.ckpt model selected (this is as important as it is easy to forget)
+5. Write a prompt describing what you would like to see in the erased area
+6. Hit Generate

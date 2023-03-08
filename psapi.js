@@ -805,13 +805,40 @@ async function silentSetInitImage(layer, session_id) {
 
         //get the selection from the canvas as base64 png, make sure to resize to the width and height slider
         const selectionInfo = g_generation_session.selectionInfo
-        const base64_image = await io.IO.getSelectionFromCanvasAsBase64(
-            selectionInfo,
-            true,
-            width,
-            height
-        )
+        // const base64_image = await io.IO.getSelectionFromCanvasAsBase64Silent(
+        //     selectionInfo,
+        //     true,
+        //     width,
+        //     height
+        // )
 
+        const use_silent_mode = html_manip.getUseSilentMode()
+        // if (use_silent_mode) {
+        //     base64_image = await io.IO.getSelectionFromCanvasAsBase64Silent(
+        //         selectionInfo,
+        //         true,
+        //         width,
+        //         height
+        //     )
+        // } else {
+        //     base64_image = await io.IO.getSelectionFromCanvasAsBase64NonSilent(
+        //         layer,
+
+        //         image_name,
+        //         width,
+        //         height
+        //     )
+        // }
+        const base64_image =
+            await io.IO.getSelectionFromCanvasAsBase64Interface(
+                width,
+                height,
+                layer,
+                selectionInfo,
+                true,
+                use_silent_mode,
+                image_name
+            )
         //save base64 as file in the init_images directory
         const init_entry = await getInitImagesDir()
         await io.IO.base64PngToPngFile(base64_image, init_entry, image_name)
@@ -847,12 +874,19 @@ async function silentSetInitImageMask(layer, session_id) {
 
         //get the selection from the canvas as base64 png, make sure to resize to the width and height slider
         const selectionInfo = g_generation_session.selectionInfo
-        const base64_image = await io.IO.getSelectionFromCanvasAsBase64(
-            selectionInfo,
-            true,
-            width,
-            height
-        )
+
+        const use_silent_mode = html_manip.getUseSilentMode()
+
+        const base64_image =
+            await io.IO.getSelectionFromCanvasAsBase64Interface(
+                width,
+                height,
+                layer,
+                selectionInfo,
+                true,
+                use_silent_mode,
+                image_name
+            )
 
         //save base64 as file in the init_images directory
         const init_entry = await getInitImagesDir()

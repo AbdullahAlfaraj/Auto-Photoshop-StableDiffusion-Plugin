@@ -824,112 +824,363 @@
                 <!-- </div> -->
             </div>
             <div class="sp-tab-page" id="sp-control_net-tab-page">
-                <!-- Horde tab page -->
+                <!-- control net tab page -->
                 <div></div>
-                <div style="display: flex">
-                    <div
-                        id="control_net_image_container"
-                        class="imgContainer controlNetImaageContainer"
-                    >
-                        <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+                <div id="controlnet_settings_0" style="display: none">
+                    <div class="flexContainer">
+                        <sp-label slot="label"
+                            >Control Net Settings Slot 0</sp-label
+                        >
+                    </div>
+                    <div style="display: flex">
+                        <div
+                            id="control_net_image_container_0"
+                            class="imgContainer controlNetImaageContainer"
+                        >
+                            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
 
-                        <div>
-                            <img
-                                id="control_net_image"
-                                class="column-item-image"
-                                src="https://source.unsplash.com/random"
-                                width="300px"
-                                height="100px"
-                            />
+                            <div>
+                                <img
+                                    id="control_net_image_0"
+                                    class="column-item-image"
+                                    src="https://source.unsplash.com/random"
+                                    width="300px"
+                                    height="100px"
+                                />
+                            </div>
+                            <div class="imgButton">
+                                <button
+                                    class="column-item button-style btnSquare"
+                                    id="bSetControlImage_0"
+                                >
+                                    Set CtrlNet Img
+                                </button>
+                            </div>
                         </div>
-                        <div class="imgButton">
-                            <button
-                                class="column-item button-style btnSquare"
-                                id="bSetControlImage"
-                            >
-                                Set CtrlNet Img
-                            </button>
+                        <div
+                            id="control_net_mask_container_0"
+                            class="imgContainer controlNetImaageContainer"
+                        >
+                            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+
+                            <div>
+                                <img
+                                    id="control_net_mask_0"
+                                    class="column-item-image"
+                                    src="https://source.unsplash.com/random"
+                                    width="300px"
+                                    height="100px"
+                                />
+                            </div>
+                            <div class="imgButton btnClass">
+                                <button
+                                    class="column-item button-style btnSquare"
+                                    id="bControlMask_0"
+                                >
+                                    View Mask
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div
-                        id="control_net_mask_container"
-                        class="imgContainer controlNetImaageContainer"
-                    >
-                        <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
 
-                        <div>
-                            <img
-                                id="control_net_mask"
-                                class="column-item-image"
-                                src="https://source.unsplash.com/random"
-                                width="300px"
-                                height="100px"
-                            />
-                        </div>
-                        <div class="imgButton btnClass">
-                            <button
-                                class="column-item button-style btnSquare"
-                                id="bControlMask"
-                            >
-                                View Mask
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                    <sp-checkbox id="chEnableControlNet_0">Enable</sp-checkbox>
+                    <sp-checkbox checked id="chlowVram_0">Low VRAM</sp-checkbox>
+                    <sp-checkbox id="chGuessMode_0">Guess Mode</sp-checkbox>
 
-                <sp-checkbox id="chEnableControlNet">Enable</sp-checkbox>
-                <sp-checkbox checked id="chlowVram">Low VRAM</sp-checkbox>
-                <sp-checkbox id="chGuessMode">Guess Mode</sp-checkbox>
-
-                <div>
                     <div>
-                        <sp-slider
-                            show-value="false"
-                            id="slControlNetWeight"
-                            min="0"
-                            max="100"
-                            value="50"
-                            title="2 will keep the composition; 0 will allow composition to change"
-                        >
-                            <sp-label slot="label">Weight:</sp-label>
-                            <sp-label slot="label" id="lControlNetWeight"
-                                >1.0</sp-label
+                        <div>
+                            <sp-slider
+                                show-value="false"
+                                id="slControlNetWeight_0"
+                                min="0"
+                                max="100"
+                                value="50"
+                                title="2 will keep the composition; 0 will allow composition to change"
                             >
-                        </sp-slider>
-                        <sp-slider
-                            show-value="false"
-                            id="slControlNetGuidanceStrength"
-                            min="0"
-                            max="100"
-                            value="100"
-                        >
-                            <sp-label slot="label">Guidance strength:</sp-label>
-                            <sp-label
-                                slot="label"
-                                id="lControlNetGuidanceStrength"
-                                >1.0</sp-label
+                                <sp-label slot="label">Weight:</sp-label>
+                                <sp-label slot="label" id="lControlNetWeight_0"
+                                    >1.0</sp-label
+                                >
+                            </sp-slider>
+                            <sp-slider
+                                show-value="false"
+                                id="slControlNetGuidanceStrength_0"
+                                min="0"
+                                max="100"
+                                value="100"
                             >
-                        </sp-slider>
+                                <sp-label slot="label"
+                                    >Guidance strength:</sp-label
+                                >
+                                <sp-label
+                                    slot="label"
+                                    id="lControlNetGuidanceStrength_0"
+                                    >1.0</sp-label
+                                >
+                            </sp-slider>
+                        </div>
+                    </div>
+                    <div id="menu-bar-control_net_0" style="display: flex">
+                        <sp-picker size="m" label="Selection type">
+                            <sp-menu
+                                id="mModuleMenuControlNet_0"
+                                slot="options"
+                            >
+                                <!-- <sp-menu-item> item </sp-menu-item> -->
+                            </sp-menu>
+                        </sp-picker>
+                        <sp-picker size="m" label="Selection type">
+                            <sp-menu
+                                id="mModelsMenuControlNet_0"
+                                slot="options"
+                            >
+                                <!-- <sp-menu-item> item </sp-menu-item> -->
+                            </sp-menu>
+                        </sp-picker>
+
+                        <!-- <button class="btnSquare" id="btnRefreshModelsHorde">
+                                        Refresh Models
+                                    </button> -->
                     </div>
                 </div>
-                <div id="menu-bar-control_net" style="display: flex">
-                    <sp-picker size="m" label="Selection type">
-                        <sp-menu id="mModuleMenuControlNet" slot="options">
-                            <!-- <sp-menu-item> item </sp-menu-item> -->
-                        </sp-menu>
-                    </sp-picker>
-                    <sp-picker size="m" label="Selection type">
-                        <sp-menu id="mModelsMenuControlNet" slot="options">
-                            <!-- <sp-menu-item> item </sp-menu-item> -->
-                        </sp-menu>
-                    </sp-picker>
+                <div></div>
+                <div id="controlnet_settings_1" style="display: none">
+                    <div class="flexContainer">
+                        <sp-label slot="label"
+                            >Control Net Settings Slot 1</sp-label
+                        >
+                    </div>
+                    <div style="display: flex">
+                        <div
+                            id="control_net_image_container_1"
+                            class="imgContainer controlNetImaageContainer"
+                        >
+                            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
 
-                    <!-- <button class="btnSquare" id="btnRefreshModelsHorde">
-                        Refresh Models
-                    </button> -->
+                            <div>
+                                <img
+                                    id="control_net_image_1"
+                                    class="column-item-image"
+                                    src="https://source.unsplash.com/random"
+                                    width="300px"
+                                    height="100px"
+                                />
+                            </div>
+                            <div class="imgButton">
+                                <button
+                                    class="column-item button-style btnSquare"
+                                    id="bSetControlImage_1"
+                                >
+                                    Set CtrlNet Img
+                                </button>
+                            </div>
+                        </div>
+                        <div
+                            id="control_net_mask_container_1"
+                            class="imgContainer controlNetImaageContainer"
+                        >
+                            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+
+                            <div>
+                                <img
+                                    id="control_net_mask_1"
+                                    class="column-item-image"
+                                    src="https://source.unsplash.com/random"
+                                    width="300px"
+                                    height="100px"
+                                />
+                            </div>
+                            <div class="imgButton btnClass">
+                                <button
+                                    class="column-item button-style btnSquare"
+                                    id="bControlMask_1"
+                                >
+                                    View Mask
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <sp-checkbox id="chEnableControlNet_1">Enable</sp-checkbox>
+                    <sp-checkbox checked id="chlowVram_1">Low VRAM</sp-checkbox>
+                    <sp-checkbox id="chGuessMode_1">Guess Mode</sp-checkbox>
+
+                    <div>
+                        <div>
+                            <sp-slider
+                                show-value="false"
+                                id="slControlNetWeight_1"
+                                min="0"
+                                max="100"
+                                value="50"
+                                title="2 will keep the composition; 0 will allow composition to change"
+                            >
+                                <sp-label slot="label">Weight:</sp-label>
+                                <sp-label slot="label" id="lControlNetWeight_1"
+                                    >1.0</sp-label
+                                >
+                            </sp-slider>
+                            <sp-slider
+                                show-value="false"
+                                id="slControlNetGuidanceStrength_1"
+                                min="0"
+                                max="100"
+                                value="100"
+                            >
+                                <sp-label slot="label"
+                                    >Guidance strength:</sp-label
+                                >
+                                <sp-label
+                                    slot="label"
+                                    id="lControlNetGuidanceStrength_1"
+                                    >1.0</sp-label
+                                >
+                            </sp-slider>
+                        </div>
+                    </div>
+                    <div id="menu-bar-control_net_1" style="display: flex">
+                        <sp-picker size="m" label="Selection type"
+                            >controlnet_settings_
+                            <sp-menu
+                                id="mModuleMenuControlNet_1"
+                                slot="options"
+                            >
+                                <!-- <sp-menu-item> item </sp-menu-item> -->
+                            </sp-menu>
+                        </sp-picker>
+                        <sp-picker size="m" label="Selection type">
+                            <sp-menu
+                                id="mModelsMenuControlNet_1"
+                                slot="options"
+                            >
+                                <!-- <sp-menu-item> item </sp-menu-item> -->
+                            </sp-menu>
+                        </sp-picker>
+
+                        <!-- <button class="btnSquare" id="btnRefreshModelsHorde">
+                                            Refresh Models
+                                        </button> -->
+                    </div>
+                </div>
+                <div></div>
+                <div id="controlnet_settings_2" style="display: none">
+                    <div class="flexContainer">
+                        <sp-label slot="label"
+                            >Control Net Settings Slot 2</sp-label
+                        >
+                    </div>
+                    <div style="display: flex">
+                        <div
+                            id="control_net_image_container_2"
+                            class="imgContainer controlNetImaageContainer"
+                        >
+                            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+
+                            <div>
+                                <img
+                                    id="control_net_image_2"
+                                    class="column-item-image"
+                                    src="https://source.unsplash.com/random"
+                                    width="300px"
+                                    height="100px"
+                                />
+                            </div>
+                            <div class="imgButton">
+                                <button
+                                    class="column-item button-style btnSquare"
+                                    id="bSetControlImage_2"
+                                >
+                                    Set CtrlNet Img
+                                </button>
+                            </div>
+                        </div>
+                        <div
+                            id="control_net_mask_container_2"
+                            class="imgContainer controlNetImaageContainer"
+                        >
+                            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+
+                            <div>
+                                <img
+                                    id="control_net_mask_2"
+                                    class="column-item-image"
+                                    src="https://source.unsplash.com/random"
+                                    width="300px"
+                                    height="100px"
+                                />
+                            </div>
+                            <div class="imgButton btnClass">
+                                <button
+                                    class="column-item button-style btnSquare"
+                                    id="bControlMask_2"
+                                >
+                                    View Mask
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <sp-checkbox id="chEnableControlNet_2">Enable</sp-checkbox>
+                    <sp-checkbox checked id="chlowVram_2">Low VRAM</sp-checkbox>
+                    <sp-checkbox id="chGuessMode_2">Guess Mode</sp-checkbox>
+
+                    <div>
+                        <div>
+                            <sp-slider
+                                show-value="false"
+                                id="slControlNetWeight_2"
+                                min="0"
+                                max="100"
+                                value="50"
+                                title="2 will keep the composition; 0 will allow composition to change"
+                            >
+                                <sp-label slot="label">Weight:</sp-label>
+                                <sp-label slot="label" id="lControlNetWeight_2"
+                                    >1.0</sp-label
+                                >
+                            </sp-slider>
+                            <sp-slider
+                                show-value="false"
+                                id="slControlNetGuidanceStrength_2"
+                                min="0"
+                                max="100"
+                                value="100"
+                            >
+                                <sp-label slot="label"
+                                    >Guidance strength:</sp-label
+                                >
+                                <sp-label
+                                    slot="label"
+                                    id="lControlNetGuidanceStrength_2"
+                                    >1.0</sp-label
+                                >
+                            </sp-slider>
+                        </div>
+                    </div>
+                    <div id="menu-bar-control_net_2" style="display: flex">
+                        <sp-picker size="m" label="Selection type">
+                            <sp-menu
+                                id="mModuleMenuControlNet_2"
+                                slot="options"
+                            >
+                                <!-- <sp-menu-item> item </sp-menu-item> -->
+                            </sp-menu>
+                        </sp-picker>
+                        <sp-picker size="m" label="Selection type">
+                            <sp-menu
+                                id="mModelsMenuControlNet_2"
+                                slot="options"
+                            >
+                                <!-- <sp-menu-item> item </sp-menu-item> -->
+                            </sp-menu>
+                        </sp-picker>
+
+                        <!-- <button class="btnSquare" id="btnRefreshModelsHorde">
+                                                Refresh Models
+                                            </button> -->
+                    </div>
                 </div>
             </div>
-
             <div class="sp-tab-page" id="sp-history-tab-page">
                 <div class="subTabOptionsContainer"></div>
 
@@ -1361,9 +1612,9 @@
                 <sp-checkbox checked id="chUseOriginalPrompt"
                     >Restore Original Prompt</sp-checkbox
                 >
-                <!-- <sp-checkbox checked id="chUseSilentImport"
-                    >Use Silent Import</sp-checkbox
-                > -->
+                <sp-checkbox checked id="chUseSilentMode"
+                    >Use Silent Mode</sp-checkbox
+                >
                 <!-- <a href="https://colab.research.google.com/drive/1nbcx_WOneRmYv9idBO33pN5CbxXrqZHu?usp=sharing" target="_blank">Don't have GPU, use Colab</a> -->
                 <sp-link
                     href="https://colab.research.google.com/drive/1nbcx_WOneRmYv9idBO33pN5CbxXrqZHu?usp=sharing"

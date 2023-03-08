@@ -404,12 +404,16 @@ function selectModelUi(model_hash) {
 }
 
 function autoFillInModel(model_hash) {
-    // unCheckAllSamplers()
-    model_element = getModelElementByHash(model_hash)
-    selectModelUi(model_hash)
-    // model_element.
-    const model_title = model_element.dataset.model_title
-    return model_title
+    try {
+        // unCheckAllSamplers()
+        model_element = getModelElementByHash(model_hash)
+        selectModelUi(model_hash)
+        // model_element.
+        const model_title = model_element.dataset.model_title
+        return model_title
+    } catch (e) {
+        console.warn(e)
+    }
 }
 ////// End Models//////////
 
@@ -423,14 +427,16 @@ function setInitImageSrc(image_src) {
     const ini_image_element = getInitImageElement()
     ini_image_element.src = image_src
 }
-function setControlImageSrc(image_src) {
-    const control_net_image_element =
-        document.getElementById('control_net_image')
+function setControlImageSrc(image_src, element_index = 0) {
+    const control_net_image_element = document.getElementById(
+        'control_net_image' + '_' + element_index
+    )
     control_net_image_element.src = image_src
 }
-function setControlMaskSrc(image_src) {
-    const control_net_image_element =
-        document.getElementById('control_net_mask')
+function setControlMaskSrc(image_src, element_index = 0) {
+    const control_net_image_element = document.getElementById(
+        'control_net_mask' + '_' + element_index
+    )
     control_net_image_element.src = image_src
 }
 
@@ -819,6 +825,10 @@ function getUseNsfw() {
     const b_nsfw = document.getElementById('chUseNSFW').checked
     return b_nsfw
 }
+function getUseSilentMode() {
+    const b_use_silent_mode = document.getElementById('chUseSilentMode').checked
+    return b_use_silent_mode
+}
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -893,4 +903,5 @@ module.exports = {
     getSelectedMenuItem,
     getSelectedMenuItemTextContent,
     getUseNsfw,
+    getUseSilentMode,
 }
