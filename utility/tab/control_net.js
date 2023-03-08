@@ -170,23 +170,27 @@ function mapPluginSettingsToControlNet(plugin_settings) {
     const ps = plugin_settings // for shortness
     let controlnet_units = []
 
+    debugger
+    let active_index = 0;
     for (let index = 0; index < g_controlnet_max_supported_models; index++) {
-        if (!getEnableControlNet(index)) break
-        controlnet_units[index] = {
-            input_image: g_generation_session.controlNetImage[index],
-            mask: '',
-            module: getSelectedModule(index),
-            model: getSelectedModel(index),
-            weight: getControlNetWeight(index),
-            resize_mode: 'Scale to Fit (Inner Fit)',
-            lowvram: getUseLowVram(index),
-            processor_res: 512,
-            threshold_a: 64,
-            threshold_b: 64,
-            // guidance: ,
-            guidance_start: getControlNetWeightGuidanceStrengthStart(index),
-            guidance_end: getControlNetWeightGuidanceStrengthEnd(index),
-            guessmode: false,
+        if (getEnableControlNet(index)) {
+            controlnet_units[active_index] = {
+                input_image: g_generation_session.controlNetImage[index],
+                mask: '',
+                module: getSelectedModule(index),
+                model: getSelectedModel(index),
+                weight: getControlNetWeight(index),
+                resize_mode: 'Scale to Fit (Inner Fit)',
+                lowvram: getUseLowVram(index),
+                processor_res: 512,
+                threshold_a: 64,
+                threshold_b: 64,
+                // guidance: ,
+                guidance_start: getControlNetWeightGuidanceStrengthStart(index),
+                guidance_end: getControlNetWeightGuidanceStrengthEnd(index),
+                guessmode: false,
+            }
+            active_index++;
         }
     }
 
