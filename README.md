@@ -62,7 +62,7 @@ use method 3 if you are a Developer/Programmer
 1) Download the  [.zip](https://www.dropbox.com/t/dLNPZu2V8rS4j9Bd) file
 2) Unzip it in a folder with the same name
 3) move the unzipped folder to the Photoshop Plugin folder
-	
+4) (optional step) Install the Auto-Photoshop-SD Extension from Automatic1111. the extension will allow you to use the smart masking and image search features	
 ![image](https://user-images.githubusercontent.com/7842232/223751539-1a3013aa-aa1d-4058-87ae-e8b3fdfc5ec8.png)
 
 
