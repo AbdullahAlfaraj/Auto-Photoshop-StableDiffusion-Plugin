@@ -63,6 +63,7 @@ use method 3 if you are a Developer/Programmer
 2) Unzip it in a folder with the same name
 3) move the unzipped folder to the Photoshop Plugin folder
 	
+![image](https://user-images.githubusercontent.com/7842232/223751539-1a3013aa-aa1d-4058-87ae-e8b3fdfc5ec8.png)
 
 
 
