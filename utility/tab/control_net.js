@@ -104,13 +104,22 @@ async function initializeControlNetTab(controlnet_max_models) {
     }
 }
 // controlnet settings getters
-function getControlNetWeightGuidanceStrength(controlnet_index = 0) {
+function getControlNetWeightGuidanceStrengthStart(controlnet_index = 0) {
     const slider_value = document.getElementById(
-        'slControlNetGuidanceStrength_' + controlnet_index
+        'slControlNetGuidanceStrengthStart_' + controlnet_index
     ).value
     const sd_value = general.mapRange(slider_value, 0, 100, 0, 1) // convert slider value to SD ready value
     return sd_value
 }
+
+function getControlNetWeightGuidanceStrengthEnd(controlnet_index = 0) {
+    const slider_value = document.getElementById(
+        'slControlNetGuidanceStrengthEnd_' + controlnet_index
+    ).value
+    const sd_value = general.mapRange(slider_value, 0, 100, 0, 1) // convert slider value to SD ready value
+    return sd_value
+}
+
 
 function getControlNetWeight(controlnet_index = 0) {
     const slider_value = document.getElementById(
@@ -174,9 +183,9 @@ function mapPluginSettingsToControlNet(plugin_settings) {
             processor_res: 512,
             threshold_a: 64,
             threshold_b: 64,
-            guidance: getControlNetWeightGuidanceStrength(index),
-            guidance_start: 0,
-            guidance_end: 1,
+            // guidance: ,
+            guidance_start: getControlNetWeightGuidanceStrengthStart(index),
+            guidance_end: getControlNetWeightGuidanceStrengthEnd(index),
             guessmode: false,
         }
     }
@@ -205,12 +214,22 @@ function refreshControlNetTab() {}
 for (let index = 0; index < g_controlnet_max_supported_models; index++) {
     //event listeners
     document
-        .getElementById('slControlNetGuidanceStrength_' + index)
+        .getElementById('slControlNetGuidanceStrengthStart_' + index)
         .addEventListener('input', (evt) => {
             // debugger
             const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 1) // convert slider value to SD ready value
             document.getElementById(
-                'lControlNetGuidanceStrength_' + index
+                'lControlNetGuidanceStrengthStart_' + index
+            ).textContent = Number(sd_value).toFixed(2)
+        })
+
+    document
+        .getElementById('slControlNetGuidanceStrengthEnd_' + index)
+        .addEventListener('input', (evt) => {
+            // debugger
+            const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 1) // convert slider value to SD ready value
+            document.getElementById(
+                'lControlNetGuidanceStrengthStart_' + index
             ).textContent = Number(sd_value).toFixed(2)
         })
 
