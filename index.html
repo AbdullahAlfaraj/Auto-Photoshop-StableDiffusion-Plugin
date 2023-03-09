@@ -1618,6 +1618,27 @@
                     >
                         Save Preset
                     </button>
+                    <button
+                        class="btnSquare"
+                        id="btnDeletePreset"
+                        style="margin-left: 5px"
+                    >
+                        Delete Preset
+                    </button>
+                    <div style="display: inline-flex">
+                        <sp-picker
+                            title="auto fill the plugin with smart settings, to speed up your working process."
+                            size="s"
+                            label="Smart Preset"
+                        >
+                            <sp-menu id="mSettingTabPresetMenu" slot="options">
+                                <!-- <sp-menu-item> item </sp-menu-item> -->
+                            </sp-menu>
+                        </sp-picker>
+                    </div>
+                    <div>
+                        <sp-label id="lPresetName"></sp-label>
+                    </div>
                     <div class="">
                         <sp-textarea
                             id="taPresetSettings"
