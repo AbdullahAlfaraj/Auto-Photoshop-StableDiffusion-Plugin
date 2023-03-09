@@ -1,3 +1,5 @@
+const io = require('../io')
+
 let settings = {
     model: null,
     prompt_shortcut: null,
@@ -140,15 +142,31 @@ function setPresetSettingsHtml(preset_settings) {
     new_lines_count
     preset_settings_element.style.height = new_lines_count * 10 + 100
 }
+
+function getPresetName() {
+    const preset_name = document.getElementById('tiPresetName').value
+    return preset_name
+}
+function setPresetName() {}
 document.getElementById('btnNewPreset').addEventListener('click', () => {
     const settings = g_ui_settings.getSettings()
     setPresetSettingsHtml(settings)
 })
-document.getElementById('btnSavePreset').addEventListener('click', () => {
+
+document.getElementById('btnSavePreset').addEventListener('click', async () => {
     //save preset settings from textarea to json file
     //reload the preset menu
-    // const settings = g_ui_settings.getSettings()
-    // setPresetSettingsHtml(settings)
+
+    const custom_preset_entry = await io.IOFolder.getCustomPresetFolder()
+    const preset_settings = getPresetSettingsHtml()
+    const preset_name = getPresetName()
+
+    //check if the file exist and prompt the user to override it or cancel
+    io.IOJson.saveJsonToFileExe(
+        preset_settings,
+        custom_preset_entry,
+        preset_name + '.json'
+    )
 })
 
 module.exports = {
