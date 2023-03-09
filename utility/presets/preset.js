@@ -126,6 +126,31 @@ class Preset {
     savePresetToJson(preset_path, settings) {}
 }
 
+function getPresetSettingsHtml() {
+    const value_str = document.getElementById('taPresetSettings').value
+    const value_json = JSON.parse(value_str)
+    return value_json
+}
+function setPresetSettingsHtml(preset_settings) {
+    const JSONInPrettyFormat = JSON.stringify(preset_settings, undefined, 7)
+    preset_settings_element = document.getElementById('taPresetSettings')
+    preset_settings_element.value = JSONInPrettyFormat
+
+    const new_lines_count = general.countNewLines(JSONInPrettyFormat)
+    new_lines_count
+    preset_settings_element.style.height = new_lines_count * 10 + 100
+}
+document.getElementById('btnNewPreset').addEventListener('click', () => {
+    const settings = g_ui_settings.getSettings()
+    setPresetSettingsHtml(settings)
+})
+document.getElementById('btnSavePreset').addEventListener('click', () => {
+    //save preset settings from textarea to json file
+    //reload the preset menu
+    // const settings = g_ui_settings.getSettings()
+    // setPresetSettingsHtml(settings)
+})
+
 module.exports = {
     LatentNoiseSettings,
     FillSettings,

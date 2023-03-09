@@ -248,6 +248,17 @@ class UISettings {
             }
         }
     }
+    getSettings() {
+        let settings = {}
+        for (const [name, ui_element] of Object.entries(this.uiElements)) {
+            if (ui_element) {
+                const value = ui_element.getValue()
+                settings[name] = value
+            }
+        }
+        return settings
+    }
+
     saveAsJson(json_file_name, settings) {
         for (const [name, value] of Object.entries(settings)) {
             if (this.uiElements.hasOwnProperty(name) && value) {

@@ -1598,11 +1598,33 @@
                     ></sp-textfield
                     ><button
                         class="btnSquare"
-                        id="btnCreatePreset"
+                        id="btnNewPreset"
                         style="margin-left: 5px"
                     >
-                        Create Preset
+                        New Preset
                     </button>
+                    <button
+                        class="btnSquare"
+                        id="btnEditPresetName"
+                        style="margin-left: 5px"
+                    >
+                        Edit Name
+                    </button>
+
+                    <button
+                        class="btnSquare"
+                        id="btnSavePreset"
+                        style="margin-left: 5px"
+                    >
+                        Save Preset
+                    </button>
+                    <div class="">
+                        <sp-textarea
+                            id="taPresetSettings"
+                            placeholder="{}"
+                            value=""
+                        ></sp-textarea>
+                    </div>
                 </div>
             </div>
             <div class="sp-tab-page" id="sp-settings-tab-page">
