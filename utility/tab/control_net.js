@@ -57,8 +57,23 @@ class ControlNetUnit {
             }
         }
     }
-    static setUnit() {}
+    static getUnits() {
+        const controlnet_units = {}
 
+        for (let i = 0; i < g_controlnet_max_supported_models; ++i) {
+            controlnet_units[i] = this.getUnit(i)
+        }
+        return controlnet_units
+    }
+    static setUnits(controlnet_units) {
+        for (const [index, unit] of Object.entries(controlnet_units)) {
+            try {
+                this.setUnit(index, unit)
+            } catch (e) {
+                console.warn(e)
+            }
+        }
+    }
     static doesUnitExist(index) {
         //TODO: check if controlnet unit exist
         if (index >= 0) {
@@ -185,7 +200,7 @@ async function populatePreprocessorMenu() {
             index++
         ) {
             html_manip.populateMenu(
-                'mModuleMenuControlNet_' + index,
+                'mModulesMenuControlNet_' + index,
                 'mModuleMenuItemControlNet_' + index,
                 modules,
                 (item, item_html_element) => {
@@ -302,7 +317,7 @@ function setEnable(index) {
 }
 function getSelectedModule(controlnet_index = 0) {
     const module_name = html_manip.getSelectedMenuItemTextContent(
-        'mModuleMenuControlNet_' + controlnet_index
+        'mModulesMenuControlNet_' + controlnet_index
     )
 
     return module_name
