@@ -169,7 +169,7 @@ function mapPluginSettingsToControlNet(plugin_settings) {
     const ps = plugin_settings // for shortness
     let controlnet_units = []
 
-    debugger
+    // debugger
     let active_index = 0
     for (let index = 0; index < g_controlnet_max_supported_models; index++) {
         if (getEnableControlNet(index)) {
