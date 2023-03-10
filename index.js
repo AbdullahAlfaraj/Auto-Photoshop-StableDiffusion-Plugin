@@ -31,6 +31,7 @@ const sd_options = require('./utility/sdapi/options')
 const sd_config = require('./utility/sdapi/config')
 const session = require('./utility/session')
 const ui = require('./utility/ui')
+const preset_util = require('./utility/presets/preset')
 const script_horde = require('./utility/sd_scripts/horde')
 const prompt_shortcut = require('./utility/sdapi/prompt_shortcut')
 const formats = require('uxp').storage.formats
@@ -558,84 +559,6 @@ function promptShortcutExample() {
     document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
     return prompt_shortcut_example
 }
-//REFACTOR: move to generation_settings.js // Note: delete this function use UISettings.autoFillInSettings instead
-// function autoFillInSettings(metadata_json) {
-//     try {
-//         metadata_json1 = {
-//             prompt: 'cute cat, A full portrait of a beautiful post apocalyptic offworld arctic explorer, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration\nNegative prompt:  ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), out of frame, extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck)))',
-//             Steps: '20',
-//             Sampler: 'Euler a',
-//             'CFG scale': '7.0',
-//             Seed: '2300061620',
-//             Size: '512x512',
-//             'Model hash': '3e16efc8',
-//             'Seed resize from': '-1x-1',
-//             'Denoising strength': '0',
-//             'Conditional mask weight': '1.0',
-//         }
-
-//         //sometime the negative prompt is stored within the prompt
-//         function extractNegativePrompt(prompt) {
-//             const splitter = '\nNegative prompt:'
-//             const prompts = prompt.split(splitter)
-//             console.log('prompts: ', prompts)
-//             let negative_prompt = ''
-//             if (prompts.length > 1) {
-//                 negative_prompt = prompts[1].trim()
-//             }
-//             //propmt = prompt[0]
-
-//             return [prompts[0], negative_prompt]
-//         }
-//         let [prompt, negative_prompt] = extractNegativePrompt(
-//             metadata_json['prompt']
-//         )
-//         negative_prompt = metadata_json['Negative prompt'] || negative_prompt
-
-//         html_manip.autoFillInPrompt(prompt)
-//         html_manip.autoFillInNegativePrompt(negative_prompt)
-
-//         document.getElementById('tiNumberOfSteps').value =
-//             metadata_json['Steps']
-
-//         document.getElementById('slCfgScale').value = metadata_json['CFG scale']
-//         document.getElementById('tiSeed').value = metadata_json['Seed']
-
-//         // = metadata_json['Denoising strength']
-//         html_manip.autoFillInDenoisingStrength(
-//             metadata_json['Denoising strength']
-//         )
-
-//         model_title = html_manip.autoFillInModel(metadata_json['Model hash'])
-//         sdapi.requestSwapModel(model_title)
-
-//         const [width, height] = metadata_json['Size'].split('x')
-//         console.log('width, height: ', width, height)
-//         html_manip.autoFillInWidth(width)
-//         html_manip.autoFillInHeight(height)
-//         html_manip.autoFillInSampler(metadata_json['Sampler'])
-//         if (metadata_json.hasOwnProperty('First pass size')) {
-//             // chHiResFixs
-//             const [firstphase_width, firstphase_height] =
-//                 metadata_json['First pass size'].split('x')
-//             html_manip.setHiResFixs(true)
-//             html_manip.autoFillInHiResFixs(firstphase_width, firstphase_height)
-//             html_manip.autoFillInSliderUi(
-//                 metadata_json['Denoising strength'],
-//                 'hrDenoisingStrength',
-//                 'hDenoisingStrength',
-//                 100
-//             )
-//         } else {
-//             //
-//             html_manip.setHiResFixs(false)
-//         }
-
-//         // document.getElementById('tiSeed').value = metadata_json["Seed"]
-//     } catch (e) {
-//         console.error(`autoFillInSettings: ${e}`)
-//     }
-// }
 
 //**********Start: global variables
 let prompt_dir_name = ''
@@ -739,7 +662,8 @@ let g_controlnet_max_models
 let g_generation_session = new session.GenerationSession(0) //session manager
 g_generation_session.deactivate() //session starte as inactive
 let g_ui = new ui.UI()
-let g_ui_settings = new ui.UISettings()
+
+let g_ui_settings_object = ui.getUISettingsObject()
 
 const requestState = {
     Generate: 'generate',
@@ -1308,22 +1232,6 @@ function sliderToResolution(sliderValue) {
     return sliderValue * 64
 }
 
-// document.querySelector('#slHeight').addEventListener('input', evt => {
-//   gHeight = sliderToResolution(evt.target.value)
-//   document.querySelector('#lHeight').textContent = gHeight
-// })
-
-// function getWidthFromSlider(slider_value){
-//   // slider_width = document.querySelector('#slWidth').value
-//   const width = sliderToResolution(slider_value)
-//   return width
-// }
-// //avoid using global width gWidth in "input" incase the slider get changed using autoFillInSettings
-// document.querySelector('#slWidth').addEventListener('input', evt => {
-//   const width = getWidthFromSlider(evt.target.value)
-//   // gWidth = sliderToResolution(evt.target.value)
-//   document.querySelector('#lWidth').textContent = width
-// })
 //REFACTOR: move to events.js
 document.querySelector('#hrHeight').addEventListener('input', (evt) => {
     hHeight = sliderToResolution(evt.target.value)
@@ -3997,8 +3905,8 @@ function getHistoryMetadata(img) {
     }
     document.querySelector('#historySeedLabel').textContent =
         metadata_json?.seed
-    // autoFillInSettings(metadata_json)
-    g_ui_settings.autoFillInSettings(metadata_json)
+
+    g_ui_settings_object.autoFillInSettings(metadata_json)
 }
 //REFACTOR: move to document.js
 async function moveHistoryImageToLayer(img) {
@@ -4059,7 +3967,6 @@ document
                     // console.log("metadata_json: ",metadata_json)
                     // document.querySelector('#tiSeed').value = metadata_json.Seed
                     // document.querySelector('#historySeedLabel').textContent = metadata_json.Seed
-                    // autoFillInSettings(metadata_json)
                 })
                 // i++
             }
@@ -4344,50 +4251,7 @@ document
         // }
         await activateSessionSelectionArea()
     })
-//REFACTOR: move to ui.js
-function addPresetMenuItem(preset_title) {
-    // console.log(model_title,model_name)
-    const menu_item_element = document.createElement('sp-menu-item')
-    menu_item_element.className = 'mPresetMenuItem'
-    menu_item_element.innerHTML = preset_title
 
-    // menu_item_element.addEventListener('select',()=>{
-    //   preset_func(g_ui_settings)
-    // })
-    return menu_item_element
-}
-//REFACTOR: move to ui.js
-function populatePresetMenu() {
-    const divider_elem = document.createElement('sp-menu-divider')
-    const preset_name = 'Select Smart Preset'
-    const preset_func = () => {}
-    const dummy_preset_item = addPresetMenuItem(preset_name, preset_func)
-    dummy_preset_item.setAttribute('selected', 'selected')
-    // dummy_preset_item.setAttribute('disabled')
-    document.getElementById('mPresetMenu').appendChild(dummy_preset_item)
-    document.getElementById('mPresetMenu').appendChild(divider_elem)
-    for ([key, value] of Object.entries(ui.loadedPresets)) {
-        const preset_menu_item = addPresetMenuItem(key, value)
-        document.getElementById('mPresetMenu').appendChild(preset_menu_item)
-    }
-}
-//REFACTOR: move to ui.js
-populatePresetMenu()
-//REFACTOR: move to events.js
-document
-    .getElementById('mPresetMenu')
-    .addEventListener('change', async (evt) => {
-        const preset_index = evt.target.selectedIndex
-        const preset_name = evt.target.options[preset_index].textContent
-        if (ui.loadedPresets.hasOwnProperty(preset_name)) {
-            const loader = ui.loadedPresets[preset_name]
-            if (loader.constructor.name === 'AsyncFunction') {
-                await loader(g_ui_settings)
-            } else {
-                loader(g_ui_settings)
-            }
-        }
-    })
 //REFACTOR: move to psapi.js
 function base64ToSrc(base64_image) {
     const image_src = `data:image/png;base64, ${base64_image}`

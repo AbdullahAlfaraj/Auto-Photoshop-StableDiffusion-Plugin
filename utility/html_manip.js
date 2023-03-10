@@ -859,6 +859,17 @@ function getSelectedMenuItem(menu_id) {
         console.warn(e)
     }
 }
+function selectMenuItem(menu_id, item) {
+    try {
+        const menu_element = document.getElementById(menu_id)
+        const option = Array.from(menu_element.options).filter(
+            (element) => element.value === item
+        )[0]
+        option.selected = true
+    } catch (e) {
+        console.warn(e)
+    }
+}
 function getSelectedMenuItemTextContent(menu_id) {
     try {
         const text_content = getSelectedMenuItem(menu_id).textContent
@@ -867,6 +878,14 @@ function getSelectedMenuItemTextContent(menu_id) {
         console.warn(e)
     }
 }
+function unselectMenuItem(menu_id) {
+    try {
+        document.getElementById(menu_id).selectedIndex = null
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
 function getUseNsfw() {
     //this method is shared between horde native and horde script
     const b_nsfw = document.getElementById('chUseNSFW').checked
@@ -952,4 +971,6 @@ module.exports = {
     getSelectedMenuItemTextContent,
     getUseNsfw,
     getUseSilentMode,
+    unselectMenuItem,
+    selectMenuItem,
 }

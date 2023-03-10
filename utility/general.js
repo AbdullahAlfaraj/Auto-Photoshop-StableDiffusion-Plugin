@@ -136,6 +136,11 @@ function sudoTimer() {
     }
     return timerId
 }
+function countNewLines(string) {
+    const count = (string.match(/\n/g) || []).length
+    // console.log(count)
+    return count
+}
 module.exports = {
     newOutputImageName,
     makeImagePath,
@@ -151,4 +156,5 @@ module.exports = {
     requestOnlineData,
     nearestMultiple,
     sudoTimer,
+    countNewLines,
 }
