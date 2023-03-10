@@ -1,5 +1,5 @@
 const io = require('../io')
-
+const html_manip = require('../html_manip')
 let settings = {
     model: null,
     prompt_shortcut: null,
@@ -147,11 +147,91 @@ function getPresetName() {
     const preset_name = document.getElementById('tiPresetName').value
     return preset_name
 }
-function setPresetName() {}
+function setPresetName(preset_name) {
+    document.getElementById('tiPresetName').value = preset_name
+}
 document.getElementById('btnNewPreset').addEventListener('click', () => {
-    const settings = g_ui_settings.getSettings()
+    // const g_ui_settings_object = getUISettingsObject()
+    const settings = g_ui_settings_object.getSettings()
     setPresetSettingsHtml(settings)
+
+    const preset_name = getPresetName()
+    setPresetNameLabel(preset_name)
 })
+
+function getPresetNameLabel() {
+    //use presetNameLabel as the final name for a preset
+    const preset_name = document.getElementById('lPresetName').textContent
+    return preset_name
+}
+function setPresetNameLabel(preset_name) {
+    document.getElementById('lPresetName').textContent = preset_name.trim()
+}
+
+async function populatePresetMenu() {
+    // presets = ['preset_1', 'preset_2', 'preset_3']
+    const presets = await getAllCustomPresetsSettings()
+    const presets_names = Object.keys(presets)
+    html_manip.populateMenu(
+        'mSettingTabPresetMenu',
+        'mPresetMenuItemClass',
+        presets_names,
+        (item, item_html_element) => {
+            item_html_element.innerHTML = item
+        }
+    )
+}
+async function deletePreset() {
+    try {
+        const preset_name = html_manip.getSelectedMenuItemTextContent(
+            'mSettingTabPresetMenu'
+        )
+        const preset_file_name = preset_name + '.json'
+        const custom_preset_entry = await io.IOFolder.getCustomPresetFolder()
+        await io.IOJson.deleteFile(custom_preset_entry, preset_file_name)
+        html_manip.unselectMenuItem('mSettingTabPresetMenu') // unselect the custom preset menu
+        setPresetSettingsHtml({}) //reset preset settings text area
+        setPresetName('')
+        setPresetNameLabel('')
+        await populatePresetMenu() // update the custom preset Menu
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+async function getCustomPresetEntries() {
+    const custom_preset_entry = await io.IOFolder.getCustomPresetFolder()
+    const custom_preset_entries = await io.IOJson.getJsonEntries(
+        custom_preset_entry
+    )
+
+    return custom_preset_entries
+}
+
+async function loadPresetSettingsFromFile(preset_file_name) {
+    const custom_preset_entry = await io.IOFolder.getCustomPresetFolder()
+    let preset_settings = {}
+    try {
+        preset_settings = await io.IOJson.loadJsonFromFile(
+            custom_preset_entry,
+            preset_file_name
+        )
+    } catch (e) {
+        console.warn(e)
+    }
+    return preset_settings
+}
+async function getAllCustomPresetsSettings() {
+    const custom_preset_entries = await getCustomPresetEntries()
+    let custom_presets = {}
+    for (const entry of custom_preset_entries) {
+        const preset_name = entry.name.split('.json')[0]
+        let preset_settings = await loadPresetSettingsFromFile(entry.name)
+
+        custom_presets[preset_name] = preset_settings
+    }
+    return custom_presets
+}
 
 document.getElementById('btnSavePreset').addEventListener('click', async () => {
     //save preset settings from textarea to json file
@@ -159,19 +239,68 @@ document.getElementById('btnSavePreset').addEventListener('click', async () => {
 
     const custom_preset_entry = await io.IOFolder.getCustomPresetFolder()
     const preset_settings = getPresetSettingsHtml()
-    const preset_name = getPresetName()
+    const preset_name = getPresetNameLabel()
 
     //check if the file exist and prompt the user to override it or cancel
-    io.IOJson.saveJsonToFileExe(
+    await io.IOJson.saveJsonToFileExe(
         preset_settings,
         custom_preset_entry,
         preset_name + '.json'
     )
+    await populatePresetMenu()
+    html_manip.selectMenuItem('mSettingTabPresetMenu', preset_name)
 })
+document
+    .getElementById('btnDeletePreset')
+    .addEventListener('click', async () => {
+        await deletePreset()
+    })
 
+document.getElementById('tiPresetName').addEventListener('input', () => {
+    //save preset settings from textarea to json file
+    //reload the preset menu
+    const preset_name = getPresetName()
+    setPresetNameLabel(preset_name)
+    //check if the file exist and prompt the user to override it or cancel
+})
+document
+    .getElementById('mSettingTabPresetMenu')
+    .addEventListener('input', () => {
+        //save preset settings from textarea to json file
+        //reload the preset menu
+        const preset_name = getPresetName()
+        setPresetNameLabel(preset_name)
+        //check if the file exist and prompt the user to override it or cancel
+    })
+
+document
+    .getElementById('mSettingTabPresetMenu')
+    .addEventListener('change', async (evt) => {
+        try {
+            const preset_index = evt.target.selectedIndex
+            const preset_name = evt.target.options[preset_index].textContent
+
+            setPresetName(preset_name)
+            setPresetNameLabel(preset_name)
+            const preset_settings = await loadPresetSettingsFromFile(
+                preset_name + '.json'
+            )
+            setPresetSettingsHtml(preset_settings)
+        } catch (e) {}
+    })
+
+async function initializePresetTab() {
+    await populatePresetMenu()
+}
+initializePresetTab()
 module.exports = {
     LatentNoiseSettings,
     FillSettings,
     OriginalSettings,
     HealBrushSettings,
+    populatePresetMenu,
+    getCustomPresetEntries,
+    loadPresetSettingsFromFile,
+    getAllCustomPresetsSettings,
+    initializePresetTab,
 }

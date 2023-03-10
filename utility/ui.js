@@ -139,7 +139,7 @@ class UIElement {
     getValue() {}
 }
 function createUIElement(getter, setter) {
-    let ui_element_obj = new ui.UIElement()
+    let ui_element_obj = new UIElement()
     ui_element_obj.getValue = getter
     ui_element_obj.setValue = setter
     return ui_element_obj
@@ -295,34 +295,63 @@ function loadOriginalSettings(ui_settings) {
 }
 async function loadHealBrushSettings(ui_settings) {
     document.getElementById('rbModeInpaint').click()
-    const { timer } = require('./general')
-    // await timer(1000)
-    // if (layer_util.Layer.doesLayerExist(g_inpaint_mask_layer)) {
-    //     // psapi.executeCommandExe(async () => {
-    //     //     g_inpaint_mask_layer.opacity = 50
-    //     // })
-    //     // ;(async () => {
-    //     //     await executeAsModal(() => {
-    //     //         g_inpaint_mask_layer.opacity = 50
-    //     //     })
-    //     // })()
-    // } else {
-    //     await createTempInpaintMaskLayer()
-    // }
 
-    // await executeAsModal(() => {
-    //     g_inpaint_mask_layer.opacity = 50
-    // })
     loadPreset(ui_settings, presets.HealBrushSettings)
 }
+function loadCustomPreset(ui_settings_obj, custom_preset_settings) {
+    loadPreset(ui_settings_obj, custom_preset_settings)
+}
 
-let loadedPresets = {
+function loadCustomPresetsSettings() {}
+async function mapCustomPresetsToLoaders(ui_settings_obj) {
+    const name_to_settings_obj = await presets.getAllCustomPresetsSettings()
+    const preset_name_to_loader_obj = {}
+    for (const [preset_name, preset_settings] of Object.entries(
+        name_to_settings_obj
+    )) {
+        preset_name_to_loader_obj[preset_name] = () => {
+            loadCustomPreset(ui_settings_obj, preset_settings)
+        }
+    }
+    return preset_name_to_loader_obj
+}
+
+const g_nativePresets = {
     fill: loadFillSettings,
     original: loadOriginalSettings,
     'latent noise': loadLatentNoiseSettings,
     'Heal Brush': loadHealBrushSettings,
 }
 
+async function getLoadedPresets(ui_settings_obj) {
+    // let customPresets = await mapCustomPresetsToLoaders(ui_settings_obj)
+    let customPresets
+
+    customPresets = await mapCustomPresetsToLoaders(ui_settings_obj)
+    console.log('customPresets: ', customPresets)
+    let loadedPresets = {
+        ...g_nativePresets,
+        ...customPresets,
+    }
+    return loadedPresets
+}
+let g_ui_settings_object = new UISettings()
+function getUISettingsObject() {
+    return g_ui_settings_object
+}
+
+//REFACTOR: move to ui.js
+function addPresetMenuItem(preset_title) {
+    // console.log(model_title,model_name)
+    const menu_item_element = document.createElement('sp-menu-item')
+    menu_item_element.className = 'mPresetMenuItem'
+    menu_item_element.innerHTML = preset_title
+
+    // menu_item_element.addEventListener('select',()=>{
+    //   preset_func(g_ui_settings)
+    // })
+    return menu_item_element
+}
 //REFACTOR: move to ui.js
 async function populatePresetMenu() {
     const divider_elem = document.createElement('sp-menu-divider')
@@ -365,5 +394,6 @@ module.exports = {
     loadLatentNoiseSettings,
     loadFillSettings,
     loadHealBrushSettings,
-    loadedPresets,
+    getLoadedPresets,
+    getUISettingsObject,
 }
