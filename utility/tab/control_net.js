@@ -6,8 +6,56 @@ const g_controlnet_max_supported_models = 3
 
 class ControlNetUnit {
     static {}
-    static getUnit() {
-        return
+
+    static getUnit(index) {
+        const controlnet_unit = {
+            module: this.getModule(index),
+            model: this.getModel(index),
+            weight: this.getWeight(index),
+            resize_mode: null,
+            lowvram: null,
+            processor_res: null,
+            threshold_a: null,
+            threshold_b: null,
+
+            guidance_start: this.getGuidanceStrengthStart(index),
+            guidance_end: this.getGuidanceStrengthEnd(index),
+            guessmode: null,
+        }
+        return controlnet_unit
+    }
+    static setUnit(index, unit_settings) {
+        const controlnet_unit_setters = {
+            module: this.setModule,
+            model: this.setModel,
+            weight: this.setWeight,
+            resize_mode: null,
+            lowvram: null,
+            processor_res: null,
+            threshold_a: null,
+            threshold_b: null,
+
+            guidance_start: this.setGuidanceStrengthStart,
+            guidance_end: this.setGuidanceStrengthEnd,
+            guessmode: null,
+        }
+
+        for (const [name, value] of Object.entries(unit_settings)) {
+            try {
+                if (
+                    controlnet_unit_setters.hasOwnProperty(name) &&
+                    value.toString() // check if it has a value, null return error; undefine return error; 0 pass
+                ) {
+                    if (value) {
+                        const setter = controlnet_unit_setters[name]
+
+                        setter(index, value)
+                    }
+                }
+            } catch (e) {
+                console.warn(e)
+            }
+        }
     }
     static setUnit() {}
 
