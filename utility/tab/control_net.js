@@ -4,6 +4,61 @@ const selection = require('../../selection')
 const note = require('../notification')
 const g_controlnet_max_supported_models = 3
 
+class ControlNetUnit {
+    static {}
+    static getUnit() {
+        return
+    }
+    static setUnit() {}
+
+    static doesUnitExist(index) {
+        //TODO: check if controlnet unit exist
+        if (index >= 0) {
+        }
+    }
+
+    static getModule(index) {
+        const module = getSelectedModule(index)
+        return module
+    }
+    // static setModule(index) {
+    //     html_manip.menu
+    //     const module = getSelectedModule(index)
+    //     return module
+    // }
+    static getModel(index) {
+        const model = getSelectedModel(index)
+        return model
+    }
+    // static setModel(index) {
+    //     const model = getSelectedModel(index)
+    //     return model
+    // }
+    static getWeight(index = 0) {
+        const weight = getWeight(index)
+        return weight
+    }
+    static setWeight(index, weight) {
+        setWeight(index, weight)
+    }
+    static getGuidanceStrengthStart(index) {
+        const guidance_strength = getControlNetGuidanceStrengthStart(index)
+        return guidance_strength
+    }
+    static setGuidanceStrengthStart(index, sd_value) {
+        setControlNetGuidanceStrengthStart(index, sd_value)
+    }
+    static getGuidanceStrengthEnd(index) {
+        const guidance_strength = getControlNetGuidanceStrengthEnd(index)
+        return guidance_strength
+    }
+    static setGuidanceStrengthEnd(index, sd_value) {
+        setControlNetGuidanceStrengthEnd(index, sd_value)
+    }
+
+    static getControlNetUnitJson(index = 0) {}
+}
+
 async function checkIfControlNetInstalled() {}
 async function requestControlNetModelList() {
     const control_net_json = await api.requestGet(
@@ -103,6 +158,45 @@ async function initializeControlNetTab(controlnet_max_models) {
         console.warn(e)
     }
 }
+
+function getControlNetGuidanceStrengthStart(index) {
+    sd_value = html_manip.getSliderSdValue(
+        'slControlNetGuidanceStrengthStart_' + index,
+        0,
+        100,
+        0,
+        1
+    )
+    return sd_value
+}
+function setControlNetGuidanceStrengthStart(index, sd_value) {
+    const slider_id = 'slControlNetGuidanceStrengthStart_' + index
+    const label_id = 'lControlNetGuidanceStrengthStart_' + index
+    html_manip.setSliderSdValue(slider_id, label_id, sd_value, 0, 100, 0, 1)
+}
+
+function setControlNetEnable(index, sd_value) {
+    const slider_id = 'slControlNetGuidanceStrengthStart_' + index
+    const label_id = 'lControlNetGuidanceStrengthStart_' + index
+    html_manip.setSliderSdValue(slider_id, label_id, sd_value, 0, 100, 0, 1)
+}
+
+function getControlNetGuidanceStrengthEnd(index) {
+    sd_value = html_manip.getSliderSdValue(
+        'slControlNetGuidanceStrengthEnd_' + index,
+        0,
+        100,
+        0,
+        1
+    )
+    return sd_value
+}
+function setControlNetGuidanceStrengthEnd(index, sd_value) {
+    const slider_id = 'slControlNetGuidanceStrengthEnd_' + index
+    const label_id = 'lControlNetGuidanceStrengthEnd_' + index
+    html_manip.setSliderSdValue(slider_id, label_id, sd_value, 0, 100, 0, 1)
+}
+
 // controlnet settings getters
 function getControlNetWeightGuidanceStrengthStart(controlnet_index = 0) {
     const slider_value = document.getElementById(
@@ -120,13 +214,20 @@ function getControlNetWeightGuidanceStrengthEnd(controlnet_index = 0) {
     return sd_value
 }
 
-function getControlNetWeight(controlnet_index = 0) {
+function getWeight(controlnet_index = 0) {
     const slider_value = document.getElementById(
         'slControlNetWeight_' + controlnet_index
     ).value
 
     const sd_value = general.mapRange(slider_value, 0, 100, 0, 2) // convert slider value to SD ready value
     return sd_value
+}
+function setWeight(index = 0, sd_weight) {
+    const slider_id = 'slControlNetWeight_' + index
+    const label_id = 'lControlNetWeight_' + index
+    // const  = general.mapRange(slider_value, 0, 100, 0, 2) // convert slider value to SD ready value
+    // document.getElementById(slider_id).value = sd_wegith
+    html_manip.setSliderSdValue(slider_id, label_id, sd_weight, 0, 100, 0, 2)
 }
 function getUseLowVram(controlnet_index = 0) {
     const b_result = document.getElementById(
@@ -140,7 +241,10 @@ function getEnableControlNet(controlnet_index = 0) {
     ).checked
     return is_enable
 }
-
+function setEnable(index) {
+    document.getElementById('chEnableControlNet_' + index).checked =
+        b_live_update
+}
 function getSelectedModule(controlnet_index = 0) {
     const module_name = html_manip.getSelectedMenuItemTextContent(
         'mModuleMenuControlNet_' + controlnet_index
@@ -178,7 +282,7 @@ function mapPluginSettingsToControlNet(plugin_settings) {
                 mask: '',
                 module: getSelectedModule(index),
                 model: getSelectedModel(index),
-                weight: getControlNetWeight(index),
+                weight: getWeight(index),
                 resize_mode: 'Scale to Fit (Inner Fit)',
                 lowvram: getUseLowVram(index),
                 processor_res: 512,
@@ -286,10 +390,15 @@ module.exports = {
     requestControlNetModelList,
     populateModelMenu,
     initializeControlNetTab,
-    getControlNetWeight,
+    getWeight,
     mapPluginSettingsToControlNet,
     getEnableControlNet,
     getSelectedModule,
     getSelectedModel,
     getControlNetMaxModelsNumber,
+    getControlNetGuidanceStrengthStart,
+    setControlNetGuidanceStrengthStart,
+    getControlNetGuidanceStrengthEnd,
+    setControlNetGuidanceStrengthEnd,
+    ControlNetUnit,
 }

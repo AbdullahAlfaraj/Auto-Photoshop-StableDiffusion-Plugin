@@ -259,16 +259,63 @@ function sliderAddEventListener(
 }
 
 //get the stable diffusion ready value from the slider with  "slider_id"
-function getSliderSdValue(slider_id, multiplier) {
+//REFACTOR: delete, getSliderSdValue_Old is deprecated, instead use getSliderSdValue
+function getSliderSdValue_Old(slider_id, multiplier) {
+    // console.warn(
+    //     'getSliderSdValue_Old is deprecated, instead use getSliderSdValue'
+    // )
     const slider_value = document.getElementById(slider_id).value
     const sd_value = slider_value * multiplier
     return sd_value
 }
+//REFACTOR: delete, autoFillInSliderUi is deprecated, instead use setSliderSdValue
 function autoFillInSliderUi(sd_value, slider_id, label_id, multiplier) {
+    // console.warn(
+    //     'autoFillInSliderUi is deprecated, instead use setSliderSdValue'
+    // )
     //update the slider
     document.getElementById(slider_id).value = `${sd_value * multiplier}`
     //update the label
     document.getElementById(label_id).innerHTML = `${sd_value}`
+}
+
+function getSliderSdValue(
+    slider_id,
+    slider_start,
+    slider_end,
+    sd_start,
+    sd_end
+) {
+    const slider_value = document.getElementById(slider_id).value
+    // const sd_value = general.mapRange(slider_value, 0, 100, 0, 1) // convert slider value to SD ready value
+    const sd_value = general.mapRange(
+        slider_value,
+        slider_start,
+        slider_end,
+        sd_start,
+        sd_end
+    ) // convert slider value to SD ready value
+
+    return sd_value
+}
+function setSliderSdValue(
+    slider_id,
+    label_id,
+    sd_value,
+    slider_start,
+    slider_end,
+    sd_start,
+    sd_end
+) {
+    const slider_value = general.mapRange(
+        sd_value,
+        sd_start,
+        sd_end,
+        slider_start,
+        slider_end
+    ) // convert slider value to SD ready value
+    document.getElementById(slider_id).value = slider_value.toString()
+    document.getElementById(label_id).innerHTML = sd_value.toString()
 }
 
 //hrWidth is from [1 to 32] * 64 => [64 to 2048]
@@ -841,6 +888,7 @@ module.exports = {
     getHeight,
     autoFillInHeight,
     getSliderSdValue,
+    setSliderSdValue,
     autoFillInHiResFixs,
     getHiResFixs,
     setHiResFixs,

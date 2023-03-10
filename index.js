@@ -1931,14 +1931,14 @@ async function getSettings() {
         // gWidth = getWidthFromSlider(slider_width)
         const width = html_manip.getWidth()
         const height = html_manip.getHeight()
-        const hWidth = html_manip.getSliderSdValue('hrWidth', 64)
-        const hHeight = html_manip.getSliderSdValue('hrHeight', 64)
-        const hSteps = html_manip.getSliderSdValue('hrNumberOfSteps', 1)
-        //const hScale = html_manip.getSliderSdValue('hrScale',1)
+        const hWidth = html_manip.getSliderSdValue_Old('hrWidth', 64)
+        const hHeight = html_manip.getSliderSdValue_Old('hrHeight', 64)
+        const hSteps = html_manip.getSliderSdValue_Old('hrNumberOfSteps', 1)
+        //const hScale = html_manip.getSliderSdValue_Old('hrScale',1)
         console.log('Check')
 
         const uniqueDocumentId = await getUniqueDocumentId()
-        const h_denoising_strength = html_manip.getSliderSdValue(
+        const h_denoising_strength = html_manip.getSliderSdValue_Old(
             'hrDenoisingStrength',
             0.01
         )
