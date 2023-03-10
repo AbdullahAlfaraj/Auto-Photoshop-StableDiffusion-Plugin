@@ -641,6 +641,9 @@
                 <div class="sp-tab" id="sp-extras-tab">
                     <sp-label>Extras</sp-label>
                 </div>
+                <div class="sp-tab" id="sp-presets-tab">
+                    <sp-label>Presets</sp-label>
+                </div>
                 <div class="sp-tab" id="sp-settings-tab">
                     <sp-label>Settings</sp-label>
                 </div>
@@ -808,15 +811,19 @@
                             style="width: 100px; height: 100px; max-width: 100%"
                         />
                     </div>
-                    <hr class="line-divider" />
+                    <!-- <hr class="line-divider" /> -->
+                    <sp-divider></sp-divider>
+
                     <div class="" id="divInitImageViewerContainer">
                         <!-- <img  class="viewer-image" id="viewer_init_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
                     </div>
-                    <hr class="line-divider" />
+                    <!-- <hr class="line-divider" /> -->
+                    <sp-divider></sp-divider>
                     <div class="" id="divInitMaskViewerContainer">
                         <!-- <img  class="viewer-image" id="viewer_mask_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
                     </div>
-                    <hr class="line-divider" />
+                    <!-- <hr class="line-divider" /> -->
+                    <sp-divider></sp-divider>
                     <div class="viewer-container" id="divViewerImagesContainer">
                         <!-- <img  class="viewer-image" id="viewer_output_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
                     </div>
@@ -826,6 +833,7 @@
             <div class="sp-tab-page" id="sp-control_net-tab-page">
                 <!-- control net tab page -->
                 <div></div>
+
                 <div id="controlnet_settings_0" style="display: none">
                     <div class="flexContainer">
                         <sp-label slot="label"
@@ -960,6 +968,7 @@
                     </div>
                 </div>
                 <div></div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
                 <div id="controlnet_settings_1" style="display: none">
                     <div class="flexContainer">
                         <sp-label slot="label"
@@ -1094,6 +1103,7 @@
                                         </button> -->
                     </div>
                 </div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
                 <div></div>
                 <div id="controlnet_settings_2" style="display: none">
                     <div class="flexContainer">
@@ -1228,6 +1238,7 @@
                                             </button> -->
                     </div>
                 </div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
             </div>
             <div class="sp-tab-page" id="sp-history-tab-page">
                 <div class="subTabOptionsContainer"></div>
@@ -1627,6 +1638,68 @@
                     </sp-slider>
                 </div>
             </div>
+            <div class="sp-tab-page" id="sp-presets-tab-page">
+                <!-- settings tab page -->
+                <div>
+                    <sp-textfield
+                        id="tiPresetName"
+                        type="text"
+                        placeholder="Preset Name"
+                        value=""
+                        style="width: 160px"
+                    ></sp-textfield
+                    ><button
+                        class="btnSquare"
+                        id="btnNewPreset"
+                        style="margin-left: 5px"
+                    >
+                        New Preset
+                    </button>
+                    <button
+                        class="btnSquare"
+                        id="btnEditPresetName"
+                        style="margin-left: 5px"
+                    >
+                        Edit Name
+                    </button>
+
+                    <button
+                        class="btnSquare"
+                        id="btnSavePreset"
+                        style="margin-left: 5px"
+                    >
+                        Save Preset
+                    </button>
+                    <button
+                        class="btnSquare"
+                        id="btnDeletePreset"
+                        style="margin-left: 5px"
+                    >
+                        Delete Preset
+                    </button>
+                    <div style="display: inline-flex">
+                        <sp-picker
+                            title="auto fill the plugin with smart settings, to speed up your working process."
+                            size="s"
+                            label="Smart Preset"
+                        >
+                            <sp-menu id="mSettingTabPresetMenu" slot="options">
+                                <!-- <sp-menu-item> item </sp-menu-item> -->
+                            </sp-menu>
+                        </sp-picker>
+                    </div>
+                    <div>
+                        <sp-label id="lPresetName"></sp-label>
+                    </div>
+                    <div class="">
+                        <sp-textarea
+                            id="taPresetSettings"
+                            placeholder="{}"
+                            value=""
+                        ></sp-textarea>
+                    </div>
+                </div>
+            </div>
             <div class="sp-tab-page" id="sp-settings-tab-page">
                 <!-- settings tab page -->
                 <div>
@@ -1918,7 +1991,7 @@
                                 id="taNegativePrompt"
                                 placeholder="Negative Prompt"
                                 id="taNegativePrompt"
-                                value=""
+                                value="{ugly}"
                                 multiline
                                 grows
                             ></sp-textarea>

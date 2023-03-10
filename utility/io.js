@@ -494,6 +494,14 @@ class IOFolder {
         })
         return settings_entry
     }
+    static async findOrCreateFolderExe(folder_name) {
+        //create a folder named "Settings" in the DataFolder
+        let folder_entry
+        await executeAsModal(async () => {
+            folder_entry = await this.createFolderSafe(folder_name)
+        })
+        return folder_entry
+    }
 
     static async doesFolderExist(folder_name) {
         //check if folder exist. return true if it does. false if it doesn't.
@@ -554,7 +562,16 @@ class IOFolder {
         const settings_entry = await this.createSettingsFolder()
         return settings_entry
     }
-
+    static async getPresetFolder() {
+        //will create folder if does not exist. always return a folder entry
+        const preset_entry = await this.findOrCreateFolderExe('Preset')
+        return preset_entry
+    }
+    static async getCustomPresetFolder() {
+        //will create folder if does not exist. always return a folder entry
+        const preset_entry = await this.findOrCreateFolderExe('custom_preset')
+        return preset_entry
+    }
     static async createFolderIfDoesNotExist(folder_name) {
         try {
             await executeAsModal(async () => {
@@ -587,6 +604,12 @@ class IOJson {
         } catch (e) {
             console.warn(e)
         }
+    }
+
+    static async saveJsonToFileExe(json, folder_entry, file_name) {
+        await executeAsModal(async () => {
+            await this.saveJsonToFile(json, folder_entry, file_name)
+        })
     }
     static async loadJsonFromFile(folder_entry, file_name) {
         const json_file_name = file_name
@@ -635,6 +658,22 @@ class IOJson {
             settings_file_name
         )
         return settings_json
+    }
+
+    static async getJsonEntries(doc_entry) {
+        let entries = await doc_entry.getEntries()
+        const json_entries = entries.filter(
+            (e) => e.isFile && e.name.toLowerCase().includes('.json') // must be a file and has the of the type .json
+        )
+        console.log('json_entries: ', json_entries)
+        // .forEach((e) => console.log(e.name))
+        return json_entries
+    }
+    static async deleteFile(doc_entry, file_name) {
+        try {
+            const file_entry = await doc_entry.getEntry(file_name)
+            file_entry.delete()
+        } catch (e) {}
     }
 }
 
