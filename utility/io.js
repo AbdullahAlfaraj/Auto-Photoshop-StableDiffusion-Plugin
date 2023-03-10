@@ -659,6 +659,22 @@ class IOJson {
         )
         return settings_json
     }
+
+    static async getJsonEntries(doc_entry) {
+        let entries = await doc_entry.getEntries()
+        const json_entries = entries.filter(
+            (e) => e.isFile && e.name.toLowerCase().includes('.json') // must be a file and has the of the type .json
+        )
+        console.log('json_entries: ', json_entries)
+        // .forEach((e) => console.log(e.name))
+        return json_entries
+    }
+    static async deleteFile(doc_entry, file_name) {
+        try {
+            const file_entry = await doc_entry.getEntry(file_name)
+            file_entry.delete()
+        } catch (e) {}
+    }
 }
 
 module.exports = {
