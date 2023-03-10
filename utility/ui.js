@@ -323,6 +323,41 @@ let loadedPresets = {
     'Heal Brush': loadHealBrushSettings,
 }
 
+//REFACTOR: move to ui.js
+async function populatePresetMenu() {
+    const divider_elem = document.createElement('sp-menu-divider')
+    const preset_name = 'Select Smart Preset'
+    const preset_func = () => {}
+    const dummy_preset_item = addPresetMenuItem(preset_name, preset_func)
+    dummy_preset_item.setAttribute('selected', 'selected')
+    // dummy_preset_item.setAttribute('disabled')
+    document.getElementById('mPresetMenu').appendChild(dummy_preset_item)
+    document.getElementById('mPresetMenu').appendChild(divider_elem)
+    const presets = await getLoadedPresets(g_ui_settings_object)
+    for ([key, value] of Object.entries(presets)) {
+        const preset_menu_item = addPresetMenuItem(key, value)
+        document.getElementById('mPresetMenu').appendChild(preset_menu_item)
+    }
+}
+
+populatePresetMenu()
+//REFACTOR: move to preset_tab.js
+document
+    .getElementById('mPresetMenu')
+    .addEventListener('change', async (evt) => {
+        const preset_index = evt.target.selectedIndex
+        const preset_name = evt.target.options[preset_index].textContent
+        const presets = await getLoadedPresets(g_ui_settings_object)
+        if (presets.hasOwnProperty(preset_name)) {
+            const loader = presets[preset_name]
+            if (loader.constructor.name === 'AsyncFunction') {
+                await loader(g_ui_settings_object)
+            } else {
+                loader(g_ui_settings_object)
+            }
+        }
+    })
+
 module.exports = {
     UI,
     UIElement,

@@ -31,6 +31,7 @@ const sd_options = require('./utility/sdapi/options')
 const sd_config = require('./utility/sdapi/config')
 const session = require('./utility/session')
 const ui = require('./utility/ui')
+const preset_util = require('./utility/presets/preset')
 const script_horde = require('./utility/sd_scripts/horde')
 const prompt_shortcut = require('./utility/sdapi/prompt_shortcut')
 const formats = require('uxp').storage.formats
@@ -661,7 +662,8 @@ let g_controlnet_max_models
 let g_generation_session = new session.GenerationSession(0) //session manager
 g_generation_session.deactivate() //session starte as inactive
 let g_ui = new ui.UI()
-let g_ui_settings = new ui.UISettings()
+
+let g_ui_settings_object = ui.getUISettingsObject()
 
 const requestState = {
     Generate: 'generate',
@@ -3904,7 +3906,7 @@ function getHistoryMetadata(img) {
     document.querySelector('#historySeedLabel').textContent =
         metadata_json?.seed
 
-    g_ui_settings.autoFillInSettings(metadata_json)
+    g_ui_settings_object.autoFillInSettings(metadata_json)
 }
 //REFACTOR: move to document.js
 async function moveHistoryImageToLayer(img) {
@@ -4249,50 +4251,7 @@ document
         // }
         await activateSessionSelectionArea()
     })
-//REFACTOR: move to ui.js
-function addPresetMenuItem(preset_title) {
-    // console.log(model_title,model_name)
-    const menu_item_element = document.createElement('sp-menu-item')
-    menu_item_element.className = 'mPresetMenuItem'
-    menu_item_element.innerHTML = preset_title
 
-    // menu_item_element.addEventListener('select',()=>{
-    //   preset_func(g_ui_settings)
-    // })
-    return menu_item_element
-}
-//REFACTOR: move to ui.js
-function populatePresetMenu() {
-    const divider_elem = document.createElement('sp-menu-divider')
-    const preset_name = 'Select Smart Preset'
-    const preset_func = () => {}
-    const dummy_preset_item = addPresetMenuItem(preset_name, preset_func)
-    dummy_preset_item.setAttribute('selected', 'selected')
-    // dummy_preset_item.setAttribute('disabled')
-    document.getElementById('mPresetMenu').appendChild(dummy_preset_item)
-    document.getElementById('mPresetMenu').appendChild(divider_elem)
-    for ([key, value] of Object.entries(ui.loadedPresets)) {
-        const preset_menu_item = addPresetMenuItem(key, value)
-        document.getElementById('mPresetMenu').appendChild(preset_menu_item)
-    }
-}
-//REFACTOR: move to ui.js
-populatePresetMenu()
-//REFACTOR: move to events.js
-document
-    .getElementById('mPresetMenu')
-    .addEventListener('change', async (evt) => {
-        const preset_index = evt.target.selectedIndex
-        const preset_name = evt.target.options[preset_index].textContent
-        if (ui.loadedPresets.hasOwnProperty(preset_name)) {
-            const loader = ui.loadedPresets[preset_name]
-            if (loader.constructor.name === 'AsyncFunction') {
-                await loader(g_ui_settings)
-            } else {
-                loader(g_ui_settings)
-            }
-        }
-    })
 //REFACTOR: move to psapi.js
 function base64ToSrc(base64_image) {
     const image_src = `data:image/png;base64, ${base64_image}`
