@@ -2,7 +2,7 @@
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
 // let g_sdapi_path = 'sdapi'
-let g_version = 'v1.2.0'
+let g_version = 'v1.2.1'
 let g_sd_url = 'http://127.0.0.1:7860'
 let g_online_data_url =
     'https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/master/utility/online_data.json'
