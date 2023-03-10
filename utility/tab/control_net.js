@@ -120,7 +120,6 @@ function getControlNetWeightGuidanceStrengthEnd(controlnet_index = 0) {
     return sd_value
 }
 
-
 function getControlNetWeight(controlnet_index = 0) {
     const slider_value = document.getElementById(
         'slControlNetWeight_' + controlnet_index
@@ -171,7 +170,7 @@ function mapPluginSettingsToControlNet(plugin_settings) {
     let controlnet_units = []
 
     debugger
-    let active_index = 0;
+    let active_index = 0
     for (let index = 0; index < g_controlnet_max_supported_models; index++) {
         if (getEnableControlNet(index)) {
             controlnet_units[active_index] = {
@@ -190,7 +189,7 @@ function mapPluginSettingsToControlNet(plugin_settings) {
                 guidance_end: getControlNetWeightGuidanceStrengthEnd(index),
                 guessmode: false,
             }
-            active_index++;
+            active_index++
         }
     }
 
@@ -233,7 +232,7 @@ for (let index = 0; index < g_controlnet_max_supported_models; index++) {
             // debugger
             const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 1) // convert slider value to SD ready value
             document.getElementById(
-                'lControlNetGuidanceStrengthStart_' + index
+                'lControlNetGuidanceStrengthEnd_' + index
             ).textContent = Number(sd_value).toFixed(2)
         })
 
