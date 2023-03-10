@@ -21,19 +21,26 @@ class ControlNetUnit {
         const module = getSelectedModule(index)
         return module
     }
-    // static setModule(index) {
-    //     html_manip.menu
-    //     const module = getSelectedModule(index)
-    //     return module
-    // }
+    static setModule(index, module_item) {
+        try {
+            const module_menu_id = 'mModulesMenuControlNet_' + index
+            html_manip.selectMenuItem(module_menu_id, module_item)
+        } catch (e) {
+            console.warn(e)
+        }
+    }
     static getModel(index) {
         const model = getSelectedModel(index)
         return model
     }
-    // static setModel(index) {
-    //     const model = getSelectedModel(index)
-    //     return model
-    // }
+    static setModel(index, model_item) {
+        try {
+            const model_menu_id = 'mModelsMenuControlNet_' + index
+            html_manip.selectMenuItem(model_menu_id, model_item)
+        } catch (e) {
+            console.warn(e)
+        }
+    }
     static getWeight(index = 0) {
         const weight = getWeight(index)
         return weight
