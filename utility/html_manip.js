@@ -867,6 +867,7 @@ function selectMenuItem(menu_id, item) {
         )[0]
         option.selected = true
     } catch (e) {
+        unselectMenuItem(menu_id)
         console.warn(e)
     }
 }
