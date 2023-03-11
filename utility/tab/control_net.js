@@ -8,6 +8,29 @@ const g_controlnet_max_supported_models = 3
 class ControlNetUnit {
     static {}
 
+    static resetUnit(index) {
+        const controlnet_unit_default = {
+            module: null,
+            model: null,
+            weight: 1.0,
+            resize_mode: null,
+            lowvram: null,
+            processor_res: null,
+            threshold_a: null,
+            threshold_b: null,
+
+            guidance_start: 0,
+            guidance_end: 1,
+            guessmode: null,
+        }
+        this.setUnit(index, controlnet_unit_default)
+    }
+
+    static resetUnits() {
+        for (let i = 0; i < g_controlnet_max_supported_models; ++i) {
+            this.resetUnit(i)
+        }
+    }
     static getUnit(index) {
         const controlnet_unit = {
             module: this.getModule(index),
@@ -389,6 +412,7 @@ document
     .getElementById('mControlNetPresetMenu')
     .addEventListener('change', async (evt) => {
         try {
+            control_net.ControlNetUnit.resetUnits()
             const preset_index = evt.target.selectedIndex
             const preset_name = evt.target.options[preset_index].textContent
             units_settings =
