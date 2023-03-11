@@ -266,6 +266,7 @@ document.getElementById('tiPresetName').addEventListener('input', () => {
 document
     .getElementById('mSettingTabPresetMenu')
     .addEventListener('input', () => {
+        //Note: is this correct?! why use Input and change events together
         //save preset settings from textarea to json file
         //reload the preset menu
         const preset_name = getPresetName()

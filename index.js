@@ -4328,14 +4328,17 @@ Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
     const tab_page_name = `${tab_button_name}-page`
 
     try {
+        const contianer_class = rb.parentElement.dataset['container-class']
+        const radio_group = rb.parentElement
         document
             .getElementById(tab_button_name)
             .addEventListener('click', () => {
                 document.getElementById(tab_button_name)
                 const option_container = document
                     .getElementById(tab_page_name)
-                    .querySelector('.subTabOptionsContainer')
-                const radio_group = document.getElementById('rgSubTab')
+                    .querySelector(`.${contianer_class}`)
+                // .querySelector('.subTabOptionsContainer')
+                // const radio_group = document.getElementById('rgSubTab')
                 rb.checked = true
                 option_container.appendChild(radio_group)
             })

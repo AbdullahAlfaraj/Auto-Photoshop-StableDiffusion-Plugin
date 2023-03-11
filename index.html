@@ -666,7 +666,11 @@
 
             <div class="sp-tab-page" id="sp-viewer-tab-page">
                 <div class="subTabOptionsContainer">
-                    <sp-radio-group id="rgSubTab" class="rbMaskContent">
+                    <sp-radio-group
+                        id="rgSubTab"
+                        class="rbMaskContent"
+                        data-container-class="subTabOptionsContainer"
+                    >
                         <sp-radio
                             title=""
                             class="rbSubTab"
@@ -1089,8 +1093,7 @@
                         </div>
                     </div>
                     <div id="menu-bar-control_net_1" style="display: flex">
-                        <sp-picker size="m" label="Selection type"
-                            >controlnet_settings_
+                        <sp-picker size="m" label="Selection type">
                             <sp-menu
                                 id="mModulesMenuControlNet_1"
                                 slot="options"
@@ -1649,6 +1652,7 @@
             </div>
             <div class="sp-tab-page" id="sp-presets-tab-page">
                 <!-- settings tab page -->
+                <div class="SettingsSubTabOptionsContainer"></div>
                 <div>
                     <sp-textfield
                         id="tiPresetName"
@@ -1711,6 +1715,31 @@
             </div>
             <div class="sp-tab-page" id="sp-settings-tab-page">
                 <!-- settings tab page -->
+                <div class="SettingsSubTabOptionsContainer">
+                    <sp-radio-group
+                        id="rgSubTab"
+                        class="rbMaskContent"
+                        data-container-class="SettingsSubTabOptionsContainer"
+                    >
+                        <sp-radio
+                            title=""
+                            class="rbSubTab"
+                            id="rbSettingsTab"
+                            checked
+                            value="settings"
+                            data-tab-name="sp-settings-tab"
+                            >Settings</sp-radio
+                        >
+                        <sp-radio
+                            title=""
+                            class="rbSubTab"
+                            id="rbPresetsTab"
+                            value="presets"
+                            data-tab-name="sp-presets-tab"
+                            >Custom Presets</sp-radio
+                        >
+                    </sp-radio-group>
+                </div>
                 <div>
                     <sp-label>SD Url:</sp-label
                     ><sp-textfield
