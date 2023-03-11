@@ -2,6 +2,7 @@ const api = require('../api')
 const html_manip = require('../html_manip')
 const selection = require('../../selection')
 const note = require('../notification')
+const controlnet_preset = require('../presets/controlnet_preset')
 const g_controlnet_max_supported_models = 3
 
 class ControlNetUnit {
@@ -212,22 +213,6 @@ async function populatePreprocessorMenu() {
         console.warn(e)
     }
 }
-async function initializeControlNetTab(controlnet_max_models) {
-    try {
-        if (controlnet_max_models > g_controlnet_max_supported_models)
-            controlnet_max_models = g_controlnet_max_supported_models
-
-        for (let index = 0; index < controlnet_max_models; index++) {
-            await populateModelMenu(index)
-            await populatePreprocessorMenu(index)
-            document.getElementById(
-                'controlnet_settings_' + index
-            ).style.display = 'block'
-        }
-    } catch (e) {
-        console.warn(e)
-    }
-}
 
 function getControlNetGuidanceStrengthStart(index) {
     sd_value = html_manip.getSliderSdValue(
@@ -388,6 +373,31 @@ function mapPluginSettingsToControlNet(plugin_settings) {
 }
 function refreshControlNetTab() {}
 
+function populateControlNetPresetMenu() {
+    html_manip.populateMenu(
+        'mControlNetPresetMenu',
+        'mControlNetPresetMenuItem',
+        Object.entries(controlnet_preset.ControlNetNativePresets),
+        (map_name_to_settings, item_html_element) => {
+            item_html_element.innerHTML = map_name_to_settings[0]
+            const units_settings = map_name_to_settings[1]
+        }
+    )
+}
+
+document
+    .getElementById('mControlNetPresetMenu')
+    .addEventListener('change', async (evt) => {
+        try {
+            const preset_index = evt.target.selectedIndex
+            const preset_name = evt.target.options[preset_index].textContent
+            units_settings =
+                controlnet_preset.ControlNetNativePresets[preset_name]
+            ControlNetUnit.setUnits(units_settings)
+        } catch (e) {
+            console.warn(e)
+        }
+    })
 for (let index = 0; index < g_controlnet_max_supported_models; index++) {
     //event listeners
     document
@@ -455,6 +465,24 @@ for (let index = 0; index < g_controlnet_max_supported_models; index++) {
             }
         })
 }
+async function initializeControlNetTab(controlnet_max_models) {
+    try {
+        if (controlnet_max_models > g_controlnet_max_supported_models)
+            controlnet_max_models = g_controlnet_max_supported_models
+
+        control_net.populateControlNetPresetMenu()
+
+        for (let index = 0; index < controlnet_max_models; index++) {
+            await populateModelMenu(index)
+            await populatePreprocessorMenu(index)
+            document.getElementById(
+                'controlnet_settings_' + index
+            ).style.display = 'block'
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+}
 
 module.exports = {
     requestControlNetModelList,
@@ -471,4 +499,5 @@ module.exports = {
     getControlNetGuidanceStrengthEnd,
     setControlNetGuidanceStrengthEnd,
     ControlNetUnit,
+    populateControlNetPresetMenu,
 }
