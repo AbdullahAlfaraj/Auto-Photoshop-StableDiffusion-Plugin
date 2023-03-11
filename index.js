@@ -2646,17 +2646,6 @@ document
         await setMaskViewer()
     })
 
-// document.getElementById('bSetInitImage').addEventListener('click', async () => {
-//     const layer = await app.activeDocument.activeLayers[0]
-//     await psapi.setInitImage(layer, random_session_id)
-// })
-
-// document
-//     .getElementById('bSetInitImageMask')
-//     .addEventListener('click', async () => {
-//         const layer = await app.activeDocument.activeLayers[0]
-//         await psapi.setInitImageMask(layer, random_session_id)
-//     })
 //REFACTOR: move to psapi.js
 function moveElementToAnotherTab(elementId, newParentId) {
     const element = document.getElementById(elementId)
