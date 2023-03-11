@@ -69,11 +69,50 @@ const Pose_Depth_Canny_HandFix = {
     },
 }
 
+MaintainComposition_Character = {
+    0: {
+        module: 'openpose',
+        model: 'control_sd15_openpose [fef5e48e]',
+        weight: 1,
+        resize_mode: null,
+        lowvram: null,
+        processor_res: null,
+        threshold_a: null,
+        threshold_b: null,
+        guidance_start: 0,
+        guidance_end: 0.5,
+        guessmode: null,
+    },
+    1: {
+        module: 'canny',
+        model: 'control_sd15_canny [fef5e48e]',
+        weight: 1,
+        resize_mode: null,
+        lowvram: null,
+        processor_res: null,
+        threshold_a: null,
+        threshold_b: null,
+        guidance_start: 0,
+        guidance_end: 0.8,
+        guessmode: null,
+    },
+    2: {
+        weight: 1,
+        resize_mode: null,
+        lowvram: null,
+        processor_res: null,
+        threshold_a: null,
+        threshold_b: null,
+        guidance_start: 0,
+        guidance_end: 1,
+        guessmode: null,
+    },
+}
 const ControlNetNativePresets = {
     'Maintain Position': MaintainPositionSettings,
     'Hand Fix': Pose_Depth_Canny_HandFix,
+    'Maintain Composition (Character)': MaintainComposition_Character,
 }
 module.exports = {
     ControlNetNativePresets,
-    MaintainPositionSettings,
 }
