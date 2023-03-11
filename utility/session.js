@@ -201,11 +201,7 @@ class GenerationSession {
         this.deleteProgressImageHtml()
         await this.deleteProgressLayer()
     }
-    async setControlNetImage(control_net_index = 0) {
-        //check if the selection area is active
-        //convert layer to base64
-        //the width and height of the exported image
-
+    async setControlNetImageHelper() {
         const width = html_manip.getWidth()
         const height = html_manip.getHeight()
 
@@ -237,7 +233,13 @@ class GenerationSession {
             )
 
         await layer_util.deleteLayers([layer]) //delete the snapshot layer if it exists
-
+        return base64_image
+    }
+    async setControlNetImage(control_net_index = 0, base64_image) {
+        //check if the selection area is active
+        //convert layer to base64
+        //the width and height of the exported image
+        // const base64_image = this.setControlNetImageHelper()
         this.controlNetImage[control_net_index] = base64_image
         html_manip.setControlImageSrc(
             base64ToBase64Url(base64_image),
