@@ -973,4 +973,5 @@ module.exports = {
     getUseSilentMode,
     unselectMenuItem,
     selectMenuItem,
+    getSliderSdValue_Old,
 }
