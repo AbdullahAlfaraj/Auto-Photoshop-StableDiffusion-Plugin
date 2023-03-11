@@ -67,14 +67,14 @@ class ControlNetUnit {
         for (const [name, value] of Object.entries(unit_settings)) {
             try {
                 if (
-                    controlnet_unit_setters.hasOwnProperty(name) &&
-                    value.toString() // check if it has a value, null return error; undefine return error; 0 pass
+                    controlnet_unit_setters.hasOwnProperty(name)
+                    //&& value.toString() // check if it has a value, null return error; undefine return error; 0 pass
                 ) {
-                    if (value) {
-                        const setter = controlnet_unit_setters[name]
+                    // if (value) {
+                    const setter = controlnet_unit_setters[name]
 
-                        setter(index, value)
-                    }
+                    setter(index, value)
+                    // }
                 }
             } catch (e) {
                 console.warn(e)
@@ -113,6 +113,7 @@ class ControlNetUnit {
             const module_menu_id = 'mModulesMenuControlNet_' + index
             html_manip.selectMenuItem(module_menu_id, module_item)
         } catch (e) {
+            html_manip.unselectMenuItem(module_menu_id)
             console.warn(e)
         }
     }
@@ -125,6 +126,7 @@ class ControlNetUnit {
             const model_menu_id = 'mModelsMenuControlNet_' + index
             html_manip.selectMenuItem(model_menu_id, model_item)
         } catch (e) {
+            html_manip.unselectMenuItem(model_menu_id)
             console.warn(e)
         }
     }
@@ -422,6 +424,30 @@ document
             console.warn(e)
         }
     })
+
+document
+    .getElementById('bSetAllControlImage')
+    .addEventListener('click', async () => {
+        const selectionInfo = await selection.Selection.getSelectionInfoExe()
+        if (selectionInfo) {
+            const base64_image =
+                await g_generation_session.setControlNetImageHelper()
+
+            for (
+                index = 0;
+                index < g_controlnet_max_supported_models;
+                index++
+            ) {
+                await g_generation_session.setControlNetImage(
+                    index,
+                    base64_image
+                )
+            }
+        } else {
+            await note.Notification.inactiveSelectionArea()
+        }
+    })
+
 for (let index = 0; index < g_controlnet_max_supported_models; index++) {
     //event listeners
     document
@@ -452,13 +478,20 @@ for (let index = 0; index < g_controlnet_max_supported_models; index++) {
             document.getElementById('lControlNetWeight_' + index).textContent =
                 Number(sd_value).toFixed(2)
         })
+
     document
         .getElementById('bSetControlImage_' + index)
         .addEventListener('click', async () => {
             const selectionInfo =
                 await selection.Selection.getSelectionInfoExe()
             if (selectionInfo) {
-                await g_generation_session.setControlNetImage(index)
+                debugger
+                const base64_image =
+                    await g_generation_session.setControlNetImageHelper()
+                await g_generation_session.setControlNetImage(
+                    index,
+                    base64_image
+                )
             } else {
                 await note.Notification.inactiveSelectionArea()
             }
