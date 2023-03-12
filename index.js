@@ -417,6 +417,10 @@ async function refreshUI() {
         console.log('inpainting_mask_weight: ', inpainting_mask_weight)
         html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
 
+        await temp_config.getConfig()
+        //init ControlNet Tab
+        // g_hi_res_upscaler_models = temp_config.getUpscalerModels()
+        g_controlnet_max_models = temp_config.getControlNetMaxModelsNum()
         await control_net.initializeControlNetTab(g_controlnet_max_models)
     } catch (e) {
         console.warn(e)
@@ -708,7 +712,10 @@ async function initPlugin() {
     await loadPromptShortcut()
     await refreshPromptMenue()
 
+    await temp_config.getConfig()
     //init ControlNet Tab
+    // g_hi_res_upscaler_models = temp_config.getUpscalerModels()
+    g_controlnet_max_models = temp_config.getControlNetMaxModelsNum()
     await control_net.initializeControlNetTab(g_controlnet_max_models)
 }
 initPlugin()
