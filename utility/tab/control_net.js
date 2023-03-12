@@ -4,7 +4,7 @@ const selection = require('../../selection')
 const note = require('../notification')
 const controlnet_preset = require('../presets/controlnet_preset')
 const g_controlnet_max_supported_models = 3
-
+let g_controlnet_presets
 class ControlNetUnit {
     static {}
 
@@ -399,26 +399,35 @@ function mapPluginSettingsToControlNet(plugin_settings) {
 function refreshControlNetTab() {}
 
 function populateControlNetPresetMenu() {
+    // const default_preset_name = 'Select CtrlNet Preset'
+    // const default_preset_settings = {} // empty preset
+
+    g_controlnet_presets = {
+        'Select CtrlNet Preset': {},
+        ...controlnet_preset.ControlNetNativePresets,
+    }
+    const presets_names = Object.keys(g_controlnet_presets)
+
     html_manip.populateMenu(
         'mControlNetPresetMenu',
         'mControlNetPresetMenuItem',
-        Object.entries(controlnet_preset.ControlNetNativePresets),
-        (map_name_to_settings, item_html_element) => {
-            item_html_element.innerHTML = map_name_to_settings[0]
-            const units_settings = map_name_to_settings[1]
+        presets_names,
+        (preset_name, item_html_element) => {
+            item_html_element.innerHTML = preset_name
         }
     )
+    html_manip.selectMenuItem('mControlNetPresetMenu', 'Select CtrlNet Preset')
 }
 
 document
     .getElementById('mControlNetPresetMenu')
     .addEventListener('change', async (evt) => {
         try {
-            control_net.ControlNetUnit.resetUnits()
+            ControlNetUnit.resetUnits()
             const preset_index = evt.target.selectedIndex
             const preset_name = evt.target.options[preset_index].textContent
-            units_settings =
-                controlnet_preset.ControlNetNativePresets[preset_name]
+            units_settings = g_controlnet_presets[preset_name]
+
             ControlNetUnit.setUnits(units_settings)
         } catch (e) {
             console.warn(e)
@@ -485,7 +494,7 @@ for (let index = 0; index < g_controlnet_max_supported_models; index++) {
             const selectionInfo =
                 await selection.Selection.getSelectionInfoExe()
             if (selectionInfo) {
-                debugger
+                // debugger
                 const base64_image =
                     await g_generation_session.setControlNetImageHelper()
                 await g_generation_session.setControlNetImage(
@@ -527,7 +536,7 @@ async function initializeControlNetTab(controlnet_max_models) {
         if (controlnet_max_models > g_controlnet_max_supported_models)
             controlnet_max_models = g_controlnet_max_supported_models
 
-        control_net.populateControlNetPresetMenu()
+        populateControlNetPresetMenu()
 
         for (let index = 0; index < controlnet_max_models; index++) {
             await populateModelMenu(index)
