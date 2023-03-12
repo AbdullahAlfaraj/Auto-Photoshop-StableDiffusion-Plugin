@@ -2726,29 +2726,25 @@ async function progressRecursive() {
             //*) set the width of the image to auto
             //*) scale to closest while keeping the ratio, the hieght should not be larger than the width of the container
 
-            // const progress_image_container = document.getElementById(
+            // height: 10000px;
+            // width: auto;
+            // background-size: contain;
+
+            // progress_image_html.style.backgroundSize = 'contain'
+            // progress_image_html.style.height = '10000px'
+
+            // document.getElementById(
             //     'divProgressImageViewerContainer'
-            // )
-            // progress_image_container.style.width =
-            //     progress_image_html.naturalWidth
-            // progress_image_container.style.height =
-            //     progress_image_html.naturalHeight
+            // ).style.backgroundImage = `url('${base64_url}')`
+
             html_manip.setProgressImageSrc(base64_url)
 
-            // const [new_width, new_height] = general.scaleToClosestKeepRatio(
-            //     progress_image_html.naturalWidth,
-            //     progress_image_html.naturalHeight,
-            //     container_width,
-            //     container_width
-            // )
-
-            // progress_image_html.style.width = '100%'
-            if (progress_image_html.style.width !== 'auto') {
-                progress_image_html.style.width = 'auto'
-            }
-            if ((progress_image_html.style.height = 'auto' !== 'auto')) {
-                progress_image_html.style.height = 'auto'
-            }
+            // if (progress_image_html.style.width !== 'auto') {
+            //     progress_image_html.style.width = 'auto'
+            // }
+            // if ((progress_image_html.style.height = 'auto' !== 'auto')) {
+            //     progress_image_html.style.height = 'auto'
+            // }
 
             // progress_image_html = new_height
             // progress_image_html.style.width = progress_image_html.naturalWidth

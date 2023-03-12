@@ -488,8 +488,17 @@ function setControlMaskSrc(image_src, element_index = 0) {
 }
 
 function setProgressImageSrc(image_src) {
-    const progress_image_element = document.getElementById('progressImage')
-    progress_image_element.src = image_src
+    // const progress_image_element = document.getElementById('progressImage')
+
+    const progress_image_element = document.getElementById(
+        'divProgressImageViewerContainer'
+    )
+    // progress_image_element.src = image_src
+
+    progress_image_element.style.backgroundSize = 'contain'
+    progress_image_element.style.height = '10000px'
+
+    progress_image_element.style.backgroundImage = `url('${image_src}')`
 }
 
 function getInitImageMaskElement() {

@@ -193,6 +193,10 @@ class GenerationSession {
             // await layer_util.deleteLayers([this.progress_layer]) // delete the old progress layer
             document.getElementById('progressImage').style.width = '0px'
             document.getElementById('progressImage').style.height = '0px'
+
+            document.getElementById(
+                'divProgressImageViewerContainer'
+            ).style.height = '0px'
         } catch (e) {
             console.warn(e)
         }
