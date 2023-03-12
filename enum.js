@@ -41,6 +41,10 @@ const BackgroundHistoryEnum = {
     NoBackground: 'no_background',
 }
 
+const PresetTypeEnum = {
+    SDPreset: 'sd_preset',
+    ControlNetPreset: 'controlnet_preset',
+}
 module.exports = {
     clickTypeEnum,
     generationModeEnum,
@@ -49,4 +53,5 @@ module.exports = {
     RequestStateEnum,
     DocumentTypeEnum,
     BackgroundHistoryEnum,
+    PresetTypeEnum,
 }

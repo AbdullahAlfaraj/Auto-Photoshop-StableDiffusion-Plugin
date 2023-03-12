@@ -1692,6 +1692,25 @@
                     >
                         New Preset
                     </button>
+                    <div>
+                        <sp-radio-group id="rgPresetType">
+                            <sp-label slot="label">Preset Type:</sp-label>
+                            <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
+                            <sp-radio
+                                title="Use to create Stable Diffusion tab Preset"
+                                class="rbPresetType"
+                                value="sd_preset"
+                                >SD Preset</sp-radio
+                            >
+                            <sp-radio
+                                title="Use to create a ControlNet preset"
+                                class="rbPresetType"
+                                value="controlnet_preset"
+                                checked
+                                >ControlNet Preset</sp-radio
+                            >
+                        </sp-radio-group>
+                    </div>
                     <button
                         class="btnSquare"
                         id="btnEditPresetName"

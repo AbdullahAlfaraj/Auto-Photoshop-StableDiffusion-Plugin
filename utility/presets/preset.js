@@ -1,5 +1,7 @@
 const io = require('../io')
 const html_manip = require('../html_manip')
+const Enum = require('../../enum')
+const control_net = require('../../utility/tab/control_net')
 let settings = {
     model: null,
     prompt_shortcut: null,
@@ -140,7 +142,7 @@ function setPresetSettingsHtml(preset_settings) {
 
     const new_lines_count = general.countNewLines(JSONInPrettyFormat)
     new_lines_count
-    preset_settings_element.style.height = new_lines_count * 10 + 100
+    preset_settings_element.style.height = new_lines_count * 12 + 100
 }
 
 function getPresetName() {
@@ -150,10 +152,30 @@ function getPresetName() {
 function setPresetName(preset_name) {
     document.getElementById('tiPresetName').value = preset_name
 }
+
+function getPresetSettings(preset_type) {
+    let preset_settings
+    if (preset_type === Enum.PresetTypeEnum['SDPreset']) {
+        preset_settings = g_ui_settings_object.getSettings()
+    } else if (preset_type === Enum.PresetTypeEnum['ControlNetPreset']) {
+        preset_settings = control_net.ControlNetUnit.getUnits()
+    }
+    return preset_settings
+}
+
+function getPresetType() {
+    const presetType = document.getElementById('rgPresetType').selected
+
+    return presetType
+}
 document.getElementById('btnNewPreset').addEventListener('click', () => {
     // const g_ui_settings_object = getUISettingsObject()
-    const settings = g_ui_settings_object.getSettings()
-    setPresetSettingsHtml(settings)
+    const preset_type = getPresetType()
+    const preset_settings = getPresetSettings(preset_type)
+
+    // const settings = g_ui_settings_object.getSettings()
+
+    setPresetSettingsHtml(preset_settings)
 
     const preset_name = getPresetName()
     setPresetNameLabel(preset_name)
