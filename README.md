@@ -38,7 +38,7 @@ use method 3 if you are a Developer/Programmer
 
 # Method 1: One Click Installer
 
-1) Download the [.ccx](https://www.dropbox.com/t/dLNPZu2V8rS4j9Bd) file
+1) Download the [.ccx](https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/releases/latest) file
 2) run the ccx file . that's all.  you will be able to use all of stable diffusion modes (txt2img, img2img, inpainting and outpainting), check the [tutorials](https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/wiki) section to master the tool. 
 
 ![install_plugin_1](https://user-images.githubusercontent.com/7842232/217213943-3e2a588d-3ed8-4757-ba69-9846b55a1b36.gif)
@@ -59,7 +59,7 @@ use method 3 if you are a Developer/Programmer
 
 
 # Method 2: The Unzip Method
-1) Download the  [.zip](https://www.dropbox.com/t/dLNPZu2V8rS4j9Bd) file
+1) Download the  [.zip](https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/releases/latest) file
 2) Unzip it in a folder with the same name
 3) move the unzipped folder to the Photoshop Plugin folder
 4) (optional step) Install the Auto-Photoshop-SD Extension from Automatic1111. the extension will allow you to use the smart masking and image search features	
