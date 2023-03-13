@@ -2,7 +2,9 @@ const html_manip = require('./html_manip')
 const presets = require('./presets/preset')
 const layer_util = require('../utility/layer')
 const psapi = require('../psapi')
+const Enum = require('../enum')
 const { executeAsModal } = require('photoshop').core
+
 class UI {
     constructor() {}
 
@@ -304,7 +306,9 @@ function loadCustomPreset(ui_settings_obj, custom_preset_settings) {
 
 function loadCustomPresetsSettings() {}
 async function mapCustomPresetsToLoaders(ui_settings_obj) {
-    const name_to_settings_obj = await presets.getAllCustomPresetsSettings()
+    const name_to_settings_obj = await presets.getAllCustomPresetsSettings(
+        Enum.PresetTypeEnum['SDPreset']
+    )
     const preset_name_to_loader_obj = {}
     for (const [preset_name, preset_settings] of Object.entries(
         name_to_settings_obj
@@ -324,7 +328,6 @@ const g_nativePresets = {
 }
 
 async function getLoadedPresets(ui_settings_obj) {
-    // let customPresets = await mapCustomPresetsToLoaders(ui_settings_obj)
     let customPresets
 
     customPresets = await mapCustomPresetsToLoaders(ui_settings_obj)
@@ -354,6 +357,7 @@ function addPresetMenuItem(preset_title) {
 }
 //REFACTOR: move to ui.js
 async function populatePresetMenu() {
+    document.getElementById('mPresetMenu').innerHTML = ''
     const divider_elem = document.createElement('sp-menu-divider')
     const preset_name = 'Select Smart Preset'
     const preset_func = () => {}
@@ -396,4 +400,5 @@ module.exports = {
     loadHealBrushSettings,
     getLoadedPresets,
     getUISettingsObject,
+    populatePresetMenu,
 }

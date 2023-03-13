@@ -1,7 +1,9 @@
 const io = require('../io')
 const html_manip = require('../html_manip')
 const Enum = require('../../enum')
-const control_net = require('../../utility/tab/control_net')
+const event = require('../event')
+
+// const control_net = require('../../utility/tab/control_net')
 let settings = {
     model: null,
     prompt_shortcut: null,
@@ -158,7 +160,10 @@ function getPresetSettings(preset_type) {
     if (preset_type === Enum.PresetTypeEnum['SDPreset']) {
         preset_settings = g_ui_settings_object.getSettings()
     } else if (preset_type === Enum.PresetTypeEnum['ControlNetPreset']) {
-        preset_settings = control_net.ControlNetUnit.getUnits()
+        const { ControlNetUnit } = require('../../utility/tab/control_net') // only import ControlNetUnit to avoid circular dependency
+        // preset_settings = control_net.ControlNetUnit.getUnits()
+
+        preset_settings = ControlNetUnit.getUnits()
     }
     return preset_settings
 }
@@ -168,8 +173,10 @@ function getPresetType() {
 
     return presetType
 }
+
 document.getElementById('btnNewPreset').addEventListener('click', () => {
     // const g_ui_settings_object = getUISettingsObject()
+    // debugger
     const preset_type = getPresetType()
     const preset_settings = getPresetSettings(preset_type)
 
@@ -192,7 +199,8 @@ function setPresetNameLabel(preset_name) {
 
 async function populatePresetMenu() {
     // presets = ['preset_1', 'preset_2', 'preset_3']
-    const presets = await getAllCustomPresetsSettings()
+    const preset_type = getPresetType()
+    const presets = await getAllCustomPresetsSettings(preset_type)
     const presets_names = Object.keys(presets)
     html_manip.populateMenu(
         'mSettingTabPresetMenu',
@@ -209,20 +217,30 @@ async function deletePreset() {
             'mSettingTabPresetMenu'
         )
         const preset_file_name = preset_name + '.json'
-        const custom_preset_entry = await io.IOFolder.getCustomPresetFolder()
+
+        const preset_type = getPresetType()
+        const preset_folder_name = mapPresetTypeToPresetFolder(preset_type)
+        const custom_preset_entry = await io.IOFolder.getCustomPresetFolder(
+            preset_folder_name
+        )
+
         await io.IOJson.deleteFile(custom_preset_entry, preset_file_name)
         html_manip.unselectMenuItem('mSettingTabPresetMenu') // unselect the custom preset menu
         setPresetSettingsHtml({}) //reset preset settings text area
         setPresetName('')
         setPresetNameLabel('')
         await populatePresetMenu() // update the custom preset Menu
+        triggerUpdatePresetMenu(preset_type)
     } catch (e) {
         console.warn(e)
     }
 }
 
-async function getCustomPresetEntries() {
-    const custom_preset_entry = await io.IOFolder.getCustomPresetFolder()
+async function getCustomPresetEntries(preset_folder_name) {
+    const custom_preset_entry = await io.IOFolder.getCustomPresetFolder(
+        preset_folder_name
+    )
+
     const custom_preset_entries = await io.IOJson.getJsonEntries(
         custom_preset_entry
     )
@@ -230,8 +248,13 @@ async function getCustomPresetEntries() {
     return custom_preset_entries
 }
 
-async function loadPresetSettingsFromFile(preset_file_name) {
-    const custom_preset_entry = await io.IOFolder.getCustomPresetFolder()
+async function loadPresetSettingsFromFile(preset_file_name, preset_type) {
+    // const preset_type = getPresetType()
+
+    const preset_folder_name = mapPresetTypeToPresetFolder(preset_type)
+    const custom_preset_entry = await io.IOFolder.getCustomPresetFolder(
+        preset_folder_name
+    )
     let preset_settings = {}
     try {
         preset_settings = await io.IOJson.loadJsonFromFile(
@@ -243,23 +266,59 @@ async function loadPresetSettingsFromFile(preset_file_name) {
     }
     return preset_settings
 }
-async function getAllCustomPresetsSettings() {
-    const custom_preset_entries = await getCustomPresetEntries()
+async function getAllCustomPresetsSettings(preset_type) {
+    const preset_folder_name = mapPresetTypeToPresetFolder(preset_type)
+    const custom_preset_entries = await getCustomPresetEntries(
+        preset_folder_name
+    )
     let custom_presets = {}
     for (const entry of custom_preset_entries) {
         const preset_name = entry.name.split('.json')[0]
-        let preset_settings = await loadPresetSettingsFromFile(entry.name)
+        let preset_settings = await loadPresetSettingsFromFile(
+            entry.name,
+            preset_type
+        )
 
         custom_presets[preset_name] = preset_settings
     }
     return custom_presets
 }
 
+function mapPresetTypeToPresetFolder(preset_type) {
+    let preset_folder
+
+    if (preset_type === Enum.PresetTypeEnum['SDPreset']) {
+        preset_folder = 'custom_preset'
+    } else if (preset_type === Enum.PresetTypeEnum['ControlNetPreset']) {
+        preset_folder = 'controlnet_preset'
+    }
+    return preset_folder
+}
+
+function triggerUpdatePresetMenu(preset_type) {
+    let menu_id
+    if (preset_type === Enum.PresetTypeEnum['SDPreset']) {
+        menu_id = '#mPresetMenu'
+    } else if (preset_type === Enum.PresetTypeEnum['ControlNetPreset']) {
+        menu_id = '#mControlNetPresetMenu'
+    }
+    event.triggerEvent(menu_id, event.updatePresetMenuEvent)
+}
+Array.from(document.getElementsByClassName('rbPresetType')).forEach((rb) => {
+    rb.addEventListener('click', async () => {
+        const preset_type = rb.value
+        await populatePresetMenu()
+    })
+})
+
 document.getElementById('btnSavePreset').addEventListener('click', async () => {
     //save preset settings from textarea to json file
     //reload the preset menu
-
-    const custom_preset_entry = await io.IOFolder.getCustomPresetFolder()
+    const preset_type = getPresetType()
+    const custom_preset_folder_name = mapPresetTypeToPresetFolder(preset_type)
+    const custom_preset_entry = await io.IOFolder.getCustomPresetFolder(
+        custom_preset_folder_name
+    )
     const preset_settings = getPresetSettingsHtml()
     const preset_name = getPresetNameLabel()
 
@@ -270,6 +329,7 @@ document.getElementById('btnSavePreset').addEventListener('click', async () => {
         preset_name + '.json'
     )
     await populatePresetMenu()
+    triggerUpdatePresetMenu(preset_type)
     html_manip.selectMenuItem('mSettingTabPresetMenu', preset_name)
 })
 document
@@ -302,18 +362,30 @@ document
         try {
             const preset_index = evt.target.selectedIndex
             const preset_name = evt.target.options[preset_index].textContent
-
+            const preset_type = getPresetType()
             setPresetName(preset_name)
             setPresetNameLabel(preset_name)
+
             const preset_settings = await loadPresetSettingsFromFile(
-                preset_name + '.json'
+                preset_name + '.json',
+                preset_type
             )
             setPresetSettingsHtml(preset_settings)
         } catch (e) {}
     })
 
+document
+    .getElementById('mPresetMenu')
+    .addEventListener('updatePresetMenuEvent', async (event) => {
+        // console.log("I'm listening on a custom event")
+        const { populatePresetMenu } = require('../ui')
+        await populatePresetMenu()
+    })
+
 async function initializePresetTab() {
     await populatePresetMenu()
+    const selected_rb = getSelectedRadioButtonElement('rbPresetType')
+    selected_rb.click()
 }
 initializePresetTab()
 module.exports = {

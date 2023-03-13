@@ -353,6 +353,16 @@ function unCheckAllSamplers() {
         .forEach((e) => e.removeAttribute('checked'))
 }
 
+function getSelectedRadioButtonElement(rbClass) {
+    try {
+        const rb_element = [...document.getElementsByClassName(rbClass)].filter(
+            (e) => e.checked == true
+        )[0]
+        return rb_element
+    } catch (e) {
+        console.warn(e)
+    }
+}
 function getSamplerElementByName(sampler_name) {
     try {
         //assume the sampler_name is valid
@@ -984,4 +994,5 @@ module.exports = {
     unselectMenuItem,
     selectMenuItem,
     getSliderSdValue_Old,
+    getSelectedRadioButtonElement,
 }

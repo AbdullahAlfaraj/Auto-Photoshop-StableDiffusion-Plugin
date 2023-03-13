@@ -567,9 +567,13 @@ class IOFolder {
         const preset_entry = await this.findOrCreateFolderExe('Preset')
         return preset_entry
     }
-    static async getCustomPresetFolder() {
+    static async getCustomPresetFolder(
+        custom_preset_folder_name = 'custom_preset'
+    ) {
         //will create folder if does not exist. always return a folder entry
-        const preset_entry = await this.findOrCreateFolderExe('custom_preset')
+        const preset_entry = await this.findOrCreateFolderExe(
+            custom_preset_folder_name
+        )
         return preset_entry
     }
     static async createFolderIfDoesNotExist(folder_name) {

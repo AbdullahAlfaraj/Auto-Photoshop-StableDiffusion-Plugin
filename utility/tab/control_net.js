@@ -3,6 +3,10 @@ const html_manip = require('../html_manip')
 const selection = require('../../selection')
 const note = require('../notification')
 const controlnet_preset = require('../presets/controlnet_preset')
+const preset = require('../presets/preset')
+const Enum = require('../../enum')
+const event = require('../event')
+
 const g_controlnet_max_supported_models = 3
 let g_controlnet_presets
 class ControlNetUnit {
@@ -398,14 +402,19 @@ function mapPluginSettingsToControlNet(plugin_settings) {
 }
 function refreshControlNetTab() {}
 
-function populateControlNetPresetMenu() {
+async function populateControlNetPresetMenu() {
     // const default_preset_name = 'Select CtrlNet Preset'
     // const default_preset_settings = {} // empty preset
 
+    const custom_presets = await preset.getAllCustomPresetsSettings(
+        Enum.PresetTypeEnum['ControlNetPreset']
+    )
     g_controlnet_presets = {
         'Select CtrlNet Preset': {},
         ...controlnet_preset.ControlNetNativePresets,
+        ...custom_presets,
     }
+
     const presets_names = Object.keys(g_controlnet_presets)
 
     html_manip.populateMenu(
@@ -531,12 +540,19 @@ for (let index = 0; index < g_controlnet_max_supported_models; index++) {
             }
         })
 }
+
+document
+    .getElementById('mControlNetPresetMenu')
+    .addEventListener('updatePresetMenuEvent', async (event) => {
+        // console.log("I'm listening on a custom event")
+        await populateControlNetPresetMenu()
+    })
 async function initializeControlNetTab(controlnet_max_models) {
     try {
         if (controlnet_max_models > g_controlnet_max_supported_models)
             controlnet_max_models = g_controlnet_max_supported_models
 
-        populateControlNetPresetMenu()
+        await populateControlNetPresetMenu()
 
         for (let index = 0; index < controlnet_max_models; index++) {
             await populateModelMenu(index)
