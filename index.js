@@ -712,10 +712,10 @@ async function initPlugin() {
     await loadPromptShortcut()
     await refreshPromptMenue()
 
-    await temp_config.getConfig()
+    await g_sd_config_obj.getConfig()
     //init ControlNet Tab
     // g_hi_res_upscaler_models = temp_config.getUpscalerModels()
-    g_controlnet_max_models = temp_config.getControlNetMaxModelsNum()
+    g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
     await control_net.initializeControlNetTab(g_controlnet_max_models)
 }
 initPlugin()
