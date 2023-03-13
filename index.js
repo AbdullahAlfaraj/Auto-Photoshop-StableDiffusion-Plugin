@@ -2392,6 +2392,13 @@ async function generate(settings, mode) {
             }, 2000)
         }
 
+        if (
+            html_manip.getBackendType() === backendTypeEnum['Auto1111'] &&
+            g_generation_session.is_control_net
+        ) {
+            g_generation_session.sudo_timer_id = general.sudoTimer()
+        }
+
         console.log(settings)
 
         g_generation_session.request_status =
@@ -2715,8 +2722,23 @@ async function progressRecursive() {
     try {
         let json = await sdapi.requestProgress()
         // document.querySelector('#pProgressBar').value = json.progress * 100
-        progress_value = json.progress * 100
-        html_manip.updateProgressBarsHtml(progress_value)
+        const progress_value = json.progress * 100
+        if (g_generation_session.sudo_timer_id) {
+            //for sudo timer update
+            //for controlnet only: disable the sudo timer when the real timer start
+            // debugger
+            if (progress_value > 1) {
+                //disable the sudo timer at the end of the generation
+                g_generation_session.sudo_timer_id = clearInterval(
+                    g_generation_session.sudo_timer_id
+                )
+            }
+        } else {
+            //for normal progress bar
+
+            html_manip.updateProgressBarsHtml(progress_value)
+        }
+
         if (
             json?.current_image &&
             g_generation_session.request_status ===
