@@ -1,10 +1,11 @@
 const general = require('../general')
+const dialog_box = require('../../dialog_box')
 
 //REFACTOR: move to notification.js
 async function promptForUpdate(header_message, long_message) {
     const shell = require('uxp').shell
 
-    ;(async () => {
+    await (async () => {
         const buttons = ['Cancel', 'OK']
         const r1 = await dialog_box.prompt(
             header_message,

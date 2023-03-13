@@ -1,16 +1,9 @@
-// import {helloHelper} from 'helper.js'
-// helloHelper2 = require('./helper.js')
-// for organizational proposes
-// let g_sdapi_path = 'sdapi'
 let g_version = 'v1.2.1'
-let g_sd_url = 'http://127.0.0.1:7860'
 let g_online_data_url =
     'https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/master/utility/online_data.json'
 const Enum = require('./enum')
 const helper = require('./helper')
 const sd_tab = require('./utility/tab/sd')
-// let g_sdapi_path = 'sdapi_py_re'
-// const sdapi = require(`./${g_sdapi_path}`)
 const sdapi = require('./sdapi_py_re')
 
 // const exportHelper = require('./export_png')
@@ -21,9 +14,7 @@ const app = window.require('photoshop').app
 const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
 const dialog_box = require('./dialog_box')
-// const {entrypoints} = require('uxp')
 const html_manip = require('./utility/html_manip')
-// const export_png = require('./export_png')
 const viewer = require('./viewer')
 const selection = require('./selection')
 const layer_util = require('./utility/layer')
@@ -45,315 +36,46 @@ const note = require('./utility/notification')
 const sampler_data = require('./utility/sampler')
 const settings_tab = require('./utility/tab/settings')
 const control_net = require('./utility/tab/control_net')
+const notification = require('./utility/notification')
 
 let g_horde_generator = new horde_native.hordeGenerator()
 let g_automatic_status = Enum.AutomaticStatusEnum['Offline']
 let g_models_status = false
 
-//REFACTOR: move to session.js
-async function hasSessionSelectionChanged() {
-    try {
-        const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
-        if (isSelectionActive) {
-            const current_selection = isSelectionActive // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.
-
-            if (
-                await hasSelectionChanged(
-                    current_selection,
-                    g_generation_session.selectionInfo
-                )
-            ) {
-                return true
-            } else {
-                //selection has not changed
-                return false
-            }
-        }
-    } catch (e) {
-        console.warn(e)
-        return false
-    }
-}
-//REFACTOR: move to selection.js, add selection mode as attribute (linked to rbSelectionMode event)
-async function calcWidthHeightFromSelection() {
-    //set the width and height, hrWidth, and hrHeight using selection info and selection mode
-    const selection_mode = html_manip.getSelectionMode()
-    if (selection_mode === 'ratio') {
-        //change (width and height) and (hrWidth, hrHeight) to match the ratio of selection
-        const [width, height, hr_width, hr_height] =
-            await selection.selectionToFinalWidthHeight()
-
-        html_manip.autoFillInWidth(width)
-        html_manip.autoFillInHeight(height)
-        html_manip.autoFillInHRWidth(hr_width)
-        html_manip.autoFillInHRHeight(hr_height)
-    } else if (selection_mode === 'precise') {
-        const selectionInfo = await psapi.getSelectionInfoExe()
-        const [width, height, hr_width, hr_height] = [
-            selectionInfo.width,
-            selectionInfo.height,
-            0,
-            0,
-        ]
-        html_manip.autoFillInWidth(width)
-        html_manip.autoFillInHeight(height)
-    }
-}
-//REFACTOR: rename to newSelectionEventHandler and move to session.js
-const eventHandler = async (event, descriptor) => {
-    try {
-        console.log(event, descriptor)
-
-        const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
-        if (isSelectionActive) {
-            const current_selection = isSelectionActive // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.
-
-            await calcWidthHeightFromSelection()
-
-            // console.log(` (${final_width}* ${final_height})/(${current_selection.width} * ${current_selection.height})`)
-            // console.log("detail density: ",(final_width* final_height)/(current_selection.width * current_selection.height))
-
-            // const new_selection = await psapi.getSelectionInfoExe()
-
-            if (
-                await hasSelectionChanged(
-                    current_selection,
-                    g_generation_session.selectionInfo
-                ) //new selection
-            ) {
-                // endSessionUI //red color
-                // if selection has changed : change the color and text generate btn  "Generate" color "red"
-                // g_ui.endSessionUI()
-                // const selected_mode = html_manip.getMode()
-                const selected_mode = getCurrentGenerationModeByValue(g_sd_mode)
-                g_ui.generateModeUI(selected_mode)
-            } else {
-                // it's the same selection and the session is active
-
-                //indicate that the session will continue. only if the session we are in the same mode as the session's mode
-                // startSessionUI// green color
-                const current_mode = html_manip.getMode()
-                if (
-                    g_generation_session.isActive() && // the session is active
-                    g_generation_session.isSameMode(current_mode) //same mode
-                ) {
-                    // g_ui.startSessionUI()
-                    g_ui.generateMoreUI()
-                }
-            }
-        }
-    } catch (e) {
-        console.warn(e)
-    }
-}
-//REFACTOR: move to generation_settings.js
-function getCurrentGenerationModeByValue(value) {
-    for (let key in generationMode) {
-        if (
-            generationMode.hasOwnProperty(key) &&
-            generationMode[key] === value
-        ) {
-            return key
-        }
-    }
-    return undefined
-}
+// let session.GenerationSession.instance() = new session.GenerationSession(0) //session manager
+session.GenerationSession.instance().deactivate() //session starte as inactive
 
 require('photoshop').action.addNotificationListener(
     ['set', 'move'],
-    eventHandler
+    session.GenerationSession.instance().selectionEventHandler
 )
-//REFACTOR: move to document.js
-async function getUniqueDocumentId() {
-    console.warn(
-        'getUniqueDocumentId is deprecated, instead use the methods in IOFolder'
-    )
-    try {
-        let uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
-
-        console.log(
-            'getUniqueDocumentId():  uniqueDocumentId: ',
-            uniqueDocumentId
-        )
-
-        // Regular expression to check if string is a valid UUID
-        const regexExp =
-            /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi
-
-        // String with valid UUID separated by dash
-        // const str = 'a24a6ea4-ce75-4665-a070-57453082c256'
-
-        const isValidId = regexExp.test(uniqueDocumentId) // true
-        console.log('isValidId: ', isValidId)
-        if (isValidId == false) {
-            let uuid = self.crypto.randomUUID()
-            console.log(uuid) // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
-            await psapi.saveUniqueDocumentIdExe(uuid)
-            uniqueDocumentId = uuid
-        }
-        return uniqueDocumentId
-    } catch (e) {
-        console.warn('warning Document Id may not be valid', e)
-    }
-}
-
-// document
-//   .getElementById('btnLinkCurrentDocument')
-//   .addEventListener('click', async () => {
-//     await getUniqueDocumentId()
-//   })
-
-// attach event listeners for tabs
-//REFACTOR: move to html_manip.js (?) - if there is no business logic here and it's only for UI.
-Array.from(document.querySelectorAll('.sp-tab')).forEach((theTab) => {
-    theTab.onclick = () => {
-        try {
-            // localStorage.setItem("currentTab", theTab.getAttribute("id"));
-            Array.from(document.querySelectorAll('.sp-tab')).forEach((aTab) => {
-                if (aTab.getAttribute('id') === theTab.getAttribute('id')) {
-                    aTab.classList.add('selected')
-                } else {
-                    aTab.classList.remove('selected')
-                }
-            })
-            Array.from(document.querySelectorAll('.sp-tab-page')).forEach(
-                (tabPage) => {
-                    if (
-                        tabPage
-                            .getAttribute('id')
-                            .startsWith(theTab.getAttribute('id'))
-                    ) {
-                        tabPage.classList.add('visible-hack')
-                    } else {
-                        tabPage.classList.remove('visible-hack')
-                    }
-                }
-            )
-        } catch (e) {
-            console.warn(e)
-        }
-    }
-})
-//REFACTOR: move to events.js
 document.getElementById('sp-viewer-tab').addEventListener('click', async () => {
     if (
-        g_generation_session.isActive() &&
-        g_generation_session.mode === 'upscale'
+        session.GenerationSession.instance().isActive() &&
+        session.GenerationSession.instance().mode === 'upscale'
     ) {
-        g_sd_mode = 'upscale'
+        GenerationSettings.sd_mode = 'upscale'
     } else {
-        g_sd_mode = html_manip.getMode()
+        GenerationSettings.sd_mode = html_manip.getMode()
     }
 })
 //REFACTOR: move to events.js
 document.getElementById('sp-viewer-tab').addEventListener('click', async () => {
-    moveElementToAnotherTab('batchNumberUi', 'batchNumberViewerTabContainer')
+    psapi.moveElementToAnotherTab(
+        'batchNumberUi',
+        'batchNumberViewerTabContainer'
+    )
     await displayUpdate()
 })
 //REFACTOR: move to events.js
 document
     .getElementById('sp-stable-diffusion-ui-tab')
     .addEventListener('click', () => {
-        moveElementToAnotherTab('batchNumberUi', 'batchNumber-steps-container')
+        psapi.moveElementToAnotherTab(
+            'batchNumberUi',
+            'batchNumber-steps-container'
+        )
     })
-// entrypoints.setup({
-
-//   panels:{
-//     vanilla: ()=>{
-//       console.log("you are in the vanilla panel")
-//     },
-//     experimental_1: ()=>{
-//       console.log("you are in the experimental_1 panel")
-
-//     }
-//   }
-// }
-//   )
-// just a number that shouldn't unique enough that we will use when save files.
-// each session will get a number from 1 to 1000000
-//REFACTOR: move to session.js
-const random_session_id = Math.floor(Math.random() * 1000000 + 1)
-//REFACTOR: move to helpers.js (or other utility file)
-function getSelectedText() {
-    // JavaScript
-    //     // Obtain the object reference for the <textarea>
-    // const txtarea = document.getElementById("taPrompt");
-    const promptTextarea = document.querySelector('#taPrompt')
-    console.log('promptTextarea: ', promptTextarea.value)
-    //     // Obtain the index of the first selected character
-    var start = promptTextarea.selectionStart
-    console.log('start: ', start)
-    //     // Obtain the index of the last selected character
-    //     var finish = txtarea.selectionEnd;
-    //     console.log("finish: ",finish)
-
-    //     // Obtain the selected text
-    //     var sel = txtarea.value.substring(start, finish);
-    //     console.log("selected textarea: ", sel)
-
-    // Do something with the selected content
-}
-//REFACTOR: move to helpers.js
-// setInterval(getSelectedText,2000)
-function getCommentedString() {
-    // const text = document.getElementById("taPrompt").value
-    // let text = `Visit /*W3Schools
-    // cute, girl, painterly
-    // *\\ any text
-    // and prompt`;
-    // let text = `cute cat /*by greg
-
-    // and artgerm
-
-    //  */ and famous artist`
-    let text = `Visit /*W3Schools 
-  cute, girl, painterly   
-  */ any text
-  and prompt
-
-
-
-
- cute cat  /*by greg 
-
-  and artgerm 
-  
-   */ and famous artist`
-    console.log('getCommentedString: text: ', text)
-
-    // let pattern = /(\/)(\*)(\s|\S)*\*\\/g;
-    let pattern = /(\/)(\*)(\s|\S)*?(\*\/)/g
-
-    let result = text.match(pattern)
-    console.log('getCommentedString: ', result)
-}
-
-//REFACTOR: move to helpers.js
-function tempDisableElement(element, time) {
-    element.classList.add('disableBtn')
-    element.disabled = true
-    // element.style.opacity = '0.65'
-    // element.style.cursor = 'not-allowed'
-    setTimeout(function () {
-        element.disabled = false
-        element.classList.remove('disableBtn')
-        // element.style.opacity = '1.0'
-        // element.style.cursor = 'default'
-    }, time)
-}
-
-//REFACTOR: move to the notfication.js
-async function displayNotification(automatic_status) {
-    if (automatic_status === Enum.AutomaticStatusEnum['RunningWithApi']) {
-        //do nothing
-    } else if (
-        g_automatic_status === Enum.AutomaticStatusEnum['RunningNoApi']
-    ) {
-        await note.Notification.webuiAPIMissing()
-    } else if (g_automatic_status === Enum.AutomaticStatusEnum['Offline']) {
-        await note.Notification.webuiIsOffline()
-    }
-}
 //REFACTOR: move to sdapi.js
 async function checkAutoStatus() {
     try {
@@ -395,7 +117,7 @@ async function refreshUI() {
         }
 
         g_automatic_status = await checkAutoStatus()
-        await displayNotification(g_automatic_status)
+        await notification.displayWebUIStatusNotification(g_automatic_status)
 
         const bSamplersStatus = await initSamplers()
 
@@ -558,106 +280,18 @@ function promptShortcutExample() {
     document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
     return prompt_shortcut_example
 }
-//REFACTOR: move to generation_settings.js // Note: delete this function use UISettings.autoFillInSettings instead
-// function autoFillInSettings(metadata_json) {
-//     try {
-//         metadata_json1 = {
-//             prompt: 'cute cat, A full portrait of a beautiful post apocalyptic offworld arctic explorer, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration\nNegative prompt:  ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), out of frame, extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck)))',
-//             Steps: '20',
-//             Sampler: 'Euler a',
-//             'CFG scale': '7.0',
-//             Seed: '2300061620',
-//             Size: '512x512',
-//             'Model hash': '3e16efc8',
-//             'Seed resize from': '-1x-1',
-//             'Denoising strength': '0',
-//             'Conditional mask weight': '1.0',
-//         }
-
-//         //sometime the negative prompt is stored within the prompt
-//         function extractNegativePrompt(prompt) {
-//             const splitter = '\nNegative prompt:'
-//             const prompts = prompt.split(splitter)
-//             console.log('prompts: ', prompts)
-//             let negative_prompt = ''
-//             if (prompts.length > 1) {
-//                 negative_prompt = prompts[1].trim()
-//             }
-//             //propmt = prompt[0]
-
-//             return [prompts[0], negative_prompt]
-//         }
-//         let [prompt, negative_prompt] = extractNegativePrompt(
-//             metadata_json['prompt']
-//         )
-//         negative_prompt = metadata_json['Negative prompt'] || negative_prompt
-
-//         html_manip.autoFillInPrompt(prompt)
-//         html_manip.autoFillInNegativePrompt(negative_prompt)
-
-//         document.getElementById('tiNumberOfSteps').value =
-//             metadata_json['Steps']
-
-//         document.getElementById('slCfgScale').value = metadata_json['CFG scale']
-//         document.getElementById('tiSeed').value = metadata_json['Seed']
-
-//         // = metadata_json['Denoising strength']
-//         html_manip.autoFillInDenoisingStrength(
-//             metadata_json['Denoising strength']
-//         )
-
-//         model_title = html_manip.autoFillInModel(metadata_json['Model hash'])
-//         sdapi.requestSwapModel(model_title)
-
-//         const [width, height] = metadata_json['Size'].split('x')
-//         console.log('width, height: ', width, height)
-//         html_manip.autoFillInWidth(width)
-//         html_manip.autoFillInHeight(height)
-//         html_manip.autoFillInSampler(metadata_json['Sampler'])
-//         if (metadata_json.hasOwnProperty('First pass size')) {
-//             // chHiResFixs
-//             const [firstphase_width, firstphase_height] =
-//                 metadata_json['First pass size'].split('x')
-//             html_manip.setHiResFixs(true)
-//             html_manip.autoFillInHiResFixs(firstphase_width, firstphase_height)
-//             html_manip.autoFillInSliderUi(
-//                 metadata_json['Denoising strength'],
-//                 'hrDenoisingStrength',
-//                 'hDenoisingStrength',
-//                 100
-//             )
-//         } else {
-//             //
-//             html_manip.setHiResFixs(false)
-//         }
-
-//         // document.getElementById('tiSeed').value = metadata_json["Seed"]
-//     } catch (e) {
-//         console.error(`autoFillInSettings: ${e}`)
-//     }
-// }
 
 //**********Start: global variables
 let prompt_dir_name = ''
 let gImage_paths = []
-let g_image_path_to_layer = {}
-let g_init_images_dir = './server/python_server/init_images'
-//REFACTOR: move to generationSettings.js
-gCurrentImagePath = ''
-//REFACTOR: move to generationSettings.js
-let g_init_image_name = ''
 // let g_init_mask_layer;
-//REFACTOR: move to generationSettings.js
-let g_init_image_mask_name = ''
 // let g_mask_related_layers = {}
 // let g_init_image_related_layers = {}
 //REFACTOR: move to generationSettings.js, Note: numberOfImages deprecated global variable
 // let numberOfImages = document.querySelector('#tiNumberOfImages').value
-//REFACTOR: move to generationSettings.js
-let g_sd_mode = 'txt2img'
 // let g_sd_mode_last = g_sd_mode
 //REFACTOR: move to generationSettings.js
-let g_sd_mode_last = g_sd_mode
+// let g_sd_mode_last = g_sd_mode
 //REFACTOR: move to generationSettings.js
 let g_sd_sampler = 'Euler a'
 //REFACTOR: move to generationSettings.js
@@ -685,20 +319,14 @@ let g_metadatas = []
 let g_last_seed = '-1'
 //REFACTOR: move to generationSettings.js
 let g_can_request_progress = true
-let g_saved_active_layers = []
-let g_saved_active_selection = {}
 let g_is_active_layers_stored = false
 
 let g_number_generation_per_session = 0
 let g_isViewerMenuDisabled = false // disable the viewer menu and viewerImage when we're importing images into the current document
-let g_b_mask_layer_exist = false // true if inpaint mask layer exist, false otherwise.
-let g_inpaint_mask_layer
-let g_inpaint_mask_layer_history_id //store the history state id when creating a new inpaint mask layer
 
 // let g_selection = {}
 //REFACTOR: move to session.js
 let g_selection = {}
-let g_b_use_smart_object = true // true to keep layer as smart objects, false to rasterize them
 let g_sd_options_obj = new sd_options.SdOptions()
 
 g_sd_options_obj.getOptions()
@@ -736,9 +364,8 @@ let g_controlnet_max_models
     }
 })()
 
-let g_generation_session = new session.GenerationSession(0) //session manager
-g_generation_session.deactivate() //session starte as inactive
-let g_ui = new ui.UI()
+//REFACTOR: replace all ref to g_ui with UI singleton
+let g_ui = ui.UI.instance()
 let g_ui_settings = new ui.UISettings()
 
 const requestState = {
@@ -748,22 +375,13 @@ const requestState = {
 
 let g_request_status = '' //
 
-//REFACTOR: move to Enum.js
-const generationMode = {
-    Txt2Img: 'txt2img',
-    Img2Img: 'img2img',
-    Inpaint: 'inpaint',
-    Outpaint: 'outpaint',
-    Upscale: 'upscale',
-}
 const backendTypeEnum = {
     Auto1111: 'auto1111',
     HordeNative: 'horde_native',
     Auto1111HordeExtension: 'auto1111_horde_extension',
 }
 
-g_generation_session.mode = generationMode['Txt2Img']
-let g_viewer_manager = new viewer.ViewerManager()
+session.GenerationSession.instance().mode = Enum.generationMode['Txt2Img']
 
 //********** End: global variables */
 
@@ -798,14 +416,14 @@ initPlugin()
 
 //***********End: init function calls */
 
-//add click event on radio button mode, so that when a button is clicked it change g_sd_mode globally
+//add click event on radio button mode, so that when a button is clicked it change GenerationSettings.sd_mode globally
 //REFACTOR: move to events.js
 rbModeElements = document.getElementsByClassName('rbMode')
 for (let rbModeElement of rbModeElements) {
     rbModeElement.addEventListener('click', async (evt) => {
         try {
-            g_sd_mode = evt.target.value
-            // console.log(`You clicked: ${g_sd_mode}`)
+            GenerationSettings.sd_mode = evt.target.value
+            // console.log(`You clicked: ${GenerationSettings.sd_mode}`)
             await displayUpdate()
             await postModeSelection() // do things after selection
         } catch (e) {
@@ -814,15 +432,14 @@ for (let rbModeElement of rbModeElements) {
     })
 }
 
-//swaps g_sd_mode when clicking on extras tab and swaps it back to previous value when clicking on main tab
+//swaps GenerationSettings.sd_mode when clicking on extras tab and swaps it back to previous value when clicking on main tab
 //REFACTOR: move to events.js
 document
     .getElementById('sp-extras-tab')
     .addEventListener('click', async (evt) => {
         try {
-            // g_sd_mode_last = g_sd_mode
-            g_sd_mode = 'upscale'
-            console.log(`You clicked: ${g_sd_mode}`)
+            GenerationSettings.sd_mode = 'upscale'
+            console.log(`You clicked: ${GenerationSettings.sd_mode}`)
             await displayUpdate()
             await postModeSelection() // do things after selection
         } catch (e) {
@@ -834,65 +451,25 @@ document
     .getElementById('sp-stable-diffusion-ui-tab')
     .addEventListener('click', async (evt) => {
         try {
-            // g_sd_mode = g_sd_mode_last
-            g_sd_mode = html_manip.getMode()
-            console.log(`mode restored to: ${g_sd_mode}`)
+            GenerationSettings.sd_mode = html_manip.getMode()
+            console.log(`mode restored to: ${GenerationSettings.sd_mode}`)
             await displayUpdate()
             await postModeSelection() // do things after selection
         } catch (e) {
             console.warn(e)
         }
     })
-//REFACTOR: move to psapi.js
-async function createTempInpaintMaskLayer() {
-    if (!g_b_mask_layer_exist) {
-        //make new layer "Mask -- Paint White to Mask -- temporary"
-
-        const name = 'Mask -- Paint White to Mask -- temporary'
-        await psapi.unselectActiveLayersExe() // so that the mask layer get create at the top of the layer stocks
-        const top_layer_doc = await app.activeDocument.layers[0]
-        g_inpaint_mask_layer = await layer_util.createNewLayerExe(name, 60)
-        await executeAsModal(async () => {
-            await g_inpaint_mask_layer.moveAbove(top_layer_doc)
-        })
-        // g_inpaint_mask_layer.opacity = 50
-        g_b_mask_layer_exist = true
-        const index = app.activeDocument.historyStates.length - 1
-        g_inpaint_mask_layer_history_id =
-            app.activeDocument.historyStates[index].id
-        console.log(
-            'g_inpaint_mask_layer_history_id: ',
-            g_inpaint_mask_layer_history_id
-        )
-    }
-}
-//REFACTOR: move to psapi.js
-async function deleteTempInpaintMaskLayer() {
-    console.log(
-        'g_inpaint_mask_layer_history_id: ',
-        g_inpaint_mask_layer_history_id
-    )
-    const historyBrushTools = app.activeDocument.historyStates.filter(
-        (h) => h.id > g_inpaint_mask_layer_history_id && h.name === 'Brush Tool'
-    )
-    console.log(historyBrushTools)
-    if (historyBrushTools.length === 0 && g_b_mask_layer_exist) {
-        await layer_util.deleteLayers([g_inpaint_mask_layer])
-
-        g_b_mask_layer_exist = false
-    }
-}
 //REFACTOR: move to ui.js
 async function postModeSelection() {
     //
     try {
-        if (g_sd_mode === generationMode['Inpaint']) {
+        if (GenerationSettings.sd_mode === Enum.generationMode['Inpaint']) {
             //check if the we already have created a mask layer
-            await createTempInpaintMaskLayer()
+            await psapi.createTempInpaintMaskLayer()
         } else {
             // if we switch from inpaint mode, delete the mask layer
             // Find all history states after the creation of the inpaint mask and their name brush tool
-            await deleteTempInpaintMaskLayer()
+            await layer_util.deleteTempInpaintMaskLayer()
         }
     } catch (e) {
         console.warn(e)
@@ -942,28 +519,30 @@ document.addEventListener('mouseenter', async (event) => {
         //only check if the generation mode has not changed( e.g a session.mode === img2img and the current selection is "img2img"  ).
         // changing the mode will trigger it's own procedure, so doing it here again is redundant
         if (
-            g_generation_session.isActive() &&
-            g_generation_session.mode === g_sd_mode
+            session.GenerationSession.instance().isActive() &&
+            session.GenerationSession.instance().mode ===
+                GenerationSettings.sd_mode
         ) {
             //if the generation session is active and the selected mode is still the same as the generation mode
 
             console.log('hover on window')
 
-            const new_selection = await psapi.getSelectionInfoExe() //get the current active selection if there is any
+            const new_selection =
+                await selection.Selection.getSelectionInfoExe() //get the current active selection if there is any
 
             if (
                 new_selection &&
-                (await hasSelectionChanged(
+                (await session.GenerationSession.instance().hasSelectionChanged(
                     new_selection,
-                    g_generation_session.selectionInfo
+                    session.GenerationSession.instance().selectionInfo
                 ))
             ) {
                 // if there is an active selection and if the selection has changed
 
-                await calcWidthHeightFromSelection()
+                await selection.calcWidthHeightFromSelection()
 
                 if (
-                    g_generation_session.state ===
+                    session.GenerationSession.instance().state ===
                     session.SessionState['Active']
                 ) {
                     //indicate that the session will end if you generate
@@ -1040,7 +619,7 @@ document.addEventListener('mouseenter', async (event) => {
 //REFACTOR: move to ui.js
 async function displayUpdate() {
     try {
-        if (g_sd_mode == 'txt2img') {
+        if (GenerationSettings.sd_mode == 'txt2img') {
             document.getElementById('slDenoisingStrength').style.display =
                 'none' // hide denoising strength slider
             // document.getElementById("image_viewer").style.display = 'none' // hide images
@@ -1066,7 +645,7 @@ async function displayUpdate() {
             // document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
         }
 
-        if (g_sd_mode == 'img2img') {
+        if (GenerationSettings.sd_mode == 'img2img') {
             document.getElementById('slDenoisingStrength').style.display =
                 'block' // show denoising strength
             document.getElementById('slMaskExpansion').style.display = 'none'
@@ -1086,7 +665,10 @@ async function displayUpdate() {
             document.getElementById('slInpaintingMaskWeight').style.display =
                 'block' // hide inpainting conditional mask weight
         }
-        if (g_sd_mode == 'inpaint' || g_sd_mode == 'outpaint') {
+        if (
+            GenerationSettings.sd_mode == 'inpaint' ||
+            GenerationSettings.sd_mode == 'outpaint'
+        ) {
             ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring
             // document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
             document.getElementById('tableInitImageContainer').style.display =
@@ -1134,11 +716,14 @@ async function displayUpdate() {
             // document.getElementById('btnInitInpaint').style.display = 'none'
         }
 
-        if (g_generation_session.isActive()) {
+        if (session.GenerationSession.instance().isActive()) {
             //Note: remove the "or" operation after refactoring the code
             //if the session is active
 
-            if (g_generation_session.mode !== g_sd_mode) {
+            if (
+                session.GenerationSession.instance().mode !==
+                GenerationSettings.sd_mode
+            ) {
                 //if a generation session is active but we changed mode. the generate button will reflect that
                 //Note: add this code to the UI class
                 const generate_btns = Array.from(
@@ -1146,7 +731,9 @@ async function displayUpdate() {
                 )
                 generate_btns.forEach((element) => {
                     const selected_mode =
-                        getCurrentGenerationModeByValue(g_sd_mode)
+                        session.GenerationSession.instance().getCurrentGenerationModeByValue(
+                            GenerationSettings.sd_mode
+                        )
                     element.textContent = `Generate ${selected_mode}`
                 })
 
@@ -1155,7 +742,9 @@ async function displayUpdate() {
                 //1) and the session is active
                 //2) is the same generation mode
 
-                if (!(await hasSessionSelectionChanged())) {
+                if (
+                    !(await session.GenerationSession.instance().hasSessionSelectionChanged())
+                ) {
                     //3a) and the selection hasn't change
 
                     const generate_btns = Array.from(
@@ -1163,10 +752,13 @@ async function displayUpdate() {
                     )
 
                     // const selected_mode =
-                    //     getCurrentGenerationModeByValue(g_sd_mode)
-                    const generation_mode = g_generation_session.mode
+                    //     getCurrentGenerationModeByValue(GenerationSettings.sd_mode)
+                    const generation_mode =
+                        session.GenerationSession.instance().mode
                     const generation_name =
-                        getCurrentGenerationModeByValue(generation_mode)
+                        session.GenerationSession.instance().getCurrentGenerationModeByValue(
+                            generation_mode
+                        )
                     generate_btns.forEach((element) => {
                         element.textContent = `Generate More ${generation_name}`
                     })
@@ -1181,45 +773,16 @@ async function displayUpdate() {
             }
         } else {
             //session is not active
-            const selected_mode = getCurrentGenerationModeByValue(g_sd_mode)
+            const selected_mode =
+                session.GenerationSession.instance().getCurrentGenerationModeByValue(
+                    GenerationSettings.sd_mode
+                )
             g_ui.setGenerateBtnText(`Generate ${selected_mode}`)
             html_manip.setGenerateButtonsColor('generate', 'generate-more')
         }
     } catch (e) {
         console.warn(e)
     }
-}
-// function showLayerNames () {
-//   const app = window.require('photoshop').app
-//   const allLayers = app.activeDocument.layers
-//   const allLayerNames = allLayers.map(
-//     layer => `${layer.name} (${layer.opacity} %)`
-//   )
-
-//   const sortedNames = allLayerNames.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
-//   document.getElementById('layers').innerHTML = `
-//         <ul>${sortedNames.map(name => `<li>${name}</li>`).join('')}</ul>`
-// }
-//REFACTOR: move to psapi.js
-function selectTool() {
-    var doc = app.activeDocument
-    var activeTool = app.currentTool
-
-    // if (activeTool !== toolName) {
-    //   toolName = activeTool;
-    //   doc.activeTool = toolName;
-    // }
-    // const util = require('util')
-
-    // console.log(util.inspect(myObject, {showHidden: false, depth: null, colors: true}))
-    console.dir(app, { depth: null })
-    console.log('hello this is Abdullah')
-    document.getElementById('layers').innerHTML = `<span>
-    selectTool was called, ${activeTool}
-    </span>`
-
-    //rectanglemarquee
-    // await require('photoshop').core.executeAsModal(newNormalLayer);
 }
 //Refactor: Delete testServerPath() method
 async function testServerPath() {
@@ -1250,59 +813,6 @@ async function testServerPath() {
     }
 }
 
-// User picks an image file
-// open a explorer for user to select a image file
-//REFACTOR: move to psapi.js
-async function fillImage() {
-    const storage = require('uxp').storage
-    const fs = storage.localFileSystem
-    let imageFile = await fs.getFileForOpening({
-        types: storage.fileTypes.images,
-    })
-
-    // Create ImageFill for this image
-    const ImageFill = require('scenegraph').ImageFill
-    let fill = new ImageFill(imageFile)
-
-    // Set fill of first selected item
-    selection.items[0].fill = fill
-}
-// fillImage()
-//REFACTOR: move to psapi.js
-function pastImage2Layer() {
-    const { batchPlay } = require('photoshop').action
-    const { executeAsModal } = require('photoshop').core
-
-    executeAsModal(
-        () => {
-            // batchPlay([command], {})
-            const result = batchPlay(
-                [
-                    {
-                        _obj: 'paste',
-                        antiAlias: {
-                            _enum: 'antiAliasType',
-                            _value: 'antiAliasNone',
-                        },
-                        as: {
-                            _class: 'pixel',
-                        },
-                        _options: {
-                            dialogOptions: 'dontDisplay',
-                        },
-                    },
-                ],
-                {
-                    synchronousExecution: true,
-                    modalBehavior: 'fail',
-                }
-            )
-        },
-        {
-            commandName: 'Create Label',
-        }
-    )
-}
 //REFACTOR: move to ui.js
 function sliderToResolution(sliderValue) {
     return sliderValue * 64
@@ -1369,33 +879,6 @@ document.querySelector('#slInpaintPadding').addEventListener('input', (evt) => {
 //     // console.log(`New denoising_string_value: ${document.querySelector('#tiDenoisingStrength').value}`)
 //   })
 // // document.getElementById('btnPopulate').addEventListener('click', showLayerNames)
-//REFACTOR: move to psapi.js
-async function snapAndFillHandler() {
-    try {
-        const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
-        if (isSelectionAreaValid) {
-            if (g_generation_session.isFirstGeneration) {
-                // clear the layers related to the last mask operation.
-                // g_last_snap_and_fill_layers = await psapi.cleanLayers(
-                //   g_last_snap_and_fill_layers
-                // )
-                // create new layers related to the current mask operation.
-                await executeAsModal(async () => {
-                    // g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
-                    await outpaint.snapAndFillExe(random_session_id)
-                })
-                // console.log(
-                //   'outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ',
-                //   g_last_snap_and_fill_layers
-                // )
-            }
-        } else {
-            psapi.promptForMarqueeTool()
-        }
-    } catch (e) {
-        console.warn(e)
-    }
-}
 
 // document
 //   .getElementById('btnSnapAndFill')
@@ -1406,13 +889,15 @@ async function snapAndFillHandler() {
 //REFACTOR: move to generation.js
 async function easyModeOutpaint() {
     try {
-        if (g_generation_session.isFirstGeneration) {
+        if (session.GenerationSession.instance().isFirstGeneration) {
             // clear the layers related to the last mask operation.
             // g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
 
             // create new layers related to the current mask operation.
             // g_last_outpaint_layers = await outpaint.outpaintExe(random_session_id)
-            await outpaint.outpaintExe(random_session_id)
+            await outpaint.outpaintExe(
+                session.GenerationSession.instance().random_session_id
+            )
         }
     } catch (e) {
         console.warn(e)
@@ -1421,12 +906,14 @@ async function easyModeOutpaint() {
 //REFACTOR: move to generation.js
 async function btnInitInpaintHandler() {
     try {
-        if (g_generation_session.isFirstGeneration) {
+        if (session.GenerationSession.instance().isFirstGeneration) {
             // delete the layers of the previous mask operation
             // g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
             // store the layer of the current mask operation
             // g_last_inpaint_layers =  await outpaint.inpaintFasterExe(random_session_id)
-            await outpaint.inpaintFasterExe(random_session_id)
+            await outpaint.inpaintFasterExe(
+                session.GenerationSession.instance().random_session_id
+            )
 
             // console.log ("outpaint.inpaintFasterExe(random_session_id):, g_last_inpaint_layers: ",g_last_inpaint_layers)
         }
@@ -1460,12 +947,14 @@ function toggleTwoButtonsByClass(isVisible, first_class, second_class) {
         first_class_btns.forEach(
             (element) => (element.style.display = 'inline-block')
         )
-        if (g_generation_session.isActive()) {
+        if (session.GenerationSession.instance().isActive()) {
             //show generate more
-            // const selected_mode = getCurrentGenerationModeByValue(g_sd_mode)
-            const generation_mode = g_generation_session.mode
+            // const selected_mode = getCurrentGenerationModeByValue(GenerationSettings.sd_mode)
+            const generation_mode = session.GenerationSession.instance().mode
             const generation_name =
-                getCurrentGenerationModeByValue(generation_mode)
+                session.GenerationSession.instance().getCurrentGenerationModeByValue(
+                    generation_mode
+                )
             first_class_btns.forEach(
                 (element) =>
                     (element.textContent = `Generate More ${generation_name}`)
@@ -1474,91 +963,14 @@ function toggleTwoButtonsByClass(isVisible, first_class, second_class) {
             //show generate button
             first_class_btns.forEach(
                 (element) =>
-                    (element.textContent = `Generate ${getCurrentGenerationModeByValue(
-                        g_sd_mode
+                    (element.textContent = `Generate ${session.GenerationSession.instance().getCurrentGenerationModeByValue(
+                        GenerationSettings.sd_mode
                     )}`)
             )
         }
         second_class_btns.forEach((element) => (element.style.display = 'none'))
     }
     return isVisible
-}
-//REFACTOR: move to session.js
-async function discardAll() {
-    //discard all generated images setting highlight to false
-    //then call discard() to garbage collect the mask related layers
-    try {
-        for (const [path, viewer_image_obj] of Object.entries(
-            g_viewer_manager.pathToViewerImage
-        )) {
-            try {
-                viewer_image_obj.active(false) //deactivate the layer
-                viewer_image_obj.setHighlight(false) // mark each layer as discarded
-            } catch (e) {
-                console.error(e)
-            }
-        }
-        await discard() // clean viewer tab
-    } catch (e) {
-        console.warn(e)
-    }
-}
-//REFACTOR: move to session.js
-async function acceptAll() {
-    //accept all generated images by highlighting them
-    //then call discard() to garbage collect the mask related layers
-    try {
-        for (const [path, viewer_image_obj] of Object.entries(
-            g_viewer_manager.pathToViewerImage
-        )) {
-            try {
-                if (
-                    viewer_image_obj.isActive() &&
-                    viewer_image_obj instanceof viewer.OutputImage
-                ) {
-                    //check if the active viewer_image_obj is a type of OutputImage and move it to the top of the output group folder
-                    //this is so when we accept all layers the canvas will look the same. otherwise the image could be cover by another generated image
-                    if (
-                        layer_util.Layer.doesLayerExist(viewer_image_obj.layer)
-                    ) {
-                        await g_generation_session.moveToTopOfOutputGroup(
-                            viewer_image_obj.layer
-                        )
-                    }
-                }
-                viewer_image_obj.setHighlight(true) // mark each layer as accepted
-            } catch (e) {
-                console.error(e)
-            }
-        }
-        await discard() // clean viewer tab
-    } catch (e) {
-        console.warn(e)
-    }
-}
-//REFACTOR: move to session.js
-async function discardSelected() {
-    //discard all generated images setting highlight to false
-    //then call discard() to garbage collect the mask related layers
-    try {
-        for (const [path, viewer_image_obj] of Object.entries(
-            g_viewer_manager.pathToViewerImage
-        )) {
-            try {
-                if (viewer_image_obj.is_active) {
-                    viewer_image_obj.active(false) //convert active to highlight
-                    viewer_image_obj.setHighlight(true) //highlight the active image, since active images are not highlighted in the viewer
-                }
-
-                viewer_image_obj.toggleHighlight() // if invert the highlights on all images
-            } catch (e) {
-                console.error(e)
-            }
-        }
-        await discard() // delete the images that currently highlighted
-    } catch (e) {
-        console.warn(e)
-    }
 }
 //REFACTOR: move to events.js
 const discard_selected_class_btns = Array.from(
@@ -1568,7 +980,7 @@ const discard_selected_class_btns = Array.from(
 discard_selected_class_btns.forEach((element) =>
     element.addEventListener('click', async () => {
         try {
-            await g_generation_session.endSession(
+            await session.GenerationSession.instance().endSession(
                 session.GarbageCollectionState['DiscardSelected']
             ) //end session and accept only selected images
             g_ui.onEndSessionUI()
@@ -1586,7 +998,7 @@ const accept_selected_class_btns = Array.from(
 accept_selected_class_btns.forEach((element) =>
     element.addEventListener('click', async () => {
         try {
-            await g_generation_session.endSession(
+            await session.GenerationSession.instance().endSession(
                 session.GarbageCollectionState['AcceptSelected']
             ) //end session and accept only selected images
             g_ui.onEndSessionUI()
@@ -1603,12 +1015,10 @@ const accept_class_btns = Array.from(
 accept_class_btns.forEach((element) =>
     element.addEventListener('click', async () => {
         try {
-            await g_generation_session.endSession(
+            await session.GenerationSession.instance().endSession(
                 session.GarbageCollectionState['Accept']
             ) //end session and accept all images
             g_ui.onEndSessionUI()
-
-            // await acceptAll()
         } catch (e) {
             console.warn(e)
         }
@@ -1645,53 +1055,12 @@ document.getElementById('btnLastSeed').addEventListener('click', async () => {
         console.warn(e)
     }
 })
-//REFACTOR: move to session.js
-async function discard() {
-    try {
-        // console.log(
-        //   'click on btnCleanLayers,  g_last_outpaint_layers:',
-        //   g_last_outpaint_layers
-        // )
-        // console.log(
-        //   'click on btnCleanLayers,  g_last_inpaint_layers:',
-        //   g_last_inpaint_layers
-        // )
-
-        // console.log(
-        //   'click on btnCleanLayers,  g_last_snap_and_fill_layers:',
-        //   g_last_snap_and_fill_layers
-        // )
-
-        // console.log('g_last_snap_and_fill_layers')
-        // g_last_snap_and_fill_layers = await psapi.cleanLayers(
-        //   g_last_snap_and_fill_layers
-        // )
-
-        // if (g_last_outpaint_layers.length > 0) {
-        //   g_last_outpaint_layers = await psapi.cleanLayers(g_last_outpaint_layers)
-        //   console.log('g_last_outpaint_layers has 1 layers')
-        // }
-        // if (g_last_inpaint_layers.length > 0) {
-        //   g_last_inpaint_layers = await psapi.cleanLayers(g_last_inpaint_layers)
-        //   g_b_mask_layer_exist = false
-
-        // }
-        const random_img_src = 'https://source.unsplash.com/random'
-        html_manip.setInitImageSrc(random_img_src)
-        html_manip.setInitImageMaskSrc(random_img_src)
-
-        // psapi.cleanLayers(last_gen_layers)
-        await deleteNoneSelected(g_viewer_manager.pathToViewerImage)
-    } catch (e) {
-        console.warn(e)
-    }
-}
 //REFACTOR: move to events.js
 Array.from(document.getElementsByClassName('discardClass')).forEach(
     (element) => {
         element.addEventListener('click', async () => {
             //end session here
-            await g_generation_session.endSession(
+            await session.GenerationSession.instance().endSession(
                 session.GarbageCollectionState['Discard']
             ) //end session and remove all images
             g_ui.onEndSessionUI()
@@ -1706,7 +1075,7 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
         element.addEventListener('click', async () => {
             try {
                 if (
-                    g_generation_session.request_status ===
+                    session.GenerationSession.instance().request_status ===
                     Enum.RequestStateEnum['Finished']
                 ) {
                     toggleTwoButtonsByClass(
@@ -1718,7 +1087,7 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
 
                     return null // cann't inturrept a finished generation
                 }
-                g_generation_session.request_status =
+                session.GenerationSession.instance().request_status =
                     Enum.RequestStateEnum['Interrupted']
 
                 const backend_type = html_manip.getBackendType()
@@ -1754,80 +1123,10 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
         })
     }
 )
-//REFACTOR: move to psapi.js
-//store active layers only if they are not stored.
-async function storeActiveLayers() {
-    setTimeout(async () => {
-        const layers = await app.activeDocument.activeLayers
-        console.log('storeActiveLayers: ', layers.length)
 
-        if (layers.length > 0) {
-            g_saved_active_layers = layers
-            await psapi.unselectActiveLayersExe()
-        }
-    }, 200)
-
-    // if (g_is_active_layers_stored == false) {
-    //   g_saved_active_layers = await app.activeDocument.activeLayers
-    //   g_is_active_layers_stored = true
-    //   await psapi.unselectActiveLayersExe()
-    // } else {
-    // }
-}
-//REFACTOR: move to psapi.js
-async function restoreActiveLayers() {
-    const layers = await app.activeDocument.activeLayers
-    console.log('restoreActiveLayers: ', layers.length)
-    if (layers.length == 0) {
-        await psapi.selectLayersExe(g_saved_active_layers)
-        g_saved_active_layers = []
-    }
-    // if (g_is_active_layers_stored == true) {
-    //   // g_saved_active_layers = await app.activeDocument.activeLayers
-    //   await psapi.selectLayersExe(g_saved_active_layers)
-    //   g_is_active_layers_stored = false
-    //   g_saved_active_layers = []
-    // }
-}
-
-//store active selection only if they are not stored.
-//REFACTOR: move to psapi.js
-async function storeActiveSelection() {
-    try {
-        setTimeout(async () => {
-            const layers = await app.activeDocument.activeLayers
-            const current_selection = await psapi.checkIfSelectionAreaIsActive()
-            console.log('storeActiveSelection: ', current_selection)
-
-            if (current_selection) {
-                g_saved_active_selection = current_selection
-                await psapi.unSelectMarqueeExe()
-            }
-        }, 200)
-    } catch (e) {
-        console.warn(e)
-    }
-}
-//REFACTOR: move to psapi.js
-async function restoreActiveSelection() {
-    try {
-        const current_selection = await psapi.checkIfSelectionAreaIsActive()
-
-        console.log('restoreActiveSelection: ', current_selection)
-        if (
-            !current_selection &&
-            psapi.isSelectionValid(g_saved_active_selection)
-        ) {
-            await psapi.reSelectMarqueeExe(g_saved_active_selection)
-            g_saved_active_selection = {}
-        }
-    } catch (e) {
-        console.warn(e)
-    }
-}
 //REFACTOR: move to events.js
 document.querySelector('#taPrompt').addEventListener('focus', async () => {
-    // if (!g_generation_session.isLoadingActive) {
+    // if (!session.GenerationSession.instance().isLoadingActive) {
     //     console.log('taPrompt focus')
     //     // console.log('we are in prompt textarea')
     //     // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
@@ -1849,7 +1148,7 @@ document.querySelector('#taPrompt').addEventListener('blur', async () => {
 document
     .querySelector('#taNegativePrompt')
     .addEventListener('focus', async () => {
-        // if (!g_generation_session.isLoadingActive) {
+        // if (!session.GenerationSession.instance().isLoadingActive) {
         //     console.log('taNegativePrompt focus')
         //     // console.log('we are in prompt textarea')
         //     await storeActiveLayers()
@@ -1887,7 +1186,7 @@ async function getSettings() {
 
     try {
         const extension_type = settings_tab.getExtensionType() // get the extension type
-        const selectionInfo = await psapi.getSelectionInfoExe()
+        const selectionInfo = await selection.Selection.getSelectionInfoExe()
         payload['selection_info'] = selectionInfo
         const numberOfImages = parseInt(
             document.querySelector('#tiNumberOfImages').value
@@ -1937,7 +1236,7 @@ async function getSettings() {
         //const hScale = html_manip.getSliderSdValue('hrScale',1)
         console.log('Check')
 
-        const uniqueDocumentId = await getUniqueDocumentId()
+        const uniqueDocumentId = await document_util.getUniqueDocumentId()
         const h_denoising_strength = html_manip.getSliderSdValue(
             'hrDenoisingStrength',
             0.01
@@ -1960,11 +1259,16 @@ async function getSettings() {
             payload['inpaint_full_res_padding'] = inpaint_full_res_padding * 4
 
             console.log('g_use_mask_image is ', g_use_mask_image)
-            console.log('g_init_image_mask_name is ', g_init_image_mask_name)
-            payload['init_image_mask_name'] = g_init_image_mask_name
+            console.log(
+                'init_image_mask_name is ',
+                session.GenerationSession.instance().init_image_mask_name
+            )
+            payload['init_image_mask_name'] =
+                session.GenerationSession.instance().init_image_mask_name
             payload['inpainting_fill'] = html_manip.getMaskContent()
             payload['mask_expansion'] = mask_expansion
-            payload['mask'] = g_generation_session.activeBase64MaskImage
+            payload['mask'] =
+                session.GenerationSession.instance().activeBase64MaskImage
 
             if (use_sharp_mask === false && payload['mask']) {
                 //only if mask is available and sharp_mask is off
@@ -1987,18 +1291,19 @@ async function getSettings() {
         }
 
         if (
-            g_sd_mode == 'img2img' ||
-            g_sd_mode == 'inpaint' ||
-            g_sd_mode == 'outpaint'
+            GenerationSettings.sd_mode == 'img2img' ||
+            GenerationSettings.sd_mode == 'inpaint' ||
+            GenerationSettings.sd_mode == 'outpaint'
         ) {
             console.log(`g_use_mask_image:? ${g_use_mask_image}`)
 
             denoising_strength = html_manip.getDenoisingStrength()
             payload['denoising_strength'] = denoising_strength
-            payload['init_image_name'] = g_init_image_name
+            payload['init_image_name'] =
+                session.GenerationSession.instance().init_image_name
 
             payload['init_images'] = [
-                g_generation_session.activeBase64InitImage,
+                session.GenerationSession.instance().activeBase64InitImage,
             ]
         }
 
@@ -2103,7 +1408,7 @@ async function getExtraSettings() {
         const gfpgan_visibility = html_manip.getGFPGANVisibility()
         const codeformer_visibility = html_manip.getCodeFormerVisibility()
         const codeformer_weight = html_manip.getCodeFormerWeight()
-        const selection_info = await psapi.getSelectionInfoExe()
+        const selection_info = await selection.Selection.getSelectionInfoExe()
         const width = selection_info.width * upscaling_resize
         const height = selection_info.height * upscaling_resize
         //resize_mode = 0 means "resize to upscaling_resize"
@@ -2124,7 +1429,7 @@ async function getExtraSettings() {
         const extras_upscaler_2_visibility = html_manip.getUpscaler2Visibility()
         payload['extras_upscaler_2_visibility'] = extras_upscaler_2_visibility
         payload['upscale_first'] = false
-        const uniqueDocumentId = await getUniqueDocumentId()
+        const uniqueDocumentId = await document_util.getUniqueDocumentId()
         payload['uniqueDocumentId'] = uniqueDocumentId
 
         // const layer = await app.activeDocument.activeLayers[0]
@@ -2137,66 +1442,12 @@ async function getExtraSettings() {
         let image_name = psapi.layerNameToFileName(
             old_name,
             layer.id,
-            random_session_id
+            session.GenerationSession.instance().random_session_id
         )
         image_name = `${image_name}.png`
 
-        const base64_image = g_generation_session.activeBase64InitImage
-
-        payload['image'] = base64_image
-    } catch (e) {
-        console.error(e)
-    }
-    return payload
-}
-//REFACTOR: move to generation_settings.js
-async function getExtraSettings() {
-    let payload = {}
-    try {
-        const html_manip = require('./utility/html_manip')
-        const upscaling_resize = html_manip.getUpscaleSize()
-        const gfpgan_visibility = html_manip.getGFPGANVisibility()
-        const codeformer_visibility = html_manip.getCodeFormerVisibility()
-        const codeformer_weight = html_manip.getCodeFormerWeight()
-        const selection_info = await psapi.getSelectionInfoExe()
-        const width = selection_info.width * upscaling_resize
-        const height = selection_info.height * upscaling_resize
-        //resize_mode = 0 means "resize to upscaling_resize"
-        //resize_mode = 1 means "resize to width and height"
-        payload['resize_mode'] = 0
-        payload['show_extras_results'] = 0
-        payload['gfpgan_visibility'] = gfpgan_visibility
-        payload['codeformer_visibility'] = codeformer_visibility
-        payload['codeformer_weight'] = codeformer_weight
-        payload['upscaling_resize'] = upscaling_resize
-        payload['upscaling_resize_w'] = width
-        payload['upscaling_resize_h'] = height
-        payload['upscaling_crop'] = true
-        const upscaler1 = document.querySelector('#hrModelsMenuUpscale1').value
-        payload['upscaler_1'] = upscaler1 === undefined ? 'None' : upscaler1
-        const upscaler2 = document.querySelector('#hrModelsMenuUpscale2').value
-        payload['upscaler_2'] = upscaler2 === undefined ? 'None' : upscaler2
-        const extras_upscaler_2_visibility = html_manip.getUpscaler2Visibility()
-        payload['extras_upscaler_2_visibility'] = extras_upscaler_2_visibility
-        payload['upscale_first'] = false
-        const uniqueDocumentId = await getUniqueDocumentId()
-        payload['uniqueDocumentId'] = uniqueDocumentId
-
-        // const layer = await app.activeDocument.activeLayers[0]
-        const layer = await app.activeDocument.activeLayers[0]
-        const old_name = layer.name
-
-        // image_name = await app.activeDocument.activeLayers[0].name
-
-        //convert layer name to a file name
-        let image_name = psapi.layerNameToFileName(
-            old_name,
-            layer.id,
-            random_session_id
-        )
-        image_name = `${image_name}.png`
-
-        const base64_image = g_generation_session.activeBase64InitImage
+        const base64_image =
+            session.GenerationSession.instance().activeBase64InitImage
 
         payload['image'] = base64_image
     } catch (e) {
@@ -2264,24 +1515,12 @@ async function generateTxt2Img(settings) {
 
     return json
 }
-//REFACTOR: move to selection.js
-async function hasSelectionChanged(new_selection, old_selection) {
-    if (
-        new_selection.left === old_selection.left &&
-        new_selection.bottom === old_selection.bottom &&
-        new_selection.right === old_selection.right &&
-        new_selection.top === old_selection.top
-    ) {
-        return false
-    } else {
-        return true
-    }
-}
+
 //REFACTOR: move to generation.js
 async function easyModeGenerate(mode) {
     try {
         if (
-            g_generation_session.request_status !==
+            session.GenerationSession.instance().request_status !==
             Enum.RequestStateEnum['Finished']
         ) {
             app.showAlert(
@@ -2290,7 +1529,7 @@ async function easyModeGenerate(mode) {
             return null
         }
 
-        g_generation_session.request_status =
+        session.GenerationSession.instance().request_status =
             Enum.RequestStateEnum['Generating']
         await executeAsModal(async (context) => {
             const document_type = await findDocumentType()
@@ -2301,7 +1540,8 @@ async function easyModeGenerate(mode) {
             })
             //store selection
             //store active layer
-            const selectionInfo = await psapi.getSelectionInfoExe()
+            const selectionInfo =
+                await selection.Selection.getSelectionInfoExe()
             await psapi.unSelectMarqueeExe()
             const active_layers = app.activeDocument.activeLayers
 
@@ -2311,7 +1551,7 @@ async function easyModeGenerate(mode) {
 
             //retore selection
             //restore active layer
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
             await psapi.selectLayersExe(active_layers)
             await context.hostControl.resumeHistory(history_id)
         })
@@ -2331,12 +1571,14 @@ async function easyModeGenerate(mode) {
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
             g_automatic_status = await checkAutoStatus()
-            await displayNotification(g_automatic_status)
+            await notification.displayWebUIStatusNotification(
+                g_automatic_status
+            )
             if (
                 g_automatic_status === Enum.AutomaticStatusEnum['Offline'] ||
                 g_automatic_status === Enum.AutomaticStatusEnum['RunningNoApi']
             ) {
-                g_generation_session.request_status =
+                session.GenerationSession.instance().request_status =
                     Enum.RequestStateEnum['Finished']
                 return false
             }
@@ -2348,70 +1590,74 @@ async function easyModeGenerate(mode) {
         if (
             !isSelectionAreaValid && // no selection area
             (await note.Notification.inactiveSelectionArea(
-                g_generation_session.isActive()
+                session.GenerationSession.instance().isActive()
             )) === false // means did not activate the session selection area if it's available
         ) {
-            g_generation_session.request_status =
+            session.GenerationSession.instance().request_status =
                 Enum.RequestStateEnum['Finished']
             return null
         }
 
         console.log('easyModeGenerate mdoe: ', mode)
-        if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
+        if (
+            selection.Selection.isSelectionValid(
+                session.GenerationSession.instance().selectionInfo
+            )
+        ) {
             // check we have an old selection stored
-            const new_selection = await psapi.getSelectionInfoExe()
+            const new_selection =
+                await selection.Selection.getSelectionInfoExe()
             if (
-                await hasSelectionChanged(
+                await session.GenerationSession.instance().hasSelectionChanged(
                     new_selection,
-                    g_generation_session.selectionInfo
+                    session.GenerationSession.instance().selectionInfo
                 )
             ) {
                 // check the new selection is difference than the old
                 // end current session
-                g_generation_session.selectionInfo = new_selection
+                session.GenerationSession.instance().selectionInfo =
+                    new_selection
                 try {
-                    await g_generation_session.endSession(
+                    await session.GenerationSession.instance().endSession(
                         session.GarbageCollectionState['Accept']
                     ) //end session and accept all images
                     g_ui.onEndSessionUI()
-
-                    // await acceptAll()
                 } catch (e) {
                     console.warn(e)
                 }
             }
         } else {
             // store selection value
-            g_generation_session.selectionInfo =
-                await psapi.getSelectionInfoExe()
+            session.GenerationSession.instance().selectionInfo =
+                await selection.Selection.getSelectionInfoExe()
         }
 
-        if (g_generation_session.isActive()) {
+        if (session.GenerationSession.instance().isActive()) {
             //active session
             //
-            if (g_generation_session.mode !== mode) {
+            if (session.GenerationSession.instance().mode !== mode) {
                 //active session but it's a new mode
 
-                await g_generation_session.endSession(
+                await session.GenerationSession.instance().endSession(
                     session.GarbageCollectionState['Accept']
                 )
                 g_ui.onEndSessionUI()
                 //start new session after you ended the old one
-                await g_generation_session.startSession()
+                await session.GenerationSession.instance().startSession()
 
-                g_generation_session.mode = mode
+                session.GenerationSession.instance().mode = mode
             }
         } else {
             // new session
-            g_generation_session.mode = mode
-            await g_generation_session.startSession() //start the session and create a output folder
+            session.GenerationSession.instance().mode = mode
+            await session.GenerationSession.instance().startSession() //start the session and create a output folder
         }
 
         await psapi.selectLayersExe([active_layer]) //reselect the active layer since the clean up of the session sometime will change which layer is selected
         if (mode === 'txt2img') {
             //Note: keep it for clearity/ readibility
         } else if (mode === 'img2img' || mode === 'upscale') {
-            await snapAndFillHandler()
+            await outpaint.snapAndFillHandler()
         } else if (mode === 'inpaint') {
             await btnInitInpaintHandler()
         } else if (mode === 'outpaint') {
@@ -2421,31 +1667,34 @@ async function easyModeGenerate(mode) {
         //safe to close the previous generation_session outputfolder, since closing a folder will unselect any layer in it.
         ////and the plugin may still need those layers for inpainting mode for example.
 
-        await g_generation_session.closePreviousOutputGroup()
+        await session.GenerationSession.instance().closePreviousOutputGroup()
 
         const settings =
             mode === 'upscale' ? await getExtraSettings() : await getSettings()
 
-        g_generation_session.last_settings = settings
-        g_generation_session.is_control_net = control_net.getEnableControlNet()
+        session.GenerationSession.instance().last_settings = settings
+        session.GenerationSession.instance().is_control_net =
+            control_net.getEnableControlNet()
         await generate(settings, mode)
 
-        // await g_generation_session.deleteProgressLayer() // delete the old progress layer
-        await g_generation_session.deleteProgressImage()
+        // await session.GenerationSession.instance().deleteProgressLayer() // delete the old progress layer
+        await session.GenerationSession.instance().deleteProgressImage()
     } catch (e) {
-        await g_generation_session.deleteProgressImage()
+        await session.GenerationSession.instance().deleteProgressImage()
         console.warn(e)
-        g_generation_session.request_status = Enum.RequestStateEnum['Finished']
+        session.GenerationSession.instance().request_status =
+            Enum.RequestStateEnum['Finished']
     }
     toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
     g_can_request_progress = false
 
-    g_generation_session.request_status = Enum.RequestStateEnum['Finished']
+    session.GenerationSession.instance().request_status =
+        Enum.RequestStateEnum['Finished']
 
-    if (g_generation_session.sudo_timer_id) {
+    if (session.GenerationSession.instance().sudo_timer_id) {
         //disable the sudo timer at the end of the generation
-        g_generation_session.sudo_timer_id = clearInterval(
-            g_generation_session.sudo_timer_id
+        session.GenerationSession.instance().sudo_timer_id = clearInterval(
+            session.GenerationSession.instance().sudo_timer_id
         )
     }
 }
@@ -2457,11 +1706,12 @@ async function generate(settings, mode) {
         // toggleGenerateInterruptButton(true)
 
         // const isFirstGeneration = !(g_is_generation_session_active) // check if this is the first generation in the session
-        // const isFirstGeneration = !(g_generation_session.isActive()) // check if this is the first generation in the session
-        const isFirstGeneration = g_generation_session.isFirstGeneration
+        // const isFirstGeneration = !(session.GenerationSession.instance().isActive()) // check if this is the first generation in the session
+        const isFirstGeneration =
+            session.GenerationSession.instance().isFirstGeneration
 
-        // g_generation_session.startSession()
-        g_generation_session.activate()
+        // session.GenerationSession.instance().startSession()
+        session.GenerationSession.instance().activate()
 
         g_ui.onStartSessionUI()
         // toggleTwoButtons(true,'btnGenerate','btnInterrupt')
@@ -2480,7 +1730,7 @@ async function generate(settings, mode) {
 
         console.log(settings)
 
-        g_generation_session.request_status =
+        session.GenerationSession.instance().request_status =
             Enum.RequestStateEnum['Generating']
         let json = {}
         if (mode == 'txt2img') {
@@ -2497,7 +1747,7 @@ async function generate(settings, mode) {
             json = await sdapi.requestExtraSingleImage(settings)
         }
 
-        // if (g_sd_mode == 'outpaint') {
+        // if (GenerationSettings.sd_mode == 'outpaint') {
         //     // await easyModeOutpaint()
         //     json = await sdapi.requestImg2Img(settings)
 
@@ -2507,32 +1757,32 @@ async function generate(settings, mode) {
         //     // },5000)
         // }
         if (
-            g_generation_session.request_status ===
+            session.GenerationSession.instance().request_status ===
             Enum.RequestStateEnum['Interrupted']
         ) {
             //when generate request get interrupted. reset progress bar to 0, discard any meta data and images returned from the proxy server by returning from the function.
             html_manip.updateProgressBarsHtml(0)
             console.log(
-                'before delete g_generation_session.progress_layer: ',
-                g_generation_session.progress_layer
+                'before delete session.GenerationSession.instance().progress_layer: ',
+                session.GenerationSession.instance().progress_layer
             )
-            await g_generation_session.deleteProgressImage()
+            await session.GenerationSession.instance().deleteProgressImage()
             console.log(
-                'after delete g_generation_session.progress_layer: ',
-                g_generation_session.progress_layer
+                'after delete session.GenerationSession.instance().progress_layer: ',
+                session.GenerationSession.instance().progress_layer
             )
             //check whether request was "generate" or "generate more"
             //if it's generate discard the session
             if (isFirstGeneration) {
                 await loadViewerImages()
-                await g_generation_session.endSession(
+                await session.GenerationSession.instance().endSession(
                     session.GarbageCollectionState['Discard']
                 ) //end session and delete all images
                 g_ui.onEndSessionUI()
 
                 // //delete all mask related layers
             }
-            g_generation_session.request_status =
+            session.GenerationSession.instance().request_status =
                 Enum.RequestStateEnum['Finished']
             return null
         }
@@ -2540,14 +1790,14 @@ async function generate(settings, mode) {
         // check if json is empty {}, {} means the proxy server didn't return a valid data
         if (Object.keys(json).length === 0) {
             if (isFirstGeneration) {
-                await g_generation_session.endSession(
+                await session.GenerationSession.instance().endSession(
                     session.GarbageCollectionState['Discard']
                 ) //end session and delete all images
                 g_ui.onEndSessionUI()
 
                 // //delete all mask related layers
             }
-            g_generation_session.request_status =
+            session.GenerationSession.instance().request_status =
                 Enum.RequestStateEnum['Finished']
             return null
         }
@@ -2573,23 +1823,26 @@ async function generate(settings, mode) {
         if (isFirstGeneration) {
             //this is new generation session
 
-            g_generation_session.image_paths_to_layers =
-                await silentImagesToLayersExe(images_info)
+            session.GenerationSession.instance().image_paths_to_layers =
+                await session.GenerationSession.instance().silentImagesToLayersExe(
+                    images_info
+                )
 
-            g_generation_session.base64OutputImages = {} //delete all previouse images, Note move this to session end ()
+            session.GenerationSession.instance().base64OutputImages = {} //delete all previouse images, Note move this to session end ()
             for (const image_info of images_info) {
                 const path = image_info['path']
                 const base64_image = image_info['base64']
-                g_generation_session.base64OutputImages[path] = base64_image
+                session.GenerationSession.instance().base64OutputImages[path] =
+                    base64_image
                 const [document_name, image_name] = path.split('/')
-                await saveFileInSubFolder(
+                await document_util.saveFileInSubFolder(
                     base64_image,
                     document_name,
                     image_name
                 ) //save the output image
                 const json_file_name = `${image_name.split('.')[0]}.json`
                 settings['auto_metadata'] = image_info?.auto_metadata
-                await saveJsonFileInSubFolder(
+                await document_util.saveJsonFileInSubFolder(
                     settings,
                     document_name,
                     json_file_name
@@ -2597,38 +1850,44 @@ async function generate(settings, mode) {
             }
 
             g_number_generation_per_session = 1
-            g_generation_session.isFirstGeneration = false
+            session.GenerationSession.instance().isFirstGeneration = false
         } else {
             // generation session is active so we will generate more
 
-            let last_images_paths = await silentImagesToLayersExe(images_info)
+            let last_images_paths =
+                await session.GenerationSession.instance().silentImagesToLayersExe(
+                    images_info
+                )
 
             for (const image_info of images_info) {
                 const path = image_info['path']
                 const base64_image = image_info['base64']
-                g_generation_session.base64OutputImages[path] = base64_image
+                session.GenerationSession.instance().base64OutputImages[path] =
+                    base64_image
                 const [document_name, image_name] = path.split('/')
-                await saveFileInSubFolder(
+                await document_util.saveFileInSubFolder(
                     base64_image,
                     document_name,
                     image_name
                 )
                 const json_file_name = `${image_name.split('.')[0]}.json`
                 settings['auto_metadata'] = image_info?.auto_metadata
-                await saveJsonFileInSubFolder(
+                await document_util.saveJsonFileInSubFolder(
                     settings,
                     document_name,
                     json_file_name
                 ) //save the settings
             }
 
-            g_generation_session.image_paths_to_layers = {
-                ...g_generation_session.image_paths_to_layers,
+            session.GenerationSession.instance().image_paths_to_layers = {
+                ...session.GenerationSession.instance().image_paths_to_layers,
                 ...last_images_paths,
             }
             g_number_generation_per_session++
         }
-        await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
+        await selection.reSelectMarqueeExe(
+            session.GenerationSession.instance().selectionInfo
+        )
         //update the viewer
         await loadViewerImages()
 
@@ -2636,16 +1895,18 @@ async function generate(settings, mode) {
         updateProgressBarsHtml(0)
     } catch (e) {
         console.error(`btnGenerate.click(): `, e)
-        g_generation_session.request_status = Enum.RequestStateEnum['Finished']
+        session.GenerationSession.instance().request_status =
+            Enum.RequestStateEnum['Finished']
     }
-    g_generation_session.request_status = Enum.RequestStateEnum['Finished']
+    session.GenerationSession.instance().request_status =
+        Enum.RequestStateEnum['Finished']
 }
 //REFACTOR: move to events.js
 Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
     (btn) => {
         btn.addEventListener('click', async (evt) => {
-            tempDisableElement(evt.target, 5000)
-            await easyModeGenerate(g_sd_mode)
+            html_manip.tempDisableElement(evt.target, 5000)
+            await easyModeGenerate(GenerationSettings.sd_mode)
         })
     }
 ) //REFACTOR: move to events.js
@@ -2654,7 +1915,7 @@ document
     .getElementById('btnRefreshModels')
     .addEventListener('click', async (e) => {
         await refreshUI()
-        tempDisableElement(e.target, 3000)
+        html_manip.tempDisableElement(e.target, 3000)
     })
 //REFACTOR: move to events.js
 document.querySelector('#mModelsMenu').addEventListener('change', (evt) => {
@@ -2692,14 +1953,15 @@ document
     .addEventListener('click', async () => {
         //set init image event listener, use when session is active
         const layer = await app.activeDocument.activeLayers[0]
-        const image_info = await psapi.silentSetInitImage(
-            layer,
-            random_session_id
-        )
+        const image_info =
+            await session.GenerationSession.instance().silentSetInitImage(
+                layer,
+                session.GenerationSession.instance().random_session_id
+            )
         const image_name = image_info['name']
         const path = `./server/python_server/init_images/${image_name}`
-        g_viewer_manager.addInitImageLayers(layer, path, false)
-        await g_viewer_manager.loadInitImageViewerObject(path)
+        viewer.ViewerManager.instance().addInitImageLayers(layer, path, false)
+        await viewer.ViewerManager.instance().loadInitImageViewerObject(path)
         // await loadInitImageViewerObject(
         //     group,
         //     snapshot,
@@ -2709,33 +1971,11 @@ document
         //     base64_image
         // )
     })
-//REFACTOR: move to psapi.js
-async function setMaskViewer() {
-    try {
-        await executeAsModal(async () => {
-            if (g_viewer_manager.mask_solid_background) {
-                g_viewer_manager.mask_solid_background.visible = true
-            }
-        })
-        const layer = g_viewer_manager.maskGroup
-        // const layer = await app.activeDocument.activeLayers[0]
-        const mask_info = await psapi.silentSetInitImageMask(
-            layer,
-            random_session_id
-        )
-        const image_name = mask_info['name']
-        const path = `./server/python_server/init_images/${image_name}`
-        g_viewer_manager.addMaskLayers(layer, path, false, mask_info['base64']) //can be autodeleted?
-        await psapi.unselectActiveLayersExe()
-    } catch (e) {
-        console.warn(e)
-    }
-}
 //REFACTOR: move to events.js
 document
     .getElementById('btnSetMaskViewer')
     .addEventListener('click', async () => {
-        await setMaskViewer()
+        await viewer.ViewerManager.instance().setMaskViewer()
     })
 
 // document.getElementById('bSetInitImage').addEventListener('click', async () => {
@@ -2749,13 +1989,8 @@ document
 //         const layer = await app.activeDocument.activeLayers[0]
 //         await psapi.setInitImageMask(layer, random_session_id)
 //     })
-//REFACTOR: move to psapi.js
-function moveElementToAnotherTab(elementId, newParentId) {
-    const element = document.getElementById(elementId)
-    document.getElementById(newParentId).appendChild(element)
-}
 
-// moveElementToAnotherTab("batchNumberUi","batchNumberViewerTabContainer")
+// psapi.moveElementToAnotherTab("batchNumberUi","batchNumberViewerTabContainer")
 //REFACTOR: move to ui.js
 function updateProgressBarsHtml(new_value) {
     document.querySelectorAll('.pProgressBars').forEach((el) => {
@@ -2778,12 +2013,13 @@ async function updateProgressImage(progress_base64) {
                 documentID: app.activeDocument.id, //TODO: change this to the session document id
                 name: 'Progress Image',
             })
-            await g_generation_session.deleteProgressLayer() // delete the old progress layer
+            await session.GenerationSession.instance().deleteProgressLayer() // delete the old progress layer
 
             //update the progress image
-            const selection_info = await g_generation_session.selectionInfo
+            const selection_info = await session.GenerationSession.instance()
+                .selectionInfo
             const b_exsit = layer_util.Layer.doesLayerExist(
-                g_generation_session.progress_layer
+                session.GenerationSession.instance().progress_layer
             )
             if (!b_exsit) {
                 const layer = await io.IO.base64ToLayer(
@@ -2794,11 +2030,11 @@ async function updateProgressImage(progress_base64) {
                     selection_info.width,
                     selection_info.height
                 )
-                g_generation_session.progress_layer = layer // sotre the new progress layer// TODO: make sure you delete the progress layer when the geneeration request end
+                session.GenerationSession.instance().progress_layer = layer // sotre the new progress layer// TODO: make sure you delete the progress layer when the geneeration request end
             } else {
                 // if ,somehow, the layer still exsit
-                await layer_util.deleteLayers([
-                    g_generation_session.progress_layer,
+                await layer_util.cleanLayers([
+                    session.GenerationSession.instance().progress_layer,
                 ]) // delete the old progress layer
             }
             await context.hostControl.resumeHistory(history_id)
@@ -2816,7 +2052,7 @@ async function progressRecursive() {
         html_manip.updateProgressBarsHtml(progress_value)
         if (
             json?.current_image &&
-            g_generation_session.request_status ===
+            session.GenerationSession.instance().request_status ===
                 Enum.RequestStateEnum['Generating']
         ) {
             const base64_url = general.base64ToBase64Url(json.current_image)
@@ -2858,7 +2094,8 @@ async function progressRecursive() {
             // progress_image_html.style.height = progress_image_html.naturalHeight
 
             if (
-                g_generation_session.last_settings.batch_size === 1 &&
+                session.GenerationSession.instance().last_settings
+                    .batch_size === 1 &&
                 settings_tab.getUseLiveProgressImage()
             ) {
                 //only update the canvas if the number of images are one
@@ -2866,7 +2103,10 @@ async function progressRecursive() {
                 await updateProgressImage(json.current_image)
             }
         }
-        if (g_generation_session.isActive() && g_can_request_progress == true) {
+        if (
+            session.GenerationSession.instance().isActive() &&
+            g_can_request_progress == true
+        ) {
             //refactor this code
             setTimeout(async () => {
                 await progressRecursive()
@@ -2874,7 +2114,7 @@ async function progressRecursive() {
         }
     } catch (e) {
         if (
-            g_generation_session.isActive() &&
+            session.GenerationSession.instance().isActive() &&
             g_can_request_progress === true
         ) {
             setTimeout(async () => {
@@ -2890,448 +2130,10 @@ function changeImage() {
 }
 
 // document.getElementById('btnChangeImage').addEventListener('click', changeImage)
-//REFACTOR: move to psapi.js
-async function imageToSmartObject() {
-    const { batchPlay } = require('photoshop').action
-    const { executeAsModal } = require('photoshop').core
 
-    try {
-        // const file = await fs.getFileForOpening()
-        // token = await fs.getEntryForPersistentToken(file);
-        // const entry = await fs.getEntryForPersistentToken(token);
-        // const session_token = await fs.createSessionToken(entry);
-        // // let token = await fs.createSessionToken(entry)
-        await executeAsModal(
-            async () => {
-                console.log('imageToSmartObject():')
-                const storage = require('uxp').storage
-                const fs = storage.localFileSystem
-                let pluginFolder = await fs.getPluginFolder()
-                let img = await pluginFolder.getEntry(
-                    'output- 1672730735.1670313.png'
-                )
-                const result = await batchPlay(
-                    [
-                        {
-                            _obj: 'placeEvent',
-                            ID: 95,
-                            null: {
-                                _path: img,
-                                _kind: 'local',
-                            },
-                            freeTransformCenterState: {
-                                _enum: 'quadCenterState',
-                                _value: 'QCSAverage',
-                            },
-                            offset: {
-                                _obj: 'offset',
-                                horizontal: {
-                                    _unit: 'pixelsUnit',
-                                    _value: 0,
-                                },
-                                vertical: {
-                                    _unit: 'pixelsUnit',
-                                    _value: 0,
-                                },
-                            },
-                            replaceLayer: {
-                                _obj: 'placeEvent',
-                                from: {
-                                    _ref: 'layer',
-                                    _id: 56,
-                                },
-                                to: {
-                                    _ref: 'layer',
-                                    _id: 70,
-                                },
-                            },
-                            _options: {
-                                dialogOptions: 'dontDisplay',
-                            },
-                        },
-                    ],
-                    {
-                        synchronousExecution: true,
-                        modalBehavior: 'execute',
-                    }
-                )
-            },
-            {
-                commandName: 'Create Label',
-            }
-        )
-    } catch (e) {
-        console.log('imageToSmartObject() => error: ')
-        console.warn(e)
-    }
-}
+// document.getElementById('btnNewLayer').addEventListener('click', psapi.imageToSmartObject )
 
-// document.getElementById('btnNewLayer').addEventListener('click', imageToSmartObject )
-//REFACTOR: move to psapi.js
-async function placeEmbedded(image_name, dir_entery) {
-    //silent importer
-
-    try {
-        // console.log('placeEmbedded(): image_path: ', image_path)
-
-        const formats = require('uxp').storage.formats
-        const storage = require('uxp').storage
-        const fs = storage.localFileSystem
-        // const names = image_path.split('/')
-        // const length = names.length
-        // const image_name = names[length - 1]
-        // const project_name = names[length - 2]
-        let image_dir = dir_entery
-        // const image_dir = `./server/python_server/output/${project_name}`
-        // image_path = "output/f027258e-71b8-430a-9396-0a19425f2b44/output- 1674323725.126322.png"
-
-        // let img_dir = await .getEntry(image_dir)
-        // const file = await img_dir.createFile('output- 1674298902.0571606.png', {overwrite: true});
-
-        const file = await image_dir.createFile(image_name, { overwrite: true })
-
-        const img = await file.read({ format: formats.binary })
-        const token = await storage.localFileSystem.createSessionToken(file)
-        let place_event_result
-        await executeAsModal(async () => {
-            const result = await batchPlay(
-                [
-                    {
-                        _obj: 'placeEvent',
-                        ID: 6,
-                        null: {
-                            _path: token,
-                            _kind: 'local',
-                        },
-                        freeTransformCenterState: {
-                            _enum: 'quadCenterState',
-                            _value: 'QCSAverage',
-                        },
-                        offset: {
-                            _obj: 'offset',
-                            horizontal: {
-                                _unit: 'pixelsUnit',
-                                _value: 0,
-                            },
-                            vertical: {
-                                _unit: 'pixelsUnit',
-                                _value: 0,
-                            },
-                        },
-                        _isCommand: true,
-                        _options: {
-                            dialogOptions: 'dontDisplay',
-                        },
-                    },
-                ],
-                {
-                    synchronousExecution: true,
-                    modalBehavior: 'execute',
-                }
-            )
-            console.log('placeEmbedd batchPlay result: ', result)
-
-            place_event_result = result[0]
-        })
-
-        return place_event_result
-    } catch (e) {
-        console.warn(e)
-    }
-}
-//REFACTOR: move to psapi.js
-function _base64ToArrayBuffer(base64) {
-    var binary_string = window.atob(base64)
-    var len = binary_string.length
-    var bytes = new Uint8Array(len)
-    for (var i = 0; i < len; i++) {
-        bytes[i] = binary_string.charCodeAt(i)
-    }
-    return bytes.buffer
-}
-//REFACTOR: move to psapi.js
-function _arrayBufferToBase64(buffer) {
-    var binary = ''
-    var bytes = new Uint8Array(buffer)
-    var len = bytes.byteLength
-    for (var i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i])
-    }
-    return window.btoa(binary)
-}
-
-//REFACTOR: move to io.js
-async function getDocFolder(doc_uuid) {
-    try {
-        // const uuid = await getUniqueDocumentId()
-        const data_folder = await storage.localFileSystem.getDataFolder()
-
-        let doc_folder
-        try {
-            doc_folder = await data_folder.getEntry(doc_uuid)
-        } catch (e) {
-            console.warn(e)
-            //create document folder
-            doc_folder = await data_folder.createFolder(doc_uuid)
-        }
-
-        return doc_folder
-    } catch (e) {
-        console.warn(e)
-    }
-}
-//REFACTOR: move to document.js
-async function getCurrentDocFolder() {
-    //move to a global utililty lib
-    const uuid = await getUniqueDocumentId()
-
-    let doc_folder = await getDocFolder(uuid)
-    return doc_folder
-}
-//REFACTOR: move to document.js
-async function getInitImagesDir() {
-    const uuid = await getUniqueDocumentId()
-
-    let doc_folder = await getDocFolder(uuid)
-    let init_folder
-    try {
-        init_folder = await doc_folder.getEntry('init_images')
-    } catch (e) {
-        console.warn(e)
-        //create document folder
-        init_folder = await doc_folder.createFolder('init_images')
-    }
-    return init_folder
-}
-//REFACTOR: move to document.js
-async function saveFileInSubFolder(b64Image, sub_folder_name, file_name) {
-    // const b64Image =
-    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
-
-    const img = _base64ToArrayBuffer(b64Image)
-
-    // const img_name = 'temp_output_image.png'
-    const img_name = file_name
-    const folder = await storage.localFileSystem.getDataFolder()
-    const documentFolderName = sub_folder_name
-    let documentFolder
-    try {
-        documentFolder = await folder.getEntry(documentFolderName)
-    } catch (e) {
-        console.warn(e)
-        //create document folder
-        documentFolder = await folder.createFolder(documentFolderName)
-    }
-
-    console.log('documentFolder.nativePath: ', documentFolder.nativePath)
-    const file = await documentFolder.createFile(img_name, { overwrite: true })
-
-    await file.write(img, { format: storage.formats.binary })
-
-    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
-}
-//REFACTOR: move to document.js
-async function saveJsonFileInSubFolder(json, sub_folder_name, file_name) {
-    // const b64Image =
-    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
-
-    // const img_name = 'temp_output_image.png'
-
-    const json_file_name = file_name
-
-    const folder = await storage.localFileSystem.getDataFolder()
-    const documentFolderName = sub_folder_name
-    let documentFolder
-    try {
-        documentFolder = await folder.getEntry(documentFolderName)
-    } catch (e) {
-        console.warn(e)
-        //create document folder
-        documentFolder = await folder.createFolder(documentFolderName)
-    }
-
-    console.log('documentFolder.nativePath: ', documentFolder.nativePath)
-    const file = await documentFolder.createFile(json_file_name, {
-        type: storage.types.file,
-        overwrite: true,
-    })
-
-    const JSONInPrettyFormat = JSON.stringify(json, undefined, 4)
-    await file.write(JSONInPrettyFormat, {
-        format: storage.formats.utf8,
-        append: false,
-    })
-
-    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
-}
-//REFACTOR: move to document.js
-async function base64ToFile(b64Image, image_name = 'output_image.png') {
-    // const b64Image =
-    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
-    try {
-        const img = _base64ToArrayBuffer(b64Image)
-
-        const img_name = image_name
-
-        const folder = await storage.localFileSystem.getTemporaryFolder()
-        const file = await folder.createFile(img_name, { overwrite: true })
-
-        await file.write(img, { format: storage.formats.binary })
-
-        const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
-
-        let place_event_result
-        let imported_layer
-        await executeAsModal(async () => {
-            const result = await batchPlay(
-                [
-                    {
-                        _obj: 'placeEvent',
-                        // ID: 6,
-                        null: {
-                            _path: token,
-                            _kind: 'local',
-                        },
-                        freeTransformCenterState: {
-                            _enum: 'quadCenterState',
-                            _value: 'QCSAverage',
-                        },
-                        offset: {
-                            _obj: 'offset',
-                            horizontal: {
-                                _unit: 'pixelsUnit',
-                                _value: 0,
-                            },
-                            vertical: {
-                                _unit: 'pixelsUnit',
-                                _value: 0,
-                            },
-                        },
-                        _isCommand: true,
-                        _options: {
-                            dialogOptions: 'dontDisplay',
-                        },
-                    },
-                ],
-                {
-                    synchronousExecution: true,
-                    modalBehavior: 'execute',
-                }
-            )
-            console.log('placeEmbedd batchPlay result: ', result)
-
-            place_event_result = result[0]
-            imported_layer = await app.activeDocument.activeLayers[0]
-        })
-        return imported_layer
-    } catch (e) {
-        console.warn(e)
-    }
-
-    // return place_event_result
-}
-//REFACTOR: move to psapi.js
-async function placeImageB64ToLayer(image_path, entery) {
-    //silent importer
-
-    try {
-        console.log('placeEmbedded(): image_path: ', image_path)
-
-        const formats = require('uxp').storage.formats
-        const storage = require('uxp').storage
-        const fs = storage.localFileSystem
-
-        const names = image_path.split('/')
-        const length = names.length
-        const image_name = names[length - 1]
-        const project_name = names[length - 2]
-        let pluginFolder = await fs.getPluginFolder()
-
-        const image_dir = `./server/python_server/output/${project_name}`
-        // image_path = "output/f027258e-71b8-430a-9396-0a19425f2b44/output- 1674323725.126322.png"
-
-        let img_dir = await pluginFolder.getEntry(image_dir)
-        // const file = await img_dir.createFile('output- 1674298902.0571606.png', {overwrite: true});
-
-        const file = await img_dir.createFile(image_name, { overwrite: true })
-
-        const img = await file.read({ format: formats.binary })
-        const token = await storage.localFileSystem.createSessionToken(file)
-        let place_event_result
-        await executeAsModal(async () => {
-            const result = await batchPlay(
-                [
-                    {
-                        _obj: 'placeEvent',
-                        ID: 6,
-                        null: {
-                            _path: token,
-                            _kind: 'local',
-                        },
-                        freeTransformCenterState: {
-                            _enum: 'quadCenterState',
-                            _value: 'QCSAverage',
-                        },
-                        offset: {
-                            _obj: 'offset',
-                            horizontal: {
-                                _unit: 'pixelsUnit',
-                                _value: 0,
-                            },
-                            vertical: {
-                                _unit: 'pixelsUnit',
-                                _value: 0,
-                            },
-                        },
-                        _isCommand: true,
-                        _options: {
-                            dialogOptions: 'dontDisplay',
-                        },
-                    },
-                ],
-                {
-                    synchronousExecution: true,
-                    modalBehavior: 'execute',
-                }
-            )
-            console.log('placeEmbedd batchPlay result: ', result)
-
-            place_event_result = result[0]
-        })
-
-        return place_event_result
-    } catch (e) {
-        console.warn(e)
-    }
-}
-
-// document.getElementById('btnImageFileToLayer').addEventListener('click', placeEmbedded)
-
-// open an image in the plugin folder as new document
-//REFACTOR: move to document.js
-async function openImageAction() {
-    const storage = require('uxp').storage
-    const fs = storage.localFileSystem
-    try {
-        let pluginFolder = await fs.getPluginFolder()
-        // let theTemplate = await pluginFolder.getEntry("/image1.png");
-        //directory where all image's request folders are. one folder for each request
-        const relative_dir_path = `./server/python_server/`
-
-        const image_path = `${relative_dir_path}/${gCurrentImagePath}`
-        // 'C:/Users/abdul/Desktop/photoshop_plugins/my_plugin_1/server/python_server/output- 1670544300.95411.png'
-        let theTemplate = await pluginFolder.getEntry(image_path)
-
-        await app.open(theTemplate)
-    } catch (e) {
-        console.warn("couldn't open image ", e)
-    }
-}
-//REFACTOR: move to psapi.js
-async function openImageExe() {
-    await require('photoshop').core.executeAsModal(openImageAction)
-}
-// document.getElementById('btnImagesToLayers').addEventListener('click',openImageExe)
+// document.getElementById('btnImagesToLayers').addEventListener('click',psapi.openImageExe)
 
 // convert a layer to a smart object
 async function convertToSmartObjectAction() {
@@ -3349,239 +2151,10 @@ async function convertToSmartObjectAction() {
         {}
     )
 }
-//REFACTOR: move to psapi.js
-async function convertToSmartObjectExe() {
-    await require('photoshop').core.executeAsModal(convertToSmartObjectAction)
-}
-
-async function ImagesToLayersExe(images_paths) {
-    g_generation_session.isLoadingActive = true
-
-    await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
-    image_path_to_layer = {}
-    console.log('ImagesToLayersExe: images_paths: ', images_paths)
-    for (image_path of images_paths) {
-        gCurrentImagePath = image_path
-        console.log(gCurrentImagePath)
-        await openImageExe() //local image to new document
-        await convertToSmartObjectExe() //convert the current image to smart object
-        if (g_b_use_smart_object === false) {
-            await executeAsModal(async () => {
-                await app.activeDocument.activeLayers[0].rasterize() //rastrize the active layer
-            })
-        }
-        await stackLayers() // move the smart object to the original/old document
-        await psapi.layerToSelection(g_generation_session.selectionInfo) //transform the new smart object layer to fit selection area
-        layer = await app.activeDocument.activeLayers[0]
-        image_path_to_layer[image_path] = layer
-        // await reselect(selectionInfo)
-    }
-    return image_path_to_layer
-}
-//REFACTOR: unused, remove?
-async function silentImagesToLayersExe_old(images_info) {
-    try {
-        g_generation_session.isLoadingActive = true
-
-        await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
-        image_path_to_layer = {}
-        console.log(
-            'silentImagesToLayersExe: images_info.images_paths: ',
-            images_info.images_paths
-        )
-        // Returns a Promise that resolves after "ms" Milliseconds
-        const timer = (ms) => new Promise((res) => setTimeout(res, ms))
-
-        for (image_info of images_info) {
-            console.log(gCurrentImagePath)
-            //unselect all layers so that the imported layer get place at the top of the document
-            await psapi.unselectActiveLayersExe()
-
-            let placeEventResult
-            // if (base64_images) {
-            //     placeEventResult = await base64ToFile(base64_images) //silent import into the document
-            // } else {
-            //     placeEventResult = await placeEmbedded(image_path) //silent import into the document
-            // }
-            placeEventResult = await base64ToFile(image_info.base64) //silent import into the document
-
-            let layer = await app.activeDocument.layers.filter(
-                (l) => l.id === placeEventResult?.ID
-            )[0]
-            // await openImageExe() //local image to new document
-            // await convertToSmartObjectExe() //convert the current image to smart object
-            let timer_count = 0
-
-            // let layer = await app.activeDocument.activeLayers[0]
-            console.log('loaded layer: ', layer)
-            console.log('placeEventResult?.ID: ', placeEventResult?.ID)
-
-            while (!layer && timer_count <= 10000) {
-                await timer(100) // then the created Promise can be awaited
-                timer_count += 100
-                // layer = await app.activeDocument.activeLayers[0]
-                layer = await app.activeDocument.layers.filter(
-                    (l) => l.id === placeEventResult?.ID
-                )[0]
-                const active_layer = await app.activeDocument.activeLayers[0]
-                console.log('active_layer.id: ', active_layer.id)
-                if (active_layer.id === placeEventResult?.ID) {
-                    layer = active_layer
-                }
-
-                console.log('timer_count: ', timer_count)
-                console.log('loaded layer: ', layer)
-                console.log('placeEventResult?.ID: ', placeEventResult?.ID)
-            }
-
-            if (g_b_use_smart_object === false) {
-                await executeAsModal(async () => {
-                    await layer.rasterize() //rastrize the active layer
-                })
-            }
-
-            await psapi.selectLayersExe([layer])
-            await psapi.layerToSelection(g_generation_session.selectionInfo)
-
-            // await stackLayers() // move the smart object to the original/old document
-            // await psapi.layerToSelection(g_generation_session.selectionInfo) //transform the new smart object layer to fit selection area
-            // layer = await app.activeDocument.activeLayers[0]
-            await g_generation_session.moveToTopOfOutputGroup(layer)
-            // const output_group_id = await g_generation_session.outputGroup.id
-            // let group_index = await psapi.getLayerIndex(output_group_id)
-            // const indexOffset = 1 //1 for background, 0 if no background exist
-            // await executeAsModal(async ()=>{
-            //   await psapi.moveToGroupCommand(group_index - indexOffset, layer.id)
-
-            // })
-
-            image_path_to_layer[image_info.path] = layer
-            // await reselect(selectionInfo)
-        }
-        return image_path_to_layer
-    } catch (e) {
-        console.warn(e)
-    }
-    g_generation_session.isLoadingActive = false
-}
-//REFACTOR: move to psapi.js
-async function silentImagesToLayersExe(images_info) {
-    //use active layer instead of placeEventResult
-    try {
-        g_generation_session.isLoadingActive = true
-
-        await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo) //why do we reselect the session selection area
-        image_path_to_layer = {}
-        console.log(
-            'silentImagesToLayersExe: images_info.images_paths: ',
-            images_info.images_paths
-        )
-        // Returns a Promise that resolves after "ms" Milliseconds
-        // const timer = (ms) => new Promise((res) => setTimeout(res, ms)) //Todo: move this line to it's own utilit function
-
-        for (image_info of images_info) {
-            console.log(gCurrentImagePath)
-            //unselect all layers so that the imported layer get place at the top of the document
-            await psapi.unselectActiveLayersExe()
-
-            let imported_layer
-            // if (base64_images) {
-            //     placeEventResult = await base64ToFile(base64_images) //silent import into the document
-            // } else {
-            //     placeEventResult = await placeEmbedded(image_path) //silent import into the document
-            // }
-            // imported_layer = await base64ToFile(image_info.base64) //silent import into the document
-            const selection_info = await g_generation_session.selectionInfo
-
-            imported_layer = await io.IO.base64ToLayer(
-                image_info.base64,
-                'output_image.png',
-                selection_info.left,
-                selection_info.top,
-                selection_info.width,
-                selection_info.height
-            )
-            if (!layer_util.Layer.doesLayerExist(imported_layer)) {
-                continue //skip if the import vailed
-            }
-            // let layer = await app.activeDocument.layers.filter(
-            //     (l) => l.id === placeEventResult?.ID
-            // )[0]
-
-            let timer_count = 0
-
-            // let layer = await app.activeDocument.activeLayers[0]
-            console.log('imported_layer: ', imported_layer)
-
-            // while (timer_count <= 10000) {
-            //     await timer(100) // then the created Promise can be awaited
-            //     timer_count += 100
-            //     // layer = await app.activeDocument.activeLayers[0]
-
-            //     console.log('timer_count: ', timer_count)
-            //     console.log('loaded layer: ', imported_layer)
-            // }
-
-            if (g_b_use_smart_object === false) {
-                await executeAsModal(async () => {
-                    await imported_layer.rasterize() //rastrize the active layer
-                })
-            }
-
-            // await psapi.selectLayersExe([imported_layer])
-            // await psapi.layerToSelection(g_generation_session.selectionInfo)// not needed
-
-            await g_generation_session.moveToTopOfOutputGroup(imported_layer)
-            await psapi.setVisibleExe(imported_layer, false) // turn off the visibility for the layer
-            image_path_to_layer[image_info.path] = imported_layer
-            // await reselect(selectionInfo)
-        }
-        return image_path_to_layer
-    } catch (e) {
-        console.warn(e)
-    }
-    g_generation_session.isLoadingActive = false
-}
 
 // document.getElementById('btnLoadImages').addEventListener('click',ImagesToLayersExe)
 
 //stack layer to original document
-//REFACTOR: move to psapi.js
-async function stackLayers() {
-    //workingDoc is the project you are using stable diffusion in
-    const workingDoc = app.documents[0]
-    //you should not open two multiple projects this script assume there is only one project opened
-    const docsToStack = app.documents.filter(
-        (doc) => doc._id !== workingDoc._id
-    )
-    let docCounter = 0
-
-    // execute as modal is required for functions that change the state of Photoshop or documents
-    // think of it as a function that 'wraps' yours and tells Photoshop to go into a modal state and not allow anything to interrupt it from doing whatever is contained in the executeAsModal
-    // we also call it with the await keyword to tell JS that we want to wait for it to complete before moving on to later code (in this case there isn't any though)
-    await require('photoshop').core.executeAsModal(async () => {
-        // increment counter
-        docCounter++
-
-        // loop through other open docs
-        for (const doc of docsToStack) {
-            // flatten
-            // doc.flatten();
-
-            // rename layer with counter
-            doc.layers[0].name = `Layer ${docCounter}`
-
-            // increment counter
-            docCounter++
-
-            // duplicate layer to docZero
-            doc.layers[0].duplicate(workingDoc)
-
-            // close doc
-            await doc.closeWithoutSaving()
-        }
-    })
-}
 //REFACTOR: move to events.js
 document.getElementById('collapsible').addEventListener('click', function () {
     this.classList.toggle('active')
@@ -3638,7 +2211,7 @@ async function viewerThumbnailclickHandler(e, viewer_obj_owner) {
 function createViewerImgHtml(output_dir_relative, image_path, base64_image) {
     const img = document.createElement('img')
     // img.src = `${output_dir_relative}/${image_path}`
-    img.src = base64ToSrc(base64_image)
+    img.src = file_util.base64ToSrc(base64_image)
     img.className = 'viewer-image'
     console.log('image_path: ', image_path)
     // img.dataset.image_id = layer_id
@@ -3646,31 +2219,6 @@ function createViewerImgHtml(output_dir_relative, image_path, base64_image) {
     return img
 }
 
-//REFACTOR: move to psapi.js
-function toggleLayerVisibility(layer, b_on) {
-    try {
-        layer.visible = b_on
-    } catch (e) {
-        console.warn(e)
-    }
-}
-//REFACTOR: move to psapi.js
-async function turnMaskVisible(
-    b_mask_group_on,
-    b_white_mask_on,
-    b_solid_black_mask_on
-) {
-    //will turn a mask group, white layer mask, and the solid black layer on and off
-    try {
-        await executeAsModal(() => {
-            toggleLayerVisibility(g_mask_group, b_mask_group_on)
-            toggleLayerVisibility(g_white_mask, b_white_mask_on)
-            toggleLayerVisibility(g_solid_black_mask, b_solid_black_mask_on)
-        })
-    } catch (e) {
-        console.warn(e)
-    }
-}
 //REFACTOR: move to viewer.js
 async function loadInitImageViewerObject(
     group,
@@ -3680,7 +2228,7 @@ async function loadInitImageViewerObject(
     auto_delete,
     base64_image
 ) {
-    const initImage = g_viewer_manager.addInitImage(
+    const initImage = viewer.ViewerManager.instance().addInitImage(
         group,
         snapshot,
         solid_background,
@@ -3694,7 +2242,7 @@ async function loadInitImageViewerObject(
         base64_image
     )
     initImage.createThumbnailNew(init_img_html)
-    g_viewer_manager.init_image_container.appendChild(
+    viewer.ViewerManager.instance().init_image_container.appendChild(
         initImage.thumbnail_container
     )
     initImage.setImgHtml(init_img_html)
@@ -3708,8 +2256,8 @@ async function loadViewerImages() {
     try {
         //get the images path
         console.log(
-            'g_generation_session.image_paths_to_layers:',
-            g_generation_session.image_paths_to_layers
+            'session.GenerationSession.instance().image_paths_to_layers:',
+            session.GenerationSession.instance().image_paths_to_layers
         )
 
         const output_dir_relative = './server/python_server/'
@@ -3726,30 +2274,34 @@ async function loadViewerImages() {
         // while(container.firstChild){
         // container.removeChild(container.firstChild);
         // }
-        image_paths = Object.keys(g_generation_session.image_paths_to_layers)
+        image_paths = Object.keys(
+            session.GenerationSession.instance().image_paths_to_layers
+        )
         console.log('image_paths: ', image_paths)
         let i = 0
 
         // const viewer_layers = []
 
-        // if(g_viewer_manager.g_init_image_related_layers.hasOwnProperty('init_image_group') )
-        if (g_viewer_manager.initGroup) {
+        // if(viewer.ViewerManager.instance().g_init_image_related_layers.hasOwnProperty('init_image_group') )
+        if (viewer.ViewerManager.instance().initGroup) {
             //it means we are in an img2img related mode
 
-            const paths = Object.keys(g_viewer_manager.initImageLayersJson)
+            const paths = Object.keys(
+                viewer.ViewerManager.instance().initImageLayersJson
+            )
             for (const path of paths) {
-                if (!g_viewer_manager.hasViewerImage(path)) {
+                if (!viewer.ViewerManager.instance().hasViewerImage(path)) {
                     // const group =
-                    //     g_viewer_manager.initImageLayersJson[path].group
+                    //     viewer.ViewerManager.instance().initImageLayersJson[path].group
                     // const snapshot =
-                    //     g_viewer_manager.initImageLayersJson[path].snapshot
+                    //     viewer.ViewerManager.instance().initImageLayersJson[path].snapshot
                     // const solid_background =
-                    //     g_viewer_manager.initImageLayersJson[path]
+                    //     viewer.ViewerManager.instance().initImageLayersJson[path]
                     //         .solid_background
                     // const auto_delete =
-                    //     g_viewer_manager.initImageLayersJson[path].autoDelete
+                    //     viewer.ViewerManager.instance().initImageLayersJson[path].autoDelete
                     // const base64_image =
-                    //     g_generation_session.base64initImages[path]
+                    //     session.GenerationSession.instance().base64initImages[path]
                     // await loadInitImageViewerObject(
                     //     group,
                     //     snapshot,
@@ -3758,7 +2310,9 @@ async function loadViewerImages() {
                     //     auto_delete,
                     //     base64_image
                     // )
-                    await g_viewer_manager.loadInitImageViewerObject(path)
+                    await viewer.ViewerManager.instance().loadInitImageViewerObject(
+                        path
+                    )
 
                     // await NewViewerImageClickHandler(init_img_html, initImage) // create click handler for each images
                 }
@@ -3766,19 +2320,24 @@ async function loadViewerImages() {
         }
 
         // if (g_mask_related_layers.hasOwnProperty('mask_group')) {
-        if (g_viewer_manager.maskGroup) {
-            const path = `./server/python_server/init_images/${g_init_image_mask_name}`
-            if (!g_viewer_manager.hasViewerImage(path)) {
+        if (viewer.ViewerManager.instance().maskGroup) {
+            const path = `./server/python_server/init_images/${
+                session.GenerationSession.instance().init_image_mask_name
+            }`
+            if (!viewer.ViewerManager.instance().hasViewerImage(path)) {
                 // const group = g_mask_related_layers['mask_group']
                 // const white_mark = g_mask_related_layers['white_mark']
                 // const solid_background = g_mask_related_layers['solid_black']
 
-                const group = g_viewer_manager.maskLayersJson[path].group
+                const group =
+                    viewer.ViewerManager.instance().maskLayersJson[path].group
                 const white_mark =
-                    g_viewer_manager.maskLayersJson[path].white_mark
+                    viewer.ViewerManager.instance().maskLayersJson[path]
+                        .white_mark
                 const solid_background =
-                    g_viewer_manager.maskLayersJson[path].solid_background
-                const mask_obj = g_viewer_manager.addMask(
+                    viewer.ViewerManager.instance().maskLayersJson[path]
+                        .solid_background
+                const mask_obj = viewer.ViewerManager.instance().addMask(
                     group,
                     white_mark,
                     solid_background,
@@ -3787,8 +2346,8 @@ async function loadViewerImages() {
 
                 const mask_img_html = createViewerImgHtml(
                     './server/python_server/init_images/',
-                    g_init_image_mask_name,
-                    g_generation_session.base64maskImage[path]
+                    session.GenerationSession.instance().init_image_mask_name,
+                    session.GenerationSession.instance().base64maskImage[path]
                 )
 
                 mask_obj.createThumbnailNew(mask_img_html)
@@ -3810,30 +2369,34 @@ async function loadViewerImages() {
         for (const path of image_paths) {
             // const path = image_path
             //check if viewer obj already exist by using the path on hard drive
-            if (!g_viewer_manager.hasViewerImage(path)) {
+            if (!viewer.ViewerManager.instance().hasViewerImage(path)) {
                 //create viewer object if it doesn't exist
 
                 //create an html image element and attach it container, and link it to the viewer obj
 
-                const layer = g_generation_session.image_paths_to_layers[path]
+                const layer =
+                    session.GenerationSession.instance().image_paths_to_layers[
+                        path
+                    ]
                 const img = createViewerImgHtml(
                     output_dir_relative,
                     path,
-                    g_generation_session.base64OutputImages[path]
+                    session.GenerationSession.instance().base64OutputImages[
+                        path
+                    ]
                 )
-                const output_image_obj = g_viewer_manager.addOutputImage(
-                    layer,
-                    path
-                )
+                const output_image_obj =
+                    viewer.ViewerManager.instance().addOutputImage(layer, path)
                 lastOutputImage = output_image_obj
                 const b_button_visible =
-                    g_generation_session.mode !== generationMode['Txt2Img']
+                    session.GenerationSession.instance().mode !==
+                    Enum.generationMode['Txt2Img']
                         ? true
                         : false
 
                 output_image_obj.createThumbnailNew(img, b_button_visible)
                 // output_image_obj.setImgHtml(img)
-                // if (g_generation_session.mode !== generationMode['Txt2Img']) {
+                // if (session.GenerationSession.instance().mode !== generationMode['Txt2Img']) {
                 //     //we don't need a button in txt2img mode
                 //     // output_image_obj.addButtonHtml()
                 // }
@@ -3867,49 +2430,6 @@ async function loadViewerImages() {
         console.error(`loadViewer images: `, e)
     }
 }
-//REFACTOR: move to session.js
-async function deleteNoneSelected(viewer_objects) {
-    try {
-        // visible layer
-        //delete all hidden layers
-
-        await executeAsModal(async () => {
-            for (const [path, viewer_object] of Object.entries(
-                viewer_objects
-            )) {
-                try {
-                    // if (viewer_object.getHighlight() || viewer_object.is_active){//keep it if it's highlighted
-                    // const path = viewer_object.path
-
-                    viewer_object.visible(true) //make them visiable on the canvas
-
-                    await viewer_object.delete() //delete the layer from layers stack
-
-                    //   if(viewer_object.state ===  viewer.ViewerObjState['Unlink']){
-                    //   viewer_object.unlink() // just delete the html image but keep the layer in the layers stack
-                    //   viewer_object.visible(true)//make them visiable on the canvas
-                    // }else if(viewer_object.state === viewer.ViewerObjState['Delete']){// delete it if it isn't  highlighted
-                    //   await viewer_object.delete()//delete the layer from layers stack
-
-                    // }
-                    delete g_generation_session.image_paths_to_layers[path]
-                } catch (e) {
-                    console.warn(e)
-                }
-            }
-
-            //Refactor: move to viewerManager.onSessionEnd()
-            g_viewer_manager.pathToViewerImage = {}
-            g_viewer_manager.initImageLayersJson = {}
-            g_viewer_manager.outputImages = []
-            //
-
-            g_generation_session.image_paths_to_layers = {}
-        })
-    } catch (e) {
-        console.warn(e)
-    }
-}
 
 // document.getElementById('btnLoadViewer').addEventListener('click', loadViewerImages)
 //REFACTOR: move to events.js
@@ -3921,7 +2441,7 @@ document
             const container = document.getElementById(
                 'divHistoryImagesContainer'
             )
-            const uniqueDocumentId = await getUniqueDocumentId()
+            const uniqueDocumentId = await document_util.getUniqueDocumentId()
             const [image_paths, metadata_jsons, base64_images] =
                 await sdapi.loadHistory(uniqueDocumentId)
 
@@ -3971,7 +2491,7 @@ document
             console.warn(`loadHistory warning: ${e}`)
         }
     })
-//REFACTOR: move to document.js
+//REFACTOR: move to document_util.js
 function getHistoryMetadata(img) {
     //auto fill the ui with metadata
     const metadata_json = JSON.parse(img.dataset.metadata_json_string)
@@ -4000,7 +2520,7 @@ function getHistoryMetadata(img) {
     // autoFillInSettings(metadata_json)
     g_ui_settings.autoFillInSettings(metadata_json)
 }
-//REFACTOR: move to document.js
+//REFACTOR: move to document_util.js
 async function moveHistoryImageToLayer(img) {
     let image_path = img.dataset.path
     const image_path_escape = image_path.replace(/\o/g, '/o') //escape string "\o" in "\output"
@@ -4067,7 +2587,7 @@ document
             console.warn(`imageSearch warning: ${e}`)
         }
     })
-//REFACTOR: move to document.js
+//REFACTOR: move to document_util.js
 async function loadPromptShortcut() {
     try {
         let prompt_shortcut = await sdapi.loadPromptShortcut()
@@ -4264,7 +2784,7 @@ document
             console.warn(e)
         }
     })
-//REFACTOR: move to document.js
+//REFACTOR: move to document_util.js
 async function downloadIt(link, writeable_entry, image_file_name) {
     const image = await fetch(link)
     console.log(link)
@@ -4304,7 +2824,7 @@ async function downloadIt(link, writeable_entry, image_file_name) {
         console.warn(e)
     }
 }
-//REFACTOR: move to document.js
+//REFACTOR: move to document_util.js
 async function downloadItExe(link, writeable_entry, image_file_name) {
     let new_layer
     await executeAsModal(async () => {
@@ -4317,32 +2837,21 @@ async function downloadItExe(link, writeable_entry, image_file_name) {
     return new_layer
 }
 
-//REFACTOR: move to session.js or selection.js
-async function activateSessionSelectionArea() {
-    try {
-        if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
-            await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
-            await eventHandler()
-        }
-    } catch (e) {
-        console.warn(e)
-    }
-}
 //REFACTOR: move to events.js
 document
     .getElementById('btnSelectionArea')
     .addEventListener('click', async () => {
         // try {
-        //     if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
+        //     if (psapi.isSelectionValid(session.GenerationSession.instance().selectionInfo)) {
         //         await psapi.reSelectMarqueeExe(
-        //             g_generation_session.selectionInfo
+        //             session.GenerationSession.instance().selectionInfo
         //         )
         //         await eventHandler()
         //     }
         // } catch (e) {
         //     console.warn(e)
         // }
-        await activateSessionSelectionArea()
+        await session.GenerationSession.instance().activateSessionSelectionArea()
     })
 //REFACTOR: move to ui.js
 function addPresetMenuItem(preset_title) {
@@ -4388,13 +2897,12 @@ document
             }
         }
     })
-//REFACTOR: move to psapi.js
-function base64ToSrc(base64_image) {
-    const image_src = `data:image/png;base64, ${base64_image}`
-    return image_src
-}
 
 const py_re = require('./utility/sdapi/python_replacement')
+const { UI } = require('./utility/ui')
+const GenerationSettings = require('./utility/generation_settings')
+const document_util = require('./utility/document_util')
+const file_util = require('./utility/file_util')
 
 function getDimensions(image) {
     return new Promise((resolve, reject) => {
@@ -4418,15 +2926,15 @@ function scaleThumbnailsEvenHandler(scale_index, max_index, min_index) {
     const slider_max = max_index
     const slider_min = min_index
     const scaler_value = general.mapRange(scale_index, 0, slider_max, 0, 2)
-    g_viewer_manager.thumbnail_scaler = scaler_value
+    viewer.ViewerManager.instance().thumbnail_scaler = scaler_value
 
     try {
-        g_viewer_manager.scaleThumbnails(
+        viewer.ViewerManager.instance().scaleThumbnails(
             0,
             0,
             0,
             0,
-            g_viewer_manager.thumbnail_scaler
+            viewer.ViewerManager.instance().thumbnail_scaler
         )
     } catch (e) {
         console.warn(e)
@@ -4447,9 +2955,9 @@ document
     .getElementById('chSquareThumbnail')
     .addEventListener('click', (evt) => {
         if (evt.target.checked) {
-            g_viewer_manager.isSquareThumbnail = true
+            viewer.ViewerManager.instance().isSquareThumbnail = true
         } else {
-            g_viewer_manager.isSquareThumbnail = false
+            viewer.ViewerManager.instance().isSquareThumbnail = false
         }
         const thumbnail_size_slider = document.getElementById('slThumbnailSize')
         scaleThumbnailsEvenHandler(
@@ -4484,67 +2992,13 @@ Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
     }
 })
 //REFACTOR: move to ui.js
-async function updateResDifferenceLabel() {
-    const ratio = await selection.Selection.getImageToSelectionDifference()
-    const arrow = ratio >= 1 ? '↑' : '↓'
-    let final_ratio = ratio // this ratio will always be >= 1
-    if (ratio >= 1) {
-        // percentage = percentage >= 1 ? percentage : 1 / percentage
-
-        // const percentage_str = `${arrow}X${percentage.toFixed(2)}`
-
-        // console.log('scale_info_str: ', scale_info_str)
-        // console.log('percentage_str: ', percentage_str)
-        document
-            .getElementById('res-difference')
-            .classList.remove('res-decrease')
-    } else {
-        final_ratio = 1 / ratio
-        document.getElementById('res-difference').classList.add('res-decrease')
-    }
-    const ratio_str = `${arrow}x${final_ratio.toFixed(2)}`
-    document.getElementById('res-difference').innerText = ratio_str
-}
 //REFACTOR: move to events.js
 document
     .getElementById('btnSaveHordeSettings')
     .addEventListener('click', async () => {
         await horde_native.HordeSettings.saveSettings()
     })
-//REFACTOR: move to psapi.js
-async function getColor(X, Y) {
-    // const background_layer_id = await app.activeDocument.backgroundLayer.id
-
-    const batchPlay = require('photoshop').action.batchPlay
-    try {
-        const result = await batchPlay(
-            [
-                {
-                    _obj: 'colorSampler',
-                    _target: {
-                        _ref: 'document',
-                        _enum: 'ordinal',
-                        _value: 'targetEnum',
-                    },
-                    samplePoint: {
-                        horizontal: X,
-                        vertical: Y,
-                    },
-                },
-            ],
-            {}
-        )
-
-        const red = result[0].colorSampler.red
-        const green = result[0].colorSampler.grain
-        const blue = result[0].colorSampler.blue
-
-        return [red, green, blue]
-    } catch (e) {
-        console.warn(e)
-    }
-}
-//REFACTOR: move to document.js
+//REFACTOR: move to document_util.js
 async function findDocumentType() {
     //check if the background layer exsit
     //if it doesn't return false
@@ -4583,7 +3037,7 @@ async function findDocumentType() {
                     let x = Math.floor(Math.random() * width)
                     let y = Math.floor(Math.random() * height)
 
-                    const rgb = await getColor(x, y)
+                    const rgb = await psapi.getColor(x, y)
                     if (old_rgb) {
                         if (
                             Math.round(old_rgb[0]) === Math.round(rgb[0]) &&
@@ -4611,7 +3065,7 @@ async function findDocumentType() {
 
     return document_type
 }
-//REFACTOR: move to document.js
+//REFACTOR: move to document_util.js
 async function correctDocumentType(documentType) {
     if (documentType === Enum.DocumentTypeEnum['SolidBackground']) {
         //do nothing
@@ -4622,7 +3076,7 @@ async function correctDocumentType(documentType) {
                 await app.activeDocument.backgroundLayer.duplicate() //
             image_layer.name = 'Image'
             await app.activeDocument.backgroundLayer.delete()
-            await layer_util.createBackgroundLayer(255, 255, 255)
+            await psapi.createBackgroundLayer(255, 255, 255)
         })
     } else if (documentType === Enum.DocumentTypeEnum['ArtBoard']) {
         //duplicate the layer
@@ -4631,7 +3085,7 @@ async function correctDocumentType(documentType) {
         )
         throw "the plugin doesn't work with artboards, create normal document with no artboard to use the plugin"
     } else if (documentType === Enum.DocumentTypeEnum['NoBackground']) {
-        await layer_util.createBackgroundLayer(255, 255, 255)
+        await psapi.createBackgroundLayer(255, 255, 255)
     }
 }
 
@@ -4649,39 +3103,6 @@ document
     .addEventListener('click', async () => {
         await horde_native.HordeSettings.saveSettings()
     })
-
-async function getColor(X, Y) {
-    // const background_layer_id = await app.activeDocument.backgroundLayer.id
-
-    const batchPlay = require('photoshop').action.batchPlay
-    try {
-        const result = await batchPlay(
-            [
-                {
-                    _obj: 'colorSampler',
-                    _target: {
-                        _ref: 'document',
-                        _enum: 'ordinal',
-                        _value: 'targetEnum',
-                    },
-                    samplePoint: {
-                        horizontal: X,
-                        vertical: Y,
-                    },
-                },
-            ],
-            {}
-        )
-
-        const red = result[0].colorSampler.red
-        const green = result[0].colorSampler.grain
-        const blue = result[0].colorSampler.blue
-
-        return [red, green, blue]
-    } catch (e) {
-        console.warn(e)
-    }
-}
 
 // async function findDocumentType() {
 //     //check if the background layer exsit
@@ -4757,7 +3178,7 @@ async function correctDocumentType(documentType) {
                 await app.activeDocument.backgroundLayer.duplicate() //
             image_layer.name = 'Image'
             await app.activeDocument.backgroundLayer.delete()
-            await layer_util.createBackgroundLayer(255, 255, 255)
+            await psapi.createBackgroundLayer(255, 255, 255)
         })
     } else if (documentType === Enum.DocumentTypeEnum['ArtBoard']) {
         //duplicate the layer
@@ -4766,7 +3187,7 @@ async function correctDocumentType(documentType) {
         )
         throw "the plugin doesn't work with artboards, create normal document with no artboard to use the plugin"
     } else if (documentType === Enum.DocumentTypeEnum['NoBackground']) {
-        await layer_util.createBackgroundLayer(255, 255, 255)
+        await psapi.createBackgroundLayer(255, 255, 255)
     }
 }
 

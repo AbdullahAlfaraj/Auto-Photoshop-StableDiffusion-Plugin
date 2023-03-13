@@ -2,25 +2,28 @@ const app = window.require('photoshop').app
 
 const batchPlay = require('photoshop').action.batchPlay
 const psapi = require('./psapi')
+const viewer = require('./viewer')
+const session = require('./utility/session')
+const selection = require('./selection')
+const { executeAsModal } = require('photoshop').core
 
 async function moveLayersToGroup(group_id) {
     const activeLayers = await app.activeDocument.activeLayers
     const layerIDs = activeLayers.map((layer) => layer.id)
-    const { executeAsModal } = require('photoshop').core
     await executeAsModal(async () => {
         await psapi.moveToGroupCommand(group_id, layerIDs)
     })
 }
 
 async function createSnapshot() {
-    const { executeAsModal } = require('photoshop').core
+    // const { executeAsModal } = require('photoshop').core
     //get all layers,
     //duplicate the layers
     //create a group
     //move the duplicate layers to the group
     let snapshotLayer, snapshotGroup
     try {
-        const selectionInfo = await psapi.getSelectionInfoExe()
+        const selectionInfo = await selection.Selection.getSelectionInfoExe()
         await psapi.unSelectMarqueeExe()
 
         //get all layers
@@ -60,7 +63,7 @@ async function createSnapshot() {
             console.log('createSnapshot, layerIDs:', layerIDs)
 
             //select the layer since layerIDs don't seem to have an affect on moveToGroupCommand(), don't know why!!!!
-            psapi.selectLayers(duplicatedLayers)
+            await psapi.selectLayers(duplicatedLayers)
             let group_index = await psapi.getLayerIndex(groupLayer.id)
 
             await psapi.moveToGroupCommand(group_index - indexOffset, layerIDs)
@@ -81,7 +84,7 @@ async function createSnapshot() {
                 []
             )
             await psapi.selectLayers([snapshotGroup])
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
             await psapi.createMaskExe()
             //   await psapi.selectLayerChannelCommand()
             //   await psapi.createSolidLayer(0, 0, 0)
@@ -94,7 +97,7 @@ async function createSnapshot() {
 }
 
 function executeCommand(batchPlayCommandFunc) {
-    const { executeAsModal } = require('photoshop').core
+    // const { executeAsModal } = require('photoshop').core
     try {
         executeAsModal(async () => {
             await batchPlayCommandFunc()
@@ -118,7 +121,8 @@ async function snapAndFillExe(session_id) {
                 documentID: app.activeDocument.id, //TODO: change this to the session document id
                 name: 'Img2Img layers',
             })
-            const selectionInfo = await psapi.getSelectionInfoExe()
+            const selectionInfo =
+                await selection.Selection.getSelectionInfoExe()
             // await psapi.unSelectMarqueeExe()
 
             //create a snapshot of canvas
@@ -140,11 +144,11 @@ async function snapAndFillExe(session_id) {
             ])
 
             //create a snapshot of mask
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
             // let [snapshotMaskLayer,snapshotMaskGroup] = await createSnapshot()
 
             await psapi.selectLayers([snapshotGroup])
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
             await psapi.createClippingMaskExe()
 
             await psapi.selectLayers([snapshotGroup])
@@ -155,14 +159,15 @@ async function snapAndFillExe(session_id) {
             // g_init_image_related_layers['init_image_layer'] = snapshotLayer
             // g_init_image_related_layers['solid_white'] = whiteSolidLayer
 
-            const image_info = await psapi.silentSetInitImage(
-                snapshotGroup,
-                session_id
-            )
+            const image_info =
+                await session.GenerationSession.instance().silentSetInitImage(
+                    snapshotGroup,
+                    session_id
+                )
             const image_name = image_info['name']
             const path = `./server/python_server/init_images/${image_name}`
 
-            g_viewer_manager.initializeInitImage(
+            viewer.ViewerManager.instance().initializeInitImage(
                 snapshotGroup,
                 snapshotLayer,
                 whiteSolidLayer,
@@ -172,9 +177,8 @@ async function snapAndFillExe(session_id) {
             for (layer of snapAndFillLayers) {
                 layer.visible = false
             }
-            await psapi.reSelectMarqueeExe(selectionInfo)
-            const layer_util = require('./utility/layer')
-            await layer_util.collapseFolderExe([snapshotGroup], false)
+            await selection.reSelectMarqueeExe(selectionInfo)
+            await psapi.collapseFolderExe([snapshotGroup], false)
             await context.hostControl.resumeHistory(history_id)
         })
         console.log('snapAndFillLayers: ', snapAndFillLayers)
@@ -187,10 +191,10 @@ async function snapAndFillExe(session_id) {
 
 async function addClippingMaskToLayer(layer, selectionInfo) {
     await psapi.selectLayers([layer]) //select the layer
-    await psapi.reSelectMarqueeExe(selectionInfo) //reselect the selection
+    await selection.reSelectMarqueeExe(selectionInfo) //reselect the selection
     await psapi.createClippingMaskExe() //this will create an cliping mask and select the mask of the layer
     await psapi.selectLayers([layer]) //reselect the layer instead of the mask
-    await psapi.reSelectMarqueeExe(selectionInfo) //reselect the selection
+    await selection.reSelectMarqueeExe(selectionInfo) //reselect the selection
 
     ////test addClippingMaskToLayer
     // await executeAsModal(
@@ -213,7 +217,8 @@ async function outpaintExe(session_id) {
                 documentID: app.activeDocument.id, //TODO: change this to the session document id
                 name: 'Outpaint Mask Related layers',
             })
-            const selectionInfo = await psapi.getSelectionInfoExe()
+            const selectionInfo =
+                await selection.Selection.getSelectionInfoExe()
             // await psapi.unSelectMarqueeExe()
 
             //create a snapshot of canvas
@@ -241,7 +246,7 @@ async function outpaintExe(session_id) {
             await psapi.createSolidLayer(0, 0, 0)
             let solid_black_layer = app.activeDocument.activeLayers[0]
             //create a snapshot of mask
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
             // let [snapshotMaskLayer,snapshotMaskGroup] = await createSnapshot()
             await psapi.snapshot_layerExe()
             const snapshotMaskLayer = await app.activeDocument.activeLayers[0]
@@ -256,32 +261,34 @@ async function outpaintExe(session_id) {
 
             await addClippingMaskToLayer(snapshotGroup, selectionInfo)
 
-            const mask_info = await psapi.silentSetInitImageMask(
-                snapshotMaskGroup,
-                session_id
-            )
+            const mask_info =
+                await session.GenerationSession.instance().silentSetInitImageMask(
+                    snapshotMaskGroup,
+                    session_id
+                )
             snapshotMaskGroup.visible = false
 
-            const image_info = await psapi.silentSetInitImage(
-                snapshotGroup,
-                session_id
-            )
+            const image_info =
+                await session.GenerationSession.instance().silentSetInitImage(
+                    snapshotGroup,
+                    session_id
+                )
             snapshotGroup.visible = false
 
             const init_image_name = image_info['name']
             const init_path = `./server/python_server/init_images/${init_image_name}`
 
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
 
             await addClippingMaskToLayer(snapshotMaskGroup, selectionInfo)
 
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
 
             // await psapi.silentSetInitImageMask(snapshotMaskGroup,session_id)
 
             const mask_name = mask_info['name']
             const mask_path = `./server/python_server/init_images/${mask_name}`
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
             //set initial image
             //set mask image
             outpaintLayers = [
@@ -294,7 +301,7 @@ async function outpaintExe(session_id) {
             // g_mask_related_layers['mask_group'] = snapshotMaskGroup
             // g_mask_related_layers['white_mark'] = snapshotMaskLayer
             // // g_mask_related_layers['solid_black'] = blackSolidLayer
-            g_viewer_manager.initializeMask(
+            viewer.ViewerManager.instance().initializeMask(
                 snapshotMaskGroup,
                 snapshotMaskLayer,
                 null,
@@ -304,7 +311,7 @@ async function outpaintExe(session_id) {
             // g_init_image_related_layers['init_image_group'] = snapshotGroup
             // g_init_image_related_layers['init_image_layer'] = snapshotLayer
             // g_init_image_related_layers['solid_white'] = whiteSolidLayer
-            g_viewer_manager.initializeInitImage(
+            viewer.ViewerManager.instance().initializeInitImage(
                 snapshotGroup,
                 snapshotLayer,
                 whiteSolidLayer,
@@ -316,8 +323,7 @@ async function outpaintExe(session_id) {
             }
 
             //collapse the folders
-            const layer_util = require('./utility/layer')
-            await layer_util.collapseFolderExe(
+            await psapi.collapseFolderExe(
                 [snapshotGroup, snapshotMaskGroup],
                 false
             )
@@ -349,7 +355,8 @@ async function inpaintFasterExe(session_id) {
                 .activeLayers[0]
             original_white_mark_layer.visible = false
 
-            const selectionInfo = await psapi.getSelectionInfoExe()
+            const selectionInfo =
+                await selection.Selection.getSelectionInfoExe()
 
             //duplicate the current active layer and use it as the white mark layer
             const white_mark_layer =
@@ -358,9 +365,9 @@ async function inpaintFasterExe(session_id) {
             const mask_layer_opacity = await white_mark_layer.opacity
             white_mark_layer.opacity = 100 //make sure the opacity is full
             await psapi.selectLayers([white_mark_layer])
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
             await psapi.createClippingMaskExe()
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
 
             white_mark_layer.visible = false
             white_mark_layer.name = 'Mask -- Paint White to Mask -- temporary'
@@ -384,9 +391,9 @@ async function inpaintFasterExe(session_id) {
             await snapshotLayer.moveAbove(whiteSolidLayer)
 
             await psapi.selectLayers([snapshotGroup])
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
             await psapi.createClippingMaskExe()
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
 
             const maskGroup = await psapi.createEmptyGroup()
             // maskGroup.name = `${maskGroup.name}_mask`
@@ -399,7 +406,7 @@ async function inpaintFasterExe(session_id) {
             // snapshotLayer.moveAbove(blackSolidLayer)
             white_mark_layer.moveAbove(blackSolidLayer)
             white_mark_layer.visible = true
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
 
             console.log('[snapshotLayer,maskGroup]:', [
                 snapshotLayer,
@@ -425,34 +432,36 @@ async function inpaintFasterExe(session_id) {
             // solid_black_layer.delete()
 
             await psapi.selectLayers([maskGroup])
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
             await psapi.createClippingMaskExe()
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
 
             // await psapi.selectLayers([snapshotGroup])
 
             await psapi.selectLayers([maskGroup])
             // await psapi.silentSetInitImageMask(maskGroup,session_id)
-            const mask_info = await psapi.silentSetInitImageMask(
-                maskGroup,
-                session_id
-            )
+            const mask_info =
+                await session.GenerationSession.instance().silentSetInitImageMask(
+                    maskGroup,
+                    session_id
+                )
             maskGroup.visible = false
             //hide the mask so you can take screenshot of the init image
             const mask_name = mask_info['name']
             const mask_path = `./server/python_server/init_images/${mask_name}`
 
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
             await psapi.selectLayers([snapshotGroup])
 
-            const image_info = await psapi.silentSetInitImage(
-                snapshotGroup,
-                session_id
-            )
+            const image_info =
+                await session.GenerationSession.instance().silentSetInitImage(
+                    snapshotGroup,
+                    session_id
+                )
             const image_name = image_info['name']
             const path = `./server/python_server/init_images/${image_name}`
 
-            await psapi.reSelectMarqueeExe(selectionInfo)
+            await selection.reSelectMarqueeExe(selectionInfo)
             // await psapi.selectLayers([snapshotMaskGroup])
             // await psapi.setInitImageMask(snapshotMaskGroup)
             // //set initial image
@@ -470,7 +479,7 @@ async function inpaintFasterExe(session_id) {
             // g_mask_related_layers['mask_group'] = maskGroup
             // g_mask_related_layers['white_mark'] = white_mark_layer
             // g_mask_related_layers['solid_black'] = blackSolidLayer
-            g_viewer_manager.initializeMask(
+            viewer.ViewerManager.instance().initializeMask(
                 maskGroup,
                 white_mark_layer,
                 blackSolidLayer,
@@ -480,7 +489,7 @@ async function inpaintFasterExe(session_id) {
             // g_init_image_related_layers['init_image_group'] = snapshotGroup
             // g_init_image_related_layers['init_image_layer'] = snapshotLayer
             // g_init_image_related_layers['solid_white'] = whiteSolidLayer
-            g_viewer_manager.initializeInitImage(
+            viewer.ViewerManager.instance().initializeInitImage(
                 snapshotGroup,
                 snapshotLayer,
                 whiteSolidLayer,
@@ -489,12 +498,7 @@ async function inpaintFasterExe(session_id) {
             for (layer of inpaintLayers) {
                 layer.visible = false
             }
-            const layer_util = require('./utility/layer')
-
-            await layer_util.collapseFolderExe(
-                [snapshotGroup, maskGroup],
-                false
-            )
+            await psapi.collapseFolderExe([snapshotGroup, maskGroup], false)
             white_mark_layer.opacity = mask_layer_opacity // restore the opacity
             // original_white_mark_layer.visible = true// leave it off so we can toggle using the viewer manager
             await context.hostControl.resumeHistory(history_id)
@@ -505,6 +509,28 @@ async function inpaintFasterExe(session_id) {
     }
     return []
 }
+
+async function snapAndFillHandler() {
+    try {
+        const isSelectionAreaValid = await psapi.checkIfSelectionAreaIsActive()
+        if (isSelectionAreaValid) {
+            if (session.GenerationSession.instance().isFirstGeneration) {
+                // create new layers related to the current mask operation.
+                await executeAsModal(async () => {
+                    // g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
+                    await snapAndFillExe(
+                        session.GenerationSession.instance().random_session_id
+                    )
+                })
+            }
+        } else {
+            await psapi.promptForMarqueeTool()
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
 module.exports = {
     createSnapshot,
 
@@ -514,5 +540,6 @@ module.exports = {
     // outpaintFasterExe,
     inpaintFasterExe,
     snapAndFillExe,
+    snapAndFillHandler,
     addClippingMaskToLayer,
 }

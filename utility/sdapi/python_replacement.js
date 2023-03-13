@@ -2,6 +2,9 @@
 const settings_tab = require('../tab/settings')
 const { getPromptShortcut } = require('../html_manip')
 const general = require('../general')
+const document_util = require('../document_util')
+const file_util = require('../file_util')
+const settings = require('../tab/settings')
 // function newOutputImageName(format = 'png') {
 //     const random_id = Math.floor(Math.random() * 100000000000 + 1) // Date.now() doesn't have enough resolution to avoid duplicate
 //     const image_name = `output- ${Date.now()}-${random_id}.${format}`
@@ -46,7 +49,7 @@ async function getAuto1111Metadata(base64_image) {
     try {
         console.log('getAuto1111Metadata: ')
 
-        const full_url = `${g_sd_url}/sdapi/v1/png-info`
+        const full_url = `${settings.sd_url}/sdapi/v1/png-info`
 
         const payload = {
             image: 'data:image/png;base64,' + base64_image,
@@ -147,7 +150,7 @@ async function txt2ImgRequest(payload) {
     try {
         console.log('txt2ImgRequest(): about to send a fetch request')
 
-        const full_url = `${g_sd_url}/${endpoint}`
+        const full_url = `${settings.sd_url}/${endpoint}`
         console.log(full_url)
 
         let request = await fetch(full_url, {
@@ -185,10 +188,6 @@ async function txt2ImgRequest(payload) {
                 auto_metadata_json = {} // set the metadata to empty if there an error while getting the metadata
             }
 
-            // response2 = await client.post(url=f'{sd_url}/sdapi/v1/png-info', json=png_payload)
-            // pnginfo = PngImagePlugin.PngInfo()
-            // pnginfo.add_text("parameters", response2.json().get("info"))
-
             const image_name = general.newOutputImageName()
             const image_path = `${uniqueDocumentId}/${image_name}`
 
@@ -225,7 +224,7 @@ function getExtensionUrl() {
     const extension_type = settings_tab.getExtensionType()
     let extension_url
     if (extension_type === 'auto1111_extension') {
-        extension_url = `${g_sd_url}/sdapi/auto-photoshop-sd`
+        extension_url = `${settings.sd_url}/sdapi/auto-photoshop-sd`
     } else if (extension_type === 'proxy_server') {
         extension_url = 'http://127.0.0.1:8000'
     } else {
@@ -262,9 +261,6 @@ async function openUrlRequest(url) {
     }
 }
 async function maskExpansionRequest(original_mask, mask_expansion_value) {
-    // const endpoint = 'sdapi/v1/img2img'
-    // const full_url = `${g_sd_url}/${endpoint}`
-
     try {
         const payload = {
             mask: original_mask,
@@ -431,8 +427,8 @@ async function loadHistory(payload) {
     // const uniqueDocumentId = payload['uniqueDocumentId']
     // const uniqueDocumentId = await getUniqueDocumentId()
 
-    const uuid = await getUniqueDocumentId()
-    const doc_entry = await getDocFolder(uuid)
+    const uuid = await document_util.getUniqueDocumentId()
+    const doc_entry = await document_util.getDocFolder(uuid)
     const output_images_entries = await getOutputImagesEntries(doc_entry)
     history['image_paths'] = []
     history['metadata_jsons'] = []
@@ -446,7 +442,7 @@ async function loadHistory(payload) {
         history['metadata_jsons'].push(metadata_json)
 
         const arrayBuffer = await output_entry.read({ format: formats.binary })
-        const base64_image = _arrayBufferToBase64(arrayBuffer) //convert the buffer to base64
+        const base64_image = file_util._arrayBufferToBase64(arrayBuffer) //convert the buffer to base64
 
         // const base64 =
         history['base64_images'].push(base64_image)

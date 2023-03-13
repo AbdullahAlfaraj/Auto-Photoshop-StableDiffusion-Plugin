@@ -2,19 +2,19 @@ const { unselectActiveLayers } = require('./psapi')
 
 const app = window.require('photoshop').app
 
-function getActiveLayer() {
-    let activeLayers = app.activeDocument.activeLayers
-    // console.dir(getSize())
-    for (const layer of activeLayers) {
-        console.dir({ layer })
-        const name = layer.name
-        console.dir({ name })
-        let layer_size = getLayerSize(layer)
-        console.dir({ layer_size })
-    }
-
-    return activeLayers[0]
-}
+// function getActiveLayer() {
+//     let activeLayers = app.activeDocument.activeLayers
+//     // console.dir(getSize())
+//     for (const layer of activeLayers) {
+//         console.dir({ layer })
+//         const name = layer.name
+//         console.dir({ name })
+//         let layer_size = getLayerSize(layer)
+//         console.dir({ layer_size })
+//     }
+//
+//     return activeLayers[0]
+// }
 
 function getSize() {
     let doc = app.activeDocument
@@ -69,7 +69,7 @@ async function reselectBatchPlay(selectionInfo) {
 async function reselect(selectionInfo) {
     await executeAsModal(
         async () => {
-            reselectBatchPlay(selectionInfo)
+            await reselectBatchPlay(selectionInfo)
         },
         { commandName: 'reselect' }
     )
@@ -105,6 +105,36 @@ async function unSelect() {
     )
 
     return result
+}
+
+function getSelectedText() {
+    const promptTextarea = document.querySelector('#taPrompt')
+    console.log('promptTextarea: ', promptTextarea.value)
+    const start = promptTextarea.selectionStart
+    console.log('start: ', start)
+}
+
+function getCommentedString() {
+    let text = `Visit /*W3Schools 
+  cute, girl, painterly   
+  */ any text
+  and prompt
+
+
+
+
+ cute cat  /*by greg 
+
+  and artgerm 
+  
+   */ and famous artist`
+    console.log('getCommentedString: text: ', text)
+
+    // let pattern = /(\/)(\*)(\s|\S)*\*\\/g;
+    let pattern = /(\/)(\*)(\s|\S)*?(\*\/)/g
+
+    let result = text.match(pattern)
+    console.log('getCommentedString: ', result)
 }
 
 /**

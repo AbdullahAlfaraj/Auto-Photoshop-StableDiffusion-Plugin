@@ -1,6 +1,9 @@
 const dialog_box = require('../dialog_box')
 const psapi = require('../psapi')
-const { createBackgroundLayer } = require('./layer')
+const selection = require('../selection')
+const Enum = require('../enum')
+const session = require('./session')
+const app = window.require('photoshop').app
 class Notification {
     static {}
     static async webuiIsOffline() {
@@ -53,16 +56,17 @@ class Notification {
                 return false
             } else if (r1 === 'Create') {
                 //store the selection area and then unselected
-                const selectionInfo = await psapi.getSelectionInfoExe()
+                const selectionInfo =
+                    await selection.Selection.getSelectionInfoExe()
                 await psapi.unSelectMarqueeExe()
                 const active_layers = app.activeDocument.activeLayers
 
                 //create a background layer with no selection active
-                await createBackgroundLayer()
+                await psapi.createBackgroundLayer()
                 console.log('create background layer')
                 //reselect the selection area if it exist
 
-                await psapi.reSelectMarqueeExe(selectionInfo)
+                await selection.reSelectMarqueeExe(selectionInfo)
                 await psapi.selectLayersExe(active_layers)
                 return true
             }
@@ -87,16 +91,26 @@ class Notification {
             return false
         } else if (r1 === 'Rectangular Marquee') {
             console.log('Rectangular Marquee')
-            psapi.selectMarqueeRectangularToolExe()
+            await psapi.selectMarqueeRectangularToolExe()
             return false // should this be false?! what does true and false means in this context?! Yes: it should be false since boolean value represent wither we have an active selection area or not
         } else if (r1 === 'Continue Session') {
-            await activateSessionSelectionArea()
+            await session.GenerationSession.instance().activateSessionSelectionArea()
             return true
         }
         return false
     }
 }
+async function displayWebUIStatusNotification(automatic_status) {
+    if (automatic_status === Enum.AutomaticStatusEnum['RunningWithApi']) {
+        //do nothing
+    } else if (automatic_status === Enum.AutomaticStatusEnum['RunningNoApi']) {
+        await Notification.webuiAPIMissing()
+    } else if (automatic_status === Enum.AutomaticStatusEnum['Offline']) {
+        await Notification.webuiIsOffline()
+    }
+}
 
 module.exports = {
     Notification,
+    displayWebUIStatusNotification,
 }

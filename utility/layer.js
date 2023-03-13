@@ -1,40 +1,7 @@
 const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
-const {
-    cleanLayers,
-    getLayerIndex,
-    selectLayers,
-    unSelectMarqueeCommand,
-    unSelectMarqueeExe,
-    getSelectionInfoExe,
-    reSelectMarqueeExe,
-} = require('../psapi')
-
 const psapi = require('../psapi')
-
-async function createNewLayerExe(layerName, opacity = 100) {
-    await executeAsModal(async () => {
-        await createNewLayerCommand(layerName, opacity)
-    })
-    const new_layer = await app.activeDocument.activeLayers[0]
-    return new_layer
-}
-
-async function createNewLayerCommand(layerName, opacity = 100) {
-    return await app.activeDocument.createLayer({
-        name: layerName,
-        opacity: opacity,
-        mode: 'normal',
-    })
-}
-
-async function deleteLayers(layers) {
-    try {
-        await cleanLayers(layers)
-    } catch (e) {
-        console.warn(e)
-    }
-}
+const selection = require('../selection')
 
 async function getIndexCommand() {
     const command = {
@@ -66,50 +33,30 @@ async function getIndexExe() {
 
     return index
 }
-const photoshop = require('photoshop')
 
-const collapseFolderCommand = async (expand = false, recursive = false) => {
-    let result
-    try {
-        result = await batchPlay(
-            [
-                {
-                    _obj: 'set',
-                    _target: {
-                        _ref: [
-                            { _property: 'layerSectionExpanded' },
-                            {
-                                _ref: 'layer',
-                                _enum: 'ordinal',
-                                _value: 'targetEnum',
-                            },
-                        ],
-                    },
-                    to: expand,
-                    recursive,
-                    _options: { dialogOptions: 'dontDisplay' },
-                },
-            ],
-            { synchronousExecution: true }
-        )
-    } catch (e) {
-        console.error(e.message)
-    }
-    return result
-}
-async function collapseFolderExe(layers, expand = false, recursive = false) {
-    for (let layer of layers) {
+async function cleanLayers(layers) {
+    // g_init_image_related_layers = {}
+    // g_mask_related_layers = {}
+    // await loadViewerImages()// we should move loadViewerImages to a new file viewer.js
+    console.log('cleanLayers() -> layers:', layers)
+    for (const layer of layers) {
         try {
-            await executeAsModal(async () => {
-                const is_visible = await layer.visible // don't change the visiblity of the layer when collapsing
-                await selectLayers([layer])
-                await collapseFolderCommand(expand, recursive)
-                layer.visible = is_visible
-            })
+            if (Layer.doesLayerExist(layer)) {
+                await executeAsModal(async () => {
+                    await layer.delete()
+                })
+            }
         } catch (e) {
-            console.warn(e)
+            console.warn(
+                'warning attempting to a delete layer,layer.name: ',
+                layer.name,
+                layer,
+                e
+            )
+            continue
         }
     }
+    return []
 }
 
 class Layer {
@@ -146,19 +93,18 @@ class Layer {
     static async scaleTo(layer, new_width, new_height) {
         await executeAsModal(async () => {
             try {
-                const selection_info = await psapi.getSelectionInfoExe()
+                const selection_info =
+                    await selection.Selection.getSelectionInfoExe()
                 await psapi.unSelectMarqueeExe()
 
                 console.log('scaleLayer got called')
-                // const activeLayer = getActiveLayer()
-                // const activeLayer = await app.activeDocument.activeLayers[0]
 
                 const layer_info = await this.getLayerInfo(layer)
                 const scale_x_ratio = (new_width / layer_info.width) * 100
                 const scale_y_ratio = (new_height / layer_info.height) * 100
                 console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
                 await layer.scale(scale_x_ratio, scale_y_ratio)
-                await psapi.reSelectMarqueeExe(selection_info)
+                await selection.reSelectMarqueeExe(selection_info)
             } catch (e) {
                 console.warn(e)
             }
@@ -170,7 +116,8 @@ class Layer {
             await executeAsModal(async () => {
                 try {
                     //translate doesn't work with selection active. so store the selection and then unselect. move the layer, then reselect the selection info
-                    const selection_info = await psapi.getSelectionInfoExe()
+                    const selection_info =
+                        await selection.Selection.getSelectionInfoExe()
                     await psapi.unSelectMarqueeExe()
 
                     const layer_info = await this.getLayerInfo(layer)
@@ -179,7 +126,7 @@ class Layer {
                     console.log('-left_dist, -top_dist', -left_dist, -top_dist)
                     await layer.translate(-left_dist, -top_dist)
 
-                    await psapi.reSelectMarqueeExe(selection_info)
+                    await selection.reSelectMarqueeExe(selection_info)
                 } catch (e) {
                     console.warn(e)
                 }
@@ -211,72 +158,6 @@ class Layer {
     static {}
 }
 
-const hasBackgroundLayerDesc = () => ({
-    _obj: 'get',
-    _target: [
-        { _property: 'hasBackgroundLayer' },
-        {
-            _ref: 'document',
-            _enum: 'ordinal',
-            _value: 'targetEnum',
-        },
-    ],
-})
-async function hasBackgroundLayer() {
-    // check if a document has a background layer
-    try {
-        const result = await batchPlay([hasBackgroundLayerDesc()], {
-            synchronousExecution: true,
-            modalBehavior: 'execute',
-        })
-        const b_hasBackgroundLayer = result[0]?.hasBackgroundLayer
-        return b_hasBackgroundLayer
-    } catch (e) {
-        console.warn(e)
-    }
-}
-const makeBackgroundLayerDesc = () => ({
-    _obj: 'make',
-    _target: [
-        {
-            _ref: 'backgroundLayer',
-        },
-    ],
-    using: {
-        _ref: 'layer',
-        _enum: 'ordinal',
-        _value: 'targetEnum',
-    },
-    _options: { failOnMissingProperty: false, failOnMissingElement: false },
-    // _options: {
-    //     dialogOptions: 'dontDisplay',
-    // },
-})
-
-const createSolidLayerDesc = (r, g, b) => ({
-    _obj: 'make',
-    _target: [
-        {
-            _ref: 'contentLayer',
-        },
-    ],
-    using: {
-        _obj: 'contentLayer',
-        type: {
-            _obj: 'solidColorLayer',
-            color: {
-                _obj: 'RGBColor',
-                red: r,
-                grain: g,
-                blue: b,
-            },
-        },
-    },
-    _options: {
-        dialogOptions: 'dontDisplay',
-    },
-})
-
 const toggleBackgroundLayerDesc = () => ({
     _obj: 'show',
     null: [
@@ -305,53 +186,33 @@ async function toggleBackgroundLayerExe() {
     }
 }
 
-async function createBackgroundLayer(r = 255, g = 255, b = 255) {
-    try {
-        const has_background = await hasBackgroundLayer()
-        if (has_background) {
-            //no need to create a background layer
-            return null
-        }
-
-        //reselect the selection area if it exist
-
-        await executeAsModal(async () => {
-            //store the selection area and then unselected
-            const selectionInfo = await psapi.getSelectionInfoExe()
-            await psapi.unSelectMarqueeExe()
-            const active_layers = app.activeDocument.activeLayers
-
-            // await createNewLayerCommand('background') //create layer
-            //make the layer into background
-            const result = await batchPlay(
-                [createSolidLayerDesc(r, g, b), makeBackgroundLayerDesc()],
-                {
-                    synchronousExecution: true,
-                    modalBehavior: 'execute',
-                }
-            )
-
-            await psapi.reSelectMarqueeExe(selectionInfo)
-            await psapi.selectLayersExe(active_layers)
-        })
-    } catch (e) {
-        console.warn(e)
-    }
-}
 async function fixImageBackgroundLayer() {
     //convert the background layer to a normal layer
     //create a new layer
     //convert the new layer to background
 }
+async function deleteTempInpaintMaskLayer() {
+    console.log(
+        'inpaint_mask_layer_history_id: ',
+        psapi.inpaint_mask_layer_history_id
+    )
+    const historyBrushTools = app.activeDocument.historyStates.filter(
+        (h) =>
+            h.id > psapi.inpaint_mask_layer_history_id &&
+            h.name === 'Brush Tool'
+    )
+    console.log(historyBrushTools)
+    if (historyBrushTools.length === 0 && psapi.mask_layer_exist) {
+        await cleanLayers([psapi.inpaint_mask_layer])
+
+        psapi.mask_layer_exist = false
+    }
+}
+
 module.exports = {
-    createNewLayerExe,
-    deleteLayers,
     getIndexExe,
-    collapseFolderExe,
     Layer,
-    hasBackgroundLayer,
-    createBackgroundLayer,
-    createSolidLayerDesc,
-    makeBackgroundLayerDesc,
+    cleanLayers,
     toggleBackgroundLayerExe,
+    deleteTempInpaintMaskLayer,
 }

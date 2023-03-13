@@ -1,6 +1,5 @@
 async function requestGet(url) {
     let json = null
-    // const full_url = `${g_sd_url}/sdapi/v1/options`
     const full_url = url
     try {
         let request = await fetch(full_url)

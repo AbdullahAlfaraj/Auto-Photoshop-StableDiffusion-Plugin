@@ -41,6 +41,15 @@ const BackgroundHistoryEnum = {
     NoBackground: 'no_background',
 }
 
+//REFACTOR: move to Enum.js
+const generationMode = {
+    Txt2Img: 'txt2img',
+    Img2Img: 'img2img',
+    Inpaint: 'inpaint',
+    Outpaint: 'outpaint',
+    Upscale: 'upscale',
+}
+
 module.exports = {
     clickTypeEnum,
     generationModeEnum,
@@ -49,4 +58,5 @@ module.exports = {
     RequestStateEnum,
     DocumentTypeEnum,
     BackgroundHistoryEnum,
+    generationMode,
 }

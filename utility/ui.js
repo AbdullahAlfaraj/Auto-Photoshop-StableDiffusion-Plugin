@@ -1,10 +1,37 @@
 const html_manip = require('./html_manip')
 const presets = require('./presets/preset')
-const layer_util = require('../utility/layer')
-const psapi = require('../psapi')
+const session = require('./session')
+const GenerationSettings = require('./generation_settings')
+const app_events = require('./app_events')
+const selection = require('../selection')
 const { executeAsModal } = require('photoshop').core
 class UI {
-    constructor() {}
+    static #instance = null
+
+    static instance() {
+        if (!UI.#instance) {
+            UI.#instance = new UI()
+        }
+        return UI.#instance
+    }
+
+    constructor() {
+        if (!UI.#instance) {
+            UI.#instance = this
+        }
+        this.SubscribeToEvents()
+        return UI.#instance
+    }
+
+    SubscribeToEvents() {
+        app_events.selectionModeChangedEvent.subscribe(
+            UI.instance().generateModeUI
+        )
+        app_events.generateMoreEvent.subscribe(UI.instance().generateMoreUI)
+        app_events.resolutionSizeChangedEvent.subscribe(
+            UI.instance().updateResDifferenceLabel
+        )
+    }
 
     onStartSessionUI() {
         // will toggle the buttons needed when a generation session start
@@ -55,8 +82,11 @@ class UI {
         const generate_btns = Array.from(
             document.getElementsByClassName('btnGenerateClass')
         )
-        const generation_mode = g_generation_session.mode
-        const generation_name = getCurrentGenerationModeByValue(generation_mode)
+        const generation_mode = session.GenerationSession.instance().mode
+        const generation_name =
+            session.GenerationSession.instance().getCurrentGenerationModeByValue(
+                generation_mode
+            )
         generate_btns.forEach((element) => {
             element.textContent = `Generate More ${generation_name}`
         })
@@ -92,7 +122,7 @@ class UI {
             (element) => (element.style.display = 'none')
         )
 
-        this.generateModeUI(g_sd_mode)
+        this.generateModeUI(GenerationSettings.sd_mode)
     }
 
     setGenerateBtnText(textContent) {
@@ -103,31 +133,31 @@ class UI {
             element.textContent = textContent
         })
     }
-}
 
-// const defaultSettings = {
-//   model: null,
-//   prompt_shortcut: null,
-//   positive_prompt: "",
-//   negative_prompt: "",
-//   selection_mode: null,
-//   batch_number: 1,
-//   steps: 20,
-//   width: 512 ,
-//   height:512,
-//   firstphase_width:512,
-//   firstphase_height:512,
-//   cfg:7,
-//   denoising_strength:0.7,
-//   hi_res_denoising_strength:0.7,
-//   mask_blur: 8,
-//   inpaint_at_full_res: false,
-//   hi_res_fix:false,
-//   inpaint_padding:0,
-//   seed:-1,
-//   samplers: null,
-//   mask_content:null
-//   }
+    async updateResDifferenceLabel() {
+        const ratio = await selection.Selection.getImageToSelectionDifference()
+        const arrow = ratio >= 1 ? '↑' : '↓'
+        let final_ratio = ratio // this ratio will always be >= 1
+        if (ratio >= 1) {
+            // percentage = percentage >= 1 ? percentage : 1 / percentage
+
+            // const percentage_str = `${arrow}X${percentage.toFixed(2)}`
+
+            // console.log('scale_info_str: ', scale_info_str)
+            // console.log('percentage_str: ', percentage_str)
+            document
+                .getElementById('res-difference')
+                .classList.remove('res-decrease')
+        } else {
+            final_ratio = 1 / ratio
+            document
+                .getElementById('res-difference')
+                .classList.add('res-decrease')
+        }
+        const ratio_str = `${arrow}x${final_ratio.toFixed(2)}`
+        document.getElementById('res-difference').innerText = ratio_str
+    }
+}
 
 class UIElement {
     constructor() {
@@ -139,7 +169,7 @@ class UIElement {
     getValue() {}
 }
 function createUIElement(getter, setter) {
-    let ui_element_obj = new ui.UIElement()
+    let ui_element_obj = new UIElement()
     ui_element_obj.getValue = getter
     ui_element_obj.setValue = setter
     return ui_element_obj
@@ -147,9 +177,6 @@ function createUIElement(getter, setter) {
 class UISettings {
     // get and set the settings of the ui. the stable diffusion settings not the human friendly settings
     constructor() {
-        // this.width = new ui.UIElement()
-        // this.width.getValue = html_manip.getWidth
-        // this.width.setValue = html_manip.autoFillInWidth
         this.width = createUIElement(
             html_manip.getWidth,
             html_manip.autoFillInWidth
@@ -286,21 +313,21 @@ async function loadHealBrushSettings(ui_settings) {
     document.getElementById('rbModeInpaint').click()
     const { timer } = require('./general')
     // await timer(1000)
-    // if (layer_util.Layer.doesLayerExist(g_inpaint_mask_layer)) {
+    // if (layer_util.Layer.doesLayerExist(psapi.inpaint_mask_layer)) {
     //     // psapi.executeCommandExe(async () => {
-    //     //     g_inpaint_mask_layer.opacity = 50
+    //     //     inpaint_mask_layer.opacity = 50
     //     // })
     //     // ;(async () => {
     //     //     await executeAsModal(() => {
-    //     //         g_inpaint_mask_layer.opacity = 50
+    //     //         inpaint_mask_layer.opacity = 50
     //     //     })
     //     // })()
     // } else {
-    //     await createTempInpaintMaskLayer()
+    //     await psapi.createTempInpaintMaskLayer()
     // }
 
     // await executeAsModal(() => {
-    //     g_inpaint_mask_layer.opacity = 50
+    //     inpaint_mask_layer.opacity = 50
     // })
     loadPreset(ui_settings, presets.HealBrushSettings)
 }

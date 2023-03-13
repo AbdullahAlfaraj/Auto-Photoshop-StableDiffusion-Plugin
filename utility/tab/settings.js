@@ -1,5 +1,7 @@
 const io = require('../io')
 
+let sd_url = 'http://127.0.0.1:7860'
+
 function getUseSharpMask() {
     const isChecked = document.getElementById('chUseSharpMask').checked
     return isChecked
@@ -31,7 +33,7 @@ document.getElementById('btnSdUrl').addEventListener('click', async () => {
     //change the sdUrl in server in proxy server
     // console.log('you clicked btnSdUrl')
     let new_sd_url = document.getElementById('tiSdUrl').value
-    changeSdUrl(new_sd_url)
+    await changeSdUrl(new_sd_url)
 })
 
 function getSdUrlHtml() {
@@ -48,14 +50,14 @@ async function changeSdUrl(sd_url) {
     if (sd_url.length > 0) {
         //check if the last character of the url has "/" or '\' and remove it
 
-        last_index = sd_url.length - 1
+        let last_index = sd_url.length - 1
 
         if (sd_url[last_index] === '/' || sd_url[last_index] === '\\') {
             sd_url = sd_url.slice(0, -1)
         }
 
-        //submit the change
-        await sdapi.changeSdUrl(sd_url)
+        sd_url = sd_url
+        console.log('changeSdUrl: new_sd_url:', sd_url)
     }
 }
 
@@ -124,10 +126,10 @@ module.exports = {
     getExtensionType,
     getSdUrlHtml,
     setSdUrlHtml,
-    changeSdUrl,
     loadSettings,
     saveSettings,
     getUseLiveProgressImage,
     setUseLiveProgressImage,
     getUseOriginalPrompt,
+    sd_url,
 }

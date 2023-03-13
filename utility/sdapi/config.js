@@ -1,3 +1,4 @@
+const sdapi = require('../../sdapi_py_re')
 class SdConfig {
     constructor() {
         this.config //store sd options

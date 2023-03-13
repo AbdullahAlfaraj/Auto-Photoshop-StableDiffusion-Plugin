@@ -1,5 +1,8 @@
 ////// Start Prompt//////////
 
+const file_util = require('./file_util')
+const app_events = require('./app_events')
+
 function getPrompt() {
     const prompt = document.getElementById('taPrompt').value
     return prompt
@@ -31,7 +34,7 @@ document.getElementById('slWidth').addEventListener('input', (evt) => {
 
     document.getElementById('lWidth').textContent = parseInt(width)
     // widthSliderOnChangeEventHandler(evt)
-    updateResDifferenceLabel()
+    app_events.resolutionSizeChangedEvent.raise()
 })
 
 document.getElementById('slHeight').addEventListener('input', (evt) => {
@@ -39,7 +42,7 @@ document.getElementById('slHeight').addEventListener('input', (evt) => {
 
     document.getElementById('lHeight').textContent = parseInt(height)
     // heightSliderOnChangeEventHandler(evt)
-    updateResDifferenceLabel()
+    app_events.resolutionSizeChangedEvent.raise()
 })
 
 function widthSliderOnChangeEventHandler(evt) {
@@ -48,7 +51,8 @@ function widthSliderOnChangeEventHandler(evt) {
     let final_width = new_width
     let final_height
     if (b_link) {
-        const current_height = html_manip.getHeight()
+        //FIXME: missing general module import, but importing it would cause a circular dependency. Move this function to a different module
+        const current_height = getHeight()
         ;[final_width, final_height] = general.scaleToRatio(
             new_width,
             g_old_slider_width,
@@ -59,7 +63,7 @@ function widthSliderOnChangeEventHandler(evt) {
         )
 
         evt.target.value = parseInt(final_width / 64)
-        html_manip.autoFillInHeight(final_height)
+        autoFillInHeight(final_height)
     }
 
     g_old_slider_width = final_width // update the old value, so we can use it later
@@ -99,7 +103,8 @@ function heightSliderOnChangeEventHandler(evt) {
     let final_height = new_height
     const b_link = getLinkWidthHeightState()
     if (b_link) {
-        const current_width = html_manip.getWidth()
+        //FIXME: missing general module import, but importing it would cause a circular dependency. Move this function to a different module
+        const current_width = getWidth()
         ;[final_height, final_width] = general.scaleToRatio(
             new_height,
             g_old_slider_height,
@@ -110,7 +115,7 @@ function heightSliderOnChangeEventHandler(evt) {
         )
 
         evt.target.value = parseInt(final_height / 64)
-        html_manip.autoFillInWidth(final_width)
+        autoFillInWidth(final_width)
     }
     g_old_slider_height = final_height // update the old value, so we can use it later
     document.getElementById('lHeight').textContent = parseInt(final_height)
@@ -145,7 +150,7 @@ function autoFillInWidth(width_value) {
     document.getElementById('slWidth').value = `${width_value / 64}`
     //update the label
     document.getElementById('lWidth').innerHTML = `${parseInt(width_value)}`
-    updateResDifferenceLabel()
+    app_events.resolutionSizeChangedEvent.raise()
 }
 ////// End Width//////////
 
@@ -165,7 +170,7 @@ function autoFillInHeight(height_value) {
     height_slider.value = `${height_value / 64}`
     //update the label
     document.getElementById('lHeight').innerHTML = `${parseInt(height_value)}`
-    updateResDifferenceLabel()
+    app_events.resolutionSizeChangedEvent.raise()
 }
 
 function autoFillInHRHeight(height_value) {
@@ -302,7 +307,6 @@ function autoFillInInpaintMaskWeight(sd_value) {
 function unCheckAllSamplers() {
     document
         .getElementsByClassName('rbSampler')
-
         .forEach((e) => e.removeAttribute('checked'))
 }
 
@@ -566,6 +570,7 @@ const snapshot_btns = Array.from(
 snapshot_btns.forEach((element) =>
     element.addEventListener('click', async () => {
         try {
+            //FIXME: missing psapi import, but html_manip is a low level module and should not depend on psapi. move this to a higher level module
             await psapi.snapshot_layerExe()
         } catch (e) {
             console.warn(e)
@@ -724,7 +729,7 @@ function addHistoryButtonsHtml(img_html) {
 
         // load the image from "data:image/png;base64," base64_str
         const base64_image = img_html.src.replace('data:image/png;base64,', '')
-        await base64ToFile(base64_image)
+        await file_util.base64ToFile(base64_image)
     })
 
     // Append elements to container
@@ -789,6 +794,7 @@ async function populateMenu(
     //     // menu_item_element.dataset.model_title = model.title
     // }
 
+    let b_result = true
     try {
         document.getElementById(html_menu_id).innerHTML = '' // empty the menu
 
@@ -829,6 +835,50 @@ function getUseSilentMode() {
     const b_use_silent_mode = document.getElementById('chUseSilentMode').checked
     return b_use_silent_mode
 }
+
+function tempDisableElement(element, time) {
+    element.classList.add('disableBtn')
+    element.disabled = true
+    // element.style.opacity = '0.65'
+    // element.style.cursor = 'not-allowed'
+    setTimeout(function () {
+        element.disabled = false
+        element.classList.remove('disableBtn')
+        // element.style.opacity = '1.0'
+        // element.style.cursor = 'default'
+    }, time)
+}
+
+Array.from(document.querySelectorAll('.sp-tab')).forEach((theTab) => {
+    theTab.onclick = () => {
+        try {
+            // localStorage.setItem("currentTab", theTab.getAttribute("id"));
+            Array.from(document.querySelectorAll('.sp-tab')).forEach((aTab) => {
+                if (aTab.getAttribute('id') === theTab.getAttribute('id')) {
+                    aTab.classList.add('selected')
+                } else {
+                    aTab.classList.remove('selected')
+                }
+            })
+            Array.from(document.querySelectorAll('.sp-tab-page')).forEach(
+                (tabPage) => {
+                    if (
+                        tabPage
+                            .getAttribute('id')
+                            .startsWith(theTab.getAttribute('id'))
+                    ) {
+                        tabPage.classList.add('visible-hack')
+                    } else {
+                        tabPage.classList.remove('visible-hack')
+                    }
+                }
+            )
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+})
+
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -904,4 +954,5 @@ module.exports = {
     getSelectedMenuItemTextContent,
     getUseNsfw,
     getUseSilentMode,
+    tempDisableElement,
 }

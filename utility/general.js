@@ -1,4 +1,5 @@
 const { requestGet } = require('./api')
+const html_manip = require('./html_manip')
 
 function newOutputImageName(format = 'png') {
     const random_id = Math.floor(Math.random() * 100000000000 + 1) // Date.now() doesn't have enough resolution to avoid duplicate

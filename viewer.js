@@ -21,11 +21,16 @@ const general = require('./utility/general')
 const Enum = require('./enum')
 const psapi = require('./psapi')
 const layer_util = require('./utility/layer')
+const session = require('./utility/session')
 const thumbnail = require('./thumbnail')
+const html_manip = require('./utility/html_manip')
+const file_util = require('./utility/file_util')
+const app_events = require('./utility/app_events')
 const ViewerObjState = {
     Delete: 'delete',
     Unlink: 'unlink',
 }
+const { executeAsModal } = require('photoshop').core
 
 class ViewerImage {
     constructor() {
@@ -171,6 +176,7 @@ class ViewerImage {
             // await this.select(true) //select() does take arguments
             // this.active(true)
             await executeAsModal(async () => {
+                //FIXME unresolved function
                 await this.click(Enum.clickTypeEnum['Click'])
             })
 
@@ -179,14 +185,15 @@ class ViewerImage {
                 : await app.activeDocument.activeLayers[0]
 
             // const layer = this.layer
-            const image_info = await psapi.silentSetInitImage(
-                layer,
-                random_session_id
-            )
+            const image_info =
+                await session.GenerationSession.instance().silentSetInitImage(
+                    layer,
+                    session.GenerationSession.instance().random_session_id
+                )
             const image_name = image_info['name']
             const path = `./server/python_server/init_images/${image_name}`
-            g_viewer_manager.addInitImageLayers(layer, path, false)
-            await g_viewer_manager.loadInitImageViewerObject(path)
+            ViewerManager.instance().addInitImageLayers(layer, path, false)
+            await ViewerManager.instance().loadInitImageViewerObject(path)
         } catch (e) {
             console.warn(e)
         }
@@ -217,6 +224,7 @@ class ViewerImage {
             button.style.display = 'none'
         }
         button.addEventListener('click', async () => {
+            //FIXME unresolved function
             await useOutputImageAsInitImage()
         })
 
@@ -323,7 +331,7 @@ class OutputImage extends ViewerImage {
             await super.delete()
             // this.img_html.remove()//delete the img html element
             if (this.state === ViewerObjState['Delete']) {
-                await psapi.cleanLayers([this.layer])
+                await layer_util.cleanLayers([this.layer])
             }
         } catch (e) {
             console.warn(e)
@@ -462,7 +470,7 @@ class InitImage extends ViewerImage {
             }
 
             if (this.state === ViewerObjState['Delete']) {
-                await psapi.cleanLayers([
+                await layer_util.cleanLayers([
                     this.init_group,
                     this.init_snapshot,
                     this.solid_layer,
@@ -564,7 +572,7 @@ class InitMaskImage extends ViewerImage {
             await super.delete()
             // this.img_html.remove()//delete the img html element
             if (this.state === ViewerObjState['Delete']) {
-                await psapi.cleanLayers([
+                await layer_util.cleanLayers([
                     this.mask_group,
                     this.white_mark,
                     this.solid_black,
@@ -584,7 +592,7 @@ class InitMaskImage extends ViewerImage {
             this.thumbnail_container,
             'svg_sp_btn',
             'update the mask',
-            setMaskViewer,
+            ViewerManager.instance().setMaskViewer,
             img
         )
     }
@@ -609,9 +617,20 @@ class maskLayers {
     }
 }
 class ViewerManager {
+    static #instance = null
+
+    static instance() {
+        if (!ViewerManager.#instance) {
+            ViewerManager.#instance = new ViewerManager()
+        }
+        return ViewerManager.#instance
+    }
     //viewer manager will reset after the end of the session
     //it will store
     constructor() {
+        if (!ViewerManager.#instance) {
+            ViewerManager.#instance = this
+        }
         this.outputImages = []
         this.initImages = []
         this.initMaskImage
@@ -636,6 +655,14 @@ class ViewerManager {
         this.init_image_container = document.getElementById(
             'divInitImageViewerContainer'
         )
+        app_events.endSessionEvent.subscribe(this.onSessionEnd.bind(this))
+        app_events.acceptAllEvent.subscribe(this.acceptAll.bind(this))
+        app_events.discardAllEvent.subscribe(this.discardAll.bind(this))
+        app_events.discardSelectedEvent.subscribe(
+            this.discardSelected.bind(this)
+        )
+        app_events.discardEvent.subscribe(this.discard.bind(this))
+        return ViewerManager.#instance
     }
 
     replaceLastSelection(click_type, clicked_object) {
@@ -697,7 +724,8 @@ class ViewerManager {
                 // this.maskLayersJson[path].img_html.src = new_path
 
                 // this.pathToViewerImage[path].img_html.src = new_path
-                this.pathToViewerImage[path].img_html.src = base64ToSrc(base64)
+                this.pathToViewerImage[path].img_html.src =
+                    file_util.base64ToSrc(base64)
             }
         } catch (e) {
             console.warn(e)
@@ -729,6 +757,7 @@ class ViewerManager {
         return false
     }
     addOutputImage(layer, path) {
+        console.log('addOutputImage' + path)
         const outputImage = new OutputImage(layer, path, this)
 
         this.outputImages.push(outputImage)
@@ -736,6 +765,7 @@ class ViewerManager {
         return outputImage
     }
     addInitImage(group, snapshot, solid_background, path, auto_delete) {
+        console.log('addInitImage' + path)
         const initImage = new InitImage(
             group,
             snapshot,
@@ -749,6 +779,7 @@ class ViewerManager {
         return initImage
     }
     addMask(group, white_mark, solid_background, path) {
+        console.log('add mask' + path)
         const mask = new InitMaskImage(
             group,
             white_mark,
@@ -773,10 +804,10 @@ class ViewerManager {
 
         const image_width = this.isSquareThumbnail
             ? 100
-            : g_generation_session.last_settings.width
+            : session.GenerationSession.instance().last_settings.width
         const image_height = this.isSquareThumbnail
             ? 100
-            : g_generation_session.last_settings.height
+            : session.GenerationSession.instance().last_settings.height
 
         const [new_width, new_height] = general.scaleToClosestKeepRatio(
             image_width,
@@ -794,6 +825,14 @@ class ViewerManager {
             const img = outputImage.img_html
             const img_container = img.parentElement
 
+            if (img_container === null) {
+                console.warn(
+                    'ViewerManager scaleThumbnails - img has no parentElement',
+                    img
+                )
+                continue
+            }
+
             img_container.style.width = scaled_width
             img_container.style.height = scaled_height
             img.style.width = scaled_width
@@ -802,6 +841,7 @@ class ViewerManager {
         }
     }
     onSessionEnd() {
+        console.log('ViewerManager onSessionEnd')
         this.outputImages = []
         this.initImages = []
         this.initMaskImage = null
@@ -827,13 +867,15 @@ class ViewerManager {
     }
 
     async loadInitImageViewerObject(path) {
-        if (!g_viewer_manager.hasViewerImage(path)) {
+        if (!ViewerManager.instance().hasViewerImage(path)) {
             const group = this.initImageLayersJson[path].group
             const snapshot = this.initImageLayersJson[path].snapshot
             const solid_background =
                 this.initImageLayersJson[path].solid_background
             const auto_delete = this.initImageLayersJson[path].autoDelete
-            const base64_image = g_generation_session.base64initImages[path]
+            const base64_image =
+                session.GenerationSession.instance().base64initImages[path]
+            //FIXME: unresolved function
             await loadInitImageViewerObject(
                 group,
                 snapshot,
@@ -844,6 +886,154 @@ class ViewerManager {
             )
         }
     }
+
+    async setMaskViewer() {
+        try {
+            await executeAsModal(async () => {
+                if (this.mask_solid_background) {
+                    this.mask_solid_background.visible = true
+                }
+            })
+            const layer = this.maskGroup
+            // const layer = await app.activeDocument.activeLayers[0]
+            const mask_info =
+                await session.GenerationSession.instance().silentSetInitImageMask(
+                    layer,
+                    this.random_session_id
+                )
+            const image_name = mask_info['name']
+            const path = `./server/python_server/init_images/${image_name}`
+            this.addMaskLayers(layer, path, false, mask_info['base64']) //can be autodeleted?
+            await psapi.unselectActiveLayersExe()
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+    async acceptAll() {
+        //accept all generated images by highlighting them
+        //then call discard() to garbage collect the mask related layers
+        try {
+            for (const [path, viewer_image_obj] of Object.entries(
+                ViewerManager.instance().pathToViewerImage
+            )) {
+                try {
+                    if (
+                        viewer_image_obj.isActive() &&
+                        viewer_image_obj instanceof viewer.OutputImage
+                    ) {
+                        //check if the active viewer_image_obj is a type of OutputImage and move it to the top of the output group folder
+                        //this is so when we accept all layers the canvas will look the same. otherwise the image could be cover by another generated image
+                        if (
+                            layer_util.Layer.doesLayerExist(
+                                viewer_image_obj.layer
+                            )
+                        ) {
+                            await session.GenerationSession.instance().moveToTopOfOutputGroup(
+                                viewer_image_obj.layer
+                            )
+                        }
+                    }
+                    viewer_image_obj.setHighlight(true) // mark each layer as accepted
+                } catch (e) {
+                    console.error(e)
+                }
+            }
+            await ViewerManager.instance().discard() // clean viewer tab
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+    async discardAll() {
+        //discard all generated images setting highlight to false
+        //then call discard() to garbage collect the mask related layers
+        try {
+            for (const [path, viewer_image_obj] of Object.entries(
+                ViewerManager.instance().pathToViewerImage
+            )) {
+                try {
+                    viewer_image_obj.active(false) //deactivate the layer
+                    viewer_image_obj.setHighlight(false) // mark each layer as discarded
+                } catch (e) {
+                    console.error(e)
+                }
+            }
+            await ViewerManager.instance().discard() // clean viewer tab
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+    async discardSelected() {
+        //discard all generated images setting highlight to false
+        //then call discard() to garbage collect the mask related layers
+        try {
+            for (const [path, viewer_image_obj] of Object.entries(
+                ViewerManager.instance().pathToViewerImage
+            )) {
+                try {
+                    if (viewer_image_obj.is_active) {
+                        viewer_image_obj.active(false) //convert active to highlight
+                        viewer_image_obj.setHighlight(true) //highlight the active image, since active images are not highlighted in the viewer
+                    }
+
+                    viewer_image_obj.toggleHighlight() // if invert the highlights on all images
+                } catch (e) {
+                    console.error(e)
+                }
+            }
+            await ViewerManager.instance().discard() // delete the images that currently highlighted
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+
+    async discard() {
+        try {
+            const random_img_src = 'https://source.unsplash.com/random'
+            html_manip.setInitImageSrc(random_img_src)
+            html_manip.setInitImageMaskSrc(random_img_src)
+            // psapi.cleanLayers(last_gen_layers)
+            await ViewerManager.instance().deleteNoneSelected(
+                ViewerManager.instance().pathToViewerImage
+            )
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+
+    async deleteNoneSelected(viewer_objects) {
+        try {
+            // visible layer
+            //delete all hidden layers
+
+            await executeAsModal(async () => {
+                for (const [path, viewer_object] of Object.entries(
+                    viewer_objects
+                )) {
+                    try {
+                        viewer_object.visible(true) //make them visiable on the canvas
+
+                        await viewer_object.delete() //delete the layer from layers stack
+
+                        delete session.GenerationSession.instance()
+                            .image_paths_to_layers[path]
+                    } catch (e) {
+                        console.warn(e)
+                    }
+                }
+
+                //Refactor: move to viewerManager.onSessionEnd() - done
+                // ViewerManager.instance().pathToViewerImage = {}
+                // ViewerManager.instance().initImageLayersJson = {}
+                // ViewerManager.instance().outputImages = []
+                //
+
+                session.GenerationSession.instance().image_paths_to_layers = {}
+            })
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+
     deleteAll() {}
     keepAll() {}
     keepSelected() {}

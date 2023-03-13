@@ -4,10 +4,15 @@ const html_manip = require('../html_manip')
 const layer_util = require('../layer')
 const dummy = require('../dummy')
 const io = require('../io')
+const session = require('../session')
+const document_util = require('../document_util')
+const file_util = require('../file_util')
+const app = window.require('photoshop').app
 class HordeSettings {
     static {}
     static async saveSettings() {
         try {
+            //FIXME: unresolved function
             const settings = await getSettings()
 
             let native_horde_settings = await mapPluginSettingsToHorde(settings)
@@ -60,6 +65,7 @@ class hordeGenerator {
         const workers = await getWorkers()
 
         const workers_ids = getWorkerID(workers)
+        //FIXME: unresolved function
         const settings = await getSettings()
         this.plugin_settings = settings
         let payload = await mapPluginSettingsToHorde(settings)
@@ -132,10 +138,14 @@ class hordeGenerator {
             height
         )
 
-        const base64_image = _arrayBufferToBase64(image_buffer) //convert the buffer to base64
+        const base64_image = file_util._arrayBufferToBase64(image_buffer) //convert the buffer to base64
         //send the base64 to the server to save the file in the desired directory
         // await sdapi.requestSavePng(base64_image, image_name)
-        await saveFileInSubFolder(base64_image, document_name, image_name)
+        await document_util.saveFileInSubFolder(
+            base64_image,
+            document_name,
+            image_name
+        )
         return base64_image
     }
 
@@ -149,10 +159,14 @@ class hordeGenerator {
             height
         )
 
-        const base64_image = _arrayBufferToBase64(image_buffer) //convert the buffer to base64
+        const base64_image = file_util._arrayBufferToBase64(image_buffer) //convert the buffer to base64
         //send the base64 to the server to save the file in the desired directory
         // await sdapi.requestSavePng(base64_image, image_name)
-        await saveFileInSubFolder(base64_image, document_name, image_name)
+        await document_util.saveFileInSubFolder(
+            base64_image,
+            document_name,
+            image_name
+        )
         return base64_image
     }
 
@@ -176,14 +190,14 @@ class hordeGenerator {
                 )
 
                 // delete the layer made by the webp image.
-                await layer_util.deleteLayers([layer])
+                await layer_util.cleanLayers([layer])
                 // await layer.delete()
 
                 // const json_file_name = `${image_name.split('.')[0]}.json`
                 this.plugin_settings['auto_metadata'] =
                     image_info?.auto_metadata
 
-                // g_generation_session.base64OutputImages[path] =
+                // session.GenerationSession.instance().base64OutputImages[path] =
                 //     image_info['base64']
                 // await saveJsonFileInSubFolder(
                 //     this.plugin_settings,
@@ -199,12 +213,12 @@ class hordeGenerator {
                 // // console.log("metadata_json: ", metadata_json)
             }
 
-            // if (g_generation_session.isFirstGeneration) {
+            // if (session.GenerationSession.instance().isFirstGeneration) {
             //     //store them in the generation session for viewer manager to use
-            //     g_generation_session.image_paths_to_layers = last_images_paths
+            //     session.GenerationSession.instance().image_paths_to_layers = last_images_paths
             // } else {
-            //     g_generation_session.image_paths_to_layers = {
-            //         ...g_generation_session.image_paths_to_layers,
+            //     session.GenerationSession.instance().image_paths_to_layers = {
+            //         ...session.GenerationSession.instance().image_paths_to_layers,
             //         ...last_images_paths,
             //     }
             //     // g_number_generation_per_session++
@@ -243,9 +257,9 @@ class hordeGenerator {
                 this.plugin_settings['auto_metadata'] =
                     image_info?.auto_metadata
 
-                g_generation_session.base64OutputImages[path] =
+                session.GenerationSession.instance().base64OutputImages[path] =
                     image_info['base64']
-                await saveJsonFileInSubFolder(
+                await document_util.saveJsonFileInSubFolder(
                     this.plugin_settings,
                     document_name,
                     json_file_name
@@ -253,12 +267,14 @@ class hordeGenerator {
                 last_images_paths[path] = image_info['layer']
             }
 
-            if (g_generation_session.isFirstGeneration) {
+            if (session.GenerationSession.instance().isFirstGeneration) {
                 //store them in the generation session for viewer manager to use
-                g_generation_session.image_paths_to_layers = last_images_paths
+                session.GenerationSession.instance().image_paths_to_layers =
+                    last_images_paths
             } else {
-                g_generation_session.image_paths_to_layers = {
-                    ...g_generation_session.image_paths_to_layers,
+                session.GenerationSession.instance().image_paths_to_layers = {
+                    ...session.GenerationSession.instance()
+                        .image_paths_to_layers,
                     ...last_images_paths,
                 }
                 // g_number_generation_per_session++
@@ -298,7 +314,7 @@ class hordeGenerator {
     async interrupt() {
         try {
             html_manip.updateProgressBarsHtml(0)
-            // g_generation_session.request_status = Enum.requestStatus['']
+            // session.GenerationSession.instance().request_status = Enum.requestStatus['']
             this.last_horde_id = this.horde_id
             this.horde_id = null //horde_id could be used startCheckingprogress() so we need to nullify it as soon as possible. TODO: refactor this dependency.
             this.isCanceled = true
@@ -309,6 +325,7 @@ class hordeGenerator {
         }
     }
     async postGeneration() {
+        //FIXME: unresolved function
         toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
     }
     async processHordeResult() {
@@ -316,7 +333,7 @@ class hordeGenerator {
         //*) save them locally to output directory
         //*) import them into the canvas
         //*) resize and move the layers to fit the selection
-        //*) return the results to be stored and processed by the g_generation_session
+        //*) return the results to be stored and processed by the session.GenerationSession.instance()
         try {
             if (this.isProcessHordeResultCalled) {
                 return
@@ -329,13 +346,14 @@ class hordeGenerator {
             g_horde_generation_result = await requestHordeStatus(temp_id)
 
             const generations = g_horde_generation_result.generations
-            const writeable_entry = await getCurrentDocFolder()
+            const writeable_entry = await document_util.getCurrentDocFolder()
             const images_info = [] //{path:image_path,base64:}
             for (const image_horde_container of generations) {
                 try {
                     const url = image_horde_container.img
                     const image_file_name = general.newOutputImageName('webp')
 
+                    //FIXME: unresolved function
                     const image_layer = await downloadItExe(
                         url,
                         writeable_entry,
@@ -344,7 +362,7 @@ class hordeGenerator {
                     const image_png_file_name =
                         general.convertImageNameToPng(image_file_name)
 
-                    const uuid = await getUniqueDocumentId()
+                    const uuid = await document_util.getUniqueDocumentId()
                     const image_path = `${uuid}/${image_png_file_name}` //this is the png path
                     images_info.push({
                         path: image_path,
@@ -352,7 +370,7 @@ class hordeGenerator {
                         layer: image_layer,
                     })
                     await psapi.layerToSelection(
-                        g_generation_session.selectionInfo
+                        session.GenerationSession.instance().selectionInfo
                     ) //TODO: create a safe layerToSelection function
                 } catch (e) {
                     console.warn(e)

@@ -1,3 +1,5 @@
+const sdapi = require('../../sdapi_py_re')
+
 class SdOptions {
     constructor() {
         // this.status = false // true if we have a valid copy of sd options, false otherwise
