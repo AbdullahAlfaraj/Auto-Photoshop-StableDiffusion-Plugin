@@ -417,10 +417,10 @@ async function refreshUI() {
         console.log('inpainting_mask_weight: ', inpainting_mask_weight)
         html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
 
-        await temp_config.getConfig()
+        await g_sd_config_obj.getConfig()
         //init ControlNet Tab
         // g_hi_res_upscaler_models = temp_config.getUpscalerModels()
-        g_controlnet_max_models = temp_config.getControlNetMaxModelsNum()
+        g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
         await control_net.initializeControlNetTab(g_controlnet_max_models)
     } catch (e) {
         console.warn(e)
@@ -643,11 +643,10 @@ let g_controlnet_max_models
     // let g_controlnet_preprocessors
 ;(async function () {
     let temp_config = new sd_config.SdConfig()
-    await temp_config.getConfig()
-    g_hi_res_upscaler_models = temp_config.getUpscalerModels()
-    g_controlnet_max_models = temp_config.getControlNetMaxModelsNum()
-    // g_controlnet_preprocessors = temp_config.getControlNetPreprocessors()
     g_sd_config_obj = temp_config
+    await g_sd_config_obj.getConfig()
+    g_hi_res_upscaler_models = g_sd_config_obj.getUpscalerModels()
+    g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
 
     for (let model of g_hi_res_upscaler_models) {
         //update the hi res upscaler models menu
