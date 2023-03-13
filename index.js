@@ -440,7 +440,7 @@ async function refreshModels() {
         document.getElementById('mModelsMenu').innerHTML = ''
 
         for (let model of g_models) {
-            console.log(model.title)
+            // console.log(model.title)//Log
             const menu_item_element = document.createElement('sp-menu-item')
             menu_item_element.className = 'mModelMenuItem'
             menu_item_element.innerHTML = model.title
@@ -477,7 +477,7 @@ async function refreshExtraUpscalers() {
                 menu_item_element.className = 'hrExtrasUpscaleModelsMenuItem'
                 menu_item_element.innerHTML = model.name
                 hrModelsMenuClass[i].appendChild(menu_item_element)
-                console.log(model + ' added to ' + hrModelsMenuClass[i].id)
+                // console.log(model + ' added to ' + hrModelsMenuClass[i].id)//Log
             }
         }
     } catch (e) {
@@ -516,7 +516,7 @@ async function initSamplers() {
         }
 
         for (let sampler of samplers) {
-            console.log(sampler)
+            // console.log(sampler)//Log
             // sampler.name
             // <sp-radio class="rbSampler" value="Euler">Euler</sp-radio>
             const rbSampler = document.createElement('sp-radio')
@@ -658,7 +658,7 @@ let g_controlnet_max_models
             menu_item_element.className = 'hrModelsMenuItem'
             menu_item_element.innerHTML = model
             hrModelsMenuClass[i].appendChild(menu_item_element)
-            console.log(model + ' added to ' + hrModelsMenuClass[i].id)
+            // console.log(model + ' added to ' + hrModelsMenuClass[i].id)//Log
         }
     }
 })()
