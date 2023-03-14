@@ -917,10 +917,22 @@ function getUseNsfw() {
     const b_nsfw = document.getElementById('chUseNSFW').checked
     return b_nsfw
 }
-function getUseSilentMode() {
+function getUseSilentMode_Old() {
     const b_use_silent_mode = document.getElementById('chUseSilentMode').checked
     return b_use_silent_mode
 }
+function getUseSilentMode() {
+    let b_use_silent_mode = true //fast machine
+    const pc_speed = getSelectedRadioButtonElement('rbPCSpeed').value
+    if (pc_speed === 'slow') {
+        b_use_silent_mode = false // use noisy mode
+    } else if (pc_speed === 'fast') {
+        b_use_silent_mode = true // use silent mode
+    }
+    // const b_use_silent_mode = document.getElementById('chUseSilentMode').checked
+    return b_use_silent_mode
+}
+
 module.exports = {
     getPrompt,
     autoFillInPrompt,

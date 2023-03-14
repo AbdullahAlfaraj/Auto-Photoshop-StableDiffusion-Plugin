@@ -383,9 +383,15 @@ document
     })
 
 async function initializePresetTab() {
-    await populatePresetMenu()
-    const selected_rb = getSelectedRadioButtonElement('rbPresetType')
-    selected_rb.click()
+    try {
+        await populatePresetMenu()
+
+        const selected_rb =
+            html_manip.getSelectedRadioButtonElement('rbPresetType')
+        selected_rb.click() // to trigger the click event which will update the setting preset menu according to the preset type
+    } catch (e) {
+        console.error(e)
+    }
 }
 initializePresetTab()
 module.exports = {
