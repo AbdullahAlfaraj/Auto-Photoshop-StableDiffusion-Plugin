@@ -1,6 +1,6 @@
 {
-  "id": "auto.photoshop.stable.diffusion.plugin",
-  "name": "Auto Photoshop Stable Diffusion Plugin",
+  "id": "rj.photoshop.stable.diffusion.plugin",
+  "name": "RJ Diffusion",
   "version": "1.0.20",
   "host": [
     {
