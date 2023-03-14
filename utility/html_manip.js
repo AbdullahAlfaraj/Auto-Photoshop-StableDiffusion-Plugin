@@ -259,16 +259,63 @@ function sliderAddEventListener(
 }
 
 //get the stable diffusion ready value from the slider with  "slider_id"
-function getSliderSdValue(slider_id, multiplier) {
+//REFACTOR: delete, getSliderSdValue_Old is deprecated, instead use getSliderSdValue
+function getSliderSdValue_Old(slider_id, multiplier) {
+    // console.warn(
+    //     'getSliderSdValue_Old is deprecated, instead use getSliderSdValue'
+    // )
     const slider_value = document.getElementById(slider_id).value
     const sd_value = slider_value * multiplier
     return sd_value
 }
+//REFACTOR: delete, autoFillInSliderUi is deprecated, instead use setSliderSdValue
 function autoFillInSliderUi(sd_value, slider_id, label_id, multiplier) {
+    // console.warn(
+    //     'autoFillInSliderUi is deprecated, instead use setSliderSdValue'
+    // )
     //update the slider
     document.getElementById(slider_id).value = `${sd_value * multiplier}`
     //update the label
     document.getElementById(label_id).innerHTML = `${sd_value}`
+}
+
+function getSliderSdValue(
+    slider_id,
+    slider_start,
+    slider_end,
+    sd_start,
+    sd_end
+) {
+    const slider_value = document.getElementById(slider_id).value
+    // const sd_value = general.mapRange(slider_value, 0, 100, 0, 1) // convert slider value to SD ready value
+    const sd_value = general.mapRange(
+        slider_value,
+        slider_start,
+        slider_end,
+        sd_start,
+        sd_end
+    ) // convert slider value to SD ready value
+
+    return sd_value
+}
+function setSliderSdValue(
+    slider_id,
+    label_id,
+    sd_value,
+    slider_start,
+    slider_end,
+    sd_start,
+    sd_end
+) {
+    const slider_value = general.mapRange(
+        sd_value,
+        sd_start,
+        sd_end,
+        slider_start,
+        slider_end
+    ) // convert slider value to SD ready value
+    document.getElementById(slider_id).value = slider_value.toString()
+    document.getElementById(label_id).innerHTML = sd_value.toString()
 }
 
 //hrWidth is from [1 to 32] * 64 => [64 to 2048]
@@ -306,6 +353,16 @@ function unCheckAllSamplers() {
         .forEach((e) => e.removeAttribute('checked'))
 }
 
+function getSelectedRadioButtonElement(rbClass) {
+    try {
+        const rb_element = [...document.getElementsByClassName(rbClass)].filter(
+            (e) => e.checked == true
+        )[0]
+        return rb_element
+    } catch (e) {
+        console.warn(e)
+    }
+}
 function getSamplerElementByName(sampler_name) {
     try {
         //assume the sampler_name is valid
@@ -441,8 +498,17 @@ function setControlMaskSrc(image_src, element_index = 0) {
 }
 
 function setProgressImageSrc(image_src) {
-    const progress_image_element = document.getElementById('progressImage')
-    progress_image_element.src = image_src
+    // const progress_image_element = document.getElementById('progressImage')
+
+    const progress_image_element = document.getElementById(
+        'divProgressImageViewerContainer'
+    )
+    // progress_image_element.src = image_src
+
+    progress_image_element.style.backgroundSize = 'contain'
+    progress_image_element.style.height = '10000px'
+
+    progress_image_element.style.backgroundImage = `url('${image_src}')`
 }
 
 function getInitImageMaskElement() {
@@ -750,12 +816,18 @@ function setMaskExpansion(mask_expansion) {
     document.getElementById('slMaskExpansion').value = mask_expansion
 }
 
-function updateProgressBarsHtml(new_value) {
-    document.querySelectorAll('.pProgressBars').forEach((el) => {
+function updateProgressBarsHtml(new_value, progress_text = 'Progress...') {
+    document.querySelectorAll('.pProgressBars').forEach((bar_elm) => {
         // id = el.getAttribute("id")
         // console.log("progressbar id:", id)
         try {
-            el.setAttribute('value', new_value)
+            bar_elm.setAttribute('value', new_value)
+            document
+                .querySelectorAll('.lProgressLabel')
+                .forEach((lable_elm) => {
+                    lable_elm.innerHTML = progress_text
+                    // else el.innerHTML = 'No work in progress'
+                })
         } catch (e) {
             console.warn(e) //value is not valid
         }
@@ -812,6 +884,18 @@ function getSelectedMenuItem(menu_id) {
         console.warn(e)
     }
 }
+function selectMenuItem(menu_id, item) {
+    try {
+        const menu_element = document.getElementById(menu_id)
+        const option = Array.from(menu_element.options).filter(
+            (element) => element.value === item
+        )[0]
+        option.selected = true
+    } catch (e) {
+        unselectMenuItem(menu_id)
+        console.warn(e)
+    }
+}
 function getSelectedMenuItemTextContent(menu_id) {
     try {
         const text_content = getSelectedMenuItem(menu_id).textContent
@@ -820,15 +904,35 @@ function getSelectedMenuItemTextContent(menu_id) {
         console.warn(e)
     }
 }
+function unselectMenuItem(menu_id) {
+    try {
+        document.getElementById(menu_id).selectedIndex = null
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
 function getUseNsfw() {
     //this method is shared between horde native and horde script
     const b_nsfw = document.getElementById('chUseNSFW').checked
     return b_nsfw
 }
-function getUseSilentMode() {
+function getUseSilentMode_Old() {
     const b_use_silent_mode = document.getElementById('chUseSilentMode').checked
     return b_use_silent_mode
 }
+function getUseSilentMode() {
+    let b_use_silent_mode = true //fast machine
+    const pc_speed = getSelectedRadioButtonElement('rbPCSpeed').value
+    if (pc_speed === 'slow') {
+        b_use_silent_mode = false // use noisy mode
+    } else if (pc_speed === 'fast') {
+        b_use_silent_mode = true // use silent mode
+    }
+    // const b_use_silent_mode = document.getElementById('chUseSilentMode').checked
+    return b_use_silent_mode
+}
+
 module.exports = {
     getPrompt,
     autoFillInPrompt,
@@ -841,6 +945,7 @@ module.exports = {
     getHeight,
     autoFillInHeight,
     getSliderSdValue,
+    setSliderSdValue,
     autoFillInHiResFixs,
     getHiResFixs,
     setHiResFixs,
@@ -904,4 +1009,8 @@ module.exports = {
     getSelectedMenuItemTextContent,
     getUseNsfw,
     getUseSilentMode,
+    unselectMenuItem,
+    selectMenuItem,
+    getSliderSdValue_Old,
+    getSelectedRadioButtonElement,
 }

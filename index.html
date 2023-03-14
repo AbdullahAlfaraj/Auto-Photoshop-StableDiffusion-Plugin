@@ -641,6 +641,9 @@
                 <div class="sp-tab" id="sp-extras-tab">
                     <sp-label>Extras</sp-label>
                 </div>
+                <div class="sp-tab" id="sp-presets-tab" style="display: none">
+                    <sp-label>Presets</sp-label>
+                </div>
                 <div class="sp-tab" id="sp-settings-tab">
                     <sp-label>Settings</sp-label>
                 </div>
@@ -663,7 +666,11 @@
 
             <div class="sp-tab-page" id="sp-viewer-tab-page">
                 <div class="subTabOptionsContainer">
-                    <sp-radio-group id="rgSubTab" class="rbMaskContent">
+                    <sp-radio-group
+                        id="rgSubTab"
+                        class="rbMaskContent"
+                        data-container-class="subTabOptionsContainer"
+                    >
                         <sp-radio
                             title=""
                             class="rbSubTab"
@@ -776,7 +783,9 @@
                                 value="0"
                                 style="margin-left: 10px; width: 100px"
                             >
-                                <sp-label slot="label">Progress...</sp-label>
+                                <sp-label slot="label" class="lProgressLabel"
+                                    >Progress...</sp-label
+                                >
                             </sp-progressbar>
                         </div>
 
@@ -801,22 +810,26 @@
                         >
                     </div>
                     <div class="" id="divProgressImageViewerContainer">
-                        <img
+                        <!-- <img
                             class=""
                             id="progressImage"
                             src="https://source.unsplash.com/random"
                             style="width: 100px; height: 100px; max-width: 100%"
-                        />
+                        /> -->
                     </div>
-                    <hr class="line-divider" />
+                    <!-- <hr class="line-divider" /> -->
+                    <sp-divider></sp-divider>
+
                     <div class="" id="divInitImageViewerContainer">
                         <!-- <img  class="viewer-image" id="viewer_init_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
                     </div>
-                    <hr class="line-divider" />
+                    <!-- <hr class="line-divider" /> -->
+                    <sp-divider></sp-divider>
                     <div class="" id="divInitMaskViewerContainer">
                         <!-- <img  class="viewer-image" id="viewer_mask_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
                     </div>
-                    <hr class="line-divider" />
+                    <!-- <hr class="line-divider" /> -->
+                    <sp-divider></sp-divider>
                     <div class="viewer-container" id="divViewerImagesContainer">
                         <!-- <img  class="viewer-image" id="viewer_output_image_test" data-metadata_json_string='{"a":1}' src='https://source.unsplash.com/random' /> -->
                     </div>
@@ -825,7 +838,41 @@
             </div>
             <div class="sp-tab-page" id="sp-control_net-tab-page">
                 <!-- control net tab page -->
+                <sp-picker
+                    title="auto fill the ControlNet with smart settings, to speed up your working process."
+                    size="m"
+                    label="ControlNet Preset"
+                >
+                    <sp-menu id="mControlNetPresetMenu" slot="options">
+                        <!-- <sp-menu-item> item </sp-menu-item> -->
+                    </sp-menu>
+                </sp-picker>
                 <div></div>
+                <div
+                    id="control_net_image_container"
+                    class="imgContainer controlNetImaageContainer"
+                >
+                    <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
+                    <!-- 
+                    <div>
+                        <img
+                            id="all_control_net_image"
+                            class="column-item-image"
+                            src="https://source.unsplash.com/random"
+                            width="300px"
+                            height="100px"
+                        />
+                    </div> -->
+                    <div class="imgButton">
+                        <button
+                            class="column-item button-style btnSquare"
+                            id="bSetAllControlImage"
+                        >
+                            Set All CtrlNet Images
+                        </button>
+                    </div>
+                </div>
+
                 <div id="controlnet_settings_0" style="display: none">
                     <div class="flexContainer">
                         <sp-label slot="label"
@@ -919,19 +966,19 @@
                                 >
                             </sp-slider>
                             <sp-slider
-                                    show-value="false"
-                                    id="slControlNetGuidanceStrengthEnd_0"
-                                    min="0"
-                                    max="100"
-                                    value="100"
+                                show-value="false"
+                                id="slControlNetGuidanceStrengthEnd_0"
+                                min="0"
+                                max="100"
+                                value="100"
                             >
                                 <sp-label slot="label"
-                                >Guidance strength end:</sp-label
+                                    >Guidance strength end:</sp-label
                                 >
                                 <sp-label
-                                        slot="label"
-                                        id="lControlNetGuidanceStrengthEnd_0"
-                                >1.0</sp-label
+                                    slot="label"
+                                    id="lControlNetGuidanceStrengthEnd_0"
+                                    >1.0</sp-label
                                 >
                             </sp-slider>
                         </div>
@@ -939,7 +986,7 @@
                     <div id="menu-bar-control_net_0" style="display: flex">
                         <sp-picker size="m" label="Selection type">
                             <sp-menu
-                                id="mModuleMenuControlNet_0"
+                                id="mModulesMenuControlNet_0"
                                 slot="options"
                             >
                                 <!-- <sp-menu-item> item </sp-menu-item> -->
@@ -960,6 +1007,7 @@
                     </div>
                 </div>
                 <div></div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
                 <div id="controlnet_settings_1" style="display: none">
                     <div class="flexContainer">
                         <sp-label slot="label"
@@ -1053,28 +1101,27 @@
                                 >
                             </sp-slider>
                             <sp-slider
-                                    show-value="false"
-                                    id="slControlNetGuidanceStrengthEnd_1"
-                                    min="0"
-                                    max="100"
-                                    value="100"
+                                show-value="false"
+                                id="slControlNetGuidanceStrengthEnd_1"
+                                min="0"
+                                max="100"
+                                value="100"
                             >
                                 <sp-label slot="label"
-                                >Guidance strength end:</sp-label
+                                    >Guidance strength end:</sp-label
                                 >
                                 <sp-label
-                                        slot="label"
-                                        id="lControlNetGuidanceStrengthEnd_1"
-                                >1.0</sp-label
+                                    slot="label"
+                                    id="lControlNetGuidanceStrengthEnd_1"
+                                    >1.0</sp-label
                                 >
                             </sp-slider>
                         </div>
                     </div>
                     <div id="menu-bar-control_net_1" style="display: flex">
-                        <sp-picker size="m" label="Selection type"
-                            >controlnet_settings_
+                        <sp-picker size="m" label="Selection type">
                             <sp-menu
-                                id="mModuleMenuControlNet_1"
+                                id="mModulesMenuControlNet_1"
                                 slot="options"
                             >
                                 <!-- <sp-menu-item> item </sp-menu-item> -->
@@ -1094,6 +1141,7 @@
                                         </button> -->
                     </div>
                 </div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
                 <div></div>
                 <div id="controlnet_settings_2" style="display: none">
                     <div class="flexContainer">
@@ -1188,19 +1236,19 @@
                                 >
                             </sp-slider>
                             <sp-slider
-                                    show-value="false"
-                                    id="slControlNetGuidanceStrengthEnd_2"
-                                    min="0"
-                                    max="100"
-                                    value="100"
+                                show-value="false"
+                                id="slControlNetGuidanceStrengthEnd_2"
+                                min="0"
+                                max="100"
+                                value="100"
                             >
                                 <sp-label slot="label"
-                                >Guidance strength end:</sp-label
+                                    >Guidance strength end:</sp-label
                                 >
                                 <sp-label
-                                        slot="label"
-                                        id="lControlNetGuidanceStrengthEnd_2"
-                                >1.0</sp-label
+                                    slot="label"
+                                    id="lControlNetGuidanceStrengthEnd_2"
+                                    >1.0</sp-label
                                 >
                             </sp-slider>
                         </div>
@@ -1208,7 +1256,7 @@
                     <div id="menu-bar-control_net_2" style="display: flex">
                         <sp-picker size="m" label="Selection type">
                             <sp-menu
-                                id="mModuleMenuControlNet_2"
+                                id="mModulesMenuControlNet_2"
                                 slot="options"
                             >
                                 <!-- <sp-menu-item> item </sp-menu-item> -->
@@ -1228,6 +1276,7 @@
                                             </button> -->
                     </div>
                 </div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
             </div>
             <div class="sp-tab-page" id="sp-history-tab-page">
                 <div class="subTabOptionsContainer"></div>
@@ -1627,8 +1676,115 @@
                     </sp-slider>
                 </div>
             </div>
+            <div class="sp-tab-page" id="sp-presets-tab-page">
+                <!-- settings tab page -->
+                <div class="SettingsSubTabOptionsContainer"></div>
+                <div>
+                    <sp-textfield
+                        id="tiPresetName"
+                        type="text"
+                        placeholder="Preset Name"
+                        value=""
+                        style="width: 160px"
+                    ></sp-textfield
+                    ><button
+                        class="btnSquare"
+                        id="btnNewPreset"
+                        style="margin-left: 5px"
+                    >
+                        New Preset
+                    </button>
+                    <div>
+                        <sp-radio-group id="rgPresetType">
+                            <sp-label slot="label">Preset Type:</sp-label>
+                            <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
+                            <sp-radio
+                                title="Use to create Stable Diffusion tab Preset"
+                                class="rbPresetType"
+                                value="sd_preset"
+                                checked
+                                >SD Preset</sp-radio
+                            >
+                            <sp-radio
+                                title="Use to create a ControlNet preset"
+                                class="rbPresetType"
+                                value="controlnet_preset"
+                                >ControlNet Preset</sp-radio
+                            >
+                        </sp-radio-group>
+                    </div>
+                    <!-- <button
+                        class="btnSquare"
+                        id="btnEditPresetName"
+                        style="margin-left: 5px"
+                    >
+                        Edit Name
+                    </button> -->
+
+                    <button
+                        class="btnSquare"
+                        id="btnSavePreset"
+                        style="margin-left: 5px"
+                    >
+                        Save Preset
+                    </button>
+                    <button
+                        class="btnSquare"
+                        id="btnDeletePreset"
+                        style="margin-left: 5px"
+                    >
+                        Delete Preset
+                    </button>
+                    <div style="display: inline-flex">
+                        <sp-picker
+                            title="auto fill the plugin with smart settings, to speed up your working process."
+                            size="s"
+                            label="Smart Preset"
+                        >
+                            <sp-menu id="mSettingTabPresetMenu" slot="options">
+                                <!-- <sp-menu-item> item </sp-menu-item> -->
+                            </sp-menu>
+                        </sp-picker>
+                    </div>
+                    <div>
+                        <sp-label id="lPresetName"></sp-label>
+                    </div>
+                    <div class="">
+                        <sp-textarea
+                            id="taPresetSettings"
+                            placeholder="{}"
+                            value=""
+                        ></sp-textarea>
+                    </div>
+                </div>
+            </div>
             <div class="sp-tab-page" id="sp-settings-tab-page">
                 <!-- settings tab page -->
+                <div class="SettingsSubTabOptionsContainer">
+                    <sp-radio-group
+                        id="rgSubTab"
+                        class="rbMaskContent"
+                        data-container-class="SettingsSubTabOptionsContainer"
+                    >
+                        <sp-radio
+                            title=""
+                            class="rbSubTab"
+                            id="rbSettingsTab"
+                            checked
+                            value="settings"
+                            data-tab-name="sp-settings-tab"
+                            >Settings</sp-radio
+                        >
+                        <sp-radio
+                            title=""
+                            class="rbSubTab"
+                            id="rbPresetsTab"
+                            value="presets"
+                            data-tab-name="sp-presets-tab"
+                            >Custom Presets</sp-radio
+                        >
+                    </sp-radio-group>
+                </div>
                 <div>
                     <sp-label>SD Url:</sp-label
                     ><sp-textfield
@@ -1660,9 +1816,24 @@
                 <sp-checkbox checked id="chUseOriginalPrompt"
                     >Restore Original Prompt</sp-checkbox
                 >
-                <sp-checkbox checked id="chUseSilentMode"
+
+                <sp-checkbox checked id="chUseSilentMode" style="display: none"
                     >Use Silent Mode</sp-checkbox
                 >
+                <sp-radio-group>
+                    <sp-label slot="label"
+                        >Your PC Speed(optimization):</sp-label
+                    >
+                    <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
+                    <sp-radio title="" class="rbPCSpeed" value="slow"
+                        >Slow PC</sp-radio
+                    >
+                    <sp-radio title="" class="rbPCSpeed" value="fast" checked
+                        >Fast PC</sp-radio
+                    >
+
+                    <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
+                </sp-radio-group>
                 <!-- <a href="https://colab.research.google.com/drive/1nbcx_WOneRmYv9idBO33pN5CbxXrqZHu?usp=sharing" target="_blank">Don't have GPU, use Colab</a> -->
                 <sp-link
                     href="https://colab.research.google.com/drive/1nbcx_WOneRmYv9idBO33pN5CbxXrqZHu?usp=sharing"
@@ -1820,7 +1991,9 @@
                             max="100"
                             value="0"
                         >
-                            <sp-label slot="label">Progress...</sp-label>
+                            <sp-label slot="label" class="lProgressLabel"
+                                >Progress...</sp-label
+                            >
                         </sp-progressbar>
                         <sp-checkbox
                             title="use {keyword} form the prompts library"
@@ -1918,7 +2091,7 @@
                                 id="taNegativePrompt"
                                 placeholder="Negative Prompt"
                                 id="taNegativePrompt"
-                                value=""
+                                value="{ugly}"
                                 multiline
                                 grows
                             ></sp-textarea>

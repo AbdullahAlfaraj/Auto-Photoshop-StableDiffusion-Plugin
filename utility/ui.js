@@ -2,7 +2,9 @@ const html_manip = require('./html_manip')
 const presets = require('./presets/preset')
 const layer_util = require('../utility/layer')
 const psapi = require('../psapi')
+const Enum = require('../enum')
 const { executeAsModal } = require('photoshop').core
+
 class UI {
     constructor() {}
 
@@ -139,7 +141,7 @@ class UIElement {
     getValue() {}
 }
 function createUIElement(getter, setter) {
-    let ui_element_obj = new ui.UIElement()
+    let ui_element_obj = new UIElement()
     ui_element_obj.getValue = getter
     ui_element_obj.setValue = setter
     return ui_element_obj
@@ -248,6 +250,17 @@ class UISettings {
             }
         }
     }
+    getSettings() {
+        let settings = {}
+        for (const [name, ui_element] of Object.entries(this.uiElements)) {
+            if (ui_element) {
+                const value = ui_element.getValue()
+                settings[name] = value
+            }
+        }
+        return settings
+    }
+
     saveAsJson(json_file_name, settings) {
         for (const [name, value] of Object.entries(settings)) {
             if (this.uiElements.hasOwnProperty(name) && value) {
@@ -284,33 +297,99 @@ function loadOriginalSettings(ui_settings) {
 }
 async function loadHealBrushSettings(ui_settings) {
     document.getElementById('rbModeInpaint').click()
-    const { timer } = require('./general')
-    // await timer(1000)
-    // if (layer_util.Layer.doesLayerExist(g_inpaint_mask_layer)) {
-    //     // psapi.executeCommandExe(async () => {
-    //     //     g_inpaint_mask_layer.opacity = 50
-    //     // })
-    //     // ;(async () => {
-    //     //     await executeAsModal(() => {
-    //     //         g_inpaint_mask_layer.opacity = 50
-    //     //     })
-    //     // })()
-    // } else {
-    //     await createTempInpaintMaskLayer()
-    // }
 
-    // await executeAsModal(() => {
-    //     g_inpaint_mask_layer.opacity = 50
-    // })
     loadPreset(ui_settings, presets.HealBrushSettings)
 }
+function loadCustomPreset(ui_settings_obj, custom_preset_settings) {
+    loadPreset(ui_settings_obj, custom_preset_settings)
+}
 
-let loadedPresets = {
+function loadCustomPresetsSettings() {}
+async function mapCustomPresetsToLoaders(ui_settings_obj) {
+    const name_to_settings_obj = await presets.getAllCustomPresetsSettings(
+        Enum.PresetTypeEnum['SDPreset']
+    )
+    const preset_name_to_loader_obj = {}
+    for (const [preset_name, preset_settings] of Object.entries(
+        name_to_settings_obj
+    )) {
+        preset_name_to_loader_obj[preset_name] = () => {
+            loadCustomPreset(ui_settings_obj, preset_settings)
+        }
+    }
+    return preset_name_to_loader_obj
+}
+
+const g_nativePresets = {
     fill: loadFillSettings,
     original: loadOriginalSettings,
     'latent noise': loadLatentNoiseSettings,
     'Heal Brush': loadHealBrushSettings,
 }
+
+async function getLoadedPresets(ui_settings_obj) {
+    let customPresets
+
+    customPresets = await mapCustomPresetsToLoaders(ui_settings_obj)
+    console.log('customPresets: ', customPresets)
+    let loadedPresets = {
+        ...g_nativePresets,
+        ...customPresets,
+    }
+    return loadedPresets
+}
+let g_ui_settings_object = new UISettings()
+function getUISettingsObject() {
+    return g_ui_settings_object
+}
+
+//REFACTOR: move to ui.js
+function addPresetMenuItem(preset_title) {
+    // console.log(model_title,model_name)
+    const menu_item_element = document.createElement('sp-menu-item')
+    menu_item_element.className = 'mPresetMenuItem'
+    menu_item_element.innerHTML = preset_title
+
+    // menu_item_element.addEventListener('select',()=>{
+    //   preset_func(g_ui_settings)
+    // })
+    return menu_item_element
+}
+//REFACTOR: move to ui.js
+async function populatePresetMenu() {
+    document.getElementById('mPresetMenu').innerHTML = ''
+    const divider_elem = document.createElement('sp-menu-divider')
+    const preset_name = 'Select Smart Preset'
+    const preset_func = () => {}
+    const dummy_preset_item = addPresetMenuItem(preset_name, preset_func)
+    dummy_preset_item.setAttribute('selected', 'selected')
+    // dummy_preset_item.setAttribute('disabled')
+    document.getElementById('mPresetMenu').appendChild(dummy_preset_item)
+    document.getElementById('mPresetMenu').appendChild(divider_elem)
+    const presets = await getLoadedPresets(g_ui_settings_object)
+    for ([key, value] of Object.entries(presets)) {
+        const preset_menu_item = addPresetMenuItem(key, value)
+        document.getElementById('mPresetMenu').appendChild(preset_menu_item)
+    }
+}
+
+populatePresetMenu()
+//REFACTOR: move to preset_tab.js
+document
+    .getElementById('mPresetMenu')
+    .addEventListener('change', async (evt) => {
+        const preset_index = evt.target.selectedIndex
+        const preset_name = evt.target.options[preset_index].textContent
+        const presets = await getLoadedPresets(g_ui_settings_object)
+        if (presets.hasOwnProperty(preset_name)) {
+            const loader = presets[preset_name]
+            if (loader.constructor.name === 'AsyncFunction') {
+                await loader(g_ui_settings_object)
+            } else {
+                loader(g_ui_settings_object)
+            }
+        }
+    })
 
 module.exports = {
     UI,
@@ -319,5 +398,7 @@ module.exports = {
     loadLatentNoiseSettings,
     loadFillSettings,
     loadHealBrushSettings,
-    loadedPresets,
+    getLoadedPresets,
+    getUISettingsObject,
+    populatePresetMenu,
 }

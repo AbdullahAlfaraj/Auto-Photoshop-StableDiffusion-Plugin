@@ -41,7 +41,7 @@ async function refreshModelsHorde() {
             .getElementById('mModelsMenuHorde')
             .appendChild(model_item_random)
         for (let model of g_models_horde) {
-            console.log(model.name, model.count)
+            // console.log(model.name, model.count) //Log
             const model_html_tile = `${model.name}: ${model.count}`
             const model_item_element = addHordeModelMenuItem(
                 model_html_tile,
