@@ -1,7 +1,7 @@
 #!/bin/bash
 git pull
 # Set the desired remote host where the "<>" is
-export SD_URL=http://127.0.0.1:7860
+export SD_URL=http://149.36.0.106:10197
 
 # Check if the desired environment exists
 if [ ! -d "server_env" ]; then
