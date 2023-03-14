@@ -1,13 +1,15 @@
-const batchPlay = require('photoshop').action.batchPlay
 const psapi = require('../psapi')
 // const sdapi = require('../sdapi_py_re')
 const layer_util = require('../utility/layer')
 const general = require('./general')
 const Jimp = require('../jimp/browser/lib/jimp.min')
 
+const { executeAsModal } = require('photoshop').core
+const batchPlay = require('photoshop').action.batchPlay
 const formats = require('uxp').storage.formats
 const storage = require('uxp').storage
 const fs = storage.localFileSystem
+
 async function snapShotLayer() {
     //snapshot layer with no mask
     let command = [
