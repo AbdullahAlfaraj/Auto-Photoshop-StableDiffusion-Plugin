@@ -816,12 +816,18 @@ function setMaskExpansion(mask_expansion) {
     document.getElementById('slMaskExpansion').value = mask_expansion
 }
 
-function updateProgressBarsHtml(new_value) {
-    document.querySelectorAll('.pProgressBars').forEach((el) => {
+function updateProgressBarsHtml(new_value, progress_text = 'Progress...') {
+    document.querySelectorAll('.pProgressBars').forEach((bar_elm) => {
         // id = el.getAttribute("id")
         // console.log("progressbar id:", id)
         try {
-            el.setAttribute('value', new_value)
+            bar_elm.setAttribute('value', new_value)
+            document
+                .querySelectorAll('.lProgressLabel')
+                .forEach((lable_elm) => {
+                    lable_elm.innerHTML = progress_text
+                    // else el.innerHTML = 'No work in progress'
+                })
         } catch (e) {
             console.warn(e) //value is not valid
         }
