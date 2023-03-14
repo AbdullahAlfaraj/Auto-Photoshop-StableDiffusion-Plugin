@@ -129,12 +129,20 @@ function sudoTimer() {
             // doSomething()
             // html_manip.updateProgressBarsHtml(0)
         } else {
-            html_manip.updateProgressBarsHtml(current_time)
+            html_manip.updateProgressBarsHtml(
+                current_time,
+                'Loading ControlNet...'
+            )
             console.log(current_time + ' seconds remaining')
             current_time++
         }
     }
     return timerId
+}
+function countNewLines(string) {
+    const count = (string.match(/\n/g) || []).length
+    // console.log(count)
+    return count
 }
 module.exports = {
     newOutputImageName,
@@ -151,4 +159,5 @@ module.exports = {
     requestOnlineData,
     nearestMultiple,
     sudoTimer,
+    countNewLines,
 }
