@@ -1,4 +1,8 @@
 const sdapi = require('../../sdapi_py_re')
+
+const storage = require('uxp').storage
+const fs = storage.localFileSystem
+
 //REFACTOR: move to events.js
 document
     .getElementById('btnImageSearch')
