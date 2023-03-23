@@ -60,8 +60,32 @@ async function updateClickEventHandler(current_version) {
     }
 }
 
+function viewMaskExpansion() {
+    if (g_generation_session.base64maskExpansionImage) {
+        const mask_src = general.base64ToBase64Url(
+            g_generation_session.base64maskExpansionImage
+        )
+        html_manip.setInitImageMaskSrc(mask_src)
+    } else {
+        console.log(
+            'the mask has not been expanded, g_generation_session.base64maskExpansionImage is empty'
+        )
+    }
+}
+function viewDrawnMask() {
+    //this is the generated mask or user drawn mask, but it's not the mask after expansion
+    if (g_generation_session.activeBase64MaskImage) {
+        const mask_src = general.base64ToBase64Url(
+            g_generation_session.activeBase64MaskImage
+        )
+        html_manip.setInitImageMaskSrc(mask_src)
+    } else {
+        console.log('no mask is available')
+    }
+}
+
 document.getElementById('btnUpdate').addEventListener('click', async () => {
     await updateClickEventHandler(g_version)
 })
 
-module.exports = { updateClickEventHandler }
+module.exports = { updateClickEventHandler, viewMaskExpansion, viewDrawnMask }

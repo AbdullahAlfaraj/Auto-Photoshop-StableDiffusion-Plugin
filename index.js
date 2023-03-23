@@ -1897,6 +1897,7 @@ async function getSettings() {
                     iterations
                 )
                 if (mask) {
+                    g_generation_session.base64maskExpansionImage = mask
                     payload['mask'] = mask
                 }
             }

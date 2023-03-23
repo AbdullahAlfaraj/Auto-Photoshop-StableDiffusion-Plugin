@@ -31,6 +31,7 @@ class GenerationSession {
         this.base64OutputImages = {} //image_id/path => base64_image
         this.base64initImages = {} //init_image_path => base64
         this.base64maskImage = []
+        this.base64maskExpansionImage
         this.activeBase64InitImage
         this.activeBase64MaskImage
         this.image_paths_to_layers = {}
