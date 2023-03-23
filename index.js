@@ -405,7 +405,11 @@ async function refreshUI() {
 
         g_models_status = await refreshModels()
         await refreshExtraUpscalers()
+
+        await sdapi.setInpaintMaskWeight(1.0) //set the inpaint conditional mask to 1 when the on plugin start
+
         //get the latest options
+
         await g_sd_options_obj.getOptions()
         //get the selected model
         const current_model_title = g_sd_options_obj.getCurrentModel()
@@ -708,6 +712,7 @@ async function initPlugin() {
     await settings_tab.loadSettings()
     await horde_native.HordeSettings.loadSettings()
     const bSamplersStatus = await initSamplers() //initialize the sampler
+    await sdapi.setInpaintMaskWeight(1.0) //set the inpaint conditional mask to 1 when the on plugin start
     await refreshUI()
     await displayUpdate()
     // promptShortcutExample()
@@ -4043,16 +4048,13 @@ document
             ).innerHTML = `${label_value}`
             await sdapi.setInpaintMaskWeight(label_value)
 
-            //get the inpaint mask weight from the webui sd
-            await g_sd_options_obj.getOptions()
-            const inpainting_mask_weight =
-                await g_sd_options_obj.getInpaintingMaskWeight()
-            // html_manip.autoFillInInpaintingMaskWeight(inpainting_mask_weight)
-            // const slider_value = inpainting_mask_weight * 100
-            // evt.target.value = inpainting_mask_weight * 100
-            // document.getElementById('lInpaintingMaskWeight').innerHTML = `${inpainting_mask_weight}`
-            console.log('inpainting_mask_weight: ', inpainting_mask_weight)
-            html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
+            // //get the inpaint mask weight from the webui sd
+            // await g_sd_options_obj.getOptions()
+            // const inpainting_mask_weight =
+            //     await g_sd_options_obj.getInpaintingMaskWeight()
+
+            // console.log('inpainting_mask_weight: ', inpainting_mask_weight)
+            // html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
         } catch (e) {
             console.warn(e)
         }
