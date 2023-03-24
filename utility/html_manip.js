@@ -1013,4 +1013,5 @@ module.exports = {
     selectMenuItem,
     getSliderSdValue_Old,
     getSelectedRadioButtonElement,
+    getInitImageMaskElement,
 }
