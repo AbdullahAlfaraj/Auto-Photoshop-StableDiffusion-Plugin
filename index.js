@@ -49,7 +49,7 @@ const control_net = require('./utility/tab/control_net')
 //load tabs
 const history_tab = require('./utility/tab/history_tab')
 const image_search_tab = require('./utility/tab/image_search_tab')
-
+const lexica_tab = require('./utility/tab/lexica_tab')
 let g_horde_generator = new horde_native.hordeGenerator()
 let g_automatic_status = Enum.AutomaticStatusEnum['Offline']
 let g_models_status = false

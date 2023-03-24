@@ -620,6 +620,9 @@
                 <div class="sp-tab" id="sp-history-tab" style="display: none">
                     <sp-label>History</sp-label>
                 </div>
+                <div class="sp-tab" id="sp-lexica-tab">
+                    <sp-label>Lexica</sp-label>
+                </div>
                 <div
                     class="sp-tab"
                     id="sp-image_search-tab"
@@ -1307,6 +1310,41 @@
                     />
                 </div>
             </div>
+            <div class="sp-tab-page" id="sp-lexica-tab-page">
+                <div class="subTabOptionsContainer"></div>
+
+                <div class="flexContainer">
+                    <sp-label slot="label"
+                        >Explore Lexica for prompts and inspiration</sp-label
+                    >
+                </div>
+                <div></div>
+                <div>
+                    <sp-textfield
+                        id="LexicaSearchField"
+                        type="text"
+                        placeholder="cute cats"
+                        value=""
+                        ><sp-label slot="label">Search:</sp-label></sp-textfield
+                    >
+
+                    <button class="btnSquare" id="btnSearchLexica">
+                        Search Lexica
+                    </button>
+                    <button class="btnSquare" id="btnReverseSearchLexica">
+                        Reverse Search Selection
+                    </button>
+                </div>
+                <div class="viewer-container" id="divLexicaImagesContainer">
+                    <img
+                        class="history-image"
+                        id="history_image_test"
+                        data-metadata_json_string='{"a":1}'
+                        src="https://source.unsplash.com/random"
+                    />
+                </div>
+            </div>
+
             <div class="sp-tab-page" id="sp-image_search-tab-page">
                 <div class="subTabOptionsContainer"></div>
 
