@@ -107,6 +107,38 @@ document
         displayAllLexicaImages(lexica_items)
     })
 
+document
+    .getElementById('btnReverseSearchLexica')
+    .addEventListener('click', async () => {
+        //*) check if selection is valid
+        //*) get base64 from selection
+        //*) request global url from base64
+        //*) request Lexica search
+
+        try {
+            const width = html_manip.getWidth()
+            const height = html_manip.getHeight()
+            const selectionInfo = await psapi.getSelectionInfoExe()
+
+            const base64 =
+                await io.IO.getSelectionFromCanvasAsBase64Interface_New(
+                    width,
+                    height,
+                    selectionInfo,
+                    true
+                )
+            const hosted_url = await requestHostedUrl(base64)
+
+            const result_json = await requestLexica(hosted_url)
+
+            const lexica_items = result_json.images
+
+            displayAllLexicaImages(lexica_items)
+        } catch (e) {
+            console.warn(e)
+        }
+    })
+
 const g_lexica_obj = new Lexica()
 
 function getLexicaObject() {
