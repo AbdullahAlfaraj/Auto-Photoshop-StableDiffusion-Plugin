@@ -353,6 +353,45 @@ class IO {
         }
         return base64_image
     }
+    static async getSelectionFromCanvasAsBase64Interface_New(
+        width,
+        height,
+        selectionInfo,
+        resize = true,
+        image_name = 'temp.png'
+    ) {
+        //use this version, it has less parameters
+        const use_silent_mode = html_manip.getUseSilentMode()
+        let layer = null
+        if (!use_silent_mode) {
+            await psapi.snapshot_layerExe()
+            const snapshotLayer = await app.activeDocument.activeLayers[0]
+            layer = snapshotLayer
+        }
+        let base64_image
+        if (use_silent_mode) {
+            base64_image = await this.getSelectionFromCanvasAsBase64Silent(
+                selectionInfo,
+                resize,
+                width,
+                height
+            )
+        } else {
+            base64_image = await this.getSelectionFromCanvasAsBase64NonSilent(
+                layer,
+                image_name,
+                width,
+                height
+            )
+        }
+        await layer_util.deleteLayers([layer]) //delete the snapshot layer if it exists
+        return base64_image
+    }
+
+    static async urlToLayer(image_url, image_file_name = 'image_from_url.png') {
+        const temp_entry = await fs.getTemporaryFolder()
+        await downloadItExe(image_url, temp_entry, image_file_name)
+    }
 }
 
 class IOHelper {
