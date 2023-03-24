@@ -14,6 +14,23 @@ class Lexica {
     }
 }
 
+async function requestHostedUrl(base64) {
+    try {
+        const payload = {
+            key: '6d207e02198a847aa98d0a2a901485a5',
+            source: base64,
+        }
+        const url = 'https://freeimage.host/api/1/upload'
+
+        const result_json = await api.requestFormDataPost(url, payload)
+
+        const image_url = result_json.image.url
+        return image_url
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
 async function requestLexica(search_query) {
     const lexica_url = `https://lexica.art/api/v1/search?q=${search_query}`
     const url_encoded = encodeURI(lexica_url)
