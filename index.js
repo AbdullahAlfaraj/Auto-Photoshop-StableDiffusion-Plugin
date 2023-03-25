@@ -1421,6 +1421,7 @@ async function discardAll() {
             }
         }
         await discard() // clean viewer tab
+        await layer_util.deleteLayers([g_generation_session.outputGroup]) //delete the group folder since it's empty
     } catch (e) {
         console.warn(e)
     }
