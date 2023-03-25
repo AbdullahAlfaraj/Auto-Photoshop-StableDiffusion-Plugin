@@ -389,6 +389,7 @@ class IO {
     }
 
     static async urlToLayer(image_url, image_file_name = 'image_from_url.png') {
+        await psapi.unselectActiveLayersExe()
         const temp_entry = await fs.getTemporaryFolder()
         await downloadItExe(image_url, temp_entry, image_file_name)
     }
