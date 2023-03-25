@@ -36,6 +36,7 @@ const script_horde = require('./utility/sd_scripts/horde')
 const prompt_shortcut = require('./utility/sdapi/prompt_shortcut')
 const formats = require('uxp').storage.formats
 const storage = require('uxp').storage
+const shell = require('uxp').shell
 const fs = storage.localFileSystem
 const horde_native = require('./utility/sdapi/horde_native')
 const io = require('./utility/io')
@@ -1571,6 +1572,11 @@ document.getElementById('btnLastSeed').addEventListener('click', async () => {
 //REFACTOR: move to session.js
 async function discard() {
     try {
+        await executeAsModal(async () => {
+            await psapi.selectLayersExe([g_generation_session.outputGroup]) //must select the layer to change allLocked
+            g_generation_session.outputGroup.allLocked = false //unlock the session folder on session end
+        })
+
         // console.log(
         //   'click on btnCleanLayers,  g_last_outpaint_layers:',
         //   g_last_outpaint_layers
