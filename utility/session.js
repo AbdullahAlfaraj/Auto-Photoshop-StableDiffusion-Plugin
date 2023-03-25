@@ -70,6 +70,9 @@ class GenerationSession {
             await psapi.unselectActiveLayersExe() // unselect all layer so the create group is place at the top of the document
             this.prevOutputGroup = this.outputGroup
             const outputGroup = await psapi.createEmptyGroup(session_name)
+            await executeAsModal(async () => {
+                outputGroup.allLocked = true //lock the session folder so that it can't move
+            })
             this.outputGroup = outputGroup
             await psapi.selectLayersExe(activeLayers)
         } catch (e) {
@@ -117,6 +120,9 @@ class GenerationSession {
             g_viewer_manager.last_selected_viewer_obj = null // TODO: move this in viewerManager endSession()
             g_viewer_manager.onSessionEnd()
             await layer_util.collapseFolderExe([this.outputGroup], false) // close the folder group
+            await executeAsModal(async () => {
+                this.outputGroup.allLocked = false //unlock the session folder on session end
+            })
             // this.outputGroup.visible = is_visible
 
             if (
