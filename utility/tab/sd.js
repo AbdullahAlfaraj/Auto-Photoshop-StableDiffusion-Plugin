@@ -1,6 +1,8 @@
 const general = require('../general')
 const thumbnail = require('../../thumbnail')
 const html_manip = require('../html_manip')
+const api = require('../api')
+const psapi = require('../../psapi')
 //REFACTOR: move to notification.js
 async function promptForUpdate(header_message, long_message) {
     const shell = require('uxp').shell
@@ -85,6 +87,32 @@ function viewDrawnMask() {
     }
 }
 
+async function clipInterrogate() {
+    try {
+        const width = html_manip.getWidth()
+        const height = html_manip.getHeight()
+        const selectionInfo = await psapi.getSelectionInfoExe()
+
+        const base64 = await io.IO.getSelectionFromCanvasAsBase64Interface_New(
+            width,
+            height,
+            selectionInfo,
+            true
+        )
+
+        const url = 'http://127.0.0.1:7860/sdapi/v1/interrogate'
+
+        const payload = {
+            image: base64,
+            model: 'clip',
+        }
+        const result_json = await api.requestPost(url, payload)
+        console.log(result_json)
+        return result_json
+    } catch (e) {
+        console.warn(e)
+    }
+}
 function initInitMaskElement() {
     //make init mask image use the thumbnail class with buttons
     const mask_image_html = html_manip.getInitImageMaskElement()
@@ -136,9 +164,23 @@ document
         }
     })
 
+document
+    .getElementById('btnInterrogate')
+    .addEventListener('click', async () => {
+        const interrogate_result = await clipInterrogate()
+        if (interrogate_result.caption) {
+            html_manip.autoFillInPrompt(interrogate_result.caption)
+        }
+    })
+
 function initSDTab() {
     initInitMaskElement()
 }
 
 initSDTab()
-module.exports = { updateClickEventHandler, viewMaskExpansion, viewDrawnMask }
+module.exports = {
+    updateClickEventHandler,
+    viewMaskExpansion,
+    viewDrawnMask,
+    clipInterrogate,
+}
