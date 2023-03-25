@@ -606,6 +606,11 @@
         .rbSubTab:last-child {
             margin-right: 0;
         }
+        #lexicaPrompt {
+            position: static;
+            top: 0;
+            left: 0;
+        }
     </style>
 
     <body>
@@ -1322,7 +1327,7 @@
             </div>
             <div class="sp-tab-page" id="sp-lexica-tab-page">
                 <div class="subTabOptionsContainer"></div>
-
+                <sp-textarea id="lexicaPrompt"> </sp-textarea>
                 <div class="flexContainer">
                     <sp-label slot="label"
                         >Explore Lexica for prompts and inspiration</sp-label
