@@ -95,6 +95,15 @@ function displayLexicaImage(lexica_item) {
 
     lexicaMasterImageContainer.appendChild(thumbnail_container)
 }
+
+const taLexicaPrompt = document.querySelector('#lexicaPrompt')
+function setLexicaPromptValue(input) {
+    taLexicaPrompt.value = input
+}
+function getLexicaPromptValue() {
+    return taLexicaPrompt.value
+}
+
 document
     .getElementById('btnSearchLexica')
     .addEventListener('click', async () => {
@@ -137,6 +146,21 @@ document
         } catch (e) {
             console.warn(e)
         }
+    })
+
+const windowEventListener = document
+    .querySelector('body > div')
+    .addEventListener('scroll', () => {
+        const originalPosition = taLexicaPrompt.offsetTop
+        const currentPosition = document.querySelector('body > div').scrollTop
+        taLexicaPrompt.style.position = 'static'
+        // const isScrolledPast = currentPosition > originalPosition
+
+        // if (isScrolledPast) {
+        //     taLexicaPrompt.style.position = 'fixed'
+        // } else {
+        //     taLexicaPrompt.style.position = 'static'
+        // }
     })
 
 const g_lexica_obj = new Lexica()
