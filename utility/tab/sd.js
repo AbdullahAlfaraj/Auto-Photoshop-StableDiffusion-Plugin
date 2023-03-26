@@ -199,10 +199,23 @@ document
 document
     .getElementById('btnInterrogate')
     .addEventListener('click', async () => {
+        // start sudo timer after 1 seconds delay
+        setTimeout(() => {
+            g_generation_session.sudo_timer_id =
+                general.sudoTimer('Interrogate')
+        }, 1000)
         const interrogate_result = await clipInterrogate()
+
         if (interrogate_result.caption) {
             html_manip.autoFillInPrompt(interrogate_result.caption)
         }
+
+        // after the clipInterrogate finish stop the timer
+
+        html_manip.updateProgressBarsHtml(0, 'No work in progress')
+        g_generation_session.sudo_timer_id = clearInterval(
+            g_generation_session.sudo_timer_id
+        )
     })
 
 function initSDTab() {
@@ -215,4 +228,5 @@ module.exports = {
     viewMaskExpansion,
     viewDrawnMask,
     clipInterrogate,
+    getHrScaleSliderSDValue,
 }

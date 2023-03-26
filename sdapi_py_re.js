@@ -120,8 +120,7 @@ async function requestProgress() {
         const full_url = `${g_sd_url}/sdapi/v1/progress?skip_current_image=false`
         let request = await fetch(full_url)
         json = await request.json()
-        console.log('progress json:')
-        console.dir(json)
+        console.log('progress json:', json)
 
         return json
     } catch (e) {
