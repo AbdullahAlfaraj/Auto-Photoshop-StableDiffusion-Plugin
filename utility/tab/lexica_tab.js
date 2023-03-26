@@ -82,9 +82,22 @@ function displayLexicaImage(lexica_item) {
         // lexica_item.
         const link = lexica_item.src
         const image_file_name = 'lexica_image.png'
-        await io.IO.urlToLayer(link, image_file_name)
+        await io.IO.urlToLayer(link, image_file_name)``
     }
-
+    async function loadSettingsToUI(lexica_item) {
+        try {
+            const settings = {
+                prompt: lexica_item.prompt,
+                width: lexica_item.width,
+                height: lexica_item.height,
+                seed: lexica_item.seed,
+                cfg_scale: lexica_item.guidance,
+            }
+            g_ui_settings_object.autoFillInSettings(settings)
+        } catch (e) {
+            console.warn(e)
+        }
+    }
     thumbnail.Thumbnail.addSPButtonToContainer(
         thumbnail_container,
         'svg_sp_btn',
@@ -92,6 +105,27 @@ function displayLexicaImage(lexica_item) {
         loadOnCanvas,
         lexica_item
     )
+    thumbnail.Thumbnail.addSPButtonToContainer(
+        thumbnail_container,
+        'svg_sp_btn',
+        'load settings',
+        loadSettingsToUI,
+        lexica_item
+    )
+    thumbnail_container.addEventListener('click', () => {
+        setLexicaPromptValue(lexica_item.prompt)
+        // taLexicaPrompt.style.position = 'fixed'
+        const originalPosition = taLexicaPrompt.offsetTop
+        const currentPosition = document.querySelector('body > div').scrollTop
+
+        const isScrolledPast = currentPosition > originalPosition
+
+        if (isScrolledPast) {
+            taLexicaPrompt.style.position = 'fixed'
+        } else {
+            taLexicaPrompt.style.position = 'static'
+        }
+    })
 
     lexicaMasterImageContainer.appendChild(thumbnail_container)
 }
