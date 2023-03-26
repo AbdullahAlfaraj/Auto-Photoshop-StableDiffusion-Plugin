@@ -35,7 +35,9 @@ document
                     console.log(`the image url: ${img.src}`)
                     const link = img.src
                     const image_file_name = 'search_image_temp.png'
-                    await downloadItExe(link, temp_entry, image_file_name)
+                    await io.IO.urlToLayer(link, image_file_name)
+                    // await downloadItExe(link, temp_entry, image_file_name)
+
                     // const metadata_json = JSON.parse(e.target.dataset.metadata_json_string)
                     // console.log("metadata_json: ",metadata_json)
                     // document.querySelector('#tiSeed').value = metadata_json.Seed
