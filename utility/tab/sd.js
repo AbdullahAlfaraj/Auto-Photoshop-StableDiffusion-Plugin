@@ -113,6 +113,32 @@ async function clipInterrogate() {
         console.warn(e)
     }
 }
+
+function getHrScaleSliderSDValue() {
+    sd_value = html_manip.getSliderSdValue('hrScaleSlider', 1, 100, 1, 4)
+    return sd_value
+}
+function setHrScaleSliderSDValue(sd_value) {
+    const slider_id = 'hrScaleSlider'
+    const label_id = 'hrScaleLabel'
+    html_manip.setSliderSdValue(slider_id, label_id, sd_value, 1, 100, 1, 4)
+}
+
+function updateHrScaleFromToLabel() {
+    //get width and height
+    //get hr scale by
+    //find the hr scale and height
+
+    const hr_scale = getHrScaleSliderSDValue()
+    const [width, height] = [html_manip.getWidth(), html_manip.getHeight()]
+    const [hr_width, hr_height] = [
+        parseInt(width * hr_scale),
+        parseInt(height * hr_scale),
+    ]
+    document.getElementById(
+        'lHrScaleFromTo'
+    ).textContent = `${width}x${height} -> ${hr_width}x${hr_height}`
+}
 function initInitMaskElement() {
     //make init mask image use the thumbnail class with buttons
     const mask_image_html = html_manip.getInitImageMaskElement()
@@ -140,6 +166,12 @@ function initInitMaskElement() {
         null
     )
 }
+
+document.getElementById('hrScaleSlider').addEventListener('input', (evt) => {
+    const sd_value = getHrScaleSliderSDValue()
+    setHrScaleSliderSDValue(sd_value.toFixed(2))
+    updateHrScaleFromToLabel()
+})
 document.getElementById('btnUpdate').addEventListener('click', async () => {
     await updateClickEventHandler(g_version)
 })

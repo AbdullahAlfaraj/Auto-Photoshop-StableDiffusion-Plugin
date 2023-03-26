@@ -1257,10 +1257,7 @@ document.querySelector('#hrWidth').addEventListener('input', (evt) => {
     hWidth = sliderToResolution(evt.target.value)
     document.querySelector('#hWidth').textContent = hWidth
 })
-//document.querySelector('#hrScale').addEventListener('input', evt => {
-//  hScale = sliderToResolution(evt.target.value)
-//  document.querySelector('#hScale').textContent = hScale
-//})
+
 //REFACTOR: move to events.js
 document.querySelector('#slInpaintPadding').addEventListener('input', (evt) => {
     padding = evt.target.value * 4
@@ -1933,20 +1930,22 @@ async function getSettings() {
         }
 
         if (hi_res_fix && width >= 512 && height >= 512) {
+            const hr_scale = sd_tab.getHrScaleSliderSDValue()
+
             payload['enable_hr'] = hi_res_fix
-            payload['firstphase_width'] = width
-            payload['firstphase_height'] = height
-            payload['hr_resize_x'] = hWidth
-            payload['hr_resize_y'] = hHeight
-            // payload['hr_scale'] =  hScale // Scale
+            // payload['firstphase_width'] = width
+            // payload['firstphase_height'] = height
+            // payload['hr_resize_x'] = hWidth
+            // payload['hr_resize_y'] = hHeight
+            payload['hr_scale'] = hr_scale // Scale
             payload['hr_upscaler'] = upscaler // Upscaler
             payload['hr_second_pass_steps'] = hSteps // Number of Steps
         } else {
             //fix hi res bug: if we include firstphase_width or firstphase_height in the payload,
             // sd api will use them instead of using width and height variables, even when enable_hr is set to "false"
             delete payload['enable_hr']
-            delete payload['firstphase_width']
-            delete payload['firstphase_height']
+            // delete payload['firstphase_width']
+            // delete payload['firstphase_height']
         }
 
         //work with the hord
