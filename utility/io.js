@@ -513,6 +513,40 @@ class IOHelper {
             })
         return base64_url_result
     }
+    static async maskImage(base64_image, base64_mask) {
+        let image_arraybuffer = _base64ToArrayBuffer(base64_image)
+        let mask_arraybuffer = _base64ToArrayBuffer(base64_mask)
+
+        const base64_url_result = await Jimp.read(image_arraybuffer).then(
+            async (image) => {
+                const masked_image = await Jimp.read(mask_arraybuffer).then(
+                    async (mask) => {
+                        const masked_image = await image.mask(mask, 0, 0)
+                        // image.write(output_image) //for a file output
+
+                        //for buffer output
+                        // const base64_url = await masked_image.getBufferAsync(
+                        //     'image/png'
+                        // ) //for transparent image use image/png
+
+                        // const base64_url = await masked_image.getBase64Async(
+                        //     Jimp.MIME_PNG
+                        // )
+                        // return base64_url
+                        return masked_image
+                    }
+                )
+                const base64_url = await masked_image.getBase64Async(
+                    Jimp.MIME_PNG
+                )
+
+                return base64_url
+            }
+        )
+        const base64_masked_imaged =
+            general.base64UrlToBase64(base64_url_result)
+        return base64_masked_imaged
+    }
 }
 
 class IOBase64ToLayer {
