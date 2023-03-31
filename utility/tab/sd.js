@@ -24,7 +24,7 @@ async function promptForUpdate(header_message, long_message) {
                 console.log('cancel')
             } else if (r1 === 'Github') {
                 url =
-                    'https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin'
+                    'https://github.com/le0nik/Auto-Photoshop-StableDiffusion-Plugin'
                 // await py_re.openUrlRequest(url)
             } else if (r1 === 'Discord') {
                 console.log('Discord')
