@@ -310,18 +310,18 @@ function getCommentedString() {
     // and artgerm
 
     //  */ and famous artist`
-    let text = `Visit /*W3Schools 
-  cute, girl, painterly   
+    let text = `Visit /*W3Schools
+  cute, girl, painterly
   */ any text
   and prompt
 
 
 
 
- cute cat  /*by greg 
+ cute cat  /*by greg
 
-  and artgerm 
-  
+  and artgerm
+
    */ and famous artist`
     console.log('getCommentedString: text: ', text)
 
