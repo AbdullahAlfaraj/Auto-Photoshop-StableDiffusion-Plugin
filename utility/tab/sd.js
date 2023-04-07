@@ -3,6 +3,7 @@ const thumbnail = require('../../thumbnail')
 const html_manip = require('../html_manip')
 const api = require('../api')
 const psapi = require('../../psapi')
+const sdapi = require('../../sdapi_py_re')
 //REFACTOR: move to notification.js
 async function promptForUpdate(header_message, long_message) {
     const shell = require('uxp').shell
@@ -142,6 +143,23 @@ function updateHrScaleFromToLabel() {
 function getLoraModelPrompt(lora_model_name) {
     return `<lora:${lora_model_name}:1>`
 }
+async function populateLoraModelMenu() {
+    const lora_models_json = await sdapi.requestLoraModels()
+    const lora_models_names = Object.keys(lora_models_json)
+    html_manip.populateMenu(
+        'mLoraModelMenu',
+        'mLoraModelItemClass',
+        lora_models_names,
+        (item, item_html_element) => {
+            item_html_element.innerHTML = item
+            item_html_element.onclick = () => {
+                const lora_prompt = getLoraModelPrompt(item)
+                const prompt = html_manip.getPrompt()
+                html_manip.autoFillInPrompt(`${prompt} ${lora_prompt}`)
+            }
+        }
+    )
+}
 function initInitMaskElement() {
     //make init mask image use the thumbnail class with buttons
     const mask_image_html = html_manip.getInitImageMaskElement()
@@ -168,6 +186,7 @@ function initInitMaskElement() {
         viewMaskExpansion,
         null
     )
+    populateLoraModelMenu() // no need for await
 }
 
 document.getElementById('hrScaleSlider').addEventListener('input', (evt) => {
@@ -233,4 +252,5 @@ module.exports = {
     clipInterrogate,
     getHrScaleSliderSDValue,
     getLoraModelPrompt,
+    populateLoraModelMenu,
 }

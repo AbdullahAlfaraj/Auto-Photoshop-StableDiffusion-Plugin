@@ -2045,6 +2045,16 @@
                                 >Progress...</sp-label
                             >
                         </sp-progressbar>
+
+                        <sp-picker
+                            title="use lora in your prompt"
+                            size="s"
+                            label="Lora"
+                        >
+                            <sp-menu id="mLoraModelMenu" slot="options">
+                                <!-- <sp-menu-item> item </sp-menu-item> -->
+                            </sp-menu>
+                        </sp-picker>
                         <sp-checkbox
                             title="use {keyword} form the prompts library"
                             id="chUsePromptShortcut"
