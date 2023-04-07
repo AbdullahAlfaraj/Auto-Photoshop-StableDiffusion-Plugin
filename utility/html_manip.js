@@ -506,7 +506,7 @@ function setProgressImageSrc(image_src) {
     // progress_image_element.src = image_src
 
     progress_image_element.style.backgroundSize = 'contain'
-    progress_image_element.style.height = '10000px'
+    progress_image_element.style.height = '500px'
 
     progress_image_element.style.backgroundImage = `url('${image_src}')`
 }
