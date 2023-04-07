@@ -464,6 +464,32 @@ async def openUrl(request:Request):
     return {"url":url}
 
 
+@router.get('/lora/list')
+async def list_available_loras():
+    lora_dict = {}
+    try:
+        from modules import shared
+        import glob
+
+        os.makedirs(shared.cmd_opts.lora_dir, exist_ok=True)
+
+        candidates = \
+            glob.glob(os.path.join(shared.cmd_opts.lora_dir, '**/*.pt'), recursive=True) + \
+            glob.glob(os.path.join(shared.cmd_opts.lora_dir, '**/*.safetensors'), recursive=True) + \
+            glob.glob(os.path.join(shared.cmd_opts.lora_dir, '**/*.ckpt'), recursive=True)
+
+        for filename in sorted(candidates, key=str.lower):
+            if os.path.isdir(filename):
+                continue
+
+            name = os.path.splitext(os.path.basename(filename))[0]
+            print("lora name: ",name)
+            # available_loras[name] = LoraOnDisk(name, filename)
+            lora_dict[name] = name
+
+    except Exception as e:
+        print("list_available_loras() error ",repr(e),e)
+    return lora_dict
 
 app = FastAPI()
 app.include_router(router)
