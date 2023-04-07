@@ -392,10 +392,15 @@ function mapPluginSettingsToControlNet(plugin_settings) {
 
     const controlnet_payload = {
         ...ps,
-        controlnet_units,
+        controlnet_units, //keep for backward compatibility for now
         subseed: -1,
         override_settings: {},
         override_settings_restore_afterwards: true,
+        alwayson_scripts: {
+            controlnet: {
+                args: controlnet_units,
+            },
+        },
     }
 
     return controlnet_payload

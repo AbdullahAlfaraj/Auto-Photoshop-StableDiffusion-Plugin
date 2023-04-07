@@ -579,7 +579,9 @@ async function requestGetUpscalers() {
 async function requestControlNetTxt2Img(plugin_settings) {
     console.log('requestControlNetTxt2Img: ')
 
-    const full_url = `${g_sd_url}/controlnet/txt2img`
+    // const full_url = `${g_sd_url}/controlnet/txt2img`
+    const full_url = `${g_sd_url}/sdapi/v1/txt2img`
+    // debugger
     const control_net_settings =
         control_net.mapPluginSettingsToControlNet(plugin_settings)
     let control_networks = []
@@ -637,12 +639,14 @@ async function requestControlNetTxt2Img(plugin_settings) {
 
     //update the mask in controlNet tab
     const numOfImages = json['images'].length
-    const base64_mask = json['images'].slice(
-        numOfImages - active_control_networks
-    )
+    let numberOfAnnotations =
+        numOfImages - g_generation_session.last_settings.batch_size
+    if (numberOfAnnotations < 0) numberOfAnnotations = 0
+
+    const base64_mask = json['images'].slice(numOfImages - numberOfAnnotations)
 
     let mask_index = 0
-    for (let index = 0; index < control_networks.length; index++) {
+    for (let index = 0; index < numberOfAnnotations; index++) {
         if (control_networks[index] == false) continue
         html_manip.setControlMaskSrc(
             base64ToBase64Url(base64_mask[mask_index]),
@@ -650,11 +654,11 @@ async function requestControlNetTxt2Img(plugin_settings) {
         )
         mask_index++
     }
-
     g_generation_session.controlNetMask = base64_mask
+
     const standard_response = await py_re.convertToStandardResponse(
         control_net_settings,
-        json['images'].slice(0, numOfImages - active_control_networks),
+        json['images'].slice(0, numOfImages - numberOfAnnotations),
         plugin_settings['uniqueDocumentId']
     )
     console.log('standard_response:', standard_response)
@@ -667,7 +671,8 @@ async function requestControlNetImg2Img(plugin_settings) {
     console.log('requestControlNetImg2Img: ')
     // const full_url = 'http://127.0.0.1:8000/swapModel'
 
-    const full_url = `${g_sd_url}/controlnet/img2img`
+    // const full_url = `${g_sd_url}/controlnet/img2img`
+    const full_url = `${g_sd_url}/sdapi/v1/img2img`
     const control_net_settings =
         control_net.mapPluginSettingsToControlNet(plugin_settings)
 
