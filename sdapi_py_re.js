@@ -4,7 +4,9 @@ const { getExtensionType } = require('./utility/html_manip')
 const py_re = require('./utility/sdapi/python_replacement')
 const Enum = require('./enum')
 const control_net = require('./utility/tab/control_net')
+const api = require('./utility/api')
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
+
 async function getInitImage(init_image_name) {
     console.log('getInitImage(): get Init Image from the server :')
     const payload = {
@@ -755,6 +757,12 @@ async function isWebuiRunning() {
     }
     return true
 }
+async function requestLoraModels() {
+    const extension_url = py_re.getExtensionUrl()
+    const full_url = `${extension_url}/lora/list`
+    const lora_models = await api.requestGet(full_url)
+    return lora_models
+}
 module.exports = {
     requestTxt2Img,
     requestImg2Img,
@@ -782,4 +790,5 @@ module.exports = {
     requestControlNetTxt2Img,
     requestControlNetImg2Img,
     isWebuiRunning,
+    requestLoraModels,
 }

@@ -139,6 +139,9 @@ function updateHrScaleFromToLabel() {
         'lHrScaleFromTo'
     ).textContent = `${width}x${height} -> ${hr_width}x${hr_height}`
 }
+function getLoraModelPrompt(lora_model_name) {
+    return `<lora:${lora_model_name}:1>`
+}
 function initInitMaskElement() {
     //make init mask image use the thumbnail class with buttons
     const mask_image_html = html_manip.getInitImageMaskElement()
@@ -229,4 +232,5 @@ module.exports = {
     viewDrawnMask,
     clipInterrogate,
     getHrScaleSliderSDValue,
+    getLoraModelPrompt,
 }
