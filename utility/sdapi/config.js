@@ -15,7 +15,7 @@ class SdConfig {
         try {
             // const upscaler_comp = this.config.components.filter(comp =>comp.props.elem_id === "txt2img_hr_upscaler")[0]
             let upscaler_comp
-            console.log('this.config: ', this.config)
+            // console.log('this.config: ', this.config)
             for (let comp of this.config.components) {
                 if (comp?.props?.elem_id) {
                     const elem_id = comp?.props?.elem_id

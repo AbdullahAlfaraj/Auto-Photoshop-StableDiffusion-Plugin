@@ -1,3 +1,25 @@
+const io = require('./utility/io')
+const log = console.log
+const warn = console.warn
+const error = console.error
+console.log = (data, ...optional_param) => {
+    log(data, ...optional_param)
+    io.IOLog.saveLogToFile({ data, ...optional_param }, 'log.txt')
+}
+console.warn = (data, ...optional_param) => {
+    try {
+        warn(data, ...optional_param)
+        io.IOLog.saveLogToFile({ data, ...optional_param }, 'warn.txt')
+    } catch (e) {
+        warn('error while logging: ')
+        warn(e)
+    }
+}
+console.error = (data, ...optional_param) => {
+    error(data, ...optional_param)
+    io.IOLog.saveLogToFile({ data, ...optional_param }, 'error.txt')
+}
+
 // import {helloHelper} from 'helper.js'
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
@@ -39,7 +61,7 @@ const storage = require('uxp').storage
 const shell = require('uxp').shell
 const fs = storage.localFileSystem
 const horde_native = require('./utility/sdapi/horde_native')
-const io = require('./utility/io')
+
 const dummy = require('./utility/dummy')
 const general = require('./utility/general')
 const thumbnail = require('./thumbnail')
@@ -1374,7 +1396,7 @@ function toggleTwoButtonsByClass(isVisible, first_class, second_class) {
         second_class_btns.forEach(
             (element) => (element.style.display = 'inline-block')
         )
-        console.log('first_class_btns: ', first_class_btns)
+        // console.log('first_class_btns: ', first_class_btns)
     } else {
         //show generate or generate more button
         first_class_btns.forEach(

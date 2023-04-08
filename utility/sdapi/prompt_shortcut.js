@@ -1,7 +1,7 @@
 function find_words_inside_braces(string) {
     const re = /\{(.*?)\}/g
     let keywords = string.match(re)
-    console.log('keywords: ', keywords)
+    // console.log('keywords: ', keywords)
     if (!keywords) {
         //avoid null keywords
         keywords = []

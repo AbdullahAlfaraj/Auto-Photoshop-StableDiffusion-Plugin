@@ -633,6 +633,27 @@ class IOFolder {
         }
     }
 }
+
+class IOLog {
+    static {}
+    static async saveLogToFile(json, file_name) {
+        try {
+            const plugin_folder = await fs.getDataFolder()
+            const file = await plugin_folder.createFile(file_name, {
+                type: storage.types.file,
+                overwrite: true,
+            })
+
+            const JSONInPrettyFormat = JSON.stringify(json, undefined, 4)
+            await file.write(JSONInPrettyFormat, {
+                format: storage.formats.utf8,
+                append: true,
+            })
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+}
 class IOJson {
     static {}
     static async saveJsonToFile(json, folder_entry, file_name) {
@@ -729,4 +750,5 @@ module.exports = {
     IOHelper,
     IOJson,
     IOFolder,
+    IOLog,
 }
