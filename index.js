@@ -1877,8 +1877,12 @@ async function getSettings() {
 
         // const slider_width = document.getElementById("slWidth").value
         // gWidth = getWidthFromSlider(slider_width)
-        const width = html_manip.getWidth()
-        const height = html_manip.getHeight()
+        const original_width = html_manip.getWidth()
+        const original_height = html_manip.getHeight()
+        
+        const width = general.nearestMultiple(original_width, 64)
+        const height = general.nearestMultiple(original_height, 64)
+        
         const hWidth = html_manip.getSliderSdValue_Old('hrWidth', 64)
         const hHeight = html_manip.getSliderSdValue_Old('hrHeight', 64)
         const hSteps = html_manip.getSliderSdValue_Old('hrNumberOfSteps', 1)
