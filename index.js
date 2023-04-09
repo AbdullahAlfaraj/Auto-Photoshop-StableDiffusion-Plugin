@@ -1811,8 +1811,8 @@ async function getSettings() {
         const extension_type = settings_tab.getExtensionType() // get the extension type
         const selectionInfo = await psapi.getSelectionInfoExe()
         payload['selection_info'] = selectionInfo
-        const numberOfImages = parseInt(
-            document.querySelector('#tiNumberOfImages').value
+        const numberOfBatchSize = parseInt(
+            document.querySelector('#tiNumberOfBatchSize').value
         )
         const numberOfSteps = document.querySelector('#tiNumberOfSteps').value
         const prompt = html_manip.getPrompt()
@@ -1999,7 +1999,7 @@ async function getSettings() {
             width: width,
             height: height,
             denoising_strength: denoising_strength,
-            batch_size: numberOfImages,
+            batch_size: numberOfBatchSize,
             cfg_scale: cfg_scale,
             seed: seed,
             mask_blur: mask_blur,
@@ -2575,7 +2575,11 @@ Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
     (btn) => {
         btn.addEventListener('click', async (evt) => {
             tempDisableElement(evt.target, 5000)
-            await easyModeGenerate(g_sd_mode)
+            const numberOfBatchCount = parseInt(
+                document.querySelector('#tiNumberOfBatchCount').value
+            )
+            for (let i = 0; i < numberOfBatchCount; i++)
+                await easyModeGenerate(g_sd_mode)
         })
     }
 ) //REFACTOR: move to events.js
