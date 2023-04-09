@@ -268,9 +268,10 @@
         #sdBtnContainer {
             display: flex;
             flex: 0 0 auto;
-            display: flex;
+
             flex-direction: row;
             justify-content: space-between;
+            margin-bottom: 2px;
         }
 
         .labelNumber {
@@ -281,6 +282,9 @@
             margin-right: 10px;
         }
 
+        #pProgressBar {
+            width: 150px;
+        }
         /* tabs */
         .sp-tabs {
             flex: 0 0 auto;
@@ -445,6 +449,10 @@
 
         #slCfgScale {
             width: 50%;
+            margin-right: 10px;
+        }
+        #slImageCfgScale {
+            width: 100%;
             margin-right: 10px;
         }
 
@@ -1964,39 +1972,51 @@
                 <!-- stable diffusion tab page -->
 
                 <div id="sdBtnContainer">
-                    <div
-                        style="
-                            display: inline-flex;
-                            justify-content: space-between;
-                        "
-                    >
-                        <button
+                    <!-- <button
                             class="btnSquare layerToSelection"
                             id="btnLayerToSelection"
                             style="margin-right: 3px"
                             title="Move and reSize the highlighted layer to fit into the Selection Area "
-                        ></button>
-                        <button class="btnSquare btnGenerateClass">
-                            Generate txt2img
-                        </button>
-                        <!-- <div class="divBtn btnSquare btnGenerateClass">
+                        ></button> -->
+                    <sp-picker
+                        title="use lora in your prompt"
+                        size="m"
+                        label="Lora"
+                        style="width: 199px; margin-right: 5px"
+                    >
+                        <sp-menu id="mLoraModelMenu" slot="options"> </sp-menu>
+                    </sp-picker>
+                    <sp-checkbox
+                        title="use {keyword} form the prompts library"
+                        id="chUsePromptShortcut"
+                        checked
+                        style="display: none"
+                        >prompt shortcut</sp-checkbox
+                    >
+
+                    <button
+                        class="btnSquare btnGenerateClass"
+                        style="
+                            margin-top: 1px;
+                            margin-bottom: 3px;
+                            display: inline-block;
+                        "
+                    >
+                        Generate txt2img
+                    </button>
+                    <!-- <div class="divBtn btnSquare btnGenerateClass">
                             Generate txt2img
                         </div> -->
 
-                        <button
-                            class="btnSquare btnInterruptClass"
-                            id="btnInterrupt"
-                            style="display: none"
-                        >
-                            Interrupt
-                        </button>
-                    </div>
-                    <!-- <button class="btnSquare btnInterruptClass" style="display:none;">Interrupt More</button> -->
-                    <!-- <button class="btnSquare" id="btnCleanLayers">Clean Layers</button> -->
-                    <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
-        <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button> -->
+                    <button
+                        class="btnSquare btnInterruptClass"
+                        id="btnInterrupt"
+                        style="display: none"
+                    >
+                        Interrupt
+                    </button>
 
-                    <div
+                    <!-- <div
                         style="
                             display: inline-flex;
                             justify-content: flex-start;
@@ -2011,7 +2031,7 @@
                             class="btnSquare discardClass discardAllImgBtn"
                             style="display: none; margin-right: 3px"
                         ></button>
-                        <!-- <button class="btnSquare customClass"  style="display:none;">Accept Selected</button> -->
+
                         <button
                             class="btnSquare snapshotButton"
                             id="btnSnapshot"
@@ -2028,9 +2048,7 @@
                             id="btnInterrogate"
                             title="Interrogate the selected area, convert Image to Prompt"
                         ></button>
-
-                        <!-- <button class="btnSquare" id="btnLinkCurrentDocument">Link Current Document</button> -->
-                    </div>
+                    </div> -->
                 </div>
 
                 <div>
@@ -2046,13 +2064,52 @@
                             >
                         </sp-progressbar>
 
-                        <sp-picker
+                        <div
+                            style="
+                                display: inline-flex;
+                                justify-content: flex-end;
+                                width: 133px;
+                            "
+                        >
+                            <button
+                                class="btnSquare acceptClass acceptAllImgBtn"
+                                style="display: none; margin-right: 3px"
+                            ></button>
+                            <button
+                                class="btnSquare discardClass discardAllImgBtn"
+                                style="display: none; margin-right: 3px"
+                            ></button>
+
+                            <button
+                                class="btnSquare layerToSelection"
+                                id="btnLayerToSelection"
+                                style="margin-right: 3px"
+                                title="Move and reSize the highlighted layer to fit into the Selection Area "
+                            ></button>
+                            <button
+                                class="btnSquare snapshotButton"
+                                id="btnSnapshot"
+                                style="margin-right: 3px"
+                                title="create a snapshot of what you see on the canvas and place on a new layer"
+                            ></button>
+                            <button
+                                class="btnSquare resetButton"
+                                id="btnResetSettings"
+                                title="reset the ui settings to their default values"
+                            ></button>
+                            <button
+                                class="btnSquare interrogateButton"
+                                id="btnInterrogate"
+                                title="Interrogate the selected area, convert Image to Prompt"
+                            ></button>
+                        </div>
+                        <!-- <sp-picker
                             title="use lora in your prompt"
                             size="s"
                             label="Lora"
                         >
                             <sp-menu id="mLoraModelMenu" slot="options">
-                                <!-- <sp-menu-item> item </sp-menu-item> -->
+                        
                             </sp-menu>
                         </sp-picker>
                         <sp-checkbox
@@ -2061,7 +2118,7 @@
                             checked
                             style="display: none"
                             >prompt shortcut</sp-checkbox
-                        >
+                        > -->
                     </div>
                     <div>
                         <!-- icon only svg button -->
