@@ -2,22 +2,34 @@ const io = require('./utility/io')
 const log = console.log
 const warn = console.warn
 const error = console.error
-console.log = (data, ...optional_param) => {
-    log(data, ...optional_param)
-    io.IOLog.saveLogToFile({ data, ...optional_param }, 'log.txt')
-}
-console.warn = (data, ...optional_param) => {
-    try {
-        warn(data, ...optional_param)
-        io.IOLog.saveLogToFile({ data, ...optional_param }, 'warn.txt')
-    } catch (e) {
-        warn('error while logging: ')
-        warn(e)
+const should_log = false
+if (should_log) {
+    window.addEventListener('error', (event) => {
+        const [a, b, c, d, e] = [1, 2, 3, 4, 5]
+        console.log(`message: ${a}`)
+        console.log(`source: ${b}`)
+        console.log(`lineno: ${c}`)
+        console.log(`colno: ${d}`)
+        console.log(`error: ${e}`)
+    })
+
+    console.log = (data, ...optional_param) => {
+        log(data, ...optional_param)
+        io.IOLog.saveLogToFile({ data, ...optional_param }, 'log.txt')
     }
-}
-console.error = (data, ...optional_param) => {
-    error(data, ...optional_param)
-    io.IOLog.saveLogToFile({ data, ...optional_param }, 'error.txt')
+    console.warn = (data, ...optional_param) => {
+        try {
+            warn(data, ...optional_param)
+            io.IOLog.saveLogToFile({ data, ...optional_param }, 'warn.txt')
+        } catch (e) {
+            warn('error while logging: ')
+            warn(e)
+        }
+    }
+    console.error = (data, ...optional_param) => {
+        error(data, ...optional_param)
+        io.IOLog.saveLogToFile({ data, ...optional_param }, 'error.txt')
+    }
 }
 
 // import {helloHelper} from 'helper.js'
