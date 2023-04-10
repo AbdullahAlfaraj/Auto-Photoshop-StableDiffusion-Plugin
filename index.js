@@ -1879,10 +1879,10 @@ async function getSettings() {
         // gWidth = getWidthFromSlider(slider_width)
         const original_width = html_manip.getWidth()
         const original_height = html_manip.getHeight()
-        
+
         const width = general.nearestMultiple(original_width, 64)
         const height = general.nearestMultiple(original_height, 64)
-        
+
         const hWidth = html_manip.getSliderSdValue_Old('hrWidth', 64)
         const hHeight = html_manip.getSliderSdValue_Old('hrHeight', 64)
         const hSteps = html_manip.getSliderSdValue_Old('hrNumberOfSteps', 1)
@@ -1953,6 +1953,7 @@ async function getSettings() {
             payload['init_images'] = [
                 g_generation_session.activeBase64InitImage,
             ]
+            payload['image_cfg_scale'] = sd_tab.getImageCfgScaleSDValue() // we may need to check if model is pix2pix
         }
 
         if (hi_res_fix && width >= 512 && height >= 512) {
@@ -2032,6 +2033,7 @@ async function getSettings() {
             height: height,
             denoising_strength: denoising_strength,
             batch_size: numberOfImages,
+
             cfg_scale: cfg_scale,
             seed: seed,
             mask_blur: mask_blur,

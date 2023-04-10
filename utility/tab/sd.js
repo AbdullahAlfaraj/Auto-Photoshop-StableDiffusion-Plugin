@@ -124,6 +124,16 @@ function setHrScaleSliderSDValue(sd_value) {
     const label_id = 'hrScaleLabel'
     html_manip.setSliderSdValue(slider_id, label_id, sd_value, 1, 100, 1, 4)
 }
+function getImageCfgScaleSDValue() {
+    sd_value = html_manip.getSliderSdValue('slImageCfgScale', 0, 30, 0, 3)
+    return sd_value
+}
+function setImageCfgScaleSDValue(sd_value) {
+    const slider_id = 'slImageCfgScale'
+    const label_id = 'lImageCfgScale'
+    // debugger
+    html_manip.setSliderSdValue(slider_id, label_id, sd_value, 0, 30, 0, 3)
+}
 
 function updateHrScaleFromToLabel() {
     //get width and height
@@ -242,6 +252,14 @@ document
 
 function initSDTab() {
     initInitMaskElement()
+    html_manip.sliderAddEventListener_new(
+        'slImageCfgScale',
+        'lImageCfgScale',
+        0,
+        30,
+        0,
+        3
+    )
 }
 
 initSDTab()
@@ -253,4 +271,6 @@ module.exports = {
     getHrScaleSliderSDValue,
     getLoraModelPrompt,
     populateLoraModelMenu,
+    getImageCfgScaleSDValue,
+    setImageCfgScaleSDValue,
 }
