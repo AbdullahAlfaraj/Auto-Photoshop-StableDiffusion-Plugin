@@ -674,7 +674,7 @@ g_generation_session.deactivate() //session starte as inactive
 let g_ui = new ui.UI()
 
 let g_ui_settings_object = ui.getUISettingsObject()
-
+let g_batch_count_interrupt_status = false
 const requestState = {
     Generate: 'generate',
     Interrupt: 'interrupt',
@@ -1643,6 +1643,7 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
                 g_generation_session.request_status =
                     Enum.RequestStateEnum['Interrupted']
 
+                g_batch_count_interrupt_status = true // interrupt batch count generations
                 const backend_type = html_manip.getBackendType()
 
                 if (backend_type === backendTypeEnum['HordeNative']) {
@@ -2578,8 +2579,13 @@ Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
             const numberOfBatchCount = parseInt(
                 document.querySelector('#tiNumberOfBatchCount').value
             )
-            for (let i = 0; i < numberOfBatchCount; i++)
+            for (let i = 0; i < numberOfBatchCount; i++) {
+                if (g_batch_count_interrupt_status === true) {
+                    break
+                }
                 await easyModeGenerate(g_sd_mode)
+            }
+            g_batch_count_interrupt_status = false // reset for next generation
         })
     }
 ) //REFACTOR: move to events.js
