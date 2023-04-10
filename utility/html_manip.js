@@ -257,6 +257,27 @@ function sliderAddEventListener(
             Number(sd_value).toFixed(fractionDigits)
     })
 }
+function sliderAddEventListener_new(
+    slider_id,
+    label_id,
+    slider_start,
+    slider_end,
+    sd_start,
+    sd_end
+) {
+    document.getElementById(slider_id).addEventListener('input', (evt) => {
+        const sd_value = general.mapRange(
+            evt.target.value,
+            slider_start,
+            slider_end,
+            sd_start,
+            sd_end
+        ) // convert slider value to SD ready value
+
+        document.getElementById(label_id).textContent =
+            Number(sd_value).toFixed(2)
+    })
+}
 
 //get the stable diffusion ready value from the slider with  "slider_id"
 //REFACTOR: delete, getSliderSdValue_Old is deprecated, instead use getSliderSdValue
@@ -1014,4 +1035,5 @@ module.exports = {
     getSliderSdValue_Old,
     getSelectedRadioButtonElement,
     getInitImageMaskElement,
+    sliderAddEventListener_new,
 }
