@@ -53,7 +53,7 @@ const image_search_tab = require('./utility/tab/image_search_tab')
 let g_horde_generator = new horde_native.hordeGenerator()
 let g_automatic_status = Enum.AutomaticStatusEnum['Offline']
 let g_models_status = false
-
+let g_current_batch_index = 0
 //REFACTOR: move to session.js
 async function hasSessionSelectionChanged() {
     try {
@@ -674,7 +674,7 @@ g_generation_session.deactivate() //session starte as inactive
 let g_ui = new ui.UI()
 
 let g_ui_settings_object = ui.getUISettingsObject()
-
+let g_batch_count_interrupt_status = false
 const requestState = {
     Generate: 'generate',
     Interrupt: 'interrupt',
@@ -1643,6 +1643,7 @@ Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
                 g_generation_session.request_status =
                     Enum.RequestStateEnum['Interrupted']
 
+                g_batch_count_interrupt_status = true // interrupt batch count generations
                 const backend_type = html_manip.getBackendType()
 
                 if (backend_type === backendTypeEnum['HordeNative']) {
@@ -1811,8 +1812,8 @@ async function getSettings() {
         const extension_type = settings_tab.getExtensionType() // get the extension type
         const selectionInfo = await psapi.getSelectionInfoExe()
         payload['selection_info'] = selectionInfo
-        const numberOfImages = parseInt(
-            document.querySelector('#tiNumberOfImages').value
+        const numberOfBatchSize = parseInt(
+            document.querySelector('#tiNumberOfBatchSize').value
         )
         const numberOfSteps = document.querySelector('#tiNumberOfSteps').value
         const prompt = html_manip.getPrompt()
@@ -1824,7 +1825,20 @@ async function getSettings() {
         const upscaler = document.querySelector('#hrModelsMenu').value
         const cfg_scale = document.querySelector('#slCfgScale').value
         //  const model_index = document.querySelector("#")
-        const seed = document.querySelector('#tiSeed').value
+
+        function calculateSeed(init_seed, batch_index, batch_size) {
+            if (init_seed === -1) return -1
+            const seed = init_seed + batch_index * batch_size
+            return seed
+        }
+
+        const init_seed = parseInt(document.querySelector('#tiSeed').value)
+        const seed = calculateSeed(
+            init_seed,
+            g_current_batch_index,
+            numberOfBatchSize
+        )
+
         // const mask_blur = document.querySelector('#slMaskBlur').value
         const use_sharp_mask = settings_tab.getUseSharpMask()
         const mask_blur = html_manip.getMaskBlur()
@@ -1999,7 +2013,7 @@ async function getSettings() {
             width: width,
             height: height,
             denoising_strength: denoising_strength,
-            batch_size: numberOfImages,
+            batch_size: numberOfBatchSize,
             cfg_scale: cfg_scale,
             seed: seed,
             mask_blur: mask_blur,
@@ -2575,7 +2589,18 @@ Array.from(document.getElementsByClassName('btnGenerateClass')).forEach(
     (btn) => {
         btn.addEventListener('click', async (evt) => {
             tempDisableElement(evt.target, 5000)
-            await easyModeGenerate(g_sd_mode)
+            const numberOfBatchCount = parseInt(
+                document.querySelector('#tiNumberOfBatchCount').value
+            )
+            for (let i = 0; i < numberOfBatchCount; i++) {
+                if (g_batch_count_interrupt_status === true) {
+                    break
+                }
+                g_current_batch_index = i
+                await easyModeGenerate(g_sd_mode)
+            }
+            g_batch_count_interrupt_status = false // reset for next generation
+            g_current_batch_index = 0 // reset curent_batch_number
         })
     }
 ) //REFACTOR: move to events.js
