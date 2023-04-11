@@ -2324,20 +2324,33 @@
                 <div class="">
                     <div id="batchNumber-steps-container">
                         <div id="batchNumberUi">
-                            <div style="display: flex">
-                                <div id="batchNumberSdUiTabContainer">
-                                    <sp-label>Images:</sp-label
+                            <div style="width: 100%; display: flex; justify-content: space-around;">
+                                <div id="batchNumberSdUiTabContainer" style="width: 35%; display: flex; flex-direction: column; align-items: flex-start">
+                                    <sp-label>Batch Size:</sp-label
                                     ><sp-textfield
+                                        style="width: 100%"
                                         title="the number of images to generate at once.The larger the number more VRAM stable diffusion will use."
-                                        id="tiNumberOfImages"
+                                        id="tiNumberOfBatchSize"
                                         type="number"
                                         placeholder="1"
                                         value="1"
                                     ></sp-textfield>
                                 </div>
-                                <div>
+                                <div id="batchNumberSdUiTabContainer" style="width: 20%; display: flex; flex-direction: column; align-items: flex-start">
+                                    <sp-label>Batch Count:</sp-label
+                                    ><sp-textfield
+                                        style="width: 100%"
+                                        title="the number of images to generate in queue. The larger the number the longer will take."
+                                        id="tiNumberOfBatchCount"
+                                        type="number"
+                                        placeholder="1"
+                                        value="1"
+                                    ></sp-textfield>
+                                </div>
+                                <div style="width: 35%; display: flex; flex-direction: column; align-items: flex-start">
                                     <sp-label>Steps:</sp-label
                                     ><sp-textfield
+                                        style="width: 100%"
                                         title="the higher the steps the longer it will take to generate an image"
                                         id="tiNumberOfSteps"
                                         type="number"
