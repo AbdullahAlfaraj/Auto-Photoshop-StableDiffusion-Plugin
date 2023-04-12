@@ -479,7 +479,26 @@
             background-position: 8px 8px;
             background-repeat: no-repeat;
         }
+        .reverse_image_serach {
+            font-family: Arial, Verdana;
+            background-image: url(./icon/image-search.svg);
+            background-color: #777;
+            background-size: 30px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
+        }
+        .search-button {
+            font-family: Arial, Verdana;
+            background-image: url(./icon/search.svg);
+            background-color: #777;
+            background-size: 20px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
 
+            background-position: center;
+        }
         .layerToSelection {
             font-family: Arial, Verdana;
             background-image: url(./icon/layer_to_selection.svg);
@@ -1351,12 +1370,17 @@
                         ><sp-label slot="label">Search:</sp-label></sp-textfield
                     >
 
-                    <button class="btnSquare" id="btnSearchLexica">
-                        Search Lexica
-                    </button>
-                    <button class="btnSquare" id="btnReverseSearchLexica">
-                        Reverse Search Selection
-                    </button>
+                    <button
+                        class="btnSquare search-button"
+                        id="btnSearchLexica"
+                        title="user prompt(text) to Search Lexica"
+                    ></button>
+
+                    <button
+                        class="btnSquare reverse_image_serach"
+                        id="btnReverseSearchLexica"
+                        title="User the selected area (image) on canvas to Search Lexica"
+                    ></button>
                 </div>
                 <div class="viewer-container" id="divLexicaImagesContainer">
                     <img
