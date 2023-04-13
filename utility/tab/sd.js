@@ -260,6 +260,64 @@ document
         )
     })
 
+function ctrlBackspaceDelete(text) {
+    try {
+        let index = text.indexOf(String.fromCharCode(127))
+        let new_text = text
+        if (index >= 0) {
+            // Ctrl + Enter pressed
+            console.log('Ctrl + Enter pressed')
+
+            function ctrlBackspaceDeleteLogic(string, index) {
+                // if (index < 1) {
+                //     return string
+                // }
+                // let i = index - 1
+                // while (
+                //     i > 0 &&
+                //     /\s/.test(string[i - 1]) === /\s/.test(string[i])
+                // ) {
+                //     i--
+                // }
+                // return string.slice(0, i) + string.slice(index)
+
+                if (index < 1) {
+                    return string
+                }
+                let i = index - 1
+                if (/\s/.test(string[i])) {
+                    while (i > 0 && /\s/.test(string[i - 1])) {
+                        i--
+                    }
+                } else {
+                    while (
+                        i > 0 &&
+                        /\s/.test(string[i - 1]) === /\s/.test(string[i])
+                    ) {
+                        i--
+                    }
+                }
+                return string.slice(0, i) + string.slice(index)
+            }
+            new_text = ctrlBackspaceDeleteLogic(text, index + 1) //+ 1 to also delete the backspace delete char
+        }
+
+        return new_text
+    } catch (error) {
+        console.warn(error)
+    }
+}
+
+// document.getElementById('taPrompt').addEventListener('input', (event) => {
+//     // debugger
+//     const value = event.target.value
+//     console.log('value: ', value)
+//     let index = value.indexOf(String.fromCharCode(127))
+//     console.log('index:', index)
+//     const new_text = ctrlBackspaceDelete(value)
+//     event.target.value = new_text
+//     console.log('new_text: ', new_text)
+// })
 function initSDTab() {
     initInitMaskElement()
     html_manip.sliderAddEventListener_new(
