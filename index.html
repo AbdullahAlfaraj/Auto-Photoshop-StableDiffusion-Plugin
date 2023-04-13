@@ -588,11 +588,16 @@
         .interrogateButton {
             font-family: Arial, Verdana;
             background-image: url(./icon/writing-icon.svg);
-            background-color: transparent;
-            background-size: 30px;
+            /* background-color: transparent; */
+            background-size: 25px;
             width: 30px;
             height: 30px;
             background-repeat: no-repeat;
+            background-position: center;
+            background-position-x: 4px;
+        }
+        .svg-buttons-container *:not(:last-child) {
+            margin-right: 3px;
         }
 
         .divBtn {
@@ -2089,6 +2094,7 @@
                         </sp-progressbar>
 
                         <div
+                            class="svg-buttons-container"
                             style="
                                 display: inline-flex;
                                 justify-content: flex-end;
@@ -2097,23 +2103,21 @@
                         >
                             <button
                                 class="btnSquare acceptClass acceptAllImgBtn"
-                                style="display: none; margin-right: 3px"
+                                style="display: none"
                             ></button>
                             <button
                                 class="btnSquare discardClass discardAllImgBtn"
-                                style="display: none; margin-right: 3px"
+                                style="display: none"
                             ></button>
 
                             <button
                                 class="btnSquare layerToSelection"
                                 id="btnLayerToSelection"
-                                style="margin-right: 3px"
                                 title="Move and reSize the highlighted layer to fit into the Selection Area "
                             ></button>
                             <button
                                 class="btnSquare snapshotButton"
                                 id="btnSnapshot"
-                                style="margin-right: 3px"
                                 title="create a snapshot of what you see on the canvas and place on a new layer"
                             ></button>
                             <button
