@@ -2654,6 +2654,7 @@ document
     .getElementById('btnRefreshModels')
     .addEventListener('click', async (e) => {
         await refreshUI()
+        await sd_tab.refreshSDTab()
         tempDisableElement(e.target, 3000)
     })
 //REFACTOR: move to events.js

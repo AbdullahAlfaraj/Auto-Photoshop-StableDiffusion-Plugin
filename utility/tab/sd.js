@@ -154,21 +154,28 @@ function getLoraModelPrompt(lora_model_name) {
     return `<lora:${lora_model_name}:1>`
 }
 async function populateLoraModelMenu() {
-    const lora_models_json = await sdapi.requestLoraModels()
-    const lora_models_names = Object.keys(lora_models_json)
-    html_manip.populateMenu(
-        'mLoraModelMenu',
-        'mLoraModelItemClass',
-        lora_models_names,
-        (item, item_html_element) => {
-            item_html_element.innerHTML = item
-            item_html_element.onclick = () => {
-                const lora_prompt = getLoraModelPrompt(item)
-                const prompt = html_manip.getPrompt()
-                html_manip.autoFillInPrompt(`${prompt} ${lora_prompt}`)
+    try {
+        const lora_models_json = await sdapi.requestLoraModels()
+        const lora_models_names = Object.keys(lora_models_json)
+
+        document.getElementById('mLoraModelMenu').innerHTML = ''
+
+        html_manip.populateMenu(
+            'mLoraModelMenu',
+            'mLoraModelItemClass',
+            lora_models_names,
+            (item, item_html_element) => {
+                item_html_element.innerHTML = item
+                item_html_element.onclick = () => {
+                    const lora_prompt = getLoraModelPrompt(item)
+                    const prompt = html_manip.getPrompt()
+                    html_manip.autoFillInPrompt(`${prompt} ${lora_prompt}`)
+                }
             }
-        }
-    )
+        )
+    } catch (e) {
+        console.warn('populateLoraModelMenu error: ', e)
+    }
 }
 function initInitMaskElement() {
     //make init mask image use the thumbnail class with buttons
@@ -199,6 +206,9 @@ function initInitMaskElement() {
     populateLoraModelMenu() // no need for await
 }
 
+async function refreshSDTab() {
+    populateLoraModelMenu()
+}
 document.getElementById('hrScaleSlider').addEventListener('input', (evt) => {
     const sd_value = getHrScaleSliderSDValue()
     setHrScaleSliderSDValue(sd_value.toFixed(2))
@@ -273,4 +283,5 @@ module.exports = {
     populateLoraModelMenu,
     getImageCfgScaleSDValue,
     setImageCfgScaleSDValue,
+    refreshSDTab,
 }
