@@ -353,14 +353,126 @@ function getControlNetMaxModelsNumber() {
     return g_controlnet_max_supported_models
 }
 
+function preprocessorData(
+    processor_res = 512,
+    threshold_a = 64,
+    threshold_b = 64,
+    processor_res_label = 'Annotator resolution',
+    threshold_a_label = 'threshold a',
+    threshold_b_label = 'threshold b'
+) {
+    return {
+        processor_res,
+        threshold_a,
+        threshold_b,
+        processor_res_label,
+        threshold_a_label,
+        threshold_b_label,
+    }
+}
+
 function mapPluginSettingsToControlNet(plugin_settings) {
     const ps = plugin_settings // for shortness
     let controlnet_units = []
-
+    const preprocessor_parms = {
+        default: preprocessorData(),
+        normal_map: preprocessorData(
+            512,
+            0.4,
+            64,
+            'normal resolution',
+            'normal background threshold',
+            'threshold b'
+        ),
+        canny: preprocessorData(
+            512,
+            100,
+            200,
+            'Annotator resolution',
+            'canny low threshold',
+            'canny hight threshold'
+        ),
+        depth: preprocessorData(
+            512,
+            64,
+            64,
+            'midas resolution',
+            'threshold a',
+            'threshold b'
+        ),
+        openpose: preprocessorData(
+            512,
+            64,
+            64,
+            'Annotator resolution',
+            'threshold a',
+            'threshold b'
+        ),
+        depth_leres: preprocessorData(
+            512,
+            0,
+            0,
+            'LeRes Resolution',
+            'Remove Near %',
+            'Remove Background %'
+        ),
+        depth_leres: preprocessorData(
+            512,
+            64,
+            64,
+            'HED Resolution',
+            'Threshold A',
+            'Threshold B'
+        ),
+        hed: preprocessorData(
+            512,
+            64,
+            64,
+            'HED Resolution',
+            'Threshold A',
+            'Threshold B'
+        ),
+        mlsd: preprocessorData(
+            512,
+            0.1,
+            0.1,
+            'Hough Resolution',
+            'Hough Value Threshold (MLSD)',
+            'Hough Distance Threshold (MLSD)'
+        ),
+        openpose_hand: preprocessorData(),
+        clip_vision: preprocessorData(),
+        color: preprocessorData(),
+        pidinet: preprocessorData(),
+        scribble: preprocessorData(),
+        fake_scribble: preprocessorData(
+            512,
+            64,
+            64,
+            'Hed Resolution',
+            'Threshold A',
+            'Threshold B'
+        ),
+        segmentation: preprocessorData(),
+        binary: preprocessorData(
+            512,
+            0,
+            64,
+            'Annotator resolution',
+            'Binary threshold',
+            'Threshold B'
+        ),
+    }
     // debugger
     let active_index = 0
     for (let index = 0; index < g_controlnet_max_supported_models; index++) {
         if (getEnableControlNet(index)) {
+            const preprocessor_name = getSelectedModule(index)
+            const prams =
+                preprocessor_name in preprocessor_parms
+                    ? preprocessor_parms[preprocessor_name]
+                    : preprocessor_parms['default']
+
             controlnet_units[active_index] = {
                 input_image: g_generation_session.controlNetImage[index],
                 mask: '',
@@ -369,9 +481,9 @@ function mapPluginSettingsToControlNet(plugin_settings) {
                 weight: getWeight(index),
                 resize_mode: 'Scale to Fit (Inner Fit)',
                 lowvram: getUseLowVram(index),
-                processor_res: 512,
-                threshold_a: 64,
-                threshold_b: 64,
+                processor_res: prams.processor_res,
+                threshold_a: prams.threshold_a,
+                threshold_b: prams.threshold_b,
                 // guidance: ,
                 guidance_start: getControlNetWeightGuidanceStrengthStart(index),
                 guidance_end: getControlNetWeightGuidanceStrengthEnd(index),
