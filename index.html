@@ -644,6 +644,42 @@
             left: 0;
         }
     </style>
+    <style>
+        .custom-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .custom-menu input[type='radio'] {
+            display: none;
+        }
+        .custom-menu label {
+            display: block;
+            padding: 10px;
+            cursor: pointer;
+        }
+        li input[type='radio']:checked + label {
+            border-bottom: 2px solid white;
+        }
+
+        li .sub-menu-tab-class + label {
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        li:hover .sp-menu-tab-class:hover + label {
+            color: white;
+        }
+
+        /* li .sp-tab.selected {
+            border-bottom: 2px solid white;
+            margin-bottom: -2px;
+        } */
+
+        /* .sp-tab.selected sp-label {
+            color: white;
+        } */
+    </style>
 
     <body>
         <!-- <sp-textarea id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-textarea> -->
@@ -716,15 +752,49 @@
 
             <div class="sp-tab-page" id="sp-viewer-tab-page">
                 <div class="subTabOptionsContainer">
+                    <div
+                        data-container-class="subTabOptionsContainer"
+                        style="display: flex; flex-direction: row"
+                    >
+                        <ul id="viewer-sub-menu" class="custom-menu">
+                            <!-- <li>
+                                <input
+                                    type="radio"
+                                    id="option1"
+                                    name="options"
+                                    checked
+                                    class="sub-menu-tab-class"
+                                />
+                                <label for="option1">Option 1</label>
+                            </li>
+                            <li>
+                                <input
+                                    type="radio"
+                                    id="option2"
+                                    name="options"
+                                    class="sub-menu-tab-class"
+                                />
+                                <label for="option2">Option 2</label>
+                            </li>
+                            <li>
+                                <input
+                                    type="radio"
+                                    id="option3"
+                                    name="options"
+                                />
+                                <label for="option3">Option 3</label>
+                            </li> -->
+                        </ul>
+                    </div>
                     <sp-radio-group
                         id="rgSubTab"
                         class="rbMaskContent"
                         data-container-class="subTabOptionsContainer"
+                        style="display: none"
                     >
                         <sp-radio
                             title=""
                             class="rbSubTab"
-                            id="rbHistoryTab"
                             checked
                             value="viewer"
                             data-tab-name="sp-viewer-tab"
