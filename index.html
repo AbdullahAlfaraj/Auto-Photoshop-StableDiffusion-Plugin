@@ -916,6 +916,11 @@
                                     >Progress...</sp-label
                                 >
                             </sp-progressbar>
+                            <input
+                                type="checkbox"
+                                name="optionCheckbox"
+                                class="chLiveProgressImageClass"
+                            />
                         </div>
 
                         <!-- <button class="btnSquare" id="btnLoadViewer">Load</button> -->
@@ -1701,11 +1706,7 @@
                         ></button>
                     </div>
                 </div>
-                <!-- <div id="progressContainerUpscale" class="" style="padding-bottom: 5px;">
-                    <sp-progressbar class="pProgressBars" id="pProgressBarUpscale" max="100" value="0">
-                        <sp-label slot="label">Progress...</sp-label>
-                    </sp-progressbar>
-                </div> -->
+
                 <div
                     id="progressContainerUpscale"
                     class=""
@@ -1972,7 +1973,10 @@
                 <sp-checkbox checked id="chUseSmartObject"
                     >Smart Object</sp-checkbox
                 >
-                <sp-checkbox checked id="chLiveProgressImage"
+                <sp-checkbox
+                    checked
+                    id="chLiveProgressImage"
+                    class="chLiveProgressImageClass"
                     >Live Progress Image</sp-checkbox
                 >
 
@@ -2163,17 +2167,24 @@
 
                 <div>
                     <div id="progressContainer" class="">
-                        <sp-progressbar
-                            class="pProgressBars"
-                            id="pProgressBar"
-                            max="100"
-                            value="0"
-                        >
-                            <sp-label slot="label" class="lProgressLabel"
-                                >Progress...</sp-label
+                        <div style="display: flex">
+                            <sp-progressbar
+                                class="pProgressBars"
+                                id="pProgressBar"
+                                max="100"
+                                value="0"
+                                style="width: 120px"
                             >
-                        </sp-progressbar>
-
+                                <sp-label slot="label" class="lProgressLabel"
+                                    >Progress...</sp-label
+                                >
+                            </sp-progressbar>
+                            <input
+                                type="checkbox"
+                                name="optionCheckbox"
+                                class="chLiveProgressImageClass"
+                            />
+                        </div>
                         <div
                             class="svg-buttons-container"
                             style="
