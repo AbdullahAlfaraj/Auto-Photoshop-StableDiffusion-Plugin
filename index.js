@@ -4284,7 +4284,8 @@ document
         )
     })
 //REFACTOR: move to events.js
-Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
+
+function switchMenu(rb) {
     const tab_button_name = rb.dataset['tab-name']
     const tab_page_name = `${tab_button_name}-page`
 
@@ -4310,7 +4311,8 @@ Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
     } catch (e) {
         console.warn(e)
     }
-})
+}
+
 //REFACTOR: move to ui.js
 async function updateResDifferenceLabel() {
     const ratio = await selection.Selection.getImageToSelectionDifference()
@@ -4606,3 +4608,120 @@ async function isCorrectBackground() {
     const is_correct_background = historylist.length > 0 ? true : false
     return is_correct_background
 }
+
+let g_viewer_sub_menu_list = []
+
+const submenu = {
+    viewer: {
+        value: 'viewer',
+        Label: 'Viewer',
+        'data-tab-name': 'sp-viewer-tab',
+    },
+    prompts_library: {
+        value: 'prompts-library',
+        Label: 'Prompts Library',
+        'data-tab-name': 'sp-prompts-library-tab',
+    },
+    history: {
+        value: 'history',
+        Label: 'History',
+        'data-tab-name': 'sp-history-tab',
+    },
+    lexica: {
+        value: 'lexica',
+        Label: 'Lexica',
+        'data-tab-name': 'sp-lexica-tab',
+    },
+    image_search: {
+        value: 'image_search',
+        Label: 'Image Search',
+        'data-tab-name': 'sp-image_search-tab',
+    },
+}
+
+{
+    /* <li>
+                                <input
+                                    type="radio"
+                                    id="option1"
+                                    name="options"
+                                    checked
+                                    class="sub-menu-tab-class"
+                                />
+                                <label for="option1">Option 1</label>
+                            </li> */
+}
+
+const viewer_sub_menu_html = document.getElementById('viewer-sub-menu')
+// const li_elm = document.createElement('li')
+// const input_option = document.createElement('input')
+// const label_option = document.createElement('label')
+
+// li_elm.appendChild(input_option)
+// li_elm.appendChild(label_option)
+// viewer_sub_menu_html.appendChild(li_elm)
+
+for (const [option_id, option_data] of Object.entries(submenu)) {
+    const li = document.createElement('li')
+
+    li.innerHTML = `
+    <input
+        type="radio"
+        id="${option_id}"
+        name="options"
+        checked
+        class="sub-menu-tab-class"
+        data-tab-name='${option_data['data-tab-name']}'
+        
+    />
+    <label for="${option_id}">${option_data.Label}</label>
+`
+
+    viewer_sub_menu_html.appendChild(li)
+}
+
+function switchMenu_new(rb) {
+    const tab_button_name = rb.dataset['tab-name']
+    const tab_page_name = `${tab_button_name}-page`
+
+    try {
+        const contianer_class =
+            rb.parentElement.parentElement.parentElement.dataset[
+                'container-class'
+            ] //input_option.li.ul.div.dataset['container-class']
+        const radio_group = rb.parentElement.parentElement.parentElement //radio_group in this case is ul
+        document
+            .getElementById(tab_button_name)
+            .addEventListener('click', () => {
+                document.getElementById(tab_button_name)
+                const option_container = document
+                    .getElementById(tab_page_name)
+                    .querySelector(`.${contianer_class}`)
+                // .querySelector('.subTabOptionsContainer')
+                // const radio_group = document.getElementById('rgSubTab')
+                rb.checked = true
+                option_container.appendChild(radio_group)
+            })
+
+        rb.parentElement.onclick = () => {
+            document.getElementById(tab_button_name).click()
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+document.getElementsByClassName('sub-menu-tab-class').forEach((element) => {
+    switchMenu_new(element)
+
+    // const li_element = element.parentElement
+    // li_element.addEventListener('click', (event) => {
+    //     //doesn't get trigger don't know why
+    //     console.log('sub menu clicked')
+    //     element.checked = true
+    // })
+    // switchMenu_new(element)
+})
+Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
+    switchMenu(rb)
+})
