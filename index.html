@@ -752,10 +752,7 @@
 
             <div class="sp-tab-page" id="sp-viewer-tab-page">
                 <div class="subTabOptionsContainer">
-                    <div
-                        data-container-class="subTabOptionsContainer"
-                        style="display: flex; flex-direction: row"
-                    >
+                    <div data-container-class="subTabOptionsContainer">
                         <ul id="viewer-sub-menu" class="custom-menu">
                             <!-- <li>
                                 <input
@@ -785,6 +782,10 @@
                                 <label for="option3">Option 3</label>
                             </li> -->
                         </ul>
+                        <sp-divider
+                            class="line-divider"
+                            size="small"
+                        ></sp-divider>
                     </div>
                     <sp-radio-group
                         id="rgSubTab"
@@ -1404,7 +1405,9 @@
                                             </button> -->
                     </div>
                 </div>
-                <sp-divider class="line-divider" size="large"></sp-divider>
+                <div>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                </div>
             </div>
             <div class="sp-tab-page" id="sp-history-tab-page">
                 <div class="subTabOptionsContainer"></div>
