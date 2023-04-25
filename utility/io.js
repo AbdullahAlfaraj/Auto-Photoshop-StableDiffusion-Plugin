@@ -10,6 +10,80 @@ const formats = require('uxp').storage.formats
 const storage = require('uxp').storage
 const fs = storage.localFileSystem
 
+async function isBlackAndWhiteImage(base64EncodedImage) {
+    try {
+        // Load your base64 encoded image
+        const image = await Jimp.read(Buffer.from(base64EncodedImage, 'base64'))
+        console.log(
+            'isBlackAndWhiteImage(): image.bitmap.width, image.bitmap.height: ',
+            image.bitmap.width,
+            image.bitmap.height
+        )
+        // Check if your image only has one channel
+        return (
+            image.bitmap.width === image.bitmap.height &&
+            image.bitmap.width === 1
+        )
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+async function convertBlackAndWhiteImageToRGBChannels(base64EncodedImage) {
+    // Load your base64 encoded image
+    const image = await Jimp.read(Buffer.from(base64EncodedImage, 'base64'))
+
+    // Convert your black and white image to RGB channels
+    image.color([
+        { apply: 'red', params: [255] },
+        { apply: 'green', params: [255] },
+        { apply: 'blue', params: [255] },
+    ])
+
+    // Get your base64 encoded black and white image with RGB channels
+    const base64EncodedImageWithRGBChannels = await image.getBase64Async(
+        Jimp.MIME_JPEG
+    )
+
+    return base64EncodedImageWithRGBChannels
+}
+async function convertBlackAndWhiteImageToRGBChannels2(base64EncodedImage) {
+    try {
+        // Load your base64 encoded image
+        const image = await Jimp.read(Buffer.from(base64EncodedImage, 'base64'))
+
+        // Convert your black and white image to RGB channels
+        image.color([{ apply: 'mix', params: ['#ffffff', 100] }])
+
+        // Get your base64 encoded black and white image with RGB channels
+        const base64EncodedImageWithRGBChannels = await image.getBase64Async(
+            Jimp.MIME_JPEG
+        )
+
+        return base64EncodedImageWithRGBChannels
+    } catch (e) {
+        console.warn(e)
+    }
+}
+async function convertBlackAndWhiteImageToRGBChannels3(base64EncodedImage) {
+    try {
+        // Load your base64 encoded image
+        const image = await Jimp.read(Buffer.from(base64EncodedImage, 'base64'))
+
+        // Convert your black and white image to RGB channels
+        // image.color([{ apply: 'mix', params: ['#ffffff', 100] }])
+
+        // Get your base64 encoded black and white image with RGB channels
+        const base64EncodedImageWithRGBChannels = await image.getBase64Async(
+            Jimp.MIME_PNG
+        )
+
+        return base64EncodedImageWithRGBChannels
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
 async function snapShotLayer() {
     //snapshot layer with no mask
     let command = [
@@ -389,9 +463,13 @@ class IO {
     }
 
     static async urlToLayer(image_url, image_file_name = 'image_from_url.png') {
-        await psapi.unselectActiveLayersExe()
-        const temp_entry = await fs.getTemporaryFolder()
-        await downloadItExe(image_url, temp_entry, image_file_name)
+        try {
+            await psapi.unselectActiveLayersExe()
+            const temp_entry = await fs.getTemporaryFolder()
+            await downloadItExe(image_url, temp_entry, image_file_name)
+        } catch (e) {
+            console.warn('urlToLayer()', image_url, image_file_name, e)
+        }
     }
 }
 
@@ -751,4 +829,8 @@ module.exports = {
     IOJson,
     IOFolder,
     IOLog,
+    convertBlackAndWhiteImageToRGBChannels,
+    convertBlackAndWhiteImageToRGBChannels2,
+    convertBlackAndWhiteImageToRGBChannels3,
+    isBlackAndWhiteImage,
 }

@@ -80,9 +80,13 @@ function displayLexicaImage(lexica_item) {
 
     async function loadOnCanvas(lexica_item) {
         // lexica_item.
-        const link = lexica_item.src
-        const image_file_name = 'lexica_image.png'
-        await io.IO.urlToLayer(link, image_file_name)``
+        try {
+            const link = lexica_item.src
+            const image_file_name = 'lexica_image.png'
+            await io.IO.urlToLayer(link, image_file_name)
+        } catch (e) {
+            console.warn('loadOnCanvas(): ', lexica_item, e)
+        }
     }
     async function loadSettingsToUI(lexica_item) {
         try {
