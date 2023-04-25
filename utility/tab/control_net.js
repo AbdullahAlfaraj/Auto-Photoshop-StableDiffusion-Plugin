@@ -160,6 +160,32 @@ class ControlNetUnit {
 }
 
 async function checkIfControlNetInstalled() {}
+
+async function requestControlNetDetectMap(controlnet_init_image, _module) {
+    try {
+        const payload = {
+            controlnet_module: _module,
+            controlnet_input_images: [controlnet_init_image],
+            controlnet_processor_res: 512,
+            controlnet_threshold_a: 64,
+            controlnet_threshold_b: 64,
+        }
+        const full_url = `${g_sd_url}/controlnet/detect`
+
+        // debugger
+
+        const response_data = await api.requestPost(full_url, payload)
+
+        // update the mask preview with the new detectMap
+        if (response_data['images'].length === 0) {
+            app.showAlert(response_data['info'])
+        }
+        return response_data['images'][0]
+    } catch (e) {
+        console.warn('requestControlNetDetectMap(): ', _module, e)
+    }
+}
+
 async function requestControlNetModelList() {
     const control_net_json = await api.requestGet(
         `${g_sd_url}/controlnet/model_list`
@@ -664,6 +690,89 @@ document
         // console.log("I'm listening on a custom event")
         await populateControlNetPresetMenu()
     })
+document
+    .getElementById('bPreviewAnnotator_0')
+    .addEventListener('click', async (event) => {
+        const index = parseInt(event.target.dataset['controlnet-index'])
+        try {
+            const controlnet_init_image =
+                g_generation_session.controlNetImage[index]
+            const _module = ControlNetUnit.getModule(index)
+            if (!controlnet_init_image) {
+                const error = 'ControlNet initial image is empty'
+                app.showAlert(error)
+                throw error
+            }
+            if (!_module || _module === 'none') {
+                const error = 'select a valid controlnet module (preprocessor)'
+                app.showAlert(error)
+                throw error
+            }
+
+            const detect_map = await requestControlNetDetectMap(
+                controlnet_init_image,
+                _module
+            )
+
+            // console.log('detect_map: ', detect_map)
+            // debugger
+            // const is_black_and_white = await io.isBlackAndWhiteImage(
+            //     detect_map
+            // )
+            // console.log('is_black_and_white: ', is_black_and_white)
+            // const layer = await io.IO.base64ToLayer(
+            //     detect_map,
+            //     'detect_map_image.png'
+            // )
+
+            const rgb_detect_map_url =
+                await io.convertBlackAndWhiteImageToRGBChannels3(detect_map)
+            // console.log('rgb_detect_map_url:', rgb_detect_map_url)
+            // return detect_map
+            // html_manip.setControlMaskSrc(
+            //     general.base64ToBase64Url(detect_map),
+            //     index
+            // )
+            html_manip.setControlMaskSrc(rgb_detect_map_url, index)
+        } catch (e) {
+            console.warn('PreviewAnnotator click(): index: ', index, e)
+        }
+    })
+
+function initPreviewElement() {
+    //make init mask image use the thumbnail class with buttons
+    const mask_image_html = document.getElementById(
+        'control_net_preivew_image_0'
+    )
+    const mask_parent_element = mask_image_html.parentElement
+
+    this.thumbnail_container = thumbnail.Thumbnail.wrapImgInContainer(
+        mask_image_html,
+        'viewer-image-container'
+    )
+
+    mask_parent_element.appendChild(thumbnail_container)
+
+    function viewDrawnMask() {}
+    function viewMaskExpansion() {}
+    thumbnail.Thumbnail.addSPButtonToContainer(
+        this.thumbnail_container,
+        'svg_sp_btn',
+        'view original mask',
+
+        viewDrawnMask,
+        null
+    )
+    thumbnail.Thumbnail.addSPButtonToContainer(
+        this.thumbnail_container,
+        'svg_sp_btn',
+        'view modified mask',
+
+        viewMaskExpansion,
+        null
+    )
+}
+
 async function initializeControlNetTab(controlnet_max_models) {
     try {
         if (controlnet_max_models > g_controlnet_max_supported_models)
@@ -678,6 +787,7 @@ async function initializeControlNetTab(controlnet_max_models) {
                 'controlnet_settings_' + index
             ).style.display = 'block'
         }
+        initPreviewElement()
     } catch (e) {
         console.warn(e)
     }
