@@ -1335,10 +1335,13 @@ async function snapAndFillHandler() {
                 //   g_last_snap_and_fill_layers
                 // )
                 // create new layers related to the current mask operation.
-                await executeAsModal(async () => {
-                    // g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
-                    await outpaint.snapAndFillExe(random_session_id)
-                })
+                await executeAsModal(
+                    async () => {
+                        // g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
+                        await outpaint.snapAndFillExe(random_session_id)
+                    },
+                    { commandName: 'Snap And Fill' }
+                )
                 // console.log(
                 //   'outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ',
                 //   g_last_snap_and_fill_layers
