@@ -4,6 +4,7 @@ const html_manip = require('../html_manip')
 const api = require('../api')
 const psapi = require('../../psapi')
 const sdapi = require('../../sdapi_py_re')
+const Enum = require('../../enum')
 //REFACTOR: move to notification.js
 async function promptForUpdate(header_message, long_message) {
     const shell = require('uxp').shell
@@ -177,6 +178,27 @@ async function populateLoraModelMenu() {
         console.warn('populateLoraModelMenu error: ', e)
     }
 }
+
+function displayImageCfgScaleSlider(mode) {
+    const b_slider_enabled = document.getElementById(
+        'chUseImageCfgScaleSlider'
+    ).checked
+    if (b_slider_enabled) {
+        if (mode === Enum.generationModeEnum['Txt2Img']) {
+            document.getElementById('slImageCfgScale').style.display = 'none'
+        } else if (mode === Enum.generationModeEnum['Img2Img']) {
+            document.getElementById('slImageCfgScale').style.display = 'block'
+        } else if (mode === Enum.generationModeEnum['Inpaint']) {
+            document.getElementById('slImageCfgScale').style.display = 'block'
+        } else if (mode === Enum.generationModeEnum['Outpaint']) {
+            document.getElementById('slImageCfgScale').style.display = 'none'
+        } else {
+            document.getElementById('slImageCfgScale').style.display = 'none'
+        }
+    } else {
+        document.getElementById('slImageCfgScale').style.display = 'none'
+    }
+}
 function initInitMaskElement() {
     //make init mask image use the thumbnail class with buttons
     const mask_image_html = html_manip.getInitImageMaskElement()
@@ -342,4 +364,5 @@ module.exports = {
     getImageCfgScaleSDValue,
     setImageCfgScaleSDValue,
     refreshSDTab,
+    displayImageCfgScaleSlider,
 }

@@ -2002,6 +2002,12 @@
                 <sp-checkbox checked id="chUseOriginalPrompt"
                     >Restore Original Prompt</sp-checkbox
                 >
+                <sp-checkbox
+                    checked
+                    id="chUseImageCfgScaleSlider"
+                    title="image cfg slider for pix2pix mode"
+                    >Image Cfg Scale Slider</sp-checkbox
+                >
 
                 <sp-checkbox checked id="chUseSilentMode" style="display: none"
                     >Use Silent Mode</sp-checkbox
@@ -2674,6 +2680,7 @@
                             min="0"
                             max="30"
                             value="15"
+                            style="display: none"
                         >
                             <sp-label slot="label">Image CFG Scale:</sp-label>
                             <sp-label slot="label" id="lImageCfgScale"

@@ -1014,6 +1014,7 @@ document.addEventListener('mouseenter', async (event) => {
 //REFACTOR: move to ui.js
 async function displayUpdate() {
     try {
+        sd_tab.displayImageCfgScaleSlider(g_sd_mode)
         if (g_sd_mode == 'txt2img') {
             document.getElementById('slDenoisingStrength').style.display =
                 'none' // hide denoising strength slider
@@ -1037,6 +1038,7 @@ async function displayUpdate() {
 
             document.getElementById('slInpaintPadding').style.display = 'none'
             document.getElementById('slMaskBlur').style.display = 'none'
+            // document.getElementById('slImageCfgScale').style.display = 'none'
             // document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
         }
 
@@ -1059,7 +1061,10 @@ async function displayUpdate() {
             document.getElementById('chHiResFixs').style.display = 'none'
             document.getElementById('slInpaintingMaskWeight').style.display =
                 'block' // hide inpainting conditional mask weight
+
+            // document.getElementById('slImageCfgScale').style.display = 'block'
         }
+
         if (g_sd_mode == 'inpaint' || g_sd_mode == 'outpaint') {
             ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring
             // document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
@@ -1098,6 +1103,7 @@ async function displayUpdate() {
             }
             document.getElementById('slMaskBlur').style.display = 'block'
             document.getElementById('chHiResFixs').style.display = 'none'
+
             // document.getElementById('btnInitOutpaint').style.display = 'inline-flex'
             // document.getElementById('btnInitInpaint').style.display = 'inline-flex'
             // document.getElementById('btnInitOutpaint').style.display = 'none'
