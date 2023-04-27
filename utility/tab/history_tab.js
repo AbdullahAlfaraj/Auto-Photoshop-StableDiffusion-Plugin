@@ -90,7 +90,12 @@ document
             console.warn(`loadHistory warning: ${e}`)
         }
     })
-
+document
+    .getElementById('btnClearHistoryCache')
+    .addEventListener('click', () => {
+        const container = document.getElementById('divHistoryImagesContainer')
+        container.innerHTML = ''
+    })
 module.exports = {
     getHistoryMetadata,
 }
