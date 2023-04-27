@@ -661,26 +661,7 @@ for (let index = 0; index < g_controlnet_max_supported_models; index++) {
     document
         .getElementById('bControlMask_' + index)
         .addEventListener('click', async () => {
-            // const selectionInfo = await selection.Selection.getSelectionInfoExe()
-
-            if (
-                g_generation_session.control_net_selection_info &&
-                g_generation_session.controlNetMask[index]
-            ) {
-                const selection_info =
-                    g_generation_session.control_net_selection_info
-                const layer = await io.IO.base64ToLayer(
-                    g_generation_session.controlNetMask[index],
-                    'ControlNet Mask.png',
-                    selection_info.left,
-                    selection_info.top,
-                    selection_info.width,
-                    selection_info.height
-                )
-            } else {
-                // await note.Notification.inactiveSelectionArea()
-                app.showAlert('Mask Image is not available')
-            }
+            await previewAnnotator(index)
         })
 }
 
@@ -690,60 +671,83 @@ document
         // console.log("I'm listening on a custom event")
         await populateControlNetPresetMenu()
     })
+
+async function previewAnnotator(index) {
+    try {
+        const controlnet_init_image =
+            g_generation_session.controlNetImage[index]
+        const _module = ControlNetUnit.getModule(index)
+        if (!controlnet_init_image) {
+            const error = 'ControlNet initial image is empty'
+            app.showAlert(error)
+            throw error
+        }
+        if (!_module || _module === 'none') {
+            const error = 'select a valid controlnet module (preprocessor)'
+            app.showAlert(error)
+            throw error
+        }
+
+        const detect_map = await requestControlNetDetectMap(
+            controlnet_init_image,
+            _module
+        )
+
+        const rgb_detect_map_url =
+            await io.convertBlackAndWhiteImageToRGBChannels3(detect_map)
+        const rgb_detect_map = general.base64UrlToBase64(rgb_detect_map_url)
+        g_generation_session.controlNetMask[index] = rgb_detect_map
+
+        html_manip.setControlMaskSrc(rgb_detect_map_url, index)
+    } catch (e) {
+        console.warn('PreviewAnnotator click(): index: ', index, e)
+    }
+}
+async function previewAnnotatorFromCanvas(index) {
+    try {
+        const _module = ControlNetUnit.getModule(index)
+
+        const width = html_manip.getWidth()
+        const height = html_manip.getHeight()
+        const selectionInfo = await psapi.getSelectionInfoExe()
+        g_generation_session.control_net_preview_selection_info = selectionInfo
+        const base64 = await io.IO.getSelectionFromCanvasAsBase64Interface_New(
+            width,
+            height,
+            selectionInfo,
+            true
+        )
+
+        if (!_module || _module === 'none') {
+            const error = 'select a valid controlnet module (preprocessor)'
+            app.showAlert(error)
+            throw error
+        }
+
+        const detect_map = await requestControlNetDetectMap(base64, _module)
+
+        const rgb_detect_map_url =
+            await io.convertBlackAndWhiteImageToRGBChannels3(detect_map)
+        g_generation_session.controlNetMask[index] = detect_map
+        html_manip.setControlMaskSrc(rgb_detect_map_url, index)
+    } catch (e) {
+        console.warn('PreviewAnnotator click(): index: ', index, e)
+    }
+}
 document
     .getElementById('bPreviewAnnotator_0')
     .addEventListener('click', async (event) => {
         const index = parseInt(event.target.dataset['controlnet-index'])
-        try {
-            const controlnet_init_image =
-                g_generation_session.controlNetImage[index]
-            const _module = ControlNetUnit.getModule(index)
-            if (!controlnet_init_image) {
-                const error = 'ControlNet initial image is empty'
-                app.showAlert(error)
-                throw error
-            }
-            if (!_module || _module === 'none') {
-                const error = 'select a valid controlnet module (preprocessor)'
-                app.showAlert(error)
-                throw error
-            }
-
-            const detect_map = await requestControlNetDetectMap(
-                controlnet_init_image,
-                _module
-            )
-
-            // console.log('detect_map: ', detect_map)
-            // debugger
-            // const is_black_and_white = await io.isBlackAndWhiteImage(
-            //     detect_map
-            // )
-            // console.log('is_black_and_white: ', is_black_and_white)
-            // const layer = await io.IO.base64ToLayer(
-            //     detect_map,
-            //     'detect_map_image.png'
-            // )
-
-            const rgb_detect_map_url =
-                await io.convertBlackAndWhiteImageToRGBChannels3(detect_map)
-            // console.log('rgb_detect_map_url:', rgb_detect_map_url)
-            // return detect_map
-            // html_manip.setControlMaskSrc(
-            //     general.base64ToBase64Url(detect_map),
-            //     index
-            // )
-            html_manip.setControlMaskSrc(rgb_detect_map_url, index)
-        } catch (e) {
-            console.warn('PreviewAnnotator click(): index: ', index, e)
-        }
+        await previewAnnotator(index)
     })
 
-function initPreviewElement() {
+function initPreviewElement(index) {
     //make init mask image use the thumbnail class with buttons
-    const mask_image_html = document.getElementById(
-        'control_net_preivew_image_0'
-    )
+    // const mask_image_html = document.getElementById(
+    //     'control_net_preview_image_0'
+    // )
+
+    const mask_image_html = document.getElementById('control_net_mask_' + index)
     const mask_parent_element = mask_image_html.parentElement
 
     this.thumbnail_container = thumbnail.Thumbnail.wrapImgInContainer(
@@ -753,23 +757,65 @@ function initPreviewElement() {
 
     mask_parent_element.appendChild(thumbnail_container)
 
-    function viewDrawnMask() {}
-    function viewMaskExpansion() {}
+    async function toCanvas(index) {
+        // debugger
+        if (
+            g_generation_session.control_net_preview_selection_info &&
+            g_generation_session.controlNetMask[index]
+        ) {
+            const selection_info =
+                g_generation_session.control_net_preview_selection_info
+            const layer = await io.IO.base64ToLayer(
+                g_generation_session.controlNetMask[index],
+                'ControlNet Mask.png',
+                selection_info.left,
+                selection_info.top,
+                selection_info.width,
+                selection_info.height
+            )
+        } else {
+            // await note.Notification.inactiveSelectionArea()
+            app.showAlert('Mask Image is not available')
+        }
+    }
+    async function toControlNetInitImage(index) {
+        const preview_result_base64 = g_generation_session.controlNetMask[index]
+        g_generation_session.controlNetImage[index] = preview_result_base64
+        g_generation_session.control_net_selection_info =
+            g_generation_session.control_net_preview_selection_info
+
+        const rgb_detect_map_url =
+            await io.convertBlackAndWhiteImageToRGBChannels3(
+                preview_result_base64
+            )
+
+        // g_generation_session.controlNetMask[index] = rgb_detect_map
+
+        html_manip.setControlImageSrc(rgb_detect_map_url, index)
+    }
     thumbnail.Thumbnail.addSPButtonToContainer(
         this.thumbnail_container,
         'svg_sp_btn',
-        'view original mask',
+        'use as ControlNet init image',
 
-        viewDrawnMask,
-        null
+        toControlNetInitImage,
+        index
     )
     thumbnail.Thumbnail.addSPButtonToContainer(
         this.thumbnail_container,
         'svg_sp_btn',
-        'view modified mask',
+        'move to the canvas',
 
-        viewMaskExpansion,
-        null
+        toCanvas,
+        index
+    )
+    thumbnail.Thumbnail.addSPButtonToContainer(
+        this.thumbnail_container,
+        'svg_sp_btn',
+        'preview selection from canvas',
+
+        previewAnnotatorFromCanvas,
+        index
     )
 }
 
@@ -786,8 +832,8 @@ async function initializeControlNetTab(controlnet_max_models) {
             document.getElementById(
                 'controlnet_settings_' + index
             ).style.display = 'block'
+            initPreviewElement(index)
         }
-        initPreviewElement()
     } catch (e) {
         console.warn(e)
     }

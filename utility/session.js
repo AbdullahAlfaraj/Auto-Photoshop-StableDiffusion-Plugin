@@ -42,6 +42,7 @@ class GenerationSession {
         this.request_status = Enum.RequestStateEnum['Finished'] //finish or ideal state
         this.is_control_net = false
         this.control_net_selection_info
+        this.control_net_preview_selection_info
     }
     isActive() {
         return this.state === SessionState['Active']
@@ -219,6 +220,7 @@ class GenerationSession {
         //get the selection from the canvas as base64 png, make sure to resize to the width and height slider
         const selectionInfo = await psapi.getSelectionInfoExe()
         this.control_net_selection_info = selectionInfo
+        this.control_net_preview_selection_info = selectionInfo
         // const base64_image = await io.IO.getSelectionFromCanvasAsBase64Silent(
         //     selectionInfo,
         //     true,
