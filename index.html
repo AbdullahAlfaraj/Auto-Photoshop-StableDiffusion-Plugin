@@ -1007,9 +1007,13 @@
                     </div>
                 </div>
 
-                <div id="controlnet_settings_0" style="display: none">
+                <div
+                    id="controlnet_settings_template"
+                    data-index="0"
+                    style="display: none"
+                >
                     <div class="flexContainer">
-                        <sp-label slot="label"
+                        <sp-label slot="label " class="controlnet_unit_label_"
                             >Control Net Settings Slot 0</sp-label
                         >
                     </div>
@@ -1023,7 +1027,7 @@
                             <div>
                                 <img
                                     id="control_net_image_0"
-                                    class="column-item-image"
+                                    class="column-item-image control_net_image_"
                                     src="https://source.unsplash.com/random"
                                     width="300px"
                                     height="100px"
@@ -1031,7 +1035,7 @@
                             </div>
                             <div class="imgButton">
                                 <button
-                                    class="column-item button-style btnSquare"
+                                    class="column-item button-style btnSquare bSetControlImage_"
                                     id="bSetControlImage_0"
                                 >
                                     Set CtrlNet Img
@@ -1047,7 +1051,7 @@
                             <div>
                                 <img
                                     id="control_net_mask_0"
-                                    class="column-item-image"
+                                    class="column-item-image control_net_mask_"
                                     src="https://source.unsplash.com/random"
                                     width="300px"
                                     height="100px"
@@ -1055,56 +1059,50 @@
                             </div>
                             <div class="imgButton btnClass">
                                 <button
-                                    class="column-item button-style btnSquare"
+                                    class="column-item button-style btnSquare bControlMask_"
                                     id="bControlMask_0"
                                 >
                                     Preview Annotator
                                 </button>
                             </div>
                         </div>
-                        <div>
-                            <img
-                                id="control_net_preivew_image_0"
-                                class="column-item-image"
-                                src="https://source.unsplash.com/random"
-                                width="300px"
-                                height="100px"
-                            />
-
-                            <div class="imgButton">
-                                <button
-                                    class="column-item button-style btnSquare"
-                                    id="bPreviewAnnotator_0"
-                                    data-controlnet-index="0"
-                                >
-                                    Preview Annotator Image
-                                </button>
-                            </div>
-                        </div>
                     </div>
 
-                    <sp-checkbox id="chEnableControlNet_0">Enable</sp-checkbox>
-                    <sp-checkbox checked id="chlowVram_0">Low VRAM</sp-checkbox>
-                    <sp-checkbox id="chGuessMode_0">Guess Mode</sp-checkbox>
+                    <sp-checkbox
+                        id="chEnableControlNet_0"
+                        class="chEnableControlNet_"
+                        >Enable</sp-checkbox
+                    >
+                    <sp-checkbox checked id="chlowVram_0" class="chlowVram_"
+                        >Low VRAM</sp-checkbox
+                    >
+                    <sp-checkbox id="chGuessMode_0" class="chGuessMode_"
+                        >Guess Mode</sp-checkbox
+                    >
 
                     <div>
                         <div>
                             <sp-slider
                                 show-value="false"
                                 id="slControlNetWeight_0"
+                                class="slControlNetWeight_"
                                 min="0"
                                 max="100"
                                 value="50"
                                 title="2 will keep the composition; 0 will allow composition to change"
                             >
                                 <sp-label slot="label">Weight:</sp-label>
-                                <sp-label slot="label" id="lControlNetWeight_0"
+                                <sp-label
+                                    slot="label"
+                                    id="lControlNetWeight_0"
+                                    class="lControlNetWeight_"
                                     >1.0</sp-label
                                 >
                             </sp-slider>
                             <sp-slider
                                 show-value="false"
                                 id="slControlNetGuidanceStrengthStart_0"
+                                class="slControlNetGuidanceStrengthStart_"
                                 min="0"
                                 max="100"
                                 value="0"
@@ -1115,12 +1113,14 @@
                                 <sp-label
                                     slot="label"
                                     id="lControlNetGuidanceStrengthStart_0"
+                                    class="lControlNetGuidanceStrengthStart_"
                                     >0.0</sp-label
                                 >
                             </sp-slider>
                             <sp-slider
                                 show-value="false"
                                 id="slControlNetGuidanceStrengthEnd_0"
+                                class="slControlNetGuidanceStrengthEnd_"
                                 min="0"
                                 max="100"
                                 value="100"
@@ -1131,7 +1131,58 @@
                                 <sp-label
                                     slot="label"
                                     id="lControlNetGuidanceStrengthEnd_0"
+                                    class="lControlNetGuidanceStrengthEnd_"
                                     >1.0</sp-label
+                                >
+                            </sp-slider>
+                            <sp-slider
+                                show-value="true"
+                                id="slControlNetProcessorRes_0"
+                                class="slControlNetProcessorRes_"
+                                min="64"
+                                max="2048"
+                                value="512"
+                            >
+                                <sp-label slot="label"
+                                    >Annotator resolution</sp-label
+                                >
+                                <!-- <sp-label
+                                    slot="label"
+                                    id="lControlNetProcessorRes_0"
+                                    class="lControlNetProcessorRes_"
+                                    >1.0</sp-label
+                                > -->
+                            </sp-slider>
+                            <sp-slider
+                                show-value="true"
+                                class="slControlNetThreshold_A_"
+                                min="0"
+                                max="100"
+                                value="50"
+                                data-sd_min="64"
+                                data-sd_max="1024"
+                            >
+                                <sp-label slot="label">Threshold A: </sp-label>
+                                <sp-label
+                                    slot="label"
+                                    class="lControlNetThreshold_A_"
+                                    >0.0</sp-label
+                                >
+                            </sp-slider>
+                            <sp-slider
+                                show-value="true"
+                                class="slControlNetThreshold_B_"
+                                min="0"
+                                max="100"
+                                value="50"
+                                data-sd_min="64"
+                                data-sd_max="1024"
+                            >
+                                <sp-label slot="label">Threshold B: </sp-label>
+                                <sp-label
+                                    slot="label"
+                                    class="lControlNetThreshold_B_"
+                                    >0.0</sp-label
                                 >
                             </sp-slider>
                         </div>
@@ -1140,6 +1191,7 @@
                         <sp-picker size="m" label="Selection type">
                             <sp-menu
                                 id="mModulesMenuControlNet_0"
+                                class="mModulesMenuControlNet_"
                                 slot="options"
                             >
                                 <!-- <sp-menu-item> item </sp-menu-item> -->
@@ -1148,6 +1200,7 @@
                         <sp-picker size="m" label="Selection type">
                             <sp-menu
                                 id="mModelsMenuControlNet_0"
+                                class="mModelsMenuControlNet_"
                                 slot="options"
                             >
                                 <!-- <sp-menu-item> item </sp-menu-item> -->
@@ -1158,280 +1211,19 @@
                                         Refresh Models
                                     </button> -->
                     </div>
-                </div>
-                <div></div>
-                <sp-divider class="line-divider" size="large"></sp-divider>
-                <div id="controlnet_settings_1" style="display: none">
-                    <div class="flexContainer">
-                        <sp-label slot="label"
-                            >Control Net Settings Slot 1</sp-label
-                        >
-                    </div>
-                    <div style="display: flex">
-                        <div
-                            id="control_net_image_container_1"
-                            class="imgContainer controlNetImaageContainer"
-                        >
-                            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
-
-                            <div>
-                                <img
-                                    id="control_net_image_1"
-                                    class="column-item-image"
-                                    src="https://source.unsplash.com/random"
-                                    width="300px"
-                                    height="100px"
-                                />
-                            </div>
-                            <div class="imgButton">
-                                <button
-                                    class="column-item button-style btnSquare"
-                                    id="bSetControlImage_1"
-                                >
-                                    Set CtrlNet Img
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                            id="control_net_mask_container_1"
-                            class="imgContainer controlNetImaageContainer"
-                        >
-                            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
-
-                            <div>
-                                <img
-                                    id="control_net_mask_1"
-                                    class="column-item-image"
-                                    src="https://source.unsplash.com/random"
-                                    width="300px"
-                                    height="100px"
-                                />
-                            </div>
-                            <div class="imgButton btnClass">
-                                <button
-                                    class="column-item button-style btnSquare"
-                                    id="bControlMask_1"
-                                >
-                                    Preview Annotator
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <sp-checkbox id="chEnableControlNet_1">Enable</sp-checkbox>
-                    <sp-checkbox checked id="chlowVram_1">Low VRAM</sp-checkbox>
-                    <sp-checkbox id="chGuessMode_1">Guess Mode</sp-checkbox>
-
-                    <div>
-                        <div>
-                            <sp-slider
-                                show-value="false"
-                                id="slControlNetWeight_1"
-                                min="0"
-                                max="100"
-                                value="50"
-                                title="2 will keep the composition; 0 will allow composition to change"
-                            >
-                                <sp-label slot="label">Weight:</sp-label>
-                                <sp-label slot="label" id="lControlNetWeight_1"
-                                    >1.0</sp-label
-                                >
-                            </sp-slider>
-                            <sp-slider
-                                show-value="false"
-                                id="slControlNetGuidanceStrengthStart_1"
-                                min="0"
-                                max="100"
-                                value="0"
-                            >
-                                <sp-label slot="label"
-                                    >Guidance strength start:</sp-label
-                                >
-                                <sp-label
-                                    slot="label"
-                                    id="lControlNetGuidanceStrengthStart_1"
-                                    >0.0</sp-label
-                                >
-                            </sp-slider>
-                            <sp-slider
-                                show-value="false"
-                                id="slControlNetGuidanceStrengthEnd_1"
-                                min="0"
-                                max="100"
-                                value="100"
-                            >
-                                <sp-label slot="label"
-                                    >Guidance strength end:</sp-label
-                                >
-                                <sp-label
-                                    slot="label"
-                                    id="lControlNetGuidanceStrengthEnd_1"
-                                    >1.0</sp-label
-                                >
-                            </sp-slider>
-                        </div>
-                    </div>
-                    <div id="menu-bar-control_net_1" style="display: flex">
-                        <sp-picker size="m" label="Selection type">
-                            <sp-menu
-                                id="mModulesMenuControlNet_1"
-                                slot="options"
-                            >
-                                <!-- <sp-menu-item> item </sp-menu-item> -->
-                            </sp-menu>
-                        </sp-picker>
-                        <sp-picker size="m" label="Selection type">
-                            <sp-menu
-                                id="mModelsMenuControlNet_1"
-                                slot="options"
-                            >
-                                <!-- <sp-menu-item> item </sp-menu-item> -->
-                            </sp-menu>
-                        </sp-picker>
-
-                        <!-- <button class="btnSquare" id="btnRefreshModelsHorde">
-                                            Refresh Models
-                                        </button> -->
-                    </div>
-                </div>
-                <sp-divider class="line-divider" size="large"></sp-divider>
-                <div></div>
-                <div id="controlnet_settings_2" style="display: none">
-                    <div class="flexContainer">
-                        <sp-label slot="label"
-                            >Control Net Settings Slot 2</sp-label
-                        >
-                    </div>
-                    <div style="display: flex">
-                        <div
-                            id="control_net_image_container_2"
-                            class="imgContainer controlNetImaageContainer"
-                        >
-                            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
-
-                            <div>
-                                <img
-                                    id="control_net_image_2"
-                                    class="column-item-image"
-                                    src="https://source.unsplash.com/random"
-                                    width="300px"
-                                    height="100px"
-                                />
-                            </div>
-                            <div class="imgButton">
-                                <button
-                                    class="column-item button-style btnSquare"
-                                    id="bSetControlImage_2"
-                                >
-                                    Set CtrlNet Img
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                            id="control_net_mask_container_2"
-                            class="imgContainer controlNetImaageContainer"
-                        >
-                            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
-
-                            <div>
-                                <img
-                                    id="control_net_mask_2"
-                                    class="column-item-image"
-                                    src="https://source.unsplash.com/random"
-                                    width="300px"
-                                    height="100px"
-                                />
-                            </div>
-                            <div class="imgButton btnClass">
-                                <button
-                                    class="column-item button-style btnSquare"
-                                    id="bControlMask_2"
-                                >
-                                    Preview Annotator
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <sp-checkbox id="chEnableControlNet_2">Enable</sp-checkbox>
-                    <sp-checkbox checked id="chlowVram_2">Low VRAM</sp-checkbox>
-                    <sp-checkbox id="chGuessMode_2">Guess Mode</sp-checkbox>
-
-                    <div>
-                        <div>
-                            <sp-slider
-                                show-value="false"
-                                id="slControlNetWeight_2"
-                                min="0"
-                                max="100"
-                                value="50"
-                                title="2 will keep the composition; 0 will allow composition to change"
-                            >
-                                <sp-label slot="label">Weight:</sp-label>
-                                <sp-label slot="label" id="lControlNetWeight_2"
-                                    >1.0</sp-label
-                                >
-                            </sp-slider>
-                            <sp-slider
-                                show-value="false"
-                                id="slControlNetGuidanceStrengthStart_2"
-                                min="0"
-                                max="100"
-                                value="0"
-                            >
-                                <sp-label slot="label"
-                                    >Guidance strength start:</sp-label
-                                >
-                                <sp-label
-                                    slot="label"
-                                    id="lControlNetGuidanceStrengthStart_2"
-                                    >0.0</sp-label
-                                >
-                            </sp-slider>
-                            <sp-slider
-                                show-value="false"
-                                id="slControlNetGuidanceStrengthEnd_2"
-                                min="0"
-                                max="100"
-                                value="100"
-                            >
-                                <sp-label slot="label"
-                                    >Guidance strength end:</sp-label
-                                >
-                                <sp-label
-                                    slot="label"
-                                    id="lControlNetGuidanceStrengthEnd_2"
-                                    >1.0</sp-label
-                                >
-                            </sp-slider>
-                        </div>
-                    </div>
-                    <div id="menu-bar-control_net_2" style="display: flex">
-                        <sp-picker size="m" label="Selection type">
-                            <sp-menu
-                                id="mModulesMenuControlNet_2"
-                                slot="options"
-                            >
-                                <!-- <sp-menu-item> item </sp-menu-item> -->
-                            </sp-menu>
-                        </sp-picker>
-                        <sp-picker size="m" label="Selection type">
-                            <sp-menu
-                                id="mModelsMenuControlNet_2"
-                                slot="options"
-                            >
-                                <!-- <sp-menu-item> item </sp-menu-item> -->
-                            </sp-menu>
-                        </sp-picker>
-
-                        <!-- <button class="btnSquare" id="btnRefreshModelsHorde">
-                                                Refresh Models
-                                            </button> -->
-                    </div>
-                </div>
-                <div>
+                    <div></div>
                     <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <div></div>
+
+                    <div>
+                        <sp-divider
+                            class="line-divider"
+                            size="large"
+                        ></sp-divider>
+                    </div>
                 </div>
+                <div id="controlnet_parent_container"></div>
             </div>
             <div class="sp-tab-page" id="sp-history-tab-page">
                 <div class="subTabOptionsContainer"></div>
@@ -2076,6 +1868,22 @@
                         Get Path
                     </button>
                 </div>
+
+                <sp-slider
+                    show-value="true"
+                    id="slMultiControlNetSize"
+                    min="1"
+                    max="8"
+                    value="3"
+                >
+                    <sp-label slot="label">Multi ControlNet Size: </sp-label>
+                    <!-- <sp-label
+                                    class="labelNumber"
+                                    slot="label"
+                                    id="lWidth"
+                                    >512</sp-label
+                                > -->
+                </sp-slider>
             </div>
 
             <div
@@ -2340,7 +2148,7 @@
                         id="webp_container"
                         src="https://www.keycdn.com/img/blog/convert-to-webp-the-successor-of-jpeg-lg.webp"
                     />
-
+                    <!-- <custom-element>hello custom element</custom-element> -->
                     <div class="prompts">
                         <!-- <sp-label slot="label">Prompt</sp-label> -->
                         <div class="">
