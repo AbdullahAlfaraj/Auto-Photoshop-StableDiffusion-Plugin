@@ -4734,3 +4734,12 @@ document.getElementsByClassName('sub-menu-tab-class').forEach((element) => {
 Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
     switchMenu(rb)
 })
+
+// class CustomElement extends HTMLElement {
+//     constructor() {
+//         super()
+//         this.attachShadow({ mode: 'open' })
+//         this.shadowRoot.innerHTML = '<h1>Hello World!</h1>'
+//     }
+// }
+// customElements.define('custom-element', CustomElement)

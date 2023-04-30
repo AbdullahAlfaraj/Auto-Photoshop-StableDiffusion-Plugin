@@ -172,7 +172,9 @@ async function populateLoraModelMenu() {
                     const prompt = html_manip.getPrompt()
                     html_manip.autoFillInPrompt(`${prompt} ${lora_prompt}`)
                 }
-            }
+            },
+            false,
+            'Select Lora'
         )
     } catch (e) {
         console.warn('populateLoraModelMenu error: ', e)
