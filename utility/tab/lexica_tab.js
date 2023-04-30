@@ -102,6 +102,18 @@ function displayLexicaImage(lexica_item) {
             console.warn(e)
         }
     }
+    async function searchForSimilarImage(lexica_item) {
+        try {
+            document.getElementById('LexicaSearchField').value = lexica_item.src
+            const result_json = await requestLexica(lexica_item.src)
+
+            const lexica_items = result_json.images
+
+            displayAllLexicaImages(lexica_items)
+        } catch (e) {
+            console.warn(e)
+        }
+    }
     thumbnail.Thumbnail.addSPButtonToContainer(
         thumbnail_container,
         'svg_sp_btn',
@@ -114,6 +126,13 @@ function displayLexicaImage(lexica_item) {
         'svg_sp_btn',
         'load settings',
         loadSettingsToUI,
+        lexica_item
+    )
+    thumbnail.Thumbnail.addSPButtonToContainer(
+        thumbnail_container,
+        'svg_sp_btn',
+        'Search for Similar Image',
+        searchForSimilarImage,
         lexica_item
     )
     thumbnail_container.addEventListener('click', () => {
