@@ -338,6 +338,44 @@ function setSliderSdValue(
     document.getElementById(slider_id).value = slider_value.toString()
     document.getElementById(label_id).innerHTML = sd_value.toString()
 }
+function getSliderSdValueByElement(
+    slider_element,
+    slider_start,
+    slider_end,
+    sd_start,
+    sd_end
+) {
+    const slider_value = slider_element.value
+    // const sd_value = general.mapRange(slider_value, 0, 100, 0, 1) // convert slider value to SD ready value
+    const sd_value = general.mapRange(
+        slider_value,
+        slider_start,
+        slider_end,
+        sd_start,
+        sd_end
+    ) // convert slider value to SD ready value
+
+    return sd_value
+}
+function setSliderSdValueByElements(
+    slider_element,
+    label_element,
+    sd_value,
+    slider_start,
+    slider_end,
+    sd_start,
+    sd_end
+) {
+    const slider_value = general.mapRange(
+        sd_value,
+        sd_start,
+        sd_end,
+        slider_start,
+        slider_end
+    ) // convert slider value to SD ready value
+    slider_element.value = slider_value.toString()
+    label_element.innerHTML = sd_value.toString()
+}
 
 //hrWidth is from [1 to 32] * 64 => [64 to 2048]
 sliderAddEventListener('hrWidth', 'hWidth', 64)
@@ -506,15 +544,21 @@ function setInitImageSrc(image_src) {
     ini_image_element.src = image_src
 }
 function setControlImageSrc(image_src, element_index = 0) {
-    const control_net_image_element = document.getElementById(
-        'control_net_image' + '_' + element_index
+    const control_net_image_element = document.querySelector(
+        `#controlnet_settings_${element_index} .control_net_image_`
     )
+    // const control_net_image_element = document.getElementById(
+    //     'control_net_image' + '_' + element_index
+    // )
     control_net_image_element.src = image_src
 }
 function setControlMaskSrc(image_src, element_index = 0) {
-    const control_net_image_element = document.getElementById(
-        'control_net_mask' + '_' + element_index
+    const control_net_image_element = document.querySelector(
+        `#controlnet_settings_${element_index} .control_net_mask_`
     )
+    // const control_net_image_element = document.getElementById(
+    //     'control_net_mask' + '_' + element_index
+    // )
     control_net_image_element.src = image_src
 }
 
@@ -870,11 +914,11 @@ function isSquareThumbnail() {
 }
 
 async function populateMenu(
-    html_menu_id,
     menu_item_class,
     items,
     createMenuItemHtml,
-    b_keep_old_selection = false
+    b_keep_old_selection = false,
+    label = ''
 ) {
     // function createMenuItemHtml(item, item_html_element) {
     //     // menu_item_element.innerHTML = item.title
@@ -883,13 +927,55 @@ async function populateMenu(
     // }
 
     try {
-        document.getElementById(html_menu_id).innerHTML = '' // empty the menu
-
+        const html_menu_element = document.getElementById(html_menu_id)
+        html_menu_element.innerHTML = '' // empty the menu
+        if (label) {
+            const label_item = document.createElement('sp-menu-item')
+            label_item.selected = true
+            label_item.disabled = true
+            label_item.innerText = label
+            html_menu_element.appendChild(label_item)
+        }
         for (let item of items) {
             const menu_item_element = document.createElement('sp-menu-item')
             menu_item_element.className = menu_item_class
             createMenuItemHtml(item, menu_item_element)
-            document.getElementById(html_menu_id).appendChild(menu_item_element)
+            html_menu_element.appendChild(menu_item_element)
+        }
+    } catch (e) {
+        b_result = false
+        console.warn(e)
+    }
+    return b_result
+}
+async function populateMenuByElement(
+    html_menu_element,
+    menu_item_class,
+    items,
+    createMenuItemHtml,
+    b_keep_old_selection = false,
+    label = ''
+) {
+    // function createMenuItemHtml(item, item_html_element) {
+    //     // menu_item_element.innerHTML = item.title
+    //     // menu_item_element.dataset.model_hash = model.hash
+    //     // menu_item_element.dataset.model_title = model.title
+    // }
+
+    try {
+        html_menu_element.innerHTML = '' // empty the menu
+        if (label) {
+            const label_item = document.createElement('sp-menu-item')
+            label_item.selected = true
+            label_item.disabled = true
+            label_item.innerText = label
+            html_menu_element.appendChild(label_item)
+        }
+        for (let item of items) {
+            const menu_item_element = document.createElement('sp-menu-item')
+            menu_item_element.className = menu_item_class
+            createMenuItemHtml(item, menu_item_element)
+            html_menu_element.appendChild(menu_item_element)
         }
     } catch (e) {
         b_result = false
@@ -900,6 +986,14 @@ async function populateMenu(
 function getSelectedMenuItem(menu_id) {
     try {
         const menu_element = document.getElementById(menu_id)
+        return menu_element.selectedOptions[0]
+    } catch (e) {
+        console.warn(e)
+    }
+}
+function getSelectedMenuItemByElement(menu_element) {
+    try {
+        // const menu_element = document.getElementById(menu_id)
         return menu_element.selectedOptions[0]
     } catch (e) {
         console.warn(e)
@@ -917,9 +1011,36 @@ function selectMenuItem(menu_id, item) {
         console.warn(e)
     }
 }
+function selectMenuItemByElement(menu_element, item) {
+    try {
+        const option = Array.from(menu_element.options).filter(
+            (element) => element.value === item
+        )[0]
+        // debugger
+        option.selected = true
+        // option.dispatchEvent(new Event('click'))
+        // option.click()
+    } catch (e) {
+        unselectMenuItemByElement(menu_element)
+        console.warn(e)
+    }
+}
 function getSelectedMenuItemTextContent(menu_id) {
     try {
-        const text_content = getSelectedMenuItem(menu_id).textContent
+        const selected_item = getSelectedMenuItem(menu_id)
+        if (selected_item.disabled === true) return '' // ignore the label item
+
+        const text_content = selected_item.textContent
+        return text_content
+    } catch (e) {
+        console.warn(e)
+    }
+}
+function getSelectedMenuItemTextContentByElement(menu_element) {
+    try {
+        const selected_item = getSelectedMenuItemByElement(menu_element)
+        if (selected_item.disabled === true) return ''
+        const text_content = selected_item.textContent
         return text_content
     } catch (e) {
         console.warn(e)
@@ -928,6 +1049,13 @@ function getSelectedMenuItemTextContent(menu_id) {
 function unselectMenuItem(menu_id) {
     try {
         document.getElementById(menu_id).selectedIndex = null
+    } catch (e) {
+        console.warn(e)
+    }
+}
+function unselectMenuItemByElement(menu_element) {
+    try {
+        menu_element.selectedIndex = null
     } catch (e) {
         console.warn(e)
     }
@@ -1036,4 +1164,11 @@ module.exports = {
     getSelectedRadioButtonElement,
     getInitImageMaskElement,
     sliderAddEventListener_new,
+    getSliderSdValueByElement,
+    setSliderSdValueByElements,
+    populateMenuByElement,
+    selectMenuItemByElement,
+    unselectMenuItemByElement,
+    getSelectedMenuItemByElement,
+    getSelectedMenuItemTextContentByElement,
 }
