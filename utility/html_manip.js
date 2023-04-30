@@ -916,6 +916,7 @@ function isSquareThumbnail() {
 }
 
 async function populateMenu(
+    html_menu_id,
     menu_item_class,
     items,
     createMenuItemHtml,
