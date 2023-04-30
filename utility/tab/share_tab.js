@@ -15,3 +15,9 @@ chLiveProgressImageElements.forEach((element) => {
         })
     })
 })
+
+document
+    .getElementById('slMultiControlNetSize')
+    .addEventListener('change', async (event) => {
+        await control_net.initializeControlNetTab(event.target.value)
+    })
