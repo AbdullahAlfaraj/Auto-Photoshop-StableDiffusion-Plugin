@@ -716,10 +716,12 @@ reset_btns.forEach((element) =>
 )
 
 function getBatchNumber() {
-    return document.getElementById('tiNumberOfImages').value
+    // return document.getElementById('tiNumberOfImages').value
+    return document.getElementById('tiNumberOfBatchSize').value
 }
 function autoFillInBatchNumber(batch_number) {
-    document.getElementById('tiNumberOfImages').value = String(batch_number)
+    // document.getElementById('tiNumberOfImages').value = String(batch_number)
+    document.getElementById('tiNumberOfBatchSize').value = String(batch_number)
 }
 
 function getSteps() {
