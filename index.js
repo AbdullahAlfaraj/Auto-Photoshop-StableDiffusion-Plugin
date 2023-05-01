@@ -2155,7 +2155,7 @@ async function generateImg2Img(settings) {
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
             //checks on index 0 as if not enabled ingores the rest
-            const b_enable_control_net = control_net.getEnableControlNet(0)
+            const b_enable_control_net = control_net.isControlNetModeEnable()
 
             if (b_enable_control_net) {
                 //use control net
