@@ -348,7 +348,24 @@ function getUseGuessMode(controlnet_index = 0) {
     ).checked
     return is_guess_mode
 }
+function isControlNetModeEnable() {
+    let is_tab_enabled = !document.getElementById('chDisableControlNetTab')
+        .checked
 
+    let numOfEnabled = 0
+    if (is_tab_enabled) {
+        for (let index = 0; index < getControlNetMaxModelsNumber(); index++) {
+            if (getEnableControlNet(index)) {
+                numOfEnabled += 1
+            }
+        }
+    }
+    let is_mode_enabled = is_tab_enabled // could be true
+    if (is_tab_enabled === false || numOfEnabled === 0) {
+        is_mode_enabled = false
+    }
+    return is_mode_enabled
+}
 function getControlNetMaxModelsNumber() {
     return g_controlnet_max_supported_models
 }
@@ -586,4 +603,5 @@ module.exports = {
     setControlNetGuidanceStrengthEnd,
     ControlNetUnit,
     populateControlNetPresetMenu,
+    isControlNetModeEnable,
 }
