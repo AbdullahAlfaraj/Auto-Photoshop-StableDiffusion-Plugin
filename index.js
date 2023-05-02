@@ -2155,7 +2155,7 @@ async function generateImg2Img(settings) {
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
             //checks on index 0 as if not enabled ingores the rest
-            const b_enable_control_net = control_net.getEnableControlNet(0)
+            const b_enable_control_net = control_net.isControlNetModeEnable()
 
             if (b_enable_control_net) {
                 //use control net
@@ -2184,7 +2184,8 @@ async function generateTxt2Img(settings) {
             backend_type === backendTypeEnum['Auto1111'] ||
             backend_type === backendTypeEnum['Auto1111HordeExtension']
         ) {
-            const b_enable_control_net = control_net.getEnableControlNet()
+            // const b_enable_control_net = control_net.getEnableControlNet()
+            const b_enable_control_net = control_net.isControlNetModeEnable()
 
             if (b_enable_control_net) {
                 //use control net
@@ -2364,7 +2365,10 @@ async function easyModeGenerate(mode) {
             mode === 'upscale' ? await getExtraSettings() : await getSettings()
 
         g_generation_session.last_settings = settings
-        g_generation_session.is_control_net = control_net.getEnableControlNet()
+        // g_generation_session.is_control_net = control_net.getEnableControlNet()
+        g_generation_session.is_control_net =
+            control_net.isControlNetModeEnable()
+
         await generate(settings, mode)
 
         // await g_generation_session.deleteProgressLayer() // delete the old progress layer
