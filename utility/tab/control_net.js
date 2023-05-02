@@ -542,7 +542,24 @@ function getUseGuessMode(index = 0) {
 
     return is_guess_mode
 }
+function isControlNetModeEnable() {
+    let is_tab_enabled = !document.getElementById('chDisableControlNetTab')
+        .checked
 
+    let numOfEnabled = 0
+    if (is_tab_enabled) {
+        for (let index = 0; index < getControlNetMaxModelsNumber(); index++) {
+            if (getEnableControlNet(index)) {
+                numOfEnabled += 1
+            }
+        }
+    }
+    let is_mode_enabled = is_tab_enabled // could be true
+    if (is_tab_enabled === false || numOfEnabled === 0) {
+        is_mode_enabled = false
+    }
+    return is_mode_enabled
+}
 function getControlNetMaxModelsNumber() {
     return g_controlnet_max_supported_models
 }
@@ -720,31 +737,30 @@ function mapPluginSettingsToControlNet(plugin_settings) {
     // debugger
     let active_index = 0
     for (let index = 0; index < g_controlnet_max_supported_models; index++) {
-        if (getEnableControlNet(index)) {
-            const preprocessor_name = getSelectedModule(index)
-            const prams =
-                preprocessor_name in g_preprocessor_parms
-                    ? g_preprocessor_parms[preprocessor_name]
-                    : g_preprocessor_parms['default']
+        const preprocessor_name = getSelectedModule(index)
+        const prams =
+            preprocessor_name in g_preprocessor_parms
+                ? g_preprocessor_parms[preprocessor_name]
+                : g_preprocessor_parms['default']
 
-            controlnet_units[active_index] = {
-                input_image: g_generation_session.controlNetImage[index],
-                mask: '',
-                module: getSelectedModule(index),
-                model: getSelectedModel(index),
-                weight: getWeight(index),
-                resize_mode: 'Scale to Fit (Inner Fit)',
-                lowvram: getUseLowVram(index),
-                processor_res: ControlNetUnit.getProcessorRes(index),
-                threshold_a: ControlNetUnit.getThreshold(index, 'a'),
-                threshold_b: ControlNetUnit.getThreshold(index, 'b'),
-                // guidance: ,
-                guidance_start: getControlNetWeightGuidanceStrengthStart(index),
-                guidance_end: getControlNetWeightGuidanceStrengthEnd(index),
-                guessmode: false,
-            }
-            active_index++
+        controlnet_units[active_index] = {
+            enabled: getEnableControlNet(index),
+            input_image: g_generation_session.controlNetImage[index],
+            mask: '',
+            module: getSelectedModule(index),
+            model: getSelectedModel(index),
+            weight: getWeight(index),
+            resize_mode: 'Scale to Fit (Inner Fit)',
+            lowvram: getUseLowVram(index),
+            processor_res: ControlNetUnit.getProcessorRes(index),
+            threshold_a: ControlNetUnit.getThreshold(index, 'a'),
+            threshold_b: ControlNetUnit.getThreshold(index, 'b'),
+            // guidance: ,
+            guidance_start: getControlNetWeightGuidanceStrengthStart(index),
+            guidance_end: getControlNetWeightGuidanceStrengthEnd(index),
+            guessmode: false,
         }
+        active_index++
     }
 
     if (
@@ -1193,4 +1209,5 @@ module.exports = {
     setControlNetGuidanceStrengthEnd,
     ControlNetUnit,
     populateControlNetPresetMenu,
+    isControlNetModeEnable,
 }
