@@ -285,9 +285,15 @@ async function requestControlNetModuleList() {
     //     'fake_scribble',
     //     'segmentation',
     // ]
-    const module_list = g_sd_config_obj.getControlNetPreprocessors()
+
+    // const module_list = g_sd_config_obj.getControlNetPreprocessors()
+
+    const result = await api.requestGet(
+        `${g_sd_url}/controlnet/module_list?alias_names=false`
+    )
+
     // const module_list = g_controlnet_preprocessors
-    return module_list
+    return result?.module_list
 }
 async function populateModelMenu() {
     try {
@@ -347,6 +353,7 @@ function changeModule(_module, index) {
 }
 async function populatePreprocessorMenu() {
     try {
+        debugger
         const modules = await requestControlNetModuleList()
         for (
             let index = 0;
