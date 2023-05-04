@@ -9,6 +9,531 @@ const event = require('../event')
 
 const g_controlnet_max_supported_models = 3
 let g_controlnet_presets
+
+function preprocessor_res_json(
+    label = 'Preprocessor resolution',
+    minimum = 64,
+    maximum = 2048,
+    value = 512,
+    step = 1
+) {
+    return {
+        label,
+        minimum,
+        maximum,
+        value,
+        step,
+    }
+}
+function threshold_a_json(
+    label = 'Canny low threshold',
+    minimum = 1,
+    maximum = 255,
+    value = 100,
+    step = 1,
+    visible = true,
+    interactive = true
+) {
+    return { label, minimum, maximum, value, step, visible, interactive }
+}
+function threshold_b_json(
+    label = 'Canny high threshold',
+    minimum = 1,
+    maximum = 255,
+    value = 200,
+    step = 1,
+    visible = true,
+    interactive = true
+) {
+    return {
+        label,
+        minimum,
+        maximum,
+        value,
+        step,
+        visible,
+        interactive,
+    }
+}
+
+const g_preprocessor_parms_new = {
+    none: { preprocessor_res: null, threshold_a: null, threshold_b: null },
+
+    canny: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: threshold_a_json(
+            (label = 'Canny low threshold'),
+            (minimum = 1),
+            (maximum = 255),
+            (value = 100),
+            (step = 1),
+            (visible = true),
+            (interactive = true)
+        ),
+        threshold_b: threshold_b_json(
+            (label = 'Canny high threshold'),
+            (minimum = 1),
+            (maximum = 255),
+            (value = 200),
+            (step = 1),
+            (visible = true),
+            (interactive = true)
+        ),
+    },
+    depth: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    depth_leres: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: threshold_a_json(
+            (label = 'Remove Near %'),
+            (minimum = 0),
+            (maximum = 100),
+            (value = 0),
+            (step = 0.1),
+            (visible = true),
+            (interactive = true)
+        ),
+        threshold_b: threshold_b_json(
+            (label = 'Remove Background %'),
+            (minimum = 0),
+            (maximum = 100),
+            (value = 0),
+            (step = 0.1),
+            (visible = true),
+            (interactive = true)
+        ),
+    },
+    hed: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    hed_safe: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    mediapipe_face: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 8)
+        ),
+        threshold_a: threshold_a_json(
+            (label = 'Max Faces'),
+            (minimum = 1),
+            (maximum = 10),
+            (value = 1),
+            (step = 1),
+            (visible = true),
+            (interactive = true)
+        ),
+        threshold_b: threshold_b_json(
+            (label = 'Min Face Confidence'),
+            (minimum = 0.01),
+            (maximum = 1.0),
+            (value = 0.5),
+            (step = 0.01),
+            (visible = true),
+            (interactive = true)
+        ),
+    },
+    mlsd: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: threshold_a_json(
+            (label = 'Hough value threshold (MLSD)'),
+            (minimum = 0.01),
+            (maximum = 2.0),
+            (value = 0.1),
+            (step = 0.01),
+            (visible = true),
+            (interactive = true)
+        ),
+        threshold_b: threshold_b_json(
+            (label = 'Hough distance threshold (MLSD)'),
+            (minimum = 0.01),
+            (maximum = 20.0),
+            (value = 0.1),
+            (step = 0.01),
+            (visible = true),
+            (interactive = true)
+        ),
+    },
+    normal_map: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: threshold_a_json(
+            (label = 'Normal background threshold'),
+            (minimum = 0.0),
+            (maximum = 1.0),
+            (value = 0.4),
+            (step = 0.01),
+            (visible = true),
+            (interactive = true)
+        ),
+        threshold_b: null,
+    },
+    openpose: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    openpose_hand: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    openpose_face: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    openpose_faceonly: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    openpose_full: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    clip_vision: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    color: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 8)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    pidinet: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 8)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    pidinet_safe: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 8)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    pidinet_sketch: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 8)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    pidinet_scribble: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 8)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    scribble_xdog: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 8)
+        ),
+        threshold_a: threshold_a_json(
+            (label = 'XDoG Threshold'),
+            (minimum = 1.0),
+            (maximum = 64.0),
+            (value = 32.0),
+            (step = 1.0),
+            (visible = true),
+            (interactive = true)
+        ),
+    },
+    scribble_hed: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 8)
+        ),
+    },
+    segmentation: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor Resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    threshold: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: threshold_a_json(
+            (label = 'Binarization Threshold'),
+            (minimum = 0),
+            (maximum = 255),
+            (value = 127),
+            (step = 1),
+            (visible = true),
+            (interactive = true)
+        ),
+        threshold_b: null,
+    },
+    depth_zoe: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    normal_bae: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    oneformer_coco: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    oneformer_ade20k: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    lineart: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    lineart_coarse: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    lineart_anime: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    lineart_standard: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    shuffle: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    tile_resample: {
+        preprocessor_res: null,
+        threshold_a: threshold_a_json(
+            (label = 'Down Sampling Rate'),
+            (minimum = 1.0),
+            (maximum = 8.0),
+            (value = 1.0),
+            (step = 0.01),
+            (visible = true),
+            (interactive = true)
+        ),
+        threshold_b: null,
+    },
+    inpaint: { preprocessor_res: null, threshold_a: null, threshold_b: null },
+    invert: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+    lineart_anime_denoise: {
+        preprocessor_res: preprocessor_res_json(
+            (label = 'Preprocessor resolution'),
+            (minimum = 64),
+            (maximum = 2048),
+            (value = 512),
+            (step = 1)
+        ),
+        threshold_a: null,
+        threshold_b: null,
+    },
+}
+
 class ControlNetUnit {
     static {}
 
@@ -210,8 +735,8 @@ class ControlNetUnit {
             slider.min,
             slider.max
         )
-        slider.value = slider_value
-        label.innerText = sd_value
+        slider.value = String(slider_value)
+        label.innerText = String(sd_value)
     }
 
     static getControlNetUnitJson(index = 0) {}
@@ -337,23 +862,49 @@ function changeModule(_module, index) {
     )
 
     const parms =
-        _module in g_preprocessor_parms
-            ? g_preprocessor_parms[_module]
-            : g_preprocessor_parms['default']
+        _module in g_preprocessor_parms_new
+            ? g_preprocessor_parms_new[_module]
+            : g_preprocessor_parms_new['none']
 
     // threshold_a_element.min = prams.
     //     threshold_a_element.max =
     // debugger
-    threshold_a_element.dataset['sd_min'] = parms.a_min
-    threshold_a_element.dataset['sd_max'] = parms.a_max
-    ControlNetUnit.setThreshold(index, 'a', parms.threshold_a)
-    threshold_b_element.dataset['sd_min'] = parms.b_min
-    threshold_b_element.dataset['sd_max'] = parms.b_max
-    ControlNetUnit.setThreshold(index, 'b', parms.threshold_b)
+
+    if (parms?.threshold_a) {
+        const threshold_a_label_element = controlnetElement(
+            index,
+            '.labelControlNetThreshold_A_'
+        )
+
+        threshold_a_element.dataset['sd_min'] = parms.threshold_a.minimum
+        threshold_a_element.dataset['sd_max'] = parms.threshold_a.maximum
+        ControlNetUnit.setThreshold(index, 'a', parms.threshold_a.value)
+        threshold_a_element.style.display = 'block'
+        threshold_a_label_element.innerText = parms.threshold_a.label
+    } else {
+        ControlNetUnit.setThreshold(index, 'a', 32)
+        threshold_a_element.style.display = 'none'
+    }
+
+    if (parms?.threshold_b) {
+        const threshold_b_label_element = controlnetElement(
+            index,
+            '.labelControlNetThreshold_B_'
+        )
+
+        threshold_b_element.dataset['sd_min'] = parms.threshold_b.minimum
+        threshold_b_element.dataset['sd_max'] = parms.threshold_b.maximum
+        ControlNetUnit.setThreshold(index, 'b', parms.threshold_b.value)
+        threshold_b_element.style.display = 'block'
+        threshold_b_label_element.innerText = parms.threshold_b.label
+    } else {
+        ControlNetUnit.setThreshold(index, 'b', 32)
+        threshold_b_element.style.display = 'none'
+    }
 }
 async function populatePreprocessorMenu() {
     try {
-        debugger
+        // debugger
         const modules = await requestControlNetModuleList()
         for (
             let index = 0;
@@ -596,147 +1147,7 @@ function preprocessorData(
         threshold_b_label,
     }
 }
-const g_preprocessor_parms = {
-    default: preprocessorData(),
-    normal_map: preprocessorData(
-        512,
-        0.4,
-        64,
-        0,
-        1,
-        64,
-        1024,
-        'normal resolution',
-        'normal background threshold',
-        'threshold b'
-    ),
-    canny: preprocessorData(
-        512,
-        100,
-        200,
-        1,
-        255,
-        1,
-        255,
-        'Annotator resolution',
-        'canny low threshold',
-        'canny hight threshold'
-    ),
-    depth: preprocessorData(
-        512,
-        64,
-        64,
-        64,
-        1024,
-        64,
-        1024,
-        'midas resolution',
-        'threshold a',
-        'threshold b'
-    ),
-    openpose: preprocessorData(
-        512,
-        64,
-        64,
-        64,
-        1024,
-        64,
-        1024,
-        'Annotator resolution',
-        'threshold a',
-        'threshold b'
-    ),
-    depth_leres: preprocessorData(
-        512,
-        0,
-        0,
-        0,
-        100,
-        0,
-        100,
-        'LeRes Resolution',
-        'Remove Near %',
-        'Remove Background %'
-    ),
 
-    hed: preprocessorData(
-        512,
-        64,
-        64,
-        64,
-        1024,
-        64,
-        1024,
-        'HED Resolution',
-        'Threshold A',
-        'Threshold B'
-    ),
-    mlsd: preprocessorData(
-        512,
-        0.1,
-        0.1,
-        0.01,
-        2.0,
-        0.01,
-        20.0,
-        'Hough Resolution',
-        'Hough Value Threshold (MLSD)',
-        'Hough Distance Threshold (MLSD)'
-    ),
-
-    openpose_hand: preprocessorData(
-        512,
-        64,
-        64,
-        64,
-        1024,
-        64,
-        1024,
-        'Annotator resolution',
-        'threshold a',
-        'threshold b'
-    ),
-    clip_vision: preprocessorData(
-        512,
-        64,
-        64,
-        64,
-        64,
-        64,
-        64,
-        'Annotator resolution',
-        'threshold a',
-        'threshold b'
-    ),
-    color: preprocessorData(),
-    pidinet: preprocessorData(),
-    scribble: preprocessorData(),
-    fake_scribble: preprocessorData(
-        512,
-        64,
-        64,
-        64,
-        1024,
-        64,
-        1024,
-        'Hed Resolution',
-        'Threshold A',
-        'Threshold B'
-    ),
-    segmentation: preprocessorData(),
-    binary: preprocessorData(
-        512,
-        0,
-        64,
-        64,
-        1024,
-        64,
-        1024,
-        'Annotator resolution',
-        'Binary threshold',
-        'Threshold B'
-    ),
-}
 function mapPluginSettingsToControlNet(plugin_settings) {
     const ps = plugin_settings // for shortness
     let controlnet_units = []
@@ -745,10 +1156,10 @@ function mapPluginSettingsToControlNet(plugin_settings) {
     let active_index = 0
     for (let index = 0; index < g_controlnet_max_supported_models; index++) {
         const preprocessor_name = getSelectedModule(index)
-        const prams =
-            preprocessor_name in g_preprocessor_parms
-                ? g_preprocessor_parms[preprocessor_name]
-                : g_preprocessor_parms['default']
+        // const prams =
+        //     preprocessor_name in g_preprocessor_parms_new
+        //         ? g_preprocessor_parms_new[preprocessor_name]
+        //         : g_preprocessor_parms_new['none']
 
         controlnet_units[active_index] = {
             enabled: getEnableControlNet(index),
@@ -1217,4 +1628,5 @@ module.exports = {
     ControlNetUnit,
     populateControlNetPresetMenu,
     isControlNetModeEnable,
+    preprocessor_res_json,
 }
