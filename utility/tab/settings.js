@@ -25,6 +25,10 @@ function getExtensionType() {
 document.getElementById('btnGetDocPath').addEventListener('click', async () => {
     const docPath = await io.IOFolder.getDocumentFolderNativePath()
     document.getElementById('tiDocPath').value = docPath
+
+    const uuid = await getUniqueDocumentId()
+    doc_entry = await io.IOFolder.getDocFolder(uuid)
+    await shell.openPath(doc_entry.nativePath)
 })
 
 document.getElementById('btnSdUrl').addEventListener('click', async () => {

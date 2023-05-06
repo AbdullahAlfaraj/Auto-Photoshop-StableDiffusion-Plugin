@@ -42,6 +42,7 @@ class GenerationSession {
         this.request_status = Enum.RequestStateEnum['Finished'] //finish or ideal state
         this.is_control_net = false
         this.control_net_selection_info
+        this.control_net_preview_selection_info
     }
     isActive() {
         return this.state === SessionState['Active']
@@ -70,6 +71,9 @@ class GenerationSession {
             await psapi.unselectActiveLayersExe() // unselect all layer so the create group is place at the top of the document
             this.prevOutputGroup = this.outputGroup
             const outputGroup = await psapi.createEmptyGroup(session_name)
+            await executeAsModal(async () => {
+                outputGroup.allLocked = true //lock the session folder so that it can't move
+            })
             this.outputGroup = outputGroup
             await psapi.selectLayersExe(activeLayers)
         } catch (e) {
@@ -117,6 +121,9 @@ class GenerationSession {
             g_viewer_manager.last_selected_viewer_obj = null // TODO: move this in viewerManager endSession()
             g_viewer_manager.onSessionEnd()
             await layer_util.collapseFolderExe([this.outputGroup], false) // close the folder group
+            await executeAsModal(async () => {
+                this.outputGroup.allLocked = false //unlock the session folder on session end
+            })
             // this.outputGroup.visible = is_visible
 
             if (
@@ -213,6 +220,7 @@ class GenerationSession {
         //get the selection from the canvas as base64 png, make sure to resize to the width and height slider
         const selectionInfo = await psapi.getSelectionInfoExe()
         this.control_net_selection_info = selectionInfo
+        this.control_net_preview_selection_info = selectionInfo
         // const base64_image = await io.IO.getSelectionFromCanvasAsBase64Silent(
         //     selectionInfo,
         //     true,

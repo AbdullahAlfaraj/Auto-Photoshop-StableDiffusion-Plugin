@@ -15,8 +15,17 @@
       "domains": "all"
     },
     "launchProcess": {
-      "schemes": ["http", "https", "mailto"],
-		  "extensions": [".png", ".jpg", ".pdf"]
+      "schemes": [
+        "http",
+        "https",
+        "mailto"
+      ],
+      "extensions": [
+        ".png",
+        ".jpg",
+        ".pdf",
+        ""
+      ]
     },
     "clipboard": "readAndWrite",
     "localFileSystem": "request",

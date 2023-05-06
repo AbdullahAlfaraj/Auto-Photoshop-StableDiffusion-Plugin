@@ -1,3 +1,37 @@
+const io = require('./utility/io')
+const log = console.log
+const warn = console.warn
+const error = console.error
+const should_log = false
+if (should_log) {
+    window.addEventListener('error', (event) => {
+        const [a, b, c, d, e] = [1, 2, 3, 4, 5]
+        console.log(`message: ${a}`)
+        console.log(`source: ${b}`)
+        console.log(`lineno: ${c}`)
+        console.log(`colno: ${d}`)
+        console.log(`error: ${e}`)
+    })
+
+    console.log = (data, ...optional_param) => {
+        log(data, ...optional_param)
+        io.IOLog.saveLogToFile({ data, ...optional_param }, 'log.txt')
+    }
+    console.warn = (data, ...optional_param) => {
+        try {
+            warn(data, ...optional_param)
+            io.IOLog.saveLogToFile({ data, ...optional_param }, 'warn.txt')
+        } catch (e) {
+            warn('error while logging: ')
+            warn(e)
+        }
+    }
+    console.error = (data, ...optional_param) => {
+        error(data, ...optional_param)
+        io.IOLog.saveLogToFile({ data, ...optional_param }, 'error.txt')
+    }
+}
+
 // import {helloHelper} from 'helper.js'
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
@@ -36,9 +70,10 @@ const script_horde = require('./utility/sd_scripts/horde')
 const prompt_shortcut = require('./utility/sdapi/prompt_shortcut')
 const formats = require('uxp').storage.formats
 const storage = require('uxp').storage
+const shell = require('uxp').shell
 const fs = storage.localFileSystem
 const horde_native = require('./utility/sdapi/horde_native')
-const io = require('./utility/io')
+
 const dummy = require('./utility/dummy')
 const general = require('./utility/general')
 const thumbnail = require('./thumbnail')
@@ -49,7 +84,8 @@ const control_net = require('./utility/tab/control_net')
 //load tabs
 const history_tab = require('./utility/tab/history_tab')
 const image_search_tab = require('./utility/tab/image_search_tab')
-
+const lexica_tab = require('./utility/tab/lexica_tab')
+const share_tab = require('./utility/tab/share_tab')
 let g_horde_generator = new horde_native.hordeGenerator()
 let g_automatic_status = Enum.AutomaticStatusEnum['Offline']
 let g_models_status = false
@@ -978,6 +1014,7 @@ document.addEventListener('mouseenter', async (event) => {
 //REFACTOR: move to ui.js
 async function displayUpdate() {
     try {
+        sd_tab.displayImageCfgScaleSlider(g_sd_mode)
         if (g_sd_mode == 'txt2img') {
             document.getElementById('slDenoisingStrength').style.display =
                 'none' // hide denoising strength slider
@@ -1001,6 +1038,7 @@ async function displayUpdate() {
 
             document.getElementById('slInpaintPadding').style.display = 'none'
             document.getElementById('slMaskBlur').style.display = 'none'
+            // document.getElementById('slImageCfgScale').style.display = 'none'
             // document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
         }
 
@@ -1023,7 +1061,10 @@ async function displayUpdate() {
             document.getElementById('chHiResFixs').style.display = 'none'
             document.getElementById('slInpaintingMaskWeight').style.display =
                 'block' // hide inpainting conditional mask weight
+
+            // document.getElementById('slImageCfgScale').style.display = 'block'
         }
+
         if (g_sd_mode == 'inpaint' || g_sd_mode == 'outpaint') {
             ///fix the misalignment problem in the ui (init image is not aligned with init mask when switching from img2img to inpaint ). note: code needs refactoring
             // document.getElementById('btnSnapAndFill').style.display = 'none'//"none" will  misaligned the table // hide snap and fill button
@@ -1062,6 +1103,7 @@ async function displayUpdate() {
             }
             document.getElementById('slMaskBlur').style.display = 'block'
             document.getElementById('chHiResFixs').style.display = 'none'
+
             // document.getElementById('btnInitOutpaint').style.display = 'inline-flex'
             // document.getElementById('btnInitInpaint').style.display = 'inline-flex'
             // document.getElementById('btnInitOutpaint').style.display = 'none'
@@ -1256,10 +1298,7 @@ document.querySelector('#hrWidth').addEventListener('input', (evt) => {
     hWidth = sliderToResolution(evt.target.value)
     document.querySelector('#hWidth').textContent = hWidth
 })
-//document.querySelector('#hrScale').addEventListener('input', evt => {
-//  hScale = sliderToResolution(evt.target.value)
-//  document.querySelector('#hScale').textContent = hScale
-//})
+
 //REFACTOR: move to events.js
 document.querySelector('#slInpaintPadding').addEventListener('input', (evt) => {
     padding = evt.target.value * 4
@@ -1302,10 +1341,13 @@ async function snapAndFillHandler() {
                 //   g_last_snap_and_fill_layers
                 // )
                 // create new layers related to the current mask operation.
-                await executeAsModal(async () => {
-                    // g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
-                    await outpaint.snapAndFillExe(random_session_id)
-                })
+                await executeAsModal(
+                    async () => {
+                        // g_last_snap_and_fill_layers = await outpaint.snapAndFillExe(random_session_id)
+                        await outpaint.snapAndFillExe(random_session_id)
+                    },
+                    { commandName: 'Snap And Fill' }
+                )
                 // console.log(
                 //   'outpaint.snapAndFillExe(random_session_id):, g_last_snap_and_fill_layers: ',
                 //   g_last_snap_and_fill_layers
@@ -1376,7 +1418,7 @@ function toggleTwoButtonsByClass(isVisible, first_class, second_class) {
         second_class_btns.forEach(
             (element) => (element.style.display = 'inline-block')
         )
-        console.log('first_class_btns: ', first_class_btns)
+        // console.log('first_class_btns: ', first_class_btns)
     } else {
         //show generate or generate more button
         first_class_btns.forEach(
@@ -1421,6 +1463,7 @@ async function discardAll() {
             }
         }
         await discard() // clean viewer tab
+        await layer_util.deleteLayers([g_generation_session.outputGroup]) //delete the group folder since it's empty
     } catch (e) {
         console.warn(e)
     }
@@ -1570,6 +1613,11 @@ document.getElementById('btnLastSeed').addEventListener('click', async () => {
 //REFACTOR: move to session.js
 async function discard() {
     try {
+        await executeAsModal(async () => {
+            await psapi.selectLayersExe([g_generation_session.outputGroup]) //must select the layer to change allLocked
+            g_generation_session.outputGroup.allLocked = false //unlock the session folder on session end
+        })
+
         // console.log(
         //   'click on btnCleanLayers,  g_last_outpaint_layers:',
         //   g_last_outpaint_layers
@@ -1865,8 +1913,12 @@ async function getSettings() {
 
         // const slider_width = document.getElementById("slWidth").value
         // gWidth = getWidthFromSlider(slider_width)
-        const width = html_manip.getWidth()
-        const height = html_manip.getHeight()
+        const original_width = html_manip.getWidth()
+        const original_height = html_manip.getHeight()
+
+        const width = general.nearestMultiple(original_width, 64)
+        const height = general.nearestMultiple(original_height, 64)
+
         const hWidth = html_manip.getSliderSdValue_Old('hrWidth', 64)
         const hHeight = html_manip.getSliderSdValue_Old('hrHeight', 64)
         const hSteps = html_manip.getSliderSdValue_Old('hrNumberOfSteps', 1)
@@ -1937,23 +1989,26 @@ async function getSettings() {
             payload['init_images'] = [
                 g_generation_session.activeBase64InitImage,
             ]
+            payload['image_cfg_scale'] = sd_tab.getImageCfgScaleSDValue() // we may need to check if model is pix2pix
         }
 
         if (hi_res_fix && width >= 512 && height >= 512) {
+            const hr_scale = sd_tab.getHrScaleSliderSDValue()
+
             payload['enable_hr'] = hi_res_fix
-            payload['firstphase_width'] = width
-            payload['firstphase_height'] = height
-            payload['hr_resize_x'] = hWidth
-            payload['hr_resize_y'] = hHeight
-            // payload['hr_scale'] =  hScale // Scale
+            // payload['firstphase_width'] = width
+            // payload['firstphase_height'] = height
+            // payload['hr_resize_x'] = hWidth
+            // payload['hr_resize_y'] = hHeight
+            payload['hr_scale'] = hr_scale // Scale
             payload['hr_upscaler'] = upscaler // Upscaler
             payload['hr_second_pass_steps'] = hSteps // Number of Steps
         } else {
             //fix hi res bug: if we include firstphase_width or firstphase_height in the payload,
             // sd api will use them instead of using width and height variables, even when enable_hr is set to "false"
             delete payload['enable_hr']
-            delete payload['firstphase_width']
-            delete payload['firstphase_height']
+            // delete payload['firstphase_width']
+            // delete payload['firstphase_height']
         }
 
         //work with the hord
@@ -2613,6 +2668,7 @@ document
     .getElementById('btnRefreshModels')
     .addEventListener('click', async (e) => {
         await refreshUI()
+        await sd_tab.refreshSDTab()
         tempDisableElement(e.target, 3000)
     })
 //REFACTOR: move to events.js
@@ -4241,7 +4297,8 @@ document
         )
     })
 //REFACTOR: move to events.js
-Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
+
+function switchMenu(rb) {
     const tab_button_name = rb.dataset['tab-name']
     const tab_page_name = `${tab_button_name}-page`
 
@@ -4267,7 +4324,8 @@ Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
     } catch (e) {
         console.warn(e)
     }
-})
+}
+
 //REFACTOR: move to ui.js
 async function updateResDifferenceLabel() {
     const ratio = await selection.Selection.getImageToSelectionDifference()
@@ -4563,3 +4621,129 @@ async function isCorrectBackground() {
     const is_correct_background = historylist.length > 0 ? true : false
     return is_correct_background
 }
+
+let g_viewer_sub_menu_list = []
+
+const submenu = {
+    viewer: {
+        value: 'viewer',
+        Label: 'Viewer',
+        'data-tab-name': 'sp-viewer-tab',
+    },
+    prompts_library: {
+        value: 'prompts-library',
+        Label: 'Prompts Library',
+        'data-tab-name': 'sp-prompts-library-tab',
+    },
+    history: {
+        value: 'history',
+        Label: 'History',
+        'data-tab-name': 'sp-history-tab',
+    },
+    lexica: {
+        value: 'lexica',
+        Label: 'Lexica',
+        'data-tab-name': 'sp-lexica-tab',
+    },
+    image_search: {
+        value: 'image_search',
+        Label: 'Image Search',
+        'data-tab-name': 'sp-image_search-tab',
+    },
+}
+
+{
+    /* <li>
+                                <input
+                                    type="radio"
+                                    id="option1"
+                                    name="options"
+                                    checked
+                                    class="sub-menu-tab-class"
+                                />
+                                <label for="option1">Option 1</label>
+                            </li> */
+}
+
+const viewer_sub_menu_html = document.getElementById('viewer-sub-menu')
+// const li_elm = document.createElement('li')
+// const input_option = document.createElement('input')
+// const label_option = document.createElement('label')
+
+// li_elm.appendChild(input_option)
+// li_elm.appendChild(label_option)
+// viewer_sub_menu_html.appendChild(li_elm)
+
+for (const [option_id, option_data] of Object.entries(submenu)) {
+    const li = document.createElement('li')
+
+    li.innerHTML = `
+    <input
+        type="radio"
+        id="${option_id}"
+        name="options"
+        checked
+        class="sub-menu-tab-class"
+        data-tab-name='${option_data['data-tab-name']}'
+        
+    />
+    <label for="${option_id}">${option_data.Label}</label>
+`
+
+    viewer_sub_menu_html.appendChild(li)
+}
+
+function switchMenu_new(rb) {
+    const tab_button_name = rb.dataset['tab-name']
+    const tab_page_name = `${tab_button_name}-page`
+
+    try {
+        const contianer_class =
+            rb.parentElement.parentElement.parentElement.dataset[
+                'container-class'
+            ] //input_option.li.ul.div.dataset['container-class']
+        const radio_group = rb.parentElement.parentElement.parentElement //radio_group in this case is ul
+        document
+            .getElementById(tab_button_name)
+            .addEventListener('click', () => {
+                document.getElementById(tab_button_name)
+                const option_container = document
+                    .getElementById(tab_page_name)
+                    .querySelector(`.${contianer_class}`)
+                // .querySelector('.subTabOptionsContainer')
+                // const radio_group = document.getElementById('rgSubTab')
+                rb.checked = true
+                option_container.appendChild(radio_group)
+            })
+
+        rb.parentElement.onclick = () => {
+            document.getElementById(tab_button_name).click()
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+document.getElementsByClassName('sub-menu-tab-class').forEach((element) => {
+    switchMenu_new(element)
+
+    // const li_element = element.parentElement
+    // li_element.addEventListener('click', (event) => {
+    //     //doesn't get trigger don't know why
+    //     console.log('sub menu clicked')
+    //     element.checked = true
+    // })
+    // switchMenu_new(element)
+})
+Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
+    switchMenu(rb)
+})
+
+// class CustomElement extends HTMLElement {
+//     constructor() {
+//         super()
+//         this.attachShadow({ mode: 'open' })
+//         this.shadowRoot.innerHTML = '<h1>Hello World!</h1>'
+//     }
+// }
+// customElements.define('custom-element', CustomElement)
