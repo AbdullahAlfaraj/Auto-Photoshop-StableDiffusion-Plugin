@@ -1126,5 +1126,4 @@ module.exports = {
     ControlNetUnit,
     populateControlNetPresetMenu,
     isControlNetModeEnable,
-    preprocessor_res_json,
 }
