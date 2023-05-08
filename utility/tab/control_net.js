@@ -9,7 +9,7 @@ const event = require('../event')
 
 const g_controlnet_max_supported_models = 3
 let g_controlnet_presets
-
+let g_module_detail
 function preprocessor_res_json(
     label = 'Preprocessor resolution',
     minimum = 64,
@@ -852,6 +852,11 @@ async function populateModelMenu() {
 function changeModule(_module, index) {
     // const index = index
 
+    const preprocessor_res_element = controlnetElement(
+        index,
+        '.slControlNetProcessorRes_'
+    )
+
     const threshold_a_element = controlnetElement(
         index,
         '.slControlNetThreshold_A_'
@@ -861,42 +866,59 @@ function changeModule(_module, index) {
         '.slControlNetThreshold_B_'
     )
 
-    const parms =
-        _module in g_preprocessor_parms_new
-            ? g_preprocessor_parms_new[_module]
-            : g_preprocessor_parms_new['none']
+    const detail = g_module_detail[_module]
+
+    function remapArray(arr) {
+        let obj = {
+            preprocessor_res: arr[0] || null,
+            threshold_a: arr[1] || null,
+            threshold_b: arr[2] || null,
+        }
+        return obj
+    }
+    const params = remapArray(detail['sliders'])
 
     // threshold_a_element.min = prams.
     //     threshold_a_element.max =
     // debugger
 
-    if (parms?.threshold_a) {
+    if (params?.preprocessor_res) {
+        const preprocessor_res_label_element = controlnetElement(
+            index,
+            '.labelControlNetProcessorRes_'
+        )
+        preprocessor_res_element.style.display = 'block'
+        preprocessor_res_label_element.innerText = params.preprocessor_res.name
+    } else {
+        preprocessor_res_element.style.display = 'none'
+    }
+    if (params?.threshold_a) {
         const threshold_a_label_element = controlnetElement(
             index,
             '.labelControlNetThreshold_A_'
         )
 
-        threshold_a_element.dataset['sd_min'] = parms.threshold_a.minimum
-        threshold_a_element.dataset['sd_max'] = parms.threshold_a.maximum
-        ControlNetUnit.setThreshold(index, 'a', parms.threshold_a.value)
+        threshold_a_element.dataset['sd_min'] = params.threshold_a.min
+        threshold_a_element.dataset['sd_max'] = params.threshold_a.max
+        ControlNetUnit.setThreshold(index, 'a', params.threshold_a.value)
         threshold_a_element.style.display = 'block'
-        threshold_a_label_element.innerText = parms.threshold_a.label
+        threshold_a_label_element.innerText = params.threshold_a.name
     } else {
         ControlNetUnit.setThreshold(index, 'a', 32)
         threshold_a_element.style.display = 'none'
     }
 
-    if (parms?.threshold_b) {
+    if (params?.threshold_b) {
         const threshold_b_label_element = controlnetElement(
             index,
             '.labelControlNetThreshold_B_'
         )
 
-        threshold_b_element.dataset['sd_min'] = parms.threshold_b.minimum
-        threshold_b_element.dataset['sd_max'] = parms.threshold_b.maximum
-        ControlNetUnit.setThreshold(index, 'b', parms.threshold_b.value)
+        threshold_b_element.dataset['sd_min'] = params.threshold_b.min
+        threshold_b_element.dataset['sd_max'] = params.threshold_b.max
+        ControlNetUnit.setThreshold(index, 'b', params.threshold_b.value)
         threshold_b_element.style.display = 'block'
-        threshold_b_label_element.innerText = parms.threshold_b.label
+        threshold_b_label_element.innerText = params.threshold_b.name
     } else {
         ControlNetUnit.setThreshold(index, 'b', 32)
         threshold_b_element.style.display = 'none'
@@ -1156,10 +1178,6 @@ function mapPluginSettingsToControlNet(plugin_settings) {
     let active_index = 0
     for (let index = 0; index < g_controlnet_max_supported_models; index++) {
         const preprocessor_name = getSelectedModule(index)
-        // const prams =
-        //     preprocessor_name in g_preprocessor_parms_new
-        //         ? g_preprocessor_parms_new[preprocessor_name]
-        //         : g_preprocessor_parms_new['none']
 
         controlnet_units[active_index] = {
             enabled: getEnableControlNet(index),
@@ -1593,6 +1611,10 @@ async function initializeControlNetTab(controlnet_max_models) {
             controlnet_unit.dataset['index'] = String(index)
             parent_container.appendChild(controlnet_unit)
         }
+
+        const full_url = `${g_sd_url}/controlnet/module_list?alias_names=false`
+        let result_json = await api.requestGet(full_url)
+        g_module_detail = result_json['module_detail']
 
         initControlNetUnitsEventListeners(controlnet_max_models) // add event listener to all units after cloning
 
