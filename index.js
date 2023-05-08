@@ -683,7 +683,6 @@ let g_old_slider_height = 512
 let g_sd_config_obj
 let g_hi_res_upscaler_models
 let g_controlnet_max_models
-    // let g_controlnet_preprocessors
 ;(async function () {
     let temp_config = new sd_config.SdConfig()
     g_sd_config_obj = temp_config
