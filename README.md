@@ -1,10 +1,13 @@
 
 
 # Auto-Photoshop-StableDiffusion-Plugin
+[![Become a Patron!](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/AbdullahAlfaraj)
 [![discord badge]][discord link]
 
 [discord badge]: https://flat.badgen.net/discord/members/3mVEtrddXJ
 [discord link]: https://discord.gg/3mVEtrddXJ
+
+
 
 With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilities of Automatic1111 Stable Diffusion in Photoshop without switching between programs. This allows you to easily use Stable Diffusion AI in a familiar environment. You can edit your Stable Diffusion image with all your favorite tools and save it right in Photoshop.
 
@@ -12,6 +15,7 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 - [Auto-Photoshop-StableDiffusion-Plugin](#auto-photoshop-stablediffusion-plugin)
 - [Table of Contents](#table-of-contents)
 - [Demo:](#demo) 
+- [Support Us On Patreon](#support-us-on-patreon)
 - [How to Install](#how-to-install)
 	- [Method 1: One Click Installer](#method-1-one-click-installer)
 	- [Method 2: The Unzip Method](#method-2-the-unzip-method)
@@ -30,7 +34,8 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 	- [Stable Horde](#stable-horde)
 	- [Colab](#colab)
 	
-	
+# Support Us On Patreon:
+By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll help us continue to develop and improve the Auto-Photoshop-StableDiffusion-Plugin, making it even easier for you to use Stable Diffusion AI in a familiar environment. As a supporter, you’ll have the opportunity to provide feedback and suggestions for future development. Plus, you’ll get early access to new features and tutorials, as well as exclusive art tutorials and tips from a professional artist. We’re passionate about making AI approachable to artists and with your help, we can continue to do just that.	
 # How To Install: 
 Use method 1 or 2 if you are an Artist
 use method 3 if you are a Developer/Programmer 
