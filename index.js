@@ -1989,6 +1989,31 @@ async function getSettings() {
                 g_generation_session.activeBase64InitImage,
             ]
             payload['image_cfg_scale'] = sd_tab.getImageCfgScaleSDValue() // we may need to check if model is pix2pix
+
+            payload['script_args'] = [
+                '',
+                512,
+                0,
+                8,
+                32,
+                64,
+                0.275,
+                32,
+                3,
+                false,
+                0,
+                true,
+                8,
+                3,
+                2,
+                1080,
+                1440,
+                1.875,
+            ]
+            payload['script_name'] = 'Ultimate SD upscale'
+        } else {
+            delete payload['script_args']
+            delete payload['script_name']
         }
 
         if (hi_res_fix && width >= 512 && height >= 512) {
@@ -2027,7 +2052,10 @@ async function getSettings() {
         if (backend_type === backendTypeEnum['Auto1111HordeExtension']) {
             payload['script_name'] = script_horde.script_name
             payload['script_args'] = script_horde.getScriptArgs()
-        } else {
+        } else if (
+            payload['script_name'] === script_horde.script_name &&
+            backend_type !== backendTypeEnum['Auto1111HordeExtension']
+        ) {
             delete payload['script_name']
             delete payload['script_args']
         }
