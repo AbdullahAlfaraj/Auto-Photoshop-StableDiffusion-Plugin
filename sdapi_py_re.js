@@ -154,8 +154,7 @@ async function requestGetSamplers() {
         const full_url = `${g_sd_url}/sdapi/v1/samplers`
         let request = await fetch(full_url)
         json = await request.json()
-        console.log('samplers json:')
-        console.dir(json)
+        console.log('samplers json:', json)
     } catch (e) {
         console.warn(e)
     }
