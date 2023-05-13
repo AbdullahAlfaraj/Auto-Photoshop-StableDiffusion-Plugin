@@ -587,11 +587,7 @@ async function requestControlNetTxt2Img(plugin_settings) {
         control_net.mapPluginSettingsToControlNet(plugin_settings)
     let control_networks = []
     // let active_control_networks = 0
-    for (
-        let index = 0;
-        index < control_net.getControlNetMaxModelsNumber();
-        index++
-    ) {
+    for (let index = 0; index < g_controlnet_max_models; index++) {
         if (!control_net.getEnableControlNet(index)) {
             control_networks[index] = false
             continue
@@ -673,11 +669,7 @@ async function requestControlNetImg2Img(plugin_settings) {
 
     // let control_networks = 0
     let control_networks = []
-    for (
-        let index = 0;
-        index < control_net.getControlNetMaxModelsNumber();
-        index++
-    ) {
+    for (let index = 0; index < g_controlnet_max_models; index++) {
         if (!control_net.getEnableControlNet(index)) {
             control_networks[index] = false
             continue
