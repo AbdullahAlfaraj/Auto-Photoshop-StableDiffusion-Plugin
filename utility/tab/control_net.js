@@ -7,7 +7,7 @@ const preset = require('../presets/preset')
 const Enum = require('../../enum')
 const event = require('../event')
 
-const g_controlnet_max_supported_models = 3
+// const g_controlnet_max_supported_models = 3
 let g_controlnet_presets
 let g_module_detail
 
@@ -33,7 +33,7 @@ class ControlNetUnit {
     }
 
     static resetUnits() {
-        for (let i = 0; i < g_controlnet_max_supported_models; ++i) {
+        for (let i = 0; i < g_controlnet_max_models; ++i) {
             this.resetUnit(i)
         }
     }
@@ -90,7 +90,7 @@ class ControlNetUnit {
     static getUnits() {
         const controlnet_units = {}
 
-        for (let i = 0; i < g_controlnet_max_supported_models; ++i) {
+        for (let i = 0; i < g_controlnet_max_models; ++i) {
             controlnet_units[i] = this.getUnit(i)
         }
         return controlnet_units
@@ -299,11 +299,7 @@ async function requestControlNetModuleList() {
 async function populateModelMenu() {
     try {
         const models = await requestControlNetModelList()
-        for (
-            let index = 0;
-            index < g_controlnet_max_supported_models;
-            index++
-        ) {
+        for (let index = 0; index < g_controlnet_max_models; index++) {
             const menu_element = controlnetElement(
                 index,
                 '.mModelsMenuControlNet_'
@@ -404,11 +400,7 @@ async function populatePreprocessorMenu() {
     try {
         // debugger
         const modules = await requestControlNetModuleList()
-        for (
-            let index = 0;
-            index < g_controlnet_max_supported_models;
-            index++
-        ) {
+        for (let index = 0; index < g_controlnet_max_models; index++) {
             const menu_element = controlnetElement(
                 index,
                 '.mModulesMenuControlNet_'
@@ -603,8 +595,12 @@ function isControlNetModeEnable() {
         .checked
 
     let numOfEnabled = 0
+    if (g_controlnet_max_models <= 0) {
+        return false
+    }
+
     if (is_tab_enabled) {
-        for (let index = 0; index < getControlNetMaxModelsNumber(); index++) {
+        for (let index = 0; index < g_controlnet_max_models; index++) {
             if (getEnableControlNet(index)) {
                 numOfEnabled += 1
             }
@@ -616,9 +612,9 @@ function isControlNetModeEnable() {
     }
     return is_mode_enabled
 }
-function getControlNetMaxModelsNumber() {
-    return g_controlnet_max_supported_models
-}
+// function getControlNetMaxModelsNumber() {
+//     return g_controlnet_max_supported_models
+// }
 
 function preprocessorData(
     processor_res = 512,
@@ -652,7 +648,7 @@ function mapPluginSettingsToControlNet(plugin_settings) {
 
     // debugger
     let active_index = 0
-    for (let index = 0; index < g_controlnet_max_supported_models; index++) {
+    for (let index = 0; index < g_controlnet_max_models; index++) {
         const preprocessor_name = getSelectedModule(index)
 
         controlnet_units[active_index] = {
@@ -750,11 +746,7 @@ document
             const base64_image =
                 await g_generation_session.setControlNetImageHelper()
 
-            for (
-                index = 0;
-                index < g_controlnet_max_supported_models;
-                index++
-            ) {
+            for (index = 0; index < g_controlnet_max_models; index++) {
                 await g_generation_session.setControlNetImage(
                     index,
                     base64_image
@@ -1069,8 +1061,15 @@ function initControlNetUnit(index) {
 }
 async function initializeControlNetTab(controlnet_max_models) {
     try {
-        if (controlnet_max_models > g_controlnet_max_supported_models)
-            controlnet_max_models = g_controlnet_max_supported_models
+        if (controlnet_max_models <= 0) {
+            document.getElementById('controlnetMissingError').style.display =
+                'block'
+
+            return
+        }
+        document.getElementById('controlnetMissingError').style.display = 'none'
+        // if (controlnet_max_models > g_controlnet_max_models)
+        //     controlnet_max_models = g_controlnet_max_models
 
         await populateControlNetPresetMenu()
         const parent_container = document.getElementById(
@@ -1118,7 +1117,7 @@ module.exports = {
     getEnableControlNet,
     getSelectedModule,
     getSelectedModel,
-    getControlNetMaxModelsNumber,
+    // getControlNetMaxModelsNumber,
     getControlNetGuidanceStrengthStart,
     setControlNetGuidanceStrengthStart,
     getControlNetGuidanceStrengthEnd,
