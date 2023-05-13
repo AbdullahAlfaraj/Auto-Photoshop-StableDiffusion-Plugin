@@ -116,7 +116,7 @@ function displayLexicaImage(lexica_item) {
     }
     thumbnail.Thumbnail.addSPButtonToContainer(
         thumbnail_container,
-        'svg_sp_btn',
+        'svg_sp_btn_canvas',
         'Load on Canvas',
         loadOnCanvas,
         lexica_item
@@ -130,7 +130,7 @@ function displayLexicaImage(lexica_item) {
     )
     thumbnail.Thumbnail.addSPButtonToContainer(
         thumbnail_container,
-        'svg_sp_btn',
+        'svg_sp_btn_search',
         'Search for Similar Image',
         searchForSimilarImage,
         lexica_item
