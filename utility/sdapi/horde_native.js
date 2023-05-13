@@ -57,17 +57,21 @@ class hordeGenerator {
     }
 
     async getSettings() {
-        const workers = await getWorkers()
+        try {
+            const workers = await getWorkers()
 
-        const workers_ids = getWorkerID(workers)
-        const settings = await getSettings()
-        this.plugin_settings = settings
-        let payload = await mapPluginSettingsToHorde(settings)
-        // payload['workers'] = workers_ids
-        payload['workers'] = []
+            const workers_ids = getWorkerID(workers)
+            const settings = await getSettings()
+            this.plugin_settings = settings
+            let payload = await mapPluginSettingsToHorde(settings)
+            // payload['workers'] = workers_ids
+            payload['workers'] = []
 
-        this.horde_settings = payload
-        return this.horde_settings
+            this.horde_settings = payload
+            return this.horde_settings
+        } catch (e) {
+            console.warn('getSettings: ', e)
+        }
     }
 
     /**
@@ -524,7 +528,7 @@ async function mapPluginSettingsToHorde(plugin_settings) {
     }
 
     let seed = ps['seed']
-    if (ps['seed'] === '-1') {
+    if (parseInt(ps['seed']) === -1) {
         const random_seed = Math.floor(Math.random() * 100000000000 + 1) // Date.now() doesn't have enough resolution to avoid duplicate
         seed = random_seed.toString()
     }
@@ -641,7 +645,7 @@ async function requestHorde(payload) {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
                 apikey: horde_api_key,
-                // 'Client-Agent': '4c79ab19-8e6c-4054-83b3-773b7ce71ece',
+
                 'Client-Agent': 'unknown:0:unknown',
             },
             body: JSON.stringify(payload),
