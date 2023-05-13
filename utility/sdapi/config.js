@@ -37,7 +37,7 @@ class SdConfig {
 
     getControlNetMaxModelsNum() {
         try {
-            let max_models_num
+            let max_models_num = 0
             for (let comp of this.config.components) {
                 if (comp?.props?.elem_id) {
                     const elem_id = comp?.props?.elem_id
