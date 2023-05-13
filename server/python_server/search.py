@@ -16,3 +16,11 @@ async def imageSearch(keywords = 'cute cats'):
     # print(r)
     return r
 
+if __name__ == "__main__":
+    async def main():
+        result = await imageSearch()
+        print(result)
+
+    import asyncio
+    asyncio.run(main())
+    
