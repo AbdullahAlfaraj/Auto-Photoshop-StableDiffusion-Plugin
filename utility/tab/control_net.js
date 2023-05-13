@@ -1038,7 +1038,7 @@ function initPreviewElement(index) {
     )
     thumbnail.Thumbnail.addSPButtonToContainer(
         this.thumbnail_container,
-        'svg_sp_btn',
+        'svg_sp_btn_canvas',
         'move to the canvas',
 
         toCanvas,
@@ -1046,7 +1046,7 @@ function initPreviewElement(index) {
     )
     thumbnail.Thumbnail.addSPButtonToContainer(
         this.thumbnail_container,
-        'svg_sp_btn',
+        'svg_sp_btn_preview',
         'preview selection from canvas',
 
         previewAnnotatorFromCanvas,
