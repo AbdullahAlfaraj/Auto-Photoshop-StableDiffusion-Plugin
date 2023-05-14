@@ -378,7 +378,7 @@ function changeModule(_module, index) {
         threshold_a_element.dataset['sd_max'] = params.threshold_a.max
         ControlNetUnit.setThreshold(index, 'a', params.threshold_a.value)
         threshold_a_element.style.display = 'block'
-        threshold_a_label_element.innerText = params.threshold_a.name
+        threshold_a_label_element.innerText = params.threshold_a.name + ":"
     } else {
         ControlNetUnit.setThreshold(index, 'a', 32)
         threshold_a_element.style.display = 'none'
@@ -394,7 +394,7 @@ function changeModule(_module, index) {
         threshold_b_element.dataset['sd_max'] = params.threshold_b.max
         ControlNetUnit.setThreshold(index, 'b', params.threshold_b.value)
         threshold_b_element.style.display = 'block'
-        threshold_b_label_element.innerText = params.threshold_b.name
+        threshold_b_label_element.innerText = params.threshold_b.name + ":"
     } else {
         ControlNetUnit.setThreshold(index, 'b', 32)
         threshold_b_element.style.display = 'none'
