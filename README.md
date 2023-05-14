@@ -38,34 +38,22 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll help us continue to develop and improve the Auto-Photoshop-StableDiffusion-Plugin, making it even easier for you to use Stable Diffusion AI in a familiar environment. As a supporter, you’ll have the opportunity to provide feedback and suggestions for future development. Plus, you’ll get early access to new features and tutorials, as well as exclusive art tutorials and tips from a professional artist. We’re passionate about making AI approachable to artists and with your help, we can continue to do just that.	
 # Auto-Photoshop-SD Backers and Sponsors:
 **🥇 Gold:** 
-<p dir="auto">
-<a href="https://ronnykhalil.com/" rel="nofollow">
-<figure style="display:inline-block">  
-<img style="border-radius: 50%; width:80px" title="Ronny Khalil" src="docs/profile_image/A934E4F0-7778-47E9-A395-531BFF2E61F1_1_105_c.jpeg" style="max-width: 100%;">
-<figcaption  style="text-align: center;">Ronny Khalil</figcaption>
-</figure>
-</a>
-<a href="" rel="nofollow">
-<figure style="display:inline-block">  
-<img style="border-radius: 50%; width:80px" title="Alex" src="https://c8.patreon.com/2/200/5595038" style="max-width: 100%;">
-<figcaption  style="text-align: center;">Alex</figcaption>
-</figure>
-</a>
+| [![Ronny Khalil](https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/A934E4F0-7778-47E9-A395-531BFF2E61F1_1_105_c.jpeg&h=80&w=80&fit=cover&mask=circle&maxage=7d)](https://ronnykhalil.com/) | ![Alex](https://images.weserv.nl/?url=https://c8.patreon.com/2/200/5595038&h=80&w=80&fit=cover&mask=circle&maxage=7d)|
+|:---:|:---:|
+| [Ronny Khalil](https://ronnykhalil.com/) | Alex|
 
 
-</p>
+
+
 
 **🥉 Copper:**
-<p dir="auto">
-<a href="" rel="nofollow">
-<figure style="display:inline-block">  
-<img style="border-radius: 50%; width:80px" title="Bass" src="docs/profile_image/no_profile.png" style="max-width: 100%;">
-<figcaption  style="text-align: center;">Bass</figcaption>
-</figure>
-</a>
+| ![Bass](https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/no_profile.png&h=80&w=80&fit=cover&mask=circle&maxage=7d) |
+|:---:|
+| Bass |
+
 
 <a href="https://www.patreon.com/AbdullahAlfaraj" rel="nofollow"><img src="docs/become_backer.svg" style="max-width: 100%;"></a>
-</p>
+
 
 # How To Install: 
 Use method 1 or 2 if you are an Artist
