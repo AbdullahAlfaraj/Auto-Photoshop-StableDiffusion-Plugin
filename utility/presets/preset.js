@@ -144,7 +144,8 @@ function setPresetSettingsHtml(preset_settings) {
 
     const new_lines_count = general.countNewLines(JSONInPrettyFormat)
     new_lines_count
-    preset_settings_element.style.height = new_lines_count * 12 + 100
+    preset_settings_element.style.height =
+        Math.min(new_lines_count * 12 + 100, 800).toString() + 'px'
 }
 
 function getPresetName() {
