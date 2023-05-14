@@ -66,6 +66,7 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 
 <a href="https://www.patreon.com/AbdullahAlfaraj" rel="nofollow"><img src="docs/become_backer.svg" style="max-width: 100%;"></a>
 </p>
+
 # How To Install: 
 Use method 1 or 2 if you are an Artist
 use method 3 if you are a Developer/Programmer 
