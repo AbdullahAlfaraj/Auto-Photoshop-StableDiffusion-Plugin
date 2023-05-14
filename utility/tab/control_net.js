@@ -291,7 +291,7 @@ async function requestControlNetModuleList() {
     // const module_list = g_sd_config_obj.getControlNetPreprocessors()
 
     const result = await api.requestGet(
-        `${g_sd_url}/controlnet/module_list?alias_names=false`
+        `${g_sd_url}/controlnet/module_list?alias_names=1`
     )
 
     return result?.module_list
@@ -1088,7 +1088,7 @@ async function initializeControlNetTab(controlnet_max_models) {
             parent_container.appendChild(controlnet_unit)
         }
 
-        const full_url = `${g_sd_url}/controlnet/module_list?alias_names=false`
+        const full_url = `${g_sd_url}/controlnet/module_list?alias_names=1`
         let result_json = await api.requestGet(full_url)
         g_module_detail = result_json['module_detail']
 
