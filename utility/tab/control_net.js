@@ -291,7 +291,7 @@ async function requestControlNetModuleList() {
     // const module_list = g_sd_config_obj.getControlNetPreprocessors()
 
     const result = await api.requestGet(
-        `${g_sd_url}/controlnet/module_list?alias_names=false`
+        `${g_sd_url}/controlnet/module_list?alias_names=1`
     )
 
     return result?.module_list
@@ -374,7 +374,7 @@ function changeModule(_module, index) {
         threshold_a_element.dataset['sd_max'] = params.threshold_a.max
         ControlNetUnit.setThreshold(index, 'a', params.threshold_a.value)
         threshold_a_element.style.display = 'block'
-        threshold_a_label_element.innerText = params.threshold_a.name
+        threshold_a_label_element.innerText = params.threshold_a.name + ":"
     } else {
         ControlNetUnit.setThreshold(index, 'a', 32)
         threshold_a_element.style.display = 'none'
@@ -390,7 +390,7 @@ function changeModule(_module, index) {
         threshold_b_element.dataset['sd_max'] = params.threshold_b.max
         ControlNetUnit.setThreshold(index, 'b', params.threshold_b.value)
         threshold_b_element.style.display = 'block'
-        threshold_b_label_element.innerText = params.threshold_b.name
+        threshold_b_label_element.innerText = params.threshold_b.name + ":"
     } else {
         ControlNetUnit.setThreshold(index, 'b', 32)
         threshold_b_element.style.display = 'none'
@@ -1087,7 +1087,7 @@ async function initializeControlNetTab(controlnet_max_models) {
             parent_container.appendChild(controlnet_unit)
         }
 
-        const full_url = `${g_sd_url}/controlnet/module_list?alias_names=false`
+        const full_url = `${g_sd_url}/controlnet/module_list?alias_names=1`
         let result_json = await api.requestGet(full_url)
         g_module_detail = result_json['module_detail']
 
