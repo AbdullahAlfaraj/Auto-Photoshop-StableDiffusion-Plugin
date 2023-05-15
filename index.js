@@ -86,6 +86,11 @@ const history_tab = require('./utility/tab/history_tab')
 const image_search_tab = require('./utility/tab/image_search_tab')
 const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
+// const ultimate_sd_upscaler = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
+// const ultimate_sd_upscaler_main = require('./ultimate_sd_upscaler/dist/main')
+
+const ultimate_sd_upscaler_main = require('./ultimate_sd_upscaler/dist/main.bundle')
+
 let g_horde_generator = new horde_native.hordeGenerator()
 let g_automatic_status = Enum.AutomaticStatusEnum['Offline']
 let g_models_status = false
@@ -1990,27 +1995,9 @@ async function getSettings() {
             ]
             payload['image_cfg_scale'] = sd_tab.getImageCfgScaleSDValue() // we may need to check if model is pix2pix
 
-            payload['script_args'] = [
-                '',
-                512,
-                0,
-                8,
-                32,
-                64,
-                0.275,
-                32,
-                3,
-                false,
-                0,
-                true,
-                8,
-                3,
-                2,
-                1080,
-                1440,
-                1.875,
-            ]
-            payload['script_name'] = 'Ultimate SD upscale'
+            // payload['script_args'] = ultimate_sd_upscaler.script_args
+
+            // payload['script_name'] = ultimate_sd_upscaler.script_name //'Ultimate SD upscale'
         } else {
             delete payload['script_args']
             delete payload['script_name']

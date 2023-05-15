@@ -5,16 +5,35 @@
     "author": "Adobe Inc",
     "license": "Apache-2.0",
     "dependencies": {
+        "@types/react": "^18.2.6",
+        "@types/react-dom": "^18.2.4",
         "fastify": "^4.10.2",
         "jimp": "^0.16.2",
-        "md5": "^2.3.0"
+        "md5": "^2.3.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
     },
     "main": "index.js",
     "directories": {
         "test": "test"
     },
     "devDependencies": {
-        "prettier": "2.8.3"
+        "@babel/core": "^7.21.8",
+        "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
+        "@babel/plugin-syntax-class-properties": "^7.12.13",
+        "@babel/plugin-transform-react-jsx": "^7.21.5",
+        "babel-loader": "^9.1.2",
+        "clean-webpack-plugin": "^4.0.0",
+        "copy-webpack-plugin": "^11.0.0",
+        "css-loader": "^6.7.3",
+        "file-loader": "^6.2.0",
+        "nodemon": "^2.0.22",
+        "prettier": "2.8.3",
+        "style-loader": "^3.3.2",
+        "ts-loader": "^9.4.2",
+        "typescript": "^5.0.4",
+        "webpack": "^5.82.1",
+        "webpack-cli": "^5.1.1"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
