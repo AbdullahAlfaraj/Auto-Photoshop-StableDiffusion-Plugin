@@ -50,9 +50,9 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 
 
 **🥈 Silver:**
-| ![Amith Thomas](https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/no_profile.png&h=80&w=80&fit=cover&mask=circle&maxage=7d) |
-|:---:|
-| Amith Thomas |
+| ![Olivier Lefebvre](https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/no_profile.png&h=80&w=80&fit=cover&mask=circle&maxage=7d) | ![Amith Thomas](https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/no_profile.png&h=80&w=80&fit=cover&mask=circle&maxage=7d) |
+|:---:|:---:|
+| Olivier Lefebvre| Amith Thomas |
 
 
 
