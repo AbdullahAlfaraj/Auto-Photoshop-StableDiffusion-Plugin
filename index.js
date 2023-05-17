@@ -87,9 +87,13 @@ const image_search_tab = require('./utility/tab/image_search_tab')
 const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
 // const ultimate_sd_upscaler = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
-// const ultimate_sd_upscaler_main = require('./ultimate_sd_upscaler/dist/main')
+const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
+// const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
 
-const ultimate_sd_upscaler_main = require('./ultimate_sd_upscaler/dist/main.bundle')
+// const {
+//     script_args,
+//     script_name,
+// } = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
 
 let g_horde_generator = new horde_native.hordeGenerator()
 let g_automatic_status = Enum.AutomaticStatusEnum['Offline']

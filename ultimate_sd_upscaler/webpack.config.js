@@ -1,13 +1,13 @@
 const path = require('path')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
+// const CleanWebpackPlugin = require('clean-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = {
-    entry: './src/main.tsx',
+    entry: './src/ultimate_sd_upscaler.tsx',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'main.bundle.js',
-        //libraryTarget: "commonjs2"
+        filename: 'ultimate_sd_upscaler.bundle.js',
+        libraryTarget: 'commonjs2',
     },
     mode: 'development',
     devtool: 'inline-source-map', // won't work on XD due to lack of eval
@@ -23,8 +23,11 @@ module.exports = {
         rules: [
             {
                 test: /\.tsx?$/,
-                use: 'ts-loader',
+                loader: 'ts-loader',
                 exclude: /node_modules/,
+                options: {
+                    configFile: 'tsconfig.json',
+                },
             },
             {
                 test: /\.jsx?$/,
@@ -56,15 +59,3 @@ module.exports = {
         // }),
     ],
 }
-
-// const path = require('path')
-
-// module.exports = {
-//     entry: {
-//         main: './dist/main.js',
-//     },
-//     output: {
-//         filename: '[name].bundle.js',
-//         path: path.resolve(__dirname, 'dist'),
-//     },
-// }
