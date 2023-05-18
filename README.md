@@ -50,16 +50,16 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 
 
 **🥈 Silver:**
-| ![Olivier Lefebvre](https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/no_profile.png&h=80&w=80&fit=cover&mask=circle&maxage=7d) | ![Amith Thomas](https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/no_profile.png&h=80&w=80&fit=cover&mask=circle&maxage=7d) |
-|:---:|:---:|
-| Olivier Lefebvre| Amith Thomas |
+| ![Olivier Lefebvre](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre) | ![Xiao Yuan](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Xiao+Yuan) | ![Amith Thomas](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Amith+Thomas) |
+|:---:|:---:|:---:|
+| Olivier Lefebvre| Xiao Yuan |Amith Thomas |
 
 
 
 **🥉 Copper:**
-| ![Bass](https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/no_profile.png&h=80&w=80&fit=cover&mask=circle&maxage=7d) |
+| ![Sebastian Karbowniczek](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek) |
 |:---:|
-| Bass |
+|Sebastian Karbowniczek|
 
 
 <a href="https://www.patreon.com/AbdullahAlfaraj" rel="nofollow"><img src="docs/become_backer.svg" style="max-width: 100%;"></a>
