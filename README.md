@@ -53,9 +53,10 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 | Amith Thomas | Olivier Lefebvre | xiao yuan | Ezra Blake
 
 **🥉 Copper:**
-| ![Sebastian Karbowniczek](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek)
-|:---:|
-| Sebastian Karbowniczek
+| ![Sebastian Karbowniczek](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek) | ![Arthur Liu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu)
+|:---:|:---:|
+| Sebastian Karbowniczek | Arthur Liu
+
 
 
 
