@@ -1999,9 +1999,14 @@ async function getSettings() {
             ]
             payload['image_cfg_scale'] = sd_tab.getImageCfgScaleSDValue() // we may need to check if model is pix2pix
 
-            // payload['script_args'] = ultimate_sd_upscaler.script_args
+            if (
+                ultimate_sd_upscaler_script.ultimate_sd_upscaler_store.is_active
+            ) {
+                payload['script_args'] =
+                    ultimate_sd_upscaler_script.ultimate_sd_upscaler_store.orderedValues()
 
-            // payload['script_name'] = ultimate_sd_upscaler.script_name //'Ultimate SD upscale'
+                payload['script_name'] = ultimate_sd_upscaler_script.script_name //'Ultimate SD upscale'
+            }
         } else {
             delete payload['script_args']
             delete payload['script_name']
