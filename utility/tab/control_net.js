@@ -1138,4 +1138,7 @@ module.exports = {
     ControlNetUnit,
     populateControlNetPresetMenu,
     isControlNetModeEnable,
+    getModuleDetail() {
+        return g_module_detail
+    }
 }
