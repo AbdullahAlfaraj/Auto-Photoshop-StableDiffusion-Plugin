@@ -349,10 +349,23 @@ function changeModule(_module, index) {
         return obj
     }
     const params = remapArray(detail['sliders'])
+    const model_free = detail.model_free
 
     // threshold_a_element.min = prams.
     //     threshold_a_element.max =
     // debugger
+    if (model_free)
+        controlnetElement(
+            index,
+            '.mModelsMenuControlNet_'
+        ).parentElement.style.display = 'none'
+
+    else
+        controlnetElement(
+            index,
+            '.mModelsMenuControlNet_'
+        ).parentElement.style.display = 'block'
+
 
     if (params?.preprocessor_res) {
         const preprocessor_res_label_element = controlnetElement(
