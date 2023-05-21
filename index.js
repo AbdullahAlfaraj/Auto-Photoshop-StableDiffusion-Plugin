@@ -88,6 +88,8 @@ const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
 // const ultimate_sd_upscaler = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
 const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
+const scripts = require('./ultimate_sd_upscaler/dist/scripts.bundle')
+
 // const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
 
 // const {
@@ -2000,12 +2002,13 @@ async function getSettings() {
             payload['image_cfg_scale'] = sd_tab.getImageCfgScaleSDValue() // we may need to check if model is pix2pix
 
             if (
-                ultimate_sd_upscaler_script.ultimate_sd_upscaler_store.is_active
+                scripts.script_store.is_active &&
+                scripts.script_store.selected_script_name !== 'None'
             ) {
-                payload['script_args'] =
-                    ultimate_sd_upscaler_script.ultimate_sd_upscaler_store.orderedValues()
+                payload['script_args'] = scripts.script_store.orderedValues()
 
-                payload['script_name'] = ultimate_sd_upscaler_script.script_name //'Ultimate SD upscale'
+                payload['script_name'] =
+                    scripts.script_store.selected_script_name //'Ultimate SD upscale'
             }
         } else {
             delete payload['script_args']

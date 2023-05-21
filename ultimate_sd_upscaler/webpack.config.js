@@ -3,10 +3,13 @@ const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = {
-    entry: './src/ultimate_sd_upscaler.tsx',
+    entry: {
+        ultimate_sd_upscaler: './src/ultimate_sd_upscaler.tsx',
+        scripts: './src/scripts.tsx',
+    },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'ultimate_sd_upscaler.bundle.js',
+        filename: '[name].bundle.js',
         libraryTarget: 'commonjs2',
     },
     mode: 'development',

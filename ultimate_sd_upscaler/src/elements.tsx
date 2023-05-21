@@ -242,13 +242,3 @@ export class SpMenu extends React.Component<{
 function handleSliderValueChange(newValue: Event) {
     console.log('handleSliderValueChange: newValue', newValue)
 }
-
-// const domNode = document.getElementById('ultimateSDUpscalerContainer')!
-// const root = ReactDOM.createRoot(domNode)
-// root.render(
-//     <React.StrictMode>
-//         <SpSliderWithLabel onSliderValueChange={handleSliderValueChange} />
-//     </React.StrictMode>
-// )
-// const myValue = 42
-// export default myValue
