@@ -173,11 +173,14 @@ export class SpMenu extends React.Component<{
     title?: string
     style?: string
     items?: string[]
+    disabled?: boolean[]
     label_item?: string
     onChange?: any
+    selected_index?: number
 }> {
-    state = { selectedItem: this.props.items ? this.props.items[0] : undefined }
-    spMenuRef = React.createRef<HTMLDivElement>()
+    state = {
+        selectedItem: this.props.items ? this.props.items[0] : undefined,
+    }
 
     componentDidUpdate(prevProps: any) {
         // console.log('prevProps.items: ', prevProps.items)
@@ -221,10 +224,22 @@ export class SpMenu extends React.Component<{
                                 {this.props.label_item}
                             </sp-menu-item>
                         )}
-                        {this.props.items?.map((item, index) => (
+                        {this.props.items?.map((item, index: number) => (
                             <sp-menu-item
                                 key={item}
                                 data-index={index}
+                                selected={
+                                    this.props.selected_index !== undefined &&
+                                    this.props.selected_index !== null &&
+                                    this.props.selected_index === index
+                                        ? 'selected'
+                                        : undefined
+                                }
+                                disabled={
+                                    this.props.disabled?.[index]
+                                        ? 'disabled'
+                                        : undefined
+                                }
                                 onClick={() => {
                                     this.handleItemClick(item, index)
                                 }}
@@ -237,8 +252,4 @@ export class SpMenu extends React.Component<{
             </div>
         )
     }
-}
-
-function handleSliderValueChange(newValue: Event) {
-    console.log('handleSliderValueChange: newValue', newValue)
 }

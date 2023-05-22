@@ -83,7 +83,7 @@ export let ui_config = {
             'Half tile offset pass + intersections',
         ],
         type: 'index',
-        value: 0,
+        value: 3,
     },
 
     target_size_type: {

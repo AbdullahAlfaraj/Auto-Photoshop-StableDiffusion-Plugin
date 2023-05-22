@@ -7,12 +7,22 @@ import { Provider, inject, observer } from 'mobx-react'
 import { SliderType, SpMenu, SpSliderWithLabel } from './elements'
 
 import * as sdapi from '../../sdapi_py_re'
-import { storeAnnotation } from 'mobx/dist/internal'
 
 import { ui_config } from './config'
 
 export let script_name: string = 'Ultimate SD upscale'
+export enum ScriptMode {
+    Txt2Img = 'txt2img',
+    Img2Img = 'img2img',
+    Inpaint = 'inpaint',
+    Outpaint = 'outpaint',
+}
 
+export let script_mode = [
+    ScriptMode.Img2Img,
+    ScriptMode.Inpaint,
+    ScriptMode.Outpaint,
+]
 interface UltimateSDUpscalerData {
     _: string
     tile_width: number
@@ -176,8 +186,8 @@ export class UltimateSDUpscalerForm extends React.Component<{
                 steps={ui_config[id].step}
                 out_min={ui_config[id].minimum}
                 out_max={ui_config[id].maximum}
-                output_value={ui_config[id].value}
-                title="this is a title"
+                output_value={this.props.store.data[id]}
+                title={ui_config[id].label}
                 label={ui_config[id].label}
                 onSliderChange={this.handleSliderChange}
             />
@@ -196,8 +206,8 @@ export class UltimateSDUpscalerForm extends React.Component<{
                 steps={ui_config[id].step}
                 out_min={ui_config[id].minimum}
                 out_max={ui_config[id].maximum}
-                output_value={ui_config[id].value}
-                title="this is a title"
+                output_value={this.props.store.data[id]}
+                title={ui_config[id].label}
                 label={ui_config[id].label}
                 onSliderChange={this.handleSliderChange}
                 slider_type={
@@ -212,20 +222,18 @@ export class UltimateSDUpscalerForm extends React.Component<{
                 <SpMenu
                     title="Stable Diffusion Upscalers"
                     items={this.state.sd_upscalers}
-                    // style="width: 199px; margin-right: 5px"
                     label_item="Select Upscaler"
                     id={'upscaler_index'}
                     onChange={this.handleMenuChange}
+                    selected_index={this.props.store.data.upscaler_index}
                 />
-                {group_1_sliders}
-                {seamfix_sliders}
                 <SpMenu
-                    title=""
+                    title={ui_config.target_size_type.label}
                     id={'target_size_type'}
                     items={ui_config.target_size_type.choices}
                     label_item={'Select ' + ui_config.target_size_type.label}
                     onChange={this.handleMenuChange}
-                    // style="width: 199px; margin-right: 5px"
+                    selected_index={this.props.store.data.target_size_type}
                 />
                 <SpSliderWithLabel
                     label={ui_config.custom_scale.label}
@@ -238,12 +246,12 @@ export class UltimateSDUpscalerForm extends React.Component<{
                     slider_type={SliderType.Float}
                 />
                 <SpMenu
-                    title="Seams Fix Type"
+                    title={'Seams Fix Type'}
                     id={'seams_fix_type'}
                     items={ui_config.seams_fix_type.choices}
                     label_item="Select Seams Fix Type"
                     onChange={this.handleMenuChange}
-                    // style="width: 199px; margin-right: 5px"
+                    selected_index={this.props.store.data.seams_fix_type}
                 />
                 <sp-checkbox
                     checked={
@@ -275,7 +283,8 @@ export class UltimateSDUpscalerForm extends React.Component<{
                 >
                     {ui_config.save_seams_fix_image.label}
                 </sp-checkbox>
-                \
+                {group_1_sliders}
+                {seamfix_sliders}
             </div>
         )
     }

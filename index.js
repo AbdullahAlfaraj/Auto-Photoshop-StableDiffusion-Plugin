@@ -789,6 +789,7 @@ for (let rbModeElement of rbModeElements) {
     rbModeElement.addEventListener('click', async (evt) => {
         try {
             g_sd_mode = evt.target.value
+            scripts.script_store.setMode(g_sd_mode)
             // console.log(`You clicked: ${g_sd_mode}`)
             await displayUpdate()
             await postModeSelection() // do things after selection
@@ -2003,7 +2004,8 @@ async function getSettings() {
 
             if (
                 scripts.script_store.is_active &&
-                scripts.script_store.selected_script_name !== 'None'
+                scripts.script_store.selected_script_name !== 'None' &&
+                scripts.script_store.is_selected_script_available
             ) {
                 payload['script_args'] = scripts.script_store.orderedValues()
 
