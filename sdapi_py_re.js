@@ -603,7 +603,7 @@ async function requestControlNetTxt2Img(plugin_settings) {
             app.showAlert('you need to select a valid ControlNet Module')
             throw 'you need to select a valid ControlNet Module'
         }
-        if (!control_net_settings['controlnet_units'][index]['model']) {
+        if (!control_net_settings['controlnet_units'][index]['model'] && !control_net.getModuleDetail()[control_net_settings['controlnet_units'][index]['module']].model_free) {
             app.showAlert('you need to select a valid ControlNet Model')
             throw 'you need to select a valid ControlNet Model'
         }
@@ -684,7 +684,7 @@ async function requestControlNetImg2Img(plugin_settings) {
             app.showAlert('you need to select a valid ControlNet Module')
             throw 'you need to select a valid ControlNet Module'
         }
-        if (!control_net_settings['controlnet_units'][index]['model']) {
+        if (!control_net_settings['controlnet_units'][index]['model'] && !control_net.getModuleDetail()[control_net_settings['controlnet_units'][index]['module']].model_free) {
             app.showAlert('you need to select a valid ControlNet Model')
             throw 'you need to select a valid ControlNet Model'
         }
