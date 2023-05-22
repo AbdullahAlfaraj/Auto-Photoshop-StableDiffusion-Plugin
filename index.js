@@ -86,6 +86,17 @@ const history_tab = require('./utility/tab/history_tab')
 const image_search_tab = require('./utility/tab/image_search_tab')
 const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
+// const ultimate_sd_upscaler = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
+const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
+const scripts = require('./ultimate_sd_upscaler/dist/scripts.bundle')
+
+// const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
+
+// const {
+//     script_args,
+//     script_name,
+// } = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
+
 let g_horde_generator = new horde_native.hordeGenerator()
 let g_automatic_status = Enum.AutomaticStatusEnum['Offline']
 let g_models_status = false
@@ -778,6 +789,7 @@ for (let rbModeElement of rbModeElements) {
     rbModeElement.addEventListener('click', async (evt) => {
         try {
             g_sd_mode = evt.target.value
+            scripts.script_store.setMode(g_sd_mode)
             // console.log(`You clicked: ${g_sd_mode}`)
             await displayUpdate()
             await postModeSelection() // do things after selection
@@ -1989,6 +2001,20 @@ async function getSettings() {
                 g_generation_session.activeBase64InitImage,
             ]
             payload['image_cfg_scale'] = sd_tab.getImageCfgScaleSDValue() // we may need to check if model is pix2pix
+
+            if (
+                scripts.script_store.is_active &&
+                scripts.script_store.selected_script_name !== 'None' &&
+                scripts.script_store.is_selected_script_available
+            ) {
+                payload['script_args'] = scripts.script_store.orderedValues()
+
+                payload['script_name'] =
+                    scripts.script_store.selected_script_name //'Ultimate SD upscale'
+            }
+        } else {
+            delete payload['script_args']
+            delete payload['script_name']
         }
 
         if (hi_res_fix && width >= 512 && height >= 512) {
@@ -2027,7 +2053,10 @@ async function getSettings() {
         if (backend_type === backendTypeEnum['Auto1111HordeExtension']) {
             payload['script_name'] = script_horde.script_name
             payload['script_args'] = script_horde.getScriptArgs()
-        } else {
+        } else if (
+            payload['script_name'] === script_horde.script_name &&
+            backend_type !== backendTypeEnum['Auto1111HordeExtension']
+        ) {
             delete payload['script_name']
             delete payload['script_args']
         }
