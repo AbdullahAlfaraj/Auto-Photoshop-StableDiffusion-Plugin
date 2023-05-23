@@ -245,14 +245,7 @@ export class UltimateSDUpscalerForm extends React.Component<{
                     steps={0.01}
                     slider_type={SliderType.Float}
                 />
-                <SpMenu
-                    title={'Seams Fix Type'}
-                    id={'seams_fix_type'}
-                    items={ui_config.seams_fix_type.choices}
-                    label_item="Select Seams Fix Type"
-                    onChange={this.handleMenuChange}
-                    selected_index={this.props.store.data.seams_fix_type}
-                />
+
                 <sp-checkbox
                     checked={
                         this.props.store.data.save_upscaled_image
@@ -284,6 +277,14 @@ export class UltimateSDUpscalerForm extends React.Component<{
                     {ui_config.save_seams_fix_image.label}
                 </sp-checkbox>
                 {group_1_sliders}
+                <SpMenu
+                    title={'Seams Fix Type'}
+                    id={'seams_fix_type'}
+                    items={ui_config.seams_fix_type.choices}
+                    label_item="Select Seams Fix Type"
+                    onChange={this.handleMenuChange}
+                    selected_index={this.props.store.data.seams_fix_type}
+                />
                 {seamfix_sliders}
             </div>
         )
