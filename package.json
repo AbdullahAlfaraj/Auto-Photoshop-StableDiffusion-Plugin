@@ -32,6 +32,7 @@
         "nodemon": "^2.0.22",
         "prettier": "2.8.3",
         "style-loader": "^3.3.2",
+        "terser-webpack-plugin": "^3.0.8",
         "ts-loader": "^9.4.2",
         "typescript": "^5.0.4",
         "webpack": "^5.82.1",
@@ -40,10 +41,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "cd ultimate_sd_upscaler && npx webpack --config webpack.config.js",
-
-  "watch": "cd ultimate_sd_upscaler && npx webpack --config webpack.config.js --watch"
-
-
+        "watch": "cd ultimate_sd_upscaler && npx webpack --config webpack.config.js --watch"
     },
     "repository": {
         "type": "git",

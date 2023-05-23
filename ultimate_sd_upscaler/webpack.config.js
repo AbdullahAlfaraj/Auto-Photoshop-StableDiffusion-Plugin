@@ -12,7 +12,8 @@ module.exports = {
         filename: '[name].bundle.js',
         libraryTarget: 'commonjs2',
     },
-    mode: 'development',
+    // mode: 'development',
+    mode: 'production',
     devtool: 'inline-source-map', // won't work on XD due to lack of eval
     externals: {
         uxp: 'commonjs2 uxp',

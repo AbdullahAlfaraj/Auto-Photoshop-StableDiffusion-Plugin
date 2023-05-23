@@ -30,5 +30,5 @@ original_mask.png
 
 
 # comments when packaging:
-
+ultimate_sd_upscaler/dist/*LICENSE.txt
 ultimate_sd_upscaler/dist/*.bundle.js
