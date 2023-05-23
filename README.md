@@ -43,9 +43,9 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 | [Ronny Khalil](https://ronnykhalil.com/) | zachary
 
 **🥇 Gold:**
-| ![Alex ](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Alex+)
-|:---:|
-| Alex 
+| ![Alex ](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Alex+) | ![Florin-Alexandru Ilinescu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Florin-Alexandru+Ilinescu)
+|:---:|:---:|
+| Alex  | Florin-Alexandru Ilinescu
 
 **🥈 Silver:**
 | ![Amith Thomas](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Amith+Thomas) | ![Olivier Lefebvre](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre) | ![xiao yuan](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=xiao+yuan) | ![Ezra Blake](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ezra+Blake)
@@ -56,6 +56,8 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 | ![Sebastian Karbowniczek](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek) | ![Arthur Liu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu)
 |:---:|:---:|
 | Sebastian Karbowniczek | Arthur Liu
+
+
 
 
 
