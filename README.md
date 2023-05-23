@@ -113,8 +113,17 @@ For artists we recommend you use [the one click installer](#one-click-installer)
 ```
 git clone https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin.git
 ```
-2) run "start_server.bat" inside "Auto-Photoshop-StableDiffusion-Plugin" directory
-3) go to where you have [automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) installed. 
+2) open cmd window in the "Auto-Photoshop-StableDiffusion-Plugin" directory and then install the dependencies by typing:
+```
+npm install
+```
+3) build the plugin by transpiling typescript to javascript:
+```
+npm run watch
+```
+
+4) run "start_server.bat" inside "Auto-Photoshop-StableDiffusion-Plugin" directory
+5) go to where you have [automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) installed. 
 Edit the "webui-user.bat" in automatic1111 
  change this line 
 ```
@@ -126,12 +135,12 @@ set COMMANDLINE_ARGS= --api
 ```
 that will allow the plugin to communicate with the automatic1111 project. After saving close the "webui-user.bat" file and run it normally.
 
-4) run photoshop. go to edit -> prefrences -> plugins
+6) run photoshop. go to edit -> prefrences -> plugins
 	1) make sure you check "Enable Developer Mode" checkbox
-5) install "Adobe UXP Developer Tool" from here [Installation (adobe.com)](https://developer.adobe.com/photoshop/uxp/devtool/installation/)
+7) install "Adobe UXP Developer Tool" from here [Installation (adobe.com)](https://developer.adobe.com/photoshop/uxp/devtool/installation/)
    this tool will add the plugin into photoshop
-6) run Adobe UXP Developer Tool and click on "Add Plugin" button in the top right. Navigate to where you have "Auto-Photoshop-StableDiffusion-Plugin" folder and open "manifest.json"
-7) select the plugin and click on Actions -> Load Selected
+8) run Adobe UXP Developer Tool and click on "Add Plugin" button in the top right. Navigate to where you have "Auto-Photoshop-StableDiffusion-Plugin" folder and open "manifest.json"
+9) select the plugin and click on Actions -> Load Selected
 that's it.
 
 ## First time running the plugin (remote Automatic1111):
