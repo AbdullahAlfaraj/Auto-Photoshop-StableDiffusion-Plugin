@@ -221,7 +221,7 @@ function initInitMaskElement() {
     )
     thumbnail.Thumbnail.addSPButtonToContainer(
         this.thumbnail_container,
-        'svg_sp_btn',
+        'svg_sp_btn_expand',
         'view modified mask',
 
         viewMaskExpansion,

@@ -603,7 +603,12 @@ async function requestControlNetTxt2Img(plugin_settings) {
             app.showAlert('you need to select a valid ControlNet Module')
             throw 'you need to select a valid ControlNet Module'
         }
-        if (!control_net_settings['controlnet_units'][index]['model']) {
+        if (
+            !control_net_settings['controlnet_units'][index]['model'] &&
+            !control_net.getModuleDetail()[
+                control_net_settings['controlnet_units'][index]['module']
+            ].model_free
+        ) {
             app.showAlert('you need to select a valid ControlNet Model')
             throw 'you need to select a valid ControlNet Model'
         }
@@ -684,7 +689,12 @@ async function requestControlNetImg2Img(plugin_settings) {
             app.showAlert('you need to select a valid ControlNet Module')
             throw 'you need to select a valid ControlNet Module'
         }
-        if (!control_net_settings['controlnet_units'][index]['model']) {
+        if (
+            !control_net_settings['controlnet_units'][index]['model'] &&
+            !control_net.getModuleDetail()[
+                control_net_settings['controlnet_units'][index]['module']
+            ].model_free
+        ) {
             app.showAlert('you need to select a valid ControlNet Model')
             throw 'you need to select a valid ControlNet Model'
         }
@@ -709,6 +719,15 @@ async function requestControlNetImg2Img(plugin_settings) {
         numOfImages - g_generation_session.last_settings.batch_size
     if (numberOfAnnotations < 0) numberOfAnnotations = 0
 
+    // To fix a bug: when Ultimate SD Upscale is active and running, the detection maps won’t be retrieved.
+    // So set its value to 0 to avoid the result images being loaded in the annotation map interface.
+    if (
+        scripts.script_store.is_active &&
+        scripts.script_store.selected_script_name !== 'None' &&
+        scripts.script_store.is_selected_script_available
+    ) {
+        numberOfAnnotations = 0
+    }
     const base64_mask = json['images'].slice(numOfImages - numberOfAnnotations)
 
     let mask_index = 0
