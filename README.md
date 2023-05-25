@@ -38,9 +38,9 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll help us continue to develop and improve the Auto-Photoshop-StableDiffusion-Plugin, making it even easier for you to use Stable Diffusion AI in a familiar environment. As a supporter, you’ll have the opportunity to provide feedback and suggestions for future development. Plus, you’ll get early access to new features and tutorials, as well as exclusive art tutorials and tips from a professional artist. We’re passionate about making AI approachable to artists and with your help, we can continue to do just that.	
 # Auto-Photoshop-SD Backers and Sponsors:
 **💎 Diamond:**
-| [![Ronny Khalil](https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/A934E4F0-7778-47E9-A395-531BFF2E61F1_1_105_c.jpeg&h=80&w=80&fit=cover&mask=circle&maxage=7d)](https://ronnykhalil.com/) | ![zachary](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=zachary)
-|:---:|:---:|
-| [Ronny Khalil](https://ronnykhalil.com/) | zachary
+| [![Ronny Khalil](https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/A934E4F0-7778-47E9-A395-531BFF2E61F1_1_105_c.jpeg&h=80&w=80&fit=cover&mask=circle&maxage=7d)](https://ronnykhalil.com/) | ![zachary](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=zachary) | ![Razvan Matei](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Razvan+Matei)
+|:---:|:---:|:---:|
+| [Ronny Khalil](https://ronnykhalil.com/) | zachary | Razvan Matei
 
 **🥇 Gold:**
 | ![Alex ](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Alex+) | ![Florin-Alexandru Ilinescu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Florin-Alexandru+Ilinescu)
@@ -48,14 +48,16 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 | Alex  | Florin-Alexandru Ilinescu
 
 **🥈 Silver:**
-| ![Amith Thomas](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Amith+Thomas) | ![Olivier Lefebvre](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre) | ![xiao yuan](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=xiao+yuan) | ![Ezra Blake](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ezra+Blake)
-|:---:|:---:|:---:|:---:|
-| Amith Thomas | Olivier Lefebvre | xiao yuan | Ezra Blake
+| ![Amith Thomas](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Amith+Thomas) | ![Olivier Lefebvre](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre) | ![xiao yuan](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=xiao+yuan) | ![Ezra Blake](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ezra+Blake) | ![Zenko ](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Zenko+)
+|:---:|:---:|:---:|:---:|:---:|
+| Amith Thomas | Olivier Lefebvre | xiao yuan | Ezra Blake | Zenko 
 
 **🥉 Copper:**
-| ![Sebastian Karbowniczek](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek) | ![Arthur Liu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu)
-|:---:|:---:|
-| Sebastian Karbowniczek | Arthur Liu
+| ![Sebastian Karbowniczek](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek) | ![Arthur Liu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu) | ![Juan Pablo Mendiola](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Juan+Pablo+Mendiola)
+|:---:|:---:|:---:|
+| Sebastian Karbowniczek | Arthur Liu | Juan Pablo Mendiola
+
+
 
 
 
