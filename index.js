@@ -473,7 +473,7 @@ async function refreshUI() {
 
         await g_sd_config_obj.getConfig()
         //init ControlNet Tab
-        // g_hi_res_upscaler_models = temp_config.getUpscalerModels()
+
         g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
         await control_net.initializeControlNetTab(g_controlnet_max_models)
     } catch (e) {
@@ -683,8 +683,6 @@ let g_b_use_smart_object = true // true to keep layer as smart objects, false to
 let g_sd_options_obj = new sd_options.SdOptions()
 
 g_sd_options_obj.getOptions()
-// let g_sd_config_obj = new sd_config.SdConfig()
-// g_sd_config_obj.getConfig();
 
 // let g_width_slider = new ui.UIElement()
 // g_width_slider.getValue = html_manip.getWidth
@@ -767,7 +765,7 @@ async function initPlugin() {
 
     await g_sd_config_obj.getConfig()
     //init ControlNet Tab
-    // g_hi_res_upscaler_models = temp_config.getUpscalerModels()
+
     g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
     await control_net.initializeControlNetTab(g_controlnet_max_models)
 }

@@ -252,6 +252,14 @@ async function requestControlNetDetectMap(
     }
 }
 
+async function requestControlNetVersion() {
+    const json = await api.requestGet(`${g_sd_url}/controlnet/version`)
+
+    const version = json?.version
+
+    return version
+}
+
 async function requestControlNetModelList() {
     const control_net_json = await api.requestGet(
         `${g_sd_url}/controlnet/model_list`
@@ -269,27 +277,6 @@ async function requestControlNetModelList() {
 }
 
 async function requestControlNetModuleList() {
-    // const control_net_json = await api.requestGet(
-    //     `${g_sd_url}/controlnet/model_list`
-    // )
-    // const module_list = [
-    //     // 'none',
-    //     'canny',
-    //     'depth',
-    //     'depth_leres',
-    //     'hed',
-    //     'mlsd',
-    //     'normal_map',
-    //     'openpose',
-    //     // "openpose_hand",
-    //     'pidinet',
-    //     'scribble',
-    //     'fake_scribble',
-    //     'segmentation',
-    // ]
-
-    // const module_list = g_sd_config_obj.getControlNetPreprocessors()
-
     const result = await api.requestGet(
         `${g_sd_url}/controlnet/module_list?alias_names=1`
     )
@@ -359,13 +346,11 @@ function changeModule(_module, index) {
             index,
             '.mModelsMenuControlNet_'
         ).parentElement.style.display = 'none'
-
     else
         controlnetElement(
             index,
             '.mModelsMenuControlNet_'
         ).parentElement.style.display = 'block'
-
 
     if (params?.preprocessor_res) {
         const preprocessor_res_label_element = controlnetElement(
@@ -387,7 +372,7 @@ function changeModule(_module, index) {
         threshold_a_element.dataset['sd_max'] = params.threshold_a.max
         ControlNetUnit.setThreshold(index, 'a', params.threshold_a.value)
         threshold_a_element.style.display = 'block'
-        threshold_a_label_element.innerText = params.threshold_a.name + ":"
+        threshold_a_label_element.innerText = params.threshold_a.name + ':'
     } else {
         ControlNetUnit.setThreshold(index, 'a', 32)
         threshold_a_element.style.display = 'none'
@@ -403,7 +388,7 @@ function changeModule(_module, index) {
         threshold_b_element.dataset['sd_max'] = params.threshold_b.max
         ControlNetUnit.setThreshold(index, 'b', params.threshold_b.value)
         threshold_b_element.style.display = 'block'
-        threshold_b_label_element.innerText = params.threshold_b.name + ":"
+        threshold_b_label_element.innerText = params.threshold_b.name + ':'
     } else {
         ControlNetUnit.setThreshold(index, 'b', 32)
         threshold_b_element.style.display = 'none'
@@ -1116,6 +1101,8 @@ async function initializeControlNetTab(controlnet_max_models) {
 
             initControlNetUnit(index)
         }
+        // const version = await requestControlNetVersion()
+        // document.getElementById('ControlNetVersion').innerText = version
     } catch (e) {
         console.warn(e)
     }
@@ -1140,5 +1127,6 @@ module.exports = {
     isControlNetModeEnable,
     getModuleDetail() {
         return g_module_detail
-    }
+    },
+    requestControlNetVersion,
 }
