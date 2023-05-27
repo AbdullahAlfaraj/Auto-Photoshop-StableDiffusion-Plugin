@@ -474,6 +474,7 @@ async function refreshUI() {
         await g_sd_config_obj.getConfig()
         //init ControlNet Tab
 
+        g_hi_res_upscaler_models = await sd_tab.requestGetHiResUpscalers()
         g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
         await control_net.initializeControlNetTab(g_controlnet_max_models)
     } catch (e) {
@@ -696,7 +697,8 @@ let g_controlnet_max_models
     let temp_config = new sd_config.SdConfig()
     g_sd_config_obj = temp_config
     await g_sd_config_obj.getConfig()
-    g_hi_res_upscaler_models = g_sd_config_obj.getUpscalerModels()
+    // g_hi_res_upscaler_models = g_sd_config_obj.getUpscalerModels()
+    g_hi_res_upscaler_models = await sd_tab.requestGetHiResUpscalers()
     g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
 
     for (let model of g_hi_res_upscaler_models) {
@@ -4057,25 +4059,6 @@ document
             console.warn(`savePromptShortcut warning: ${e}`)
         }
     })
-
-// Hi res fix stuff
-
-// var hr_models = [
-//     'Latent',
-//     'Latent (antialiased)',
-//     'Latent (bicubic)',
-//     'Latent (bicubic antialiased)',
-//     'Latent (nearest)',
-//     'Latent (nearest-exact)',
-//     'None',
-//     'Lanczos',
-//     'Nearest',
-//     'ESRGAN_4x',
-//     'R-ESRGAN 4x+',
-//     'R-ESRGAN 4x+ Anime6B',
-//     'LDSR',
-//     'SwinIR 4x',
-// ]
 
 var chHiResFixs = document.getElementById('chHiResFixs')
 var div = document.getElementById('HiResDiv')

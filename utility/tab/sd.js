@@ -6,6 +6,32 @@ const psapi = require('../../psapi')
 const sdapi = require('../../sdapi_py_re')
 const Enum = require('../../enum')
 //REFACTOR: move to notification.js
+
+async function requestGetHiResUpscalers() {
+    try {
+        const full_url = `${g_sd_url}/sdapi/v1/upscalers`
+        let upscalers = await api.requestGet(full_url)
+        return [
+            'Latent',
+            'Latent (antialiased)',
+            'Latent (bicubic)',
+            'Latent (bicubic antialiased)',
+            'Latent (nearest)',
+            'Latent (nearest-exact)',
+            ...upscalers.map((upscaler) => upscaler.name),
+        ]
+    } catch (e) {
+        console.warn('requestGetHiResUpscalers:', e)
+        return [
+            'Latent',
+            'Latent (antialiased)',
+            'Latent (bicubic)',
+            'Latent (bicubic antialiased)',
+            'Latent (nearest)',
+            'Latent (nearest-exact)',
+        ]
+    }
+}
 async function promptForUpdate(header_message, long_message) {
     const shell = require('uxp').shell
 
@@ -367,4 +393,5 @@ module.exports = {
     setImageCfgScaleSDValue,
     refreshSDTab,
     displayImageCfgScaleSlider,
+    requestGetHiResUpscalers,
 }
