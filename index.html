@@ -1090,9 +1090,30 @@
                     <sp-checkbox checked id="chlowVram_0" class="chlowVram_"
                         >Low VRAM</sp-checkbox
                     >
-                    <sp-checkbox id="chGuessMode_0" class="chGuessMode_"
+                    <!-- <sp-checkbox id="chGuessMode_0" class="chGuessMode_"
                         >Guess Mode</sp-checkbox
+                    > -->
+                    <sp-checkbox class="chPixelPerfect_"
+                        >Pixel Perfect</sp-checkbox
                     >
+                    <div>
+                        <sp-radio-group class="rgControlNetMode_">
+                            <sp-label slot="label">Control Mode:</sp-label>
+                            <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
+                            <sp-radio title="" value="0" checked
+                                >Balanced</sp-radio
+                            >
+                            <sp-radio
+                                title="My Prompt is More Important"
+                                value="1"
+                                >Prompt</sp-radio
+                            ><sp-radio
+                                title="ControlNet is More Important"
+                                value="2"
+                                >ControlNet</sp-radio
+                            >
+                        </sp-radio-group>
+                    </div>
 
                     <div>
                         <div>

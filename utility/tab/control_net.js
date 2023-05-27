@@ -27,7 +27,7 @@ class ControlNetUnit {
 
             guidance_start: 0,
             guidance_end: 1,
-            guessmode: null,
+            // guessmode: null,
         }
         this.setUnit(index, controlnet_unit_default)
     }
@@ -50,7 +50,7 @@ class ControlNetUnit {
 
             guidance_start: this.getGuidanceStrengthStart(index),
             guidance_end: this.getGuidanceStrengthEnd(index),
-            guessmode: null,
+            // guessmode: null,
         }
         return controlnet_unit
     }
@@ -67,7 +67,7 @@ class ControlNetUnit {
 
             guidance_start: this.setGuidanceStrengthStart,
             guidance_end: this.setGuidanceStrengthEnd,
-            guessmode: null,
+            // guessmode: null,
         }
 
         for (const [name, value] of Object.entries(unit_settings)) {
@@ -588,6 +588,22 @@ function getUseGuessMode(index = 0) {
 
     return is_guess_mode
 }
+
+function getControlNetMode(index = 0) {
+    const controlnet_mode = document.querySelector(
+        `#controlnet_settings_${index} .rgControlNetMode_`
+    ).selected
+
+    return controlnet_mode
+}
+
+function getControlNetPixelPerfect(index = 0) {
+    const pixel_perfect = document.querySelector(
+        `#controlnet_settings_${index} .chPixelPerfect_`
+    ).checked
+
+    return pixel_perfect
+}
 function isControlNetModeEnable() {
     let is_tab_enabled = !document.getElementById('chDisableControlNetTab')
         .checked
@@ -664,19 +680,21 @@ function mapPluginSettingsToControlNet(plugin_settings) {
             // guidance: ,
             guidance_start: getControlNetWeightGuidanceStrengthStart(index),
             guidance_end: getControlNetWeightGuidanceStrengthEnd(index),
-            guessmode: false,
+            // guessmode: false,
+            control_mode: parseInt(getControlNetMode()),
+            pixel_perfect: getControlNetPixelPerfect(),
         }
         active_index++
     }
 
-    if (
-        plugin_settings['mode'] === Enum.generationModeEnum['Img2Img'] ||
-        plugin_settings['mode'] === Enum.generationModeEnum['Inpaint'] ||
-        plugin_settings['mode'] === Enum.generationModeEnum['Outpaint']
-    ) {
-        const b_use_guess_mode = getUseGuessMode()
-        controlnet_units[0]['guessmode'] = b_use_guess_mode
-    }
+    // if (
+    //     plugin_settings['mode'] === Enum.generationModeEnum['Img2Img'] ||
+    //     plugin_settings['mode'] === Enum.generationModeEnum['Inpaint'] ||
+    //     plugin_settings['mode'] === Enum.generationModeEnum['Outpaint']
+    // ) {
+    //     const b_use_guess_mode = getUseGuessMode()
+    //     controlnet_units[0]['guessmode'] = b_use_guess_mode
+    // }
 
     const controlnet_payload = {
         ...ps,
