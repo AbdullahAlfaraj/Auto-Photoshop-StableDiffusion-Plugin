@@ -471,11 +471,11 @@ async function refreshUI() {
         console.log('inpainting_mask_weight: ', inpainting_mask_weight)
         html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
 
-        await g_sd_config_obj.getConfig()
         //init ControlNet Tab
 
         g_hi_res_upscaler_models = await sd_tab.requestGetHiResUpscalers()
-        g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
+
+        g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
         await control_net.initializeControlNetTab(g_controlnet_max_models)
     } catch (e) {
         console.warn(e)
@@ -690,16 +690,13 @@ g_sd_options_obj.getOptions()
 // ui_settings.uiElements.push =
 let g_old_slider_width = 512
 let g_old_slider_height = 512
-let g_sd_config_obj
+
 let g_hi_res_upscaler_models
 let g_controlnet_max_models
 ;(async function () {
-    let temp_config = new sd_config.SdConfig()
-    g_sd_config_obj = temp_config
-    await g_sd_config_obj.getConfig()
-    // g_hi_res_upscaler_models = g_sd_config_obj.getUpscalerModels()
     g_hi_res_upscaler_models = await sd_tab.requestGetHiResUpscalers()
-    g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
+
+    g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
 
     for (let model of g_hi_res_upscaler_models) {
         //update the hi res upscaler models menu
@@ -765,10 +762,9 @@ async function initPlugin() {
     await loadPromptShortcut()
     await refreshPromptMenue()
 
-    await g_sd_config_obj.getConfig()
     //init ControlNet Tab
 
-    g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
+    g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
     await control_net.initializeControlNetTab(g_controlnet_max_models)
 }
 initPlugin()

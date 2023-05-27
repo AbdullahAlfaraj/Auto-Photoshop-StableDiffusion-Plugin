@@ -259,6 +259,13 @@ async function requestControlNetVersion() {
 
     return version
 }
+async function requestControlNetMaxUnits() {
+    const json = await api.requestGet(`${g_sd_url}/controlnet/settings`)
+
+    const control_net_max_models_num = json?.control_net_max_models_num ?? 1
+
+    return control_net_max_models_num
+}
 
 async function requestControlNetModelList() {
     const control_net_json = await api.requestGet(
@@ -1147,4 +1154,5 @@ module.exports = {
         return g_module_detail
     },
     requestControlNetVersion,
+    requestControlNetMaxUnits,
 }
