@@ -778,8 +778,10 @@ async function isWebuiRunning() {
     return true
 }
 async function requestLoraModels() {
-    const extension_url = py_re.getExtensionUrl()
-    const full_url = `${extension_url}/lora/list`
+    // const extension_url = py_re.getExtensionUrl()
+    // const full_url = `${extension_url}/lora/list`
+
+    const full_url = `${g_sd_url}/sdapi/v1/loras`
     const lora_models = await api.requestGet(full_url)
     return lora_models
 }

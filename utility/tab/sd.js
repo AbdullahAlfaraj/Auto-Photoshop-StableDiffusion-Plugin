@@ -182,8 +182,10 @@ function getLoraModelPrompt(lora_model_name) {
 }
 async function populateLoraModelMenu() {
     try {
-        const lora_models_json = await sdapi.requestLoraModels()
-        const lora_models_names = Object.keys(lora_models_json)
+        const lora_models = await sdapi.requestLoraModels()
+        const lora_models_names = lora_models.map(
+            (model_data) => model_data.name
+        )
 
         document.getElementById('mLoraModelMenu').innerHTML = ''
 
