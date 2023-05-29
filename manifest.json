@@ -70,35 +70,18 @@
       ],
       "icons": [
         {
-          "width": 32,
-          "height": 32,
-          "path": "icon/icon_D.png",
+          "width": 23,
+          "height": 23,
+          "path": "icon/panel.png",
           "scale": [
             1,
             2
           ],
           "theme": [
-            "dark",
-            "darkest"
+            "all"
           ],
           "species": [
-            "generic"
-          ]
-        },
-        {
-          "width": 32,
-          "height": 32,
-          "path": "icon/icon_N.png",
-          "scale": [
-            1,
-            2
-          ],
-          "theme": [
-            "lightest",
-            "light"
-          ],
-          "species": [
-            "generic"
+            "chrome"
           ]
         }
       ]
@@ -106,35 +89,18 @@
   ],
   "icons": [
     {
-      "width": 32,
-      "height": 32,
-      "path": "icon/icon_D.png",
+      "width": 48,
+      "height": 48,
+      "path": "icon/plugin.png",
       "scale": [
         1,
         2
       ],
       "theme": [
-        "dark",
-        "darkest"
+        "all"
       ],
       "species": [
-        "generic"
-      ]
-    },
-    {
-      "width": 32,
-      "height": 32,
-      "path": "icon/icon_N.png",
-      "scale": [
-        1,
-        2
-      ],
-      "theme": [
-        "lightest",
-        "light"
-      ],
-      "species": [
-        "generic"
+        "pluginList"
       ]
     }
   ]
