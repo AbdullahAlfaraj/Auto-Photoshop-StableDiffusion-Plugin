@@ -1595,4 +1595,5 @@ module.exports = {
     silentSetInitImageMask,
     executeCommandExe,
     executeDescExe,
+    getSelectionInfoCommand,
 }

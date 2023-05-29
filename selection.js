@@ -86,6 +86,477 @@ const SelectionInfoDesc = () => ({
         dialogOptions: 'dontDisplay',
     },
 })
+
+async function createChannelIfNotExists(channelName) {
+    // const photoshop = require('photoshop')
+    // const app = photoshop.app
+    // const batchPlay = photoshop.action.batchPlay
+
+    // // Check if the channel exists
+    // let channelExists = false
+    // for (const channel of app.activeDocument.channels) {
+    //     if (channel.name === channelName) {
+    //         channelExists = true
+    //         break
+    //     }
+    // }
+
+    // // Create the channel if it doesn't exist
+    // if (!channelExists) {
+    //     await batchPlay(
+    //         [
+    //             {
+    //                 _obj: 'make',
+    //                 _target: [
+    //                     {
+    //                         _ref: 'channel',
+    //                     },
+    //                 ],
+    //                 using: {
+    //                     _obj: 'channel',
+    //                     name: channelName,
+    //                 },
+    //             },
+    //         ],
+    //         {}
+    //     )
+    // }
+    if (!app.activeDocument.channels.getByName(channelName)) {
+    }
+}
+
+const makeMaskChannel = () => ({
+    _obj: 'set',
+    _target: { _ref: 'channel', _property: 'selection' },
+    to: { _ref: 'channel', _name: 'inpaint_mask' },
+})
+async function makeMaskChannelExe() {
+    await executeAsModal(async () => {
+        const result = await batchPlay(
+            [
+                // SelectionInfoDesc(),
+                // makeMaskChannel(),
+                {
+                    _obj: 'duplicate',
+                    _target: [
+                        {
+                            _ref: 'channel',
+                            _property: 'selection',
+                        },
+                    ],
+                    name: 'inpaint_mask_2',
+                    _isCommand: true,
+                },
+                // {
+                //     _obj: 'set',
+                //     _target: { _ref: 'channel', _property: 'selection' },
+                //     to: { _ref: 'channel', _name: 'inpaint_mask' },
+                // },
+                {
+                    _obj: 'make',
+                    new: { _class: 'channel' },
+                    at: { _ref: 'channel', _enum: 'channel', _value: 'mask' },
+                    using: {
+                        _enum: 'userMaskEnabled',
+                        _value: 'revealSelection',
+                    },
+                },
+            ],
+            {
+                synchronousExecution: true,
+                modalBehavior: 'execute',
+            }
+        )
+        console.log('result: ', result)
+    })
+}
+
+async function fillSelectionWhiteOutsideBlack() {
+    // Create a new layer
+    const layer_name = 'inpaint_laso_mask'
+    const getSelectionDesc = () => ({
+        _obj: 'get',
+        _target: [
+            {
+                _property: 'selection',
+            },
+            {
+                _ref: 'document',
+                _id: app.activeDocument._id,
+            },
+        ],
+        _options: {
+            dialogOptions: 'dontDisplay',
+        },
+    })
+    const invertSelection = () => ({
+        _obj: 'inverse',
+        _isCommand: true,
+    })
+    await batchPlay(
+        [
+            getSelectionDesc(),
+
+            {
+                _obj: 'fill',
+                using: {
+                    _enum: 'fillContents',
+                    _value: 'white',
+                },
+                opacity: {
+                    _unit: 'percentUnit',
+                    _value: 100,
+                },
+                mode: {
+                    _enum: 'blendMode',
+                    _value: 'normal',
+                },
+            },
+            // {
+            //     _obj: 'select',
+            //     _target: [
+            //         {
+            //             _ref: 'channel',
+            //             _property: 'selection',
+            //         },
+            //     ],
+            // },
+            invertSelection(),
+            {
+                _obj: 'fill',
+                using: {
+                    _enum: 'fillContents',
+                    _value: 'black',
+                },
+                opacity: {
+                    _unit: 'percentUnit',
+                    _value: 100,
+                },
+                mode: {
+                    _enum: 'blendMode',
+                    _value: 'normal',
+                },
+            },
+
+            // {
+            //     _obj: 'invert',
+            //     _target: [
+            //         {
+            //             _ref: 'channel',
+            //             _property: 'selection',
+            //         },
+            //     ],
+            // },
+
+            //make new layer
+            // {
+            //     _obj: 'make',
+            //     _target: [
+            //         {
+            //             _ref: 'layer',
+            //         },
+            //     ],
+            //     using: {
+            //         _obj: 'layer',
+            //         name: 'Fill Layer',
+            //     },
+            // },
+
+            {
+                _obj: 'set',
+                _target: [
+                    { _ref: 'layer', _enum: 'ordinal', _value: 'targetEnum' },
+                ],
+                to: { _obj: 'layer', name: layer_name },
+                _options: { dialogOptions: 'dontDisplay' },
+                _isCommand: true,
+            },
+            // getSelectionDesc(),
+            //undo the first inversion of the selection
+            invertSelection(),
+        ],
+        { modalBehavior: 'execute' }
+    )
+
+    //get the rectangular bounding box selection
+
+    const rect_selection_info = await psapi.getSelectionInfoExe()
+    await psapi.reSelectMarqueeExe(rect_selection_info)
+    const width = html_manip.getWidth()
+    const height = html_manip.getHeight()
+
+    //convert the selection area on the canvas to base64 image
+    const base64 = await io.IO.getSelectionFromCanvasAsBase64Interface_New(
+        width,
+        height,
+        rect_selection_info,
+        true,
+        layer_name + '.png'
+    )
+
+    //import the base64 image into the canvas as a new layer
+    await io.IO.base64ToLayer(
+        base64,
+        'base64_to_layer_temp.png',
+        rect_selection_info.left,
+        rect_selection_info.top,
+        rect_selection_info.width,
+        rect_selection_info.height
+    )
+    // Fill the current selection with white
+    // await batchPlay(
+    //     [
+    //         {
+    //             _obj: 'fill',
+    //             using: {
+    //                 _enum: 'fillContents',
+    //                 _value: 'white',
+    //             },
+    //             opacity: {
+    //                 _unit: 'percentUnit',
+    //                 _value: 100,
+    //             },
+    //             mode: {
+    //                 _enum: 'blendMode',
+    //                 _value: 'normal',
+    //             },
+    //         },
+    //     ],
+    //     { modalBehavior: 'execute' }
+    // )
+
+    // // Invert the selection
+    // await batchPlay(
+    //     [
+    //         {
+    //             _obj: 'invert',
+    //             _target: [
+    //                 {
+    //                     _ref: 'channel',
+    //                     _property: 'selection',
+    //                 },
+    //             ],
+    //         },
+    //     ],
+    //     { modalBehavior: 'execute' }
+    // )
+
+    // // Fill the inverted selection with black
+    // await batchPlay(
+    //     [
+    //         {
+    //             _obj: 'fill',
+    //             using: {
+    //                 _enum: 'fillContents',
+    //                 _value: 'black',
+    //             },
+    //             opacity: {
+    //                 _unit: 'percentUnit',
+    //                 _value: 100,
+    //             },
+    //             mode: {
+    //                 _enum: 'blendMode',
+    //                 _value: 'normal',
+    //             },
+    //         },
+    //     ],
+    //     { modalBehavior: 'execute' }
+    // )
+}
+
+async function inpaintLasoInitImage() {
+    // Create a new layer
+    const layer_name = 'inpaint_laso_init_image'
+    const getSelectionDesc = () => ({
+        _obj: 'get',
+        _target: [
+            {
+                _property: 'selection',
+            },
+            {
+                _ref: 'document',
+                _id: app.activeDocument._id,
+            },
+        ],
+        _options: {
+            dialogOptions: 'dontDisplay',
+        },
+    })
+    const invertSelection = () => ({
+        _obj: 'inverse',
+        _isCommand: true,
+    })
+    await batchPlay(
+        [
+            getSelectionDesc(),
+
+            {
+                _obj: 'fill',
+                using: {
+                    _enum: 'fillContents',
+                    _value: 'white',
+                },
+                opacity: {
+                    _unit: 'percentUnit',
+                    _value: 100,
+                },
+                mode: {
+                    _enum: 'blendMode',
+                    _value: 'normal',
+                },
+            },
+            // {
+            //     _obj: 'select',
+            //     _target: [
+            //         {
+            //             _ref: 'channel',
+            //             _property: 'selection',
+            //         },
+            //     ],
+            // },
+            invertSelection(),
+            {
+                _obj: 'fill',
+                using: {
+                    _enum: 'fillContents',
+                    _value: 'black',
+                },
+                opacity: {
+                    _unit: 'percentUnit',
+                    _value: 100,
+                },
+                mode: {
+                    _enum: 'blendMode',
+                    _value: 'normal',
+                },
+            },
+
+            // {
+            //     _obj: 'invert',
+            //     _target: [
+            //         {
+            //             _ref: 'channel',
+            //             _property: 'selection',
+            //         },
+            //     ],
+            // },
+
+            //make new layer
+            // {
+            //     _obj: 'make',
+            //     _target: [
+            //         {
+            //             _ref: 'layer',
+            //         },
+            //     ],
+            //     using: {
+            //         _obj: 'layer',
+            //         name: 'Fill Layer',
+            //     },
+            // },
+
+            {
+                _obj: 'set',
+                _target: [
+                    { _ref: 'layer', _enum: 'ordinal', _value: 'targetEnum' },
+                ],
+                to: { _obj: 'layer', name: layer_name },
+                _options: { dialogOptions: 'dontDisplay' },
+                _isCommand: true,
+            },
+            // getSelectionDesc(),
+            //undo the first inversion of the selection
+            invertSelection(),
+        ],
+        { modalBehavior: 'execute' }
+    )
+
+    //get the rectangular bounding box selection
+
+    const rect_selection_info = await psapi.getSelectionInfoExe()
+    await psapi.reSelectMarqueeExe(rect_selection_info)
+    const width = html_manip.getWidth()
+    const height = html_manip.getHeight()
+
+    //convert the selection area on the canvas to base64 image
+    const base64 = await io.IO.getSelectionFromCanvasAsBase64Interface_New(
+        width,
+        height,
+        rect_selection_info,
+        true,
+        layer_name + '.png'
+    )
+
+    //import the base64 image into the canvas as a new layer
+    await io.IO.base64ToLayer(
+        base64,
+        'base64_to_layer_temp.png',
+        rect_selection_info.left,
+        rect_selection_info.top,
+        rect_selection_info.width,
+        rect_selection_info.height
+    )
+    // Fill the current selection with white
+    // await batchPlay(
+    //     [
+    //         {
+    //             _obj: 'fill',
+    //             using: {
+    //                 _enum: 'fillContents',
+    //                 _value: 'white',
+    //             },
+    //             opacity: {
+    //                 _unit: 'percentUnit',
+    //                 _value: 100,
+    //             },
+    //             mode: {
+    //                 _enum: 'blendMode',
+    //                 _value: 'normal',
+    //             },
+    //         },
+    //     ],
+    //     { modalBehavior: 'execute' }
+    // )
+
+    // // Invert the selection
+    // await batchPlay(
+    //     [
+    //         {
+    //             _obj: 'invert',
+    //             _target: [
+    //                 {
+    //                     _ref: 'channel',
+    //                     _property: 'selection',
+    //                 },
+    //             ],
+    //         },
+    //     ],
+    //     { modalBehavior: 'execute' }
+    // )
+
+    // // Fill the inverted selection with black
+    // await batchPlay(
+    //     [
+    //         {
+    //             _obj: 'fill',
+    //             using: {
+    //                 _enum: 'fillContents',
+    //                 _value: 'black',
+    //             },
+    //             opacity: {
+    //                 _unit: 'percentUnit',
+    //                 _value: 100,
+    //             },
+    //             mode: {
+    //                 _enum: 'blendMode',
+    //                 _value: 'normal',
+    //             },
+    //         },
+    //     ],
+    //     { modalBehavior: 'execute' }
+    // )
+}
+
 class Selection {
     static async getSelectionInfoExe() {
         //return a selectionInfo object or undefined
@@ -158,10 +629,16 @@ class Selection {
     }
     static {}
 }
+
 module.exports = {
     finalWidthHeight,
     selectionToFinalWidthHeight,
     selectBoundingBox,
     convertSelectionObjectToSelectionInfo,
     Selection,
+
+    makeMaskChannel,
+    makeMaskChannelExe,
+    generateMaskFromSelection,
+    fillSelectionWhiteOutsideBlack,
 }
