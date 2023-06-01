@@ -761,11 +761,6 @@ async function initPlugin() {
     // promptShortcutExample()
     await loadPromptShortcut()
     await refreshPromptMenue()
-
-    //init ControlNet Tab
-
-    g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
-    await control_net.initializeControlNetTab(g_controlnet_max_models)
 }
 initPlugin()
 // refreshModels() // get the models when the plugin loads
