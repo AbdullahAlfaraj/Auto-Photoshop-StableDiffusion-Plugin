@@ -491,5 +491,17 @@ async def list_available_loras():
         print("list_available_loras() error ",repr(e),e)
     return lora_dict
 
+@router.get('/vae/list')
+async def list_available_vae():
+    sd_vae_dict = {}
+    try:
+        from modules import shared_items
+        sd_vae_dict = shared_items.sd_vae_items()
+        print("sd_vae_dict:", sd_vae_dict)
+    except Exception as e:
+        print("list_available_vae() error ",repr(e),e)
+    return sd_vae_dict
+
+
 app = FastAPI()
 app.include_router(router)
