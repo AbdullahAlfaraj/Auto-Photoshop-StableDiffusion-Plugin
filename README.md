@@ -48,14 +48,14 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 | Alex  | Florin-Alexandru Ilinescu | Robin Edwards | Danny Sahagun
 
 **🥈 Silver:**
-| ![Amith Thomas](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Amith+Thomas) | ![Olivier Lefebvre](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre) | ![xiao yuan](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=xiao+yuan) | ![Ezra Blake](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ezra+Blake) | ![Zenko ](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Zenko+) | ![Frederic Dreuilhe](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Frederic+Dreuilhe) | ![Kevin Schofield](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kevin+Schofield) | ![darius coal](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=darius+coal) | ![Kerwin](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kerwin)
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Amith Thomas | Olivier Lefebvre | xiao yuan | Ezra Blake | Zenko  | Frederic Dreuilhe | Kevin Schofield | darius coal | Kerwin
+| ![Amith Thomas](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Amith+Thomas) | ![Olivier Lefebvre](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre) | ![xiao yuan](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=xiao+yuan) | ![Ezra Blake](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ezra+Blake) | ![Zenko ](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Zenko+) | ![Frederic Dreuilhe](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Frederic+Dreuilhe) | ![Kevin Schofield](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kevin+Schofield) | ![darius coal](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=darius+coal) | ![Kerwin](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kerwin) | ![The Dread Vixen Alinsa](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=The+Dread+Vixen+Alinsa) | ![Chris Canterbury](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Chris+Canterbury)
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Amith Thomas | Olivier Lefebvre | xiao yuan | Ezra Blake | Zenko  | Frederic Dreuilhe | Kevin Schofield | darius coal | Kerwin | The Dread Vixen Alinsa | Chris Canterbury
 
 **🥉 Copper:**
-| ![Sebastian Karbowniczek](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek) | ![Arthur Liu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu) | ![Juan Pablo Mendiola](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Juan+Pablo+Mendiola)
-|:---:|:---:|:---:|
-| Sebastian Karbowniczek | Arthur Liu | Juan Pablo Mendiola
+| ![Sebastian Karbowniczek](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek) | ![Arthur Liu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu) | ![Juan Pablo Mendiola](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Juan+Pablo+Mendiola) | ![Bruce Hunter](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Bruce+Hunter)
+|:---:|:---:|:---:|:---:|
+| Sebastian Karbowniczek | Arthur Liu | Juan Pablo Mendiola | Bruce Hunter
 
 
 
