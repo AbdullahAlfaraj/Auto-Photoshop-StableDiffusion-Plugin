@@ -274,12 +274,6 @@ async function requestControlNetModelList() {
 
     const model_list = control_net_json?.model_list
 
-    // const model_list = [
-    //     'none',
-    //     'control_sd15_depth [fef5e48e]',
-    //     'control_sd15_openpose [fef5e48e]',
-    //     'control_sd15_scribble [fef5e48e]',
-    // ]
     return model_list
 }
 
@@ -1116,9 +1110,9 @@ async function initializeControlNetTab(controlnet_max_models) {
 
         initControlNetUnitsEventListeners(controlnet_max_models) // add event listener to all units after cloning
 
+        await populateModelMenu()
+        await populatePreprocessorMenu()
         for (let index = 0; index < controlnet_max_models; index++) {
-            await populateModelMenu(index)
-            await populatePreprocessorMenu(index)
             document.getElementById(
                 'controlnet_settings_' + index
             ).style.display = 'block'
