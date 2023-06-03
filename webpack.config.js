@@ -4,16 +4,19 @@ const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = {
     entry: {
-        ultimate_sd_upscaler: './src/ultimate_sd_upscaler.tsx',
-        scripts: './src/scripts.tsx',
+        after_detailer: './after_detailer/src/after_detailer.tsx',
+        ultimate_sd_upscaler:
+            './ultimate_sd_upscaler/src/ultimate_sd_upscaler.tsx',
+        scripts: './ultimate_sd_upscaler/src/scripts.tsx',
+        main: './main/src/main.tsx',
     },
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, './main/dist'),
         filename: '[name].bundle.js',
         libraryTarget: 'commonjs2',
     },
-    // mode: 'development',
-    mode: 'production',
+    mode: 'development',
+    // mode: 'production',
     devtool: 'inline-source-map', // won't work on XD due to lack of eval
     externals: {
         uxp: 'commonjs2 uxp',
