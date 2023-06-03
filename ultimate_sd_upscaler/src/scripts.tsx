@@ -1,8 +1,8 @@
-import React, { ReactEventHandler, useState } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import { action, makeAutoObservable, reaction, toJS } from 'mobx'
-import { Provider, inject, observer } from 'mobx-react'
+import { makeAutoObservable, toJS } from 'mobx'
+import { observer } from 'mobx-react'
 
 import { SpMenu } from './elements'
 import * as ultimate_sd_upscale_script from './ultimate_sd_upscaler'
@@ -95,6 +95,7 @@ class ScriptStore {
 }
 
 export const script_store = new ScriptStore()
+
 @observer
 class ScriptComponent extends React.Component<{}> {
     render(): React.ReactNode {

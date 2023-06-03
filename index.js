@@ -87,8 +87,11 @@ const image_search_tab = require('./utility/tab/image_search_tab')
 const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
 // const ultimate_sd_upscaler = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
-const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
-const scripts = require('./ultimate_sd_upscaler/dist/scripts.bundle')
+// const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
+const after_detailer_script = require('./main/dist/after_detailer.bundle')
+const scripts = require('./main/dist/scripts.bundle')
+
+const main = require('./main/dist/main.bundle')
 
 // const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
 
@@ -761,11 +764,6 @@ async function initPlugin() {
     // promptShortcutExample()
     await loadPromptShortcut()
     await refreshPromptMenue()
-
-    //init ControlNet Tab
-
-    g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
-    await control_net.initializeControlNetTab(g_controlnet_max_models)
 }
 initPlugin()
 // refreshModels() // get the models when the plugin loads
@@ -2013,6 +2011,50 @@ async function getSettings() {
             delete payload['script_name']
         }
 
+        // payload['script_args'] = []
+
+        // payload['script_name'] = 'after detailer'
+        function setAlwaysOnScripts() {
+            const data = after_detailer_script.store.toJsFunc().data
+            console.log('setAlwaysOnScripts=> data:', data)
+            const alwayson_scripts = {
+                'After Detailer': {
+                    args: [
+                        data.is_enabled,
+                        {
+                            // ad_model: 'face_yolov8n.pt',
+                            ad_model: data.ad_model,
+                            ad_prompt: data.prompt,
+                            ad_negative_prompt: data.negativePrompt,
+                            ad_conf: data.ad_conf,
+                            ad_mask_min_ratio: 0.0,
+                            ad_mask_max_ratio: 1.0,
+                            ad_dilate_erode: 32,
+                            ad_x_offset: 0,
+                            ad_y_offset: 0,
+                            ad_mask_merge_invert: 'None',
+                            ad_mask_blur: 4,
+                            ad_denoising_strength: 0.4,
+                            ad_inpaint_full_res: true,
+                            ad_inpaint_full_res_padding: 0,
+                            ad_use_inpaint_width_height: false,
+                            ad_inpaint_width: 512,
+                            ad_inpaint_height: 512,
+                            ad_use_steps: true,
+                            ad_steps: 28,
+                            ad_use_cfg_scale: false,
+                            ad_cfg_scale: 7.0,
+                            ad_restore_face: false,
+                            ad_controlnet_model: data.controlnet_model,
+                            ad_controlnet_weight: data.controlNetWeight,
+                        },
+                    ],
+                },
+            }
+            return alwayson_scripts
+        }
+
+        payload['alwayson_scripts'] = setAlwaysOnScripts()
         if (hi_res_fix && width >= 512 && height >= 512) {
             const hr_scale = sd_tab.getHrScaleSliderSDValue()
 

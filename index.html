@@ -643,6 +643,12 @@
             top: 0;
             left: 0;
         }
+
+        .missing-error {
+            color: #ff595e;
+
+            white-space: normal;
+        }
     </style>
     <style>
         .custom-menu {
@@ -1833,6 +1839,7 @@
                         Save
                     </button>
                 </div>
+                <div id="settingsVAEContainer"></div>
                 <sp-checkbox id="chUseSharpMask">use sharp mask</sp-checkbox>
                 <sp-checkbox checked id="chUseSmartObject"
                     >Smart Object</sp-checkbox
@@ -2180,6 +2187,7 @@
                             </div>
                         </sp-action-button>
                         <!-- <img width="15px" height="15px" src="./icon/ftcopy.svg">   -->
+
                         <sp-action-button
                             id="svg_sp_btn_search"
                             style="
@@ -3028,6 +3036,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                     </div>
                     <sp-divider class="line-divider" size="large"></sp-divider>
                     <sp-divider class="line-divider" size="large"></sp-divider>
+                    <div id="alwaysOnScriptsContainer"></div>
                     <div id="scriptsContainer"></div>
                 </div>
             </div>

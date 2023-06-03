@@ -1,7 +1,7 @@
 import React, { ReactEventHandler, useState } from 'react'
 // import ReactDOM from 'react-dom'
 import ReactDOM from 'react-dom/client'
-import { versions } from 'uxp'
+// import { versions } from 'uxp'
 declare global {
     namespace JSX {
         interface IntrinsicElements {
@@ -15,6 +15,7 @@ declare global {
             'sp-radio': any
             'sp-divider': any
             'sp-detail': any
+            'sp-textarea': any
         }
     }
 }
@@ -130,6 +131,8 @@ export class SpSliderWithLabel extends React.Component<{
         this.setState({ output_value: output_value })
         if (this.props.onSliderChange && this.props.id) {
             this.props.onSliderChange(this.props.id, output_value)
+        } else if (this.props.onSliderChange) {
+            this.props.onSliderChange(output_value)
         }
     }
 
@@ -198,6 +201,8 @@ export class SpMenu extends React.Component<{
         this.setState({ selectedItem: item })
         if (this.props.onChange && this.props.id) {
             this.props.onChange(this.props.id, { index: index, item: item })
+        } else if (this.props.onChange) {
+            this.props.onChange(null, { index: index, item: item })
         }
     }
     handleMakeSelection = (item: string) => {
