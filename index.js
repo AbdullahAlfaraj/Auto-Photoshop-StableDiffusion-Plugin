@@ -2054,7 +2054,12 @@ async function getSettings() {
             return alwayson_scripts
         }
 
-        payload['alwayson_scripts'] = setAlwaysOnScripts()
+        const alwyason_scripts = setAlwaysOnScripts()
+        payload['alwayson_scripts'] = {
+            ...(payload['alwayson_scripts'] || {}),
+            ...alwyason_scripts,
+        }
+
         if (hi_res_fix && width >= 512 && height >= 512) {
             const hr_scale = sd_tab.getHrScaleSliderSDValue()
 

@@ -704,6 +704,7 @@ function mapPluginSettingsToControlNet(plugin_settings) {
         override_settings: {},
         override_settings_restore_afterwards: true,
         alwayson_scripts: {
+            ...(ps?.alwayson_scripts || {}),
             controlnet: {
                 args: controlnet_units,
             },
