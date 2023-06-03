@@ -26,13 +26,13 @@ async def imageSearch(keywords = 'cute cats'):
 
     ddgs = DDGS(timeout=60)
 
-    keywords = 'butterfly'
+    
     ddgs_images_gen = ddgs.images(
         keywords,
         region="wt-wt",
         safesearch="Off",
         size=None,
-        color="Monochrome",
+        # color="Monochrome",
         type_image=None,
         layout=None,
         license_image=None,
