@@ -639,6 +639,5 @@ module.exports = {
 
     makeMaskChannel,
     makeMaskChannelExe,
-    generateMaskFromSelection,
     fillSelectionWhiteOutsideBlack,
 }
