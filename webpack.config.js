@@ -1,19 +1,15 @@
+
 const path = require('path')
 // const CleanWebpackPlugin = require('clean-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = {
     entry: {
-        // after_detailer: './after_detailer/src/after_detailer.tsx',
-        // ultimate_sd_upscaler:
-        //     './ultimate_sd_upscaler/src/ultimate_sd_upscaler.tsx',
-        // scripts: './ultimate_sd_upscaler/src/scripts.tsx',
-        // main: './main/src/main.tsx',
-        all: './main/src/all.ts',
+        bundle: './typescripts/entry.ts',
     },
     output: {
-        path: path.resolve(__dirname, './main/dist'),
-        filename: '[name].bundle.js',
+        path: path.resolve(__dirname, './typescripts/dist'),
+        filename: '[name].js',
         libraryTarget: 'commonjs2',
     },
     mode: 'development',

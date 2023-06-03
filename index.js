@@ -88,17 +88,7 @@ const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
 // const ultimate_sd_upscaler = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
 // const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
-
-// const after_detailer_script = require('./main/dist/after_detailer.bundle')
-// const scripts = require('./main/dist/scripts.bundle')
-// const main = require('./main/dist/main.bundle')
-
-const {
-    after_detailer_script,
-    scripts,
-    main,
-    ultimate_sd_upscaler,
-} = require('./main/dist/all.bundle')
+const { scripts, main, after_detailer_script } = require('./typescripts/dist/bundle')
 
 // const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
 
@@ -703,24 +693,24 @@ let g_old_slider_height = 512
 
 let g_hi_res_upscaler_models
 let g_controlnet_max_models
-;(async function () {
-    g_hi_res_upscaler_models = await sd_tab.requestGetHiResUpscalers()
+    ; (async function () {
+        g_hi_res_upscaler_models = await sd_tab.requestGetHiResUpscalers()
 
-    g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
+        g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
 
-    for (let model of g_hi_res_upscaler_models) {
-        //update the hi res upscaler models menu
-        let hrModelsMenuClass =
-            document.getElementsByClassName('hrModelsMenuClass')
-        for (let i = 0; i < hrModelsMenuClass.length; i++) {
-            const menu_item_element = document.createElement('sp-menu-item')
-            menu_item_element.className = 'hrModelsMenuItem'
-            menu_item_element.innerHTML = model
-            hrModelsMenuClass[i].appendChild(menu_item_element)
-            // console.log(model + ' added to ' + hrModelsMenuClass[i].id)//Log
+        for (let model of g_hi_res_upscaler_models) {
+            //update the hi res upscaler models menu
+            let hrModelsMenuClass =
+                document.getElementsByClassName('hrModelsMenuClass')
+            for (let i = 0; i < hrModelsMenuClass.length; i++) {
+                const menu_item_element = document.createElement('sp-menu-item')
+                menu_item_element.className = 'hrModelsMenuItem'
+                menu_item_element.innerHTML = model
+                hrModelsMenuClass[i].appendChild(menu_item_element)
+                // console.log(model + ' added to ' + hrModelsMenuClass[i].id)//Log
+            }
         }
-    }
-})()
+    })()
 
 let g_generation_session = new session.GenerationSession(0) //session manager
 g_generation_session.deactivate() //session starte as inactive
@@ -1450,9 +1440,9 @@ function toggleTwoButtonsByClass(isVisible, first_class, second_class) {
             //show generate button
             first_class_btns.forEach(
                 (element) =>
-                    (element.textContent = `Generate ${getCurrentGenerationModeByValue(
-                        g_sd_mode
-                    )}`)
+                (element.textContent = `Generate ${getCurrentGenerationModeByValue(
+                    g_sd_mode
+                )}`)
             )
         }
         second_class_btns.forEach((element) => (element.style.display = 'none'))
@@ -2919,7 +2909,7 @@ async function progressRecursive() {
         if (
             json?.current_image &&
             g_generation_session.request_status ===
-                Enum.RequestStateEnum['Generating']
+            Enum.RequestStateEnum['Generating']
         ) {
             const base64_url = general.base64ToBase64Url(json.current_image)
 
@@ -3694,8 +3684,8 @@ document.getElementById('collapsible').addEventListener('click', function () {
     }
 })
 
-function removeInitImageFromViewer() {}
-function removeMaskFromViewer() {}
+function removeInitImageFromViewer() { }
+function removeMaskFromViewer() { }
 //REFACTOR: move to viewer.js
 async function viewerThumbnailclickHandler(e, viewer_obj_owner) {
     if (g_isViewerMenuDisabled) {
@@ -4772,7 +4762,7 @@ function switchMenu_new(rb) {
     try {
         const contianer_class =
             rb.parentElement.parentElement.parentElement.dataset[
-                'container-class'
+            'container-class'
             ] //input_option.li.ul.div.dataset['container-class']
         const radio_group = rb.parentElement.parentElement.parentElement //radio_group in this case is ul
         document

@@ -2,7 +2,7 @@ import React, { ReactEventHandler } from 'react'
 import ReactDOM from 'react-dom/client'
 import { observer } from 'mobx-react'
 import { AStore } from './astore'
-import { SpMenu } from '../../ultimate_sd_upscaler/src/elements'
+import { SpMenu } from '../ultimate_sd_upscaler/elements'
 
 import { getExtensionUrl } from '../../utility/sdapi/python_replacement'
 import * as api from '../../utility/api'
