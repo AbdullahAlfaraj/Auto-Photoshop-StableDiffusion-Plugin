@@ -4489,7 +4489,9 @@ async function findDocumentType() {
             let same_color = true
 
             await executeAsModal(async () => {
-                await layer_util.toggleBackgroundLayerExe() // hide all layers except the background layer
+                if (app.activeDocument.layers.length > 1) {
+                    await layer_util.toggleBackgroundLayerExe() // hide all layers except the background layer
+                }
                 for (let i = 0; i < 10; ++i) {
                     let x = Math.floor(Math.random() * width)
                     let y = Math.floor(Math.random() * height)
@@ -4508,7 +4510,9 @@ async function findDocumentType() {
                     }
                     old_rgb = rgb
                 }
-                await layer_util.toggleBackgroundLayerExe() // undo the toggle operation
+                if (app.activeDocument.layers.length > 1) {
+                    await layer_util.toggleBackgroundLayerExe() // undo the toggle operation; display all layers
+                }
             })
 
             document_type = same_color
