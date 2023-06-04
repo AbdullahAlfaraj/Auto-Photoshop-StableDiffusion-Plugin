@@ -159,7 +159,9 @@ const root = ReactDOM.createRoot(domNode)
 
 root.render(
     <React.StrictMode>
-        <ScriptComponent></ScriptComponent>
+        <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+            <ScriptComponent></ScriptComponent>
+        </div>
 
         {/* <SliderValuesDisplay /> */}
     </React.StrictMode>
