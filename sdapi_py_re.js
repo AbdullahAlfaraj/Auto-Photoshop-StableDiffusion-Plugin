@@ -726,6 +726,7 @@ async function requestControlNetImg2Img(plugin_settings) {
     // To fix a bug: when Ultimate SD Upscale is active and running, the detection maps won’t be retrieved.
     // So set its value to 0 to avoid the result images being loaded in the annotation map interface.
     if (
+        scripts.script_store.isInstalled() &&
         scripts.script_store.is_active &&
         scripts.script_store.selected_script_name !== 'None' &&
         scripts.script_store.is_selected_script_available
