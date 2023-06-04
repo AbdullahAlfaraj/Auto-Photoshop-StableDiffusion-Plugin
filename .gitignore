@@ -29,6 +29,9 @@ original_mask.png
 /jimp/browser/lib/jimp.js
 
 
-# comments when packaging:
-ultimate_sd_upscaler/dist/*LICENSE.txt
-ultimate_sd_upscaler/dist/*.bundle.js
+# comments when packaging (include in the package,uxp packager will use .gitignore to ignore files):
+*/dist/*LICENSE.txt
+*/dist/*.bundle.js
+
+# uncomments when packaging (don't include in the package)
+# /docs

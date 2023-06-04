@@ -1,8 +1,8 @@
-import React, { ReactEventHandler, useState } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import { action, makeAutoObservable, reaction, toJS } from 'mobx'
-import { Provider, inject, observer } from 'mobx-react'
+import { makeAutoObservable, toJS } from 'mobx'
+import { observer } from 'mobx-react'
 
 import { SpMenu } from './elements'
 import * as ultimate_sd_upscale_script from './ultimate_sd_upscaler'
@@ -20,9 +20,10 @@ class ScriptStore {
     is_active: boolean
     selected_args_name: string[]
     mode: ScriptMode
+
     scripts: any = {
         None: { store: null, args_names: [], mode: [] },
-        'Ultimate SD upscale': {
+        'ultimate sd upscale': {
             store: ultimate_sd_upscale_script.ultimate_sd_upscaler_store,
             args_names: ultimate_sd_upscale_script.script_args_ordered,
             mode: ultimate_sd_upscale_script.script_mode,
@@ -38,6 +39,7 @@ class ScriptStore {
         this.is_active = true
         this.selected_args_name = []
         this.mode = ScriptMode.Txt2Img
+
         makeAutoObservable(this)
     }
     setSelectedScript(name: string) {
@@ -92,9 +94,13 @@ class ScriptStore {
         this.is_selected_script_available = !this.disabled?.[selected_index]
         this.setDisabled([...this.disabled])
     }
+    isInstalled() {
+        return this.selected_store?.isInstalled() ?? false
+    }
 }
 
 export const script_store = new ScriptStore()
+
 @observer
 class ScriptComponent extends React.Component<{}> {
     render(): React.ReactNode {
@@ -158,7 +164,9 @@ const root = ReactDOM.createRoot(domNode)
 
 root.render(
     <React.StrictMode>
-        <ScriptComponent></ScriptComponent>
+        <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+            <ScriptComponent></ScriptComponent>
+        </div>
 
         {/* <SliderValuesDisplay /> */}
     </React.StrictMode>

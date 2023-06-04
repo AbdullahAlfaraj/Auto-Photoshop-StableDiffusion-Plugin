@@ -36,7 +36,7 @@ if (should_log) {
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
 // let g_sdapi_path = 'sdapi'
-let g_version = 'v1.2.5'
+let g_version = 'v1.2.6'
 let g_sd_url = 'http://127.0.0.1:7860'
 let g_online_data_url =
     'https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/master/utility/online_data.json'
@@ -62,7 +62,7 @@ const viewer = require('./viewer')
 const selection = require('./selection')
 const layer_util = require('./utility/layer')
 const sd_options = require('./utility/sdapi/options')
-const sd_config = require('./utility/sdapi/config')
+// const sd_config = require('./utility/sdapi/config')
 const session = require('./utility/session')
 const ui = require('./utility/ui')
 const preset_util = require('./utility/presets/preset')
@@ -87,8 +87,18 @@ const image_search_tab = require('./utility/tab/image_search_tab')
 const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
 // const ultimate_sd_upscaler = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
-const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
-const scripts = require('./ultimate_sd_upscaler/dist/scripts.bundle')
+// const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
+
+// const after_detailer_script = require('./main/dist/after_detailer.bundle')
+// const scripts = require('./main/dist/scripts.bundle')
+// const main = require('./main/dist/main.bundle')
+
+const {
+    after_detailer_script,
+    scripts,
+    main,
+    ultimate_sd_upscaler,
+} = require('./main/dist/all.bundle')
 
 // const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
 
@@ -471,10 +481,11 @@ async function refreshUI() {
         console.log('inpainting_mask_weight: ', inpainting_mask_weight)
         html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
 
-        await g_sd_config_obj.getConfig()
         //init ControlNet Tab
-        // g_hi_res_upscaler_models = temp_config.getUpscalerModels()
-        g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
+
+        g_hi_res_upscaler_models = await sd_tab.requestGetHiResUpscalers()
+
+        g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
         await control_net.initializeControlNetTab(g_controlnet_max_models)
     } catch (e) {
         console.warn(e)
@@ -683,23 +694,19 @@ let g_b_use_smart_object = true // true to keep layer as smart objects, false to
 let g_sd_options_obj = new sd_options.SdOptions()
 
 g_sd_options_obj.getOptions()
-// let g_sd_config_obj = new sd_config.SdConfig()
-// g_sd_config_obj.getConfig();
 
 // let g_width_slider = new ui.UIElement()
 // g_width_slider.getValue = html_manip.getWidth
 // ui_settings.uiElements.push =
 let g_old_slider_width = 512
 let g_old_slider_height = 512
-let g_sd_config_obj
+
 let g_hi_res_upscaler_models
 let g_controlnet_max_models
 ;(async function () {
-    let temp_config = new sd_config.SdConfig()
-    g_sd_config_obj = temp_config
-    await g_sd_config_obj.getConfig()
-    g_hi_res_upscaler_models = g_sd_config_obj.getUpscalerModels()
-    g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
+    g_hi_res_upscaler_models = await sd_tab.requestGetHiResUpscalers()
+
+    g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
 
     for (let model of g_hi_res_upscaler_models) {
         //update the hi res upscaler models menu
@@ -764,12 +771,6 @@ async function initPlugin() {
     // promptShortcutExample()
     await loadPromptShortcut()
     await refreshPromptMenue()
-
-    await g_sd_config_obj.getConfig()
-    //init ControlNet Tab
-    // g_hi_res_upscaler_models = temp_config.getUpscalerModels()
-    g_controlnet_max_models = g_sd_config_obj.getControlNetMaxModelsNum()
-    await control_net.initializeControlNetTab(g_controlnet_max_models)
 }
 initPlugin()
 // refreshModels() // get the models when the plugin loads
@@ -2003,6 +2004,7 @@ async function getSettings() {
             payload['image_cfg_scale'] = sd_tab.getImageCfgScaleSDValue() // we may need to check if model is pix2pix
 
             if (
+                scripts.script_store.isInstalled() &&
                 scripts.script_store.is_active &&
                 scripts.script_store.selected_script_name !== 'None' &&
                 scripts.script_store.is_selected_script_available
@@ -2015,6 +2017,59 @@ async function getSettings() {
         } else {
             delete payload['script_args']
             delete payload['script_name']
+        }
+
+        // payload['script_args'] = []
+
+        // payload['script_name'] = 'after detailer'
+        function setAlwaysOnScripts() {
+            const data = after_detailer_script.store.toJsFunc().data
+            console.log('setAlwaysOnScripts=> data:', data)
+
+            const alwayson_scripts = {
+                'After Detailer': {
+                    args: [
+                        data.is_enabled,
+                        {
+                            // ad_model: 'face_yolov8n.pt',
+                            ad_model: data.ad_model,
+                            ad_prompt: data.prompt,
+                            ad_negative_prompt: data.negativePrompt,
+                            ad_conf: data.ad_conf,
+                            ad_mask_min_ratio: 0.0,
+                            ad_mask_max_ratio: 1.0,
+                            ad_dilate_erode: 32,
+                            ad_x_offset: 0,
+                            ad_y_offset: 0,
+                            ad_mask_merge_invert: 'None',
+                            ad_mask_blur: 4,
+                            ad_denoising_strength: 0.4,
+                            ad_inpaint_full_res: true,
+                            ad_inpaint_full_res_padding: 0,
+                            ad_use_inpaint_width_height: false,
+                            ad_inpaint_width: 512,
+                            ad_inpaint_height: 512,
+                            ad_use_steps: true,
+                            ad_steps: 28,
+                            ad_use_cfg_scale: false,
+                            ad_cfg_scale: 7.0,
+                            ad_restore_face: false,
+                            ad_controlnet_model: data.controlnet_model,
+                            ad_controlnet_weight: data.controlNetWeight,
+                        },
+                    ],
+                },
+            }
+            if (!data?.is_installed) {
+                delete alwayson_scripts['After Detailer']
+            }
+            return alwayson_scripts
+        }
+
+        const alwyason_scripts = setAlwaysOnScripts()
+        payload['alwayson_scripts'] = {
+            ...(payload['alwayson_scripts'] || {}),
+            ...alwyason_scripts,
         }
 
         if (hi_res_fix && width >= 512 && height >= 512) {
@@ -4060,25 +4115,6 @@ document
         }
     })
 
-// Hi res fix stuff
-
-// var hr_models = [
-//     'Latent',
-//     'Latent (antialiased)',
-//     'Latent (bicubic)',
-//     'Latent (bicubic antialiased)',
-//     'Latent (nearest)',
-//     'Latent (nearest-exact)',
-//     'None',
-//     'Lanczos',
-//     'Nearest',
-//     'ESRGAN_4x',
-//     'R-ESRGAN 4x+',
-//     'R-ESRGAN 4x+ Anime6B',
-//     'LDSR',
-//     'SwinIR 4x',
-// ]
-
 var chHiResFixs = document.getElementById('chHiResFixs')
 var div = document.getElementById('HiResDiv')
 //REFACTOR: move to events.js
@@ -4429,10 +4465,14 @@ async function findDocumentType() {
 
     let document_type
     const background_layer = await app.activeDocument.backgroundLayer
+    const has_background_layer = app.activeDocument.backgroundLayer
+        ? true
+        : false
     const artboards = Array.from(await app.activeDocument.artboards)
     if (artboards.length > 0) {
         document_type = Enum.DocumentTypeEnum['ArtBoard']
-    } else if (layer_util.Layer.doesLayerExist(background_layer)) {
+        // } else if (layer_util.Layer.doesLayerExist(background_layer)) {
+    } else if (has_background_layer) {
         //assume it's solid white background if correctHistory > 1 || layers.length > 5
         const b_correct_background = await isCorrectBackground() // check the history for correct operation
         if (b_correct_background) {
@@ -4449,7 +4489,9 @@ async function findDocumentType() {
             let same_color = true
 
             await executeAsModal(async () => {
-                await layer_util.toggleBackgroundLayerExe() // hide all layers except the background layer
+                if (app.activeDocument.layers.length > 1) {
+                    await layer_util.toggleBackgroundLayerExe() // hide all layers except the background layer
+                }
                 for (let i = 0; i < 10; ++i) {
                     let x = Math.floor(Math.random() * width)
                     let y = Math.floor(Math.random() * height)
@@ -4468,7 +4510,9 @@ async function findDocumentType() {
                     }
                     old_rgb = rgb
                 }
-                await layer_util.toggleBackgroundLayerExe() // undo the toggle operation
+                if (app.activeDocument.layers.length > 1) {
+                    await layer_util.toggleBackgroundLayerExe() // undo the toggle operation; display all layers
+                }
             })
 
             document_type = same_color

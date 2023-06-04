@@ -322,23 +322,22 @@ async function selectMarqueeRectangularToolExe() {
 }
 
 async function promptForMarqueeTool() {
-    console.warn('promptForMarqueeTool is deprecated use Notification class')(
-        async () => {
-            const r1 = await dialog_box.prompt(
-                'Please Select a Rectangular Area',
-                'You Forgot to select a Rectangular Area',
-                ['Cancel', 'Rectangular Marquee']
-            )
-            if ((r1 || 'Rectangular Marquee') !== 'Rectangular Marquee') {
-                /* cancelled or No */
-                console.log('cancel')
-            } else {
-                /* Yes */
-                console.log('Rectangular Marquee')
-                selectMarqueeRectangularToolExe()
-            }
+    console.warn('promptForMarqueeTool is deprecated use Notification class')
+    ;(async () => {
+        const r1 = await dialog_box.prompt(
+            'Please Select a Rectangular Area',
+            'You Forgot to select a Rectangular Area',
+            ['Cancel', 'Rectangular Marquee']
+        )
+        if ((r1 || 'Rectangular Marquee') !== 'Rectangular Marquee') {
+            /* cancelled or No */
+            console.log('cancel')
+        } else {
+            /* Yes */
+            console.log('Rectangular Marquee')
+            selectMarqueeRectangularToolExe()
         }
-    )()
+    })()
 }
 
 async function selectLayerChannelCommand() {
@@ -1595,4 +1594,5 @@ module.exports = {
     silentSetInitImageMask,
     executeCommandExe,
     executeDescExe,
+    getSelectionInfoCommand,
 }

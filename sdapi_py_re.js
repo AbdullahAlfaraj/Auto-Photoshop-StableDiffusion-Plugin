@@ -3,7 +3,13 @@ const { base64ToBase64Url } = require('./utility/general')
 const { getExtensionType } = require('./utility/html_manip')
 const py_re = require('./utility/sdapi/python_replacement')
 const Enum = require('./enum')
-const control_net = require('./utility/tab/control_net')
+// const control_net = require('./utility/tab/control_net')
+const {
+    mapPluginSettingsToControlNet,
+    getEnableControlNet,
+    getModuleDetail,
+} = require('./utility/tab/control_net')
+
 const api = require('./utility/api')
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
 
@@ -583,12 +589,11 @@ async function requestControlNetTxt2Img(plugin_settings) {
     // const full_url = `${g_sd_url}/controlnet/txt2img`
     const full_url = `${g_sd_url}/sdapi/v1/txt2img`
     // debugger
-    const control_net_settings =
-        control_net.mapPluginSettingsToControlNet(plugin_settings)
+    const control_net_settings = mapPluginSettingsToControlNet(plugin_settings)
     let control_networks = []
     // let active_control_networks = 0
     for (let index = 0; index < g_controlnet_max_models; index++) {
-        if (!control_net.getEnableControlNet(index)) {
+        if (!getEnableControlNet(index)) {
             control_networks[index] = false
             continue
         }
@@ -605,7 +610,7 @@ async function requestControlNetTxt2Img(plugin_settings) {
         }
         if (
             !control_net_settings['controlnet_units'][index]['model'] &&
-            !control_net.getModuleDetail()[
+            !getModuleDetail()[
                 control_net_settings['controlnet_units'][index]['module']
             ].model_free
         ) {
@@ -669,13 +674,12 @@ async function requestControlNetImg2Img(plugin_settings) {
 
     // const full_url = `${g_sd_url}/controlnet/img2img`
     const full_url = `${g_sd_url}/sdapi/v1/img2img`
-    const control_net_settings =
-        control_net.mapPluginSettingsToControlNet(plugin_settings)
+    const control_net_settings = mapPluginSettingsToControlNet(plugin_settings)
 
     // let control_networks = 0
     let control_networks = []
     for (let index = 0; index < g_controlnet_max_models; index++) {
-        if (!control_net.getEnableControlNet(index)) {
+        if (!getEnableControlNet(index)) {
             control_networks[index] = false
             continue
         }
@@ -691,7 +695,7 @@ async function requestControlNetImg2Img(plugin_settings) {
         }
         if (
             !control_net_settings['controlnet_units'][index]['model'] &&
-            !control_net.getModuleDetail()[
+            !getModuleDetail()[
                 control_net_settings['controlnet_units'][index]['module']
             ].model_free
         ) {
@@ -722,6 +726,7 @@ async function requestControlNetImg2Img(plugin_settings) {
     // To fix a bug: when Ultimate SD Upscale is active and running, the detection maps won’t be retrieved.
     // So set its value to 0 to avoid the result images being loaded in the annotation map interface.
     if (
+        scripts.script_store.isInstalled() &&
         scripts.script_store.is_active &&
         scripts.script_store.selected_script_name !== 'None' &&
         scripts.script_store.is_selected_script_available
@@ -778,9 +783,8 @@ async function isWebuiRunning() {
     return true
 }
 async function requestLoraModels() {
-    const extension_url = py_re.getExtensionUrl()
-    const full_url = `${extension_url}/lora/list`
-    const lora_models = await api.requestGet(full_url)
+    const full_url = `${g_sd_url}/sdapi/v1/loras`
+    const lora_models = (await api.requestGet(full_url)) ?? []
     return lora_models
 }
 module.exports = {

@@ -17,8 +17,9 @@ if __name__ == "__main__":
 
     async def main():
         result = await imageSearch()
-        print(result)
-
+        print("result: ",result)
+        # result = await imageSearch2()
+        # print(result)
     import asyncio
 
     asyncio.run(main())

@@ -235,6 +235,7 @@
             /* overflow: auto; */
             overflow-x: hidden;
             overflow-y: scroll;
+            padding: 0;
         }
 
         #progressContainer {
@@ -291,6 +292,8 @@
             display: flex;
             flex-direction: row;
             border-bottom: 2px solid #3e3e3e;
+            margin-left: 10px;
+            margin-right: 10px;
         }
 
         .sp-tab {
@@ -642,6 +645,22 @@
             position: static;
             top: 0;
             left: 0;
+        }
+
+        .missing-error {
+            color: #ff595e;
+
+            white-space: normal;
+        }
+
+        .refreshButton {
+            font-family: Arial, Verdana;
+            background-image: url(./icon/reset_settings2.png);
+            background-color: #777;
+            background-size: 30px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
         }
     </style>
     <style>
@@ -1016,6 +1035,9 @@
                     <sp-checkbox id="chDisableControlNetTab"
                         >Disable ControlNet Tab</sp-checkbox
                     >
+                    <!-- <span>
+                        version:<span id="ControlNetVersion">0.0.0</span>
+                    </span> -->
                 </div>
 
                 <div
@@ -1087,9 +1109,30 @@
                     <sp-checkbox checked id="chlowVram_0" class="chlowVram_"
                         >Low VRAM</sp-checkbox
                     >
-                    <sp-checkbox id="chGuessMode_0" class="chGuessMode_"
+                    <!-- <sp-checkbox id="chGuessMode_0" class="chGuessMode_"
                         >Guess Mode</sp-checkbox
+                    > -->
+                    <sp-checkbox class="chPixelPerfect_"
+                        >Pixel Perfect</sp-checkbox
                     >
+                    <div>
+                        <sp-radio-group class="rgControlNetMode_">
+                            <sp-label slot="label">Control Mode:</sp-label>
+                            <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
+                            <sp-radio title="" value="0" checked
+                                >Balanced</sp-radio
+                            >
+                            <sp-radio
+                                title="My Prompt is More Important"
+                                value="1"
+                                >Prompt</sp-radio
+                            ><sp-radio
+                                title="ControlNet is More Important"
+                                value="2"
+                                >ControlNet</sp-radio
+                            >
+                        </sp-radio-group>
+                    </div>
 
                     <div>
                         <div>
@@ -1809,6 +1852,7 @@
                         Save
                     </button>
                 </div>
+                <div id="settingsVAEContainer"></div>
                 <sp-checkbox id="chUseSharpMask">use sharp mask</sp-checkbox>
                 <sp-checkbox checked id="chUseSmartObject"
                     >Smart Object</sp-checkbox
@@ -2156,6 +2200,7 @@
                             </div>
                         </sp-action-button>
                         <!-- <img width="15px" height="15px" src="./icon/ftcopy.svg">   -->
+
                         <sp-action-button
                             id="svg_sp_btn_search"
                             style="
@@ -3004,6 +3049,13 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                     </div>
                     <sp-divider class="line-divider" size="large"></sp-divider>
                     <sp-divider class="line-divider" size="large"></sp-divider>
+                    <div
+                        id="alwaysOnScriptsContainer"
+                        style="margin-bottom: 10px"
+                    ></div>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <div style="margin-bottom: 3px"></div>
                     <div id="scriptsContainer"></div>
                 </div>
             </div>

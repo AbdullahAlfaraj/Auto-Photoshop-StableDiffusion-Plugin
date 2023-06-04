@@ -27,7 +27,7 @@ class ControlNetUnit {
 
             guidance_start: 0,
             guidance_end: 1,
-            guessmode: null,
+            // guessmode: null,
         }
         this.setUnit(index, controlnet_unit_default)
     }
@@ -50,7 +50,7 @@ class ControlNetUnit {
 
             guidance_start: this.getGuidanceStrengthStart(index),
             guidance_end: this.getGuidanceStrengthEnd(index),
-            guessmode: null,
+            // guessmode: null,
         }
         return controlnet_unit
     }
@@ -67,7 +67,7 @@ class ControlNetUnit {
 
             guidance_start: this.setGuidanceStrengthStart,
             guidance_end: this.setGuidanceStrengthEnd,
-            guessmode: null,
+            // guessmode: null,
         }
 
         for (const [name, value] of Object.entries(unit_settings)) {
@@ -252,6 +252,21 @@ async function requestControlNetDetectMap(
     }
 }
 
+async function requestControlNetVersion() {
+    const json = await api.requestGet(`${g_sd_url}/controlnet/version`)
+
+    const version = json?.version
+
+    return version
+}
+async function requestControlNetMaxUnits() {
+    const json = await api.requestGet(`${g_sd_url}/controlnet/settings`)
+
+    const control_net_max_models_num = json?.control_net_max_models_num ?? 1
+
+    return control_net_max_models_num
+}
+
 async function requestControlNetModelList() {
     const control_net_json = await api.requestGet(
         `${g_sd_url}/controlnet/model_list`
@@ -259,37 +274,10 @@ async function requestControlNetModelList() {
 
     const model_list = control_net_json?.model_list
 
-    // const model_list = [
-    //     'none',
-    //     'control_sd15_depth [fef5e48e]',
-    //     'control_sd15_openpose [fef5e48e]',
-    //     'control_sd15_scribble [fef5e48e]',
-    // ]
     return model_list
 }
 
 async function requestControlNetModuleList() {
-    // const control_net_json = await api.requestGet(
-    //     `${g_sd_url}/controlnet/model_list`
-    // )
-    // const module_list = [
-    //     // 'none',
-    //     'canny',
-    //     'depth',
-    //     'depth_leres',
-    //     'hed',
-    //     'mlsd',
-    //     'normal_map',
-    //     'openpose',
-    //     // "openpose_hand",
-    //     'pidinet',
-    //     'scribble',
-    //     'fake_scribble',
-    //     'segmentation',
-    // ]
-
-    // const module_list = g_sd_config_obj.getControlNetPreprocessors()
-
     const result = await api.requestGet(
         `${g_sd_url}/controlnet/module_list?alias_names=1`
     )
@@ -359,13 +347,11 @@ function changeModule(_module, index) {
             index,
             '.mModelsMenuControlNet_'
         ).parentElement.style.display = 'none'
-
     else
         controlnetElement(
             index,
             '.mModelsMenuControlNet_'
         ).parentElement.style.display = 'block'
-
 
     if (params?.preprocessor_res) {
         const preprocessor_res_label_element = controlnetElement(
@@ -387,7 +373,7 @@ function changeModule(_module, index) {
         threshold_a_element.dataset['sd_max'] = params.threshold_a.max
         ControlNetUnit.setThreshold(index, 'a', params.threshold_a.value)
         threshold_a_element.style.display = 'block'
-        threshold_a_label_element.innerText = params.threshold_a.name + ":"
+        threshold_a_label_element.innerText = params.threshold_a.name + ':'
     } else {
         ControlNetUnit.setThreshold(index, 'a', 32)
         threshold_a_element.style.display = 'none'
@@ -403,7 +389,7 @@ function changeModule(_module, index) {
         threshold_b_element.dataset['sd_max'] = params.threshold_b.max
         ControlNetUnit.setThreshold(index, 'b', params.threshold_b.value)
         threshold_b_element.style.display = 'block'
-        threshold_b_label_element.innerText = params.threshold_b.name + ":"
+        threshold_b_label_element.innerText = params.threshold_b.name + ':'
     } else {
         ControlNetUnit.setThreshold(index, 'b', 32)
         threshold_b_element.style.display = 'none'
@@ -603,6 +589,22 @@ function getUseGuessMode(index = 0) {
 
     return is_guess_mode
 }
+
+function getControlNetMode(index = 0) {
+    const controlnet_mode = document.querySelector(
+        `#controlnet_settings_${index} .rgControlNetMode_`
+    ).selected
+
+    return controlnet_mode
+}
+
+function getControlNetPixelPerfect(index = 0) {
+    const pixel_perfect = document.querySelector(
+        `#controlnet_settings_${index} .chPixelPerfect_`
+    ).checked
+
+    return pixel_perfect
+}
 function isControlNetModeEnable() {
     let is_tab_enabled = !document.getElementById('chDisableControlNetTab')
         .checked
@@ -679,19 +681,21 @@ function mapPluginSettingsToControlNet(plugin_settings) {
             // guidance: ,
             guidance_start: getControlNetWeightGuidanceStrengthStart(index),
             guidance_end: getControlNetWeightGuidanceStrengthEnd(index),
-            guessmode: false,
+            // guessmode: false,
+            control_mode: parseInt(getControlNetMode()),
+            pixel_perfect: getControlNetPixelPerfect(),
         }
         active_index++
     }
 
-    if (
-        plugin_settings['mode'] === Enum.generationModeEnum['Img2Img'] ||
-        plugin_settings['mode'] === Enum.generationModeEnum['Inpaint'] ||
-        plugin_settings['mode'] === Enum.generationModeEnum['Outpaint']
-    ) {
-        const b_use_guess_mode = getUseGuessMode()
-        controlnet_units[0]['guessmode'] = b_use_guess_mode
-    }
+    // if (
+    //     plugin_settings['mode'] === Enum.generationModeEnum['Img2Img'] ||
+    //     plugin_settings['mode'] === Enum.generationModeEnum['Inpaint'] ||
+    //     plugin_settings['mode'] === Enum.generationModeEnum['Outpaint']
+    // ) {
+    //     const b_use_guess_mode = getUseGuessMode()
+    //     controlnet_units[0]['guessmode'] = b_use_guess_mode
+    // }
 
     const controlnet_payload = {
         ...ps,
@@ -700,6 +704,7 @@ function mapPluginSettingsToControlNet(plugin_settings) {
         override_settings: {},
         override_settings_restore_afterwards: true,
         alwayson_scripts: {
+            ...(ps?.alwayson_scripts || {}),
             controlnet: {
                 args: controlnet_units,
             },
@@ -1106,9 +1111,9 @@ async function initializeControlNetTab(controlnet_max_models) {
 
         initControlNetUnitsEventListeners(controlnet_max_models) // add event listener to all units after cloning
 
+        await populateModelMenu()
+        await populatePreprocessorMenu()
         for (let index = 0; index < controlnet_max_models; index++) {
-            await populateModelMenu(index)
-            await populatePreprocessorMenu(index)
             document.getElementById(
                 'controlnet_settings_' + index
             ).style.display = 'block'
@@ -1116,6 +1121,8 @@ async function initializeControlNetTab(controlnet_max_models) {
 
             initControlNetUnit(index)
         }
+        // const version = await requestControlNetVersion()
+        // document.getElementById('ControlNetVersion').innerText = version
     } catch (e) {
         console.warn(e)
     }
@@ -1140,5 +1147,7 @@ module.exports = {
     isControlNetModeEnable,
     getModuleDetail() {
         return g_module_detail
-    }
+    },
+    requestControlNetVersion,
+    requestControlNetMaxUnits,
 }
