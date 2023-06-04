@@ -4460,10 +4460,14 @@ async function findDocumentType() {
 
     let document_type
     const background_layer = await app.activeDocument.backgroundLayer
+    const has_background_layer = app.activeDocument.backgroundLayer
+        ? true
+        : false
     const artboards = Array.from(await app.activeDocument.artboards)
     if (artboards.length > 0) {
         document_type = Enum.DocumentTypeEnum['ArtBoard']
-    } else if (layer_util.Layer.doesLayerExist(background_layer)) {
+        // } else if (layer_util.Layer.doesLayerExist(background_layer)) {
+    } else if (has_background_layer) {
         //assume it's solid white background if correctHistory > 1 || layers.length > 5
         const b_correct_background = await isCorrectBackground() // check the history for correct operation
         if (b_correct_background) {

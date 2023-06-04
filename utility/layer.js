@@ -297,7 +297,6 @@ async function toggleBackgroundLayerExe() {
             const result = await batchPlay([toggleBackgroundLayerDesc()], {
                 synchronousExecution: true,
                 modalBehavior: 'execute',
-                displayDialogs: DialogModes.NO,
             })
             console.log('toggleBackgroundLayerExe result: ', result)
         })
