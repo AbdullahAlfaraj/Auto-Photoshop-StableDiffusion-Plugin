@@ -88,10 +88,17 @@ const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
 // const ultimate_sd_upscaler = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
 // const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
-const after_detailer_script = require('./main/dist/after_detailer.bundle')
-const scripts = require('./main/dist/scripts.bundle')
 
-const main = require('./main/dist/main.bundle')
+// const after_detailer_script = require('./main/dist/after_detailer.bundle')
+// const scripts = require('./main/dist/scripts.bundle')
+// const main = require('./main/dist/main.bundle')
+
+const {
+    after_detailer_script,
+    scripts,
+    main,
+    ultimate_sd_upscaler,
+} = require('./main/dist/all.bundle')
 
 // const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
 
