@@ -2004,6 +2004,7 @@ async function getSettings() {
             payload['image_cfg_scale'] = sd_tab.getImageCfgScaleSDValue() // we may need to check if model is pix2pix
 
             if (
+                scripts.script_store.isInstalled() &&
                 scripts.script_store.is_active &&
                 scripts.script_store.selected_script_name !== 'None' &&
                 scripts.script_store.is_selected_script_available
@@ -2024,6 +2025,7 @@ async function getSettings() {
         function setAlwaysOnScripts() {
             const data = after_detailer_script.store.toJsFunc().data
             console.log('setAlwaysOnScripts=> data:', data)
+
             const alwayson_scripts = {
                 'After Detailer': {
                     args: [
@@ -2057,6 +2059,9 @@ async function getSettings() {
                         },
                     ],
                 },
+            }
+            if (!data?.is_installed) {
+                delete alwayson_scripts['After Detailer']
             }
             return alwayson_scripts
         }

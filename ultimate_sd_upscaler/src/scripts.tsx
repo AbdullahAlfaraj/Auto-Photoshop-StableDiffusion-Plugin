@@ -20,9 +20,10 @@ class ScriptStore {
     is_active: boolean
     selected_args_name: string[]
     mode: ScriptMode
+
     scripts: any = {
         None: { store: null, args_names: [], mode: [] },
-        'Ultimate SD upscale': {
+        'ultimate sd upscale': {
             store: ultimate_sd_upscale_script.ultimate_sd_upscaler_store,
             args_names: ultimate_sd_upscale_script.script_args_ordered,
             mode: ultimate_sd_upscale_script.script_mode,
@@ -38,6 +39,7 @@ class ScriptStore {
         this.is_active = true
         this.selected_args_name = []
         this.mode = ScriptMode.Txt2Img
+
         makeAutoObservable(this)
     }
     setSelectedScript(name: string) {
@@ -91,6 +93,9 @@ class ScriptStore {
         )
         this.is_selected_script_available = !this.disabled?.[selected_index]
         this.setDisabled([...this.disabled])
+    }
+    isInstalled() {
+        return this.selected_store?.isInstalled() ?? false
     }
 }
 

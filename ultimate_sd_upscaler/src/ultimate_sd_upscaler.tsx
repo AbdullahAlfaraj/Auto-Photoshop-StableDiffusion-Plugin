@@ -9,8 +9,11 @@ import { SliderType, SpMenu, SpSliderWithLabel } from './elements'
 import * as sdapi from '../../sdapi_py_re'
 
 import { ui_config } from './config'
+import { requestGet } from '../../utility/api'
 
-export let script_name: string = 'Ultimate SD upscale'
+declare let g_sd_url: string
+
+export let script_name: string = 'ultimate sd upscale'
 export enum ScriptMode {
     Txt2Img = 'txt2img',
     Img2Img = 'img2img',
@@ -42,6 +45,7 @@ interface UltimateSDUpscalerData {
     custom_width: number
     custom_height: number
     custom_scale: number
+    is_installed: boolean
 }
 export const script_args_ordered = [
     '_',
@@ -66,40 +70,25 @@ export const script_args_ordered = [
 
 class UltimateSDUpscalerStore {
     data: UltimateSDUpscalerData
-    // test_value: number = 10
-    // test_value_2: number = 2
-    test_value: number
-    test_value_2: number
+
     is_active: boolean
     constructor(data: UltimateSDUpscalerData) {
         this.data = data
-        this.test_value = 10
-        this.test_value_2 = 2
+
         this.is_active = false
         makeAutoObservable(this)
-
-        // reaction(
-        //     () => [this.test_value],
-        //     () => {
-        //         this.test_value_2 = this.test_value * 2
-        //         console.log('reaction to test_value change:', this.test_value)
-        //         console.log('this.test_value_2:', this.test_value_2)
-        //     }
-        // )
     }
     setIsActive(b_value: boolean) {
         this.is_active = b_value
-    }
-    setTestValue(new_value: number) {
-        this.test_value = new_value
-        console.log('setTestValue: new_value ', new_value)
-        console.log('setTestValue: this.test_value: ', this.test_value)
     }
 
     updateProperty(key: keyof UltimateSDUpscalerData, value: any) {
         ;(this.data as any)[key] = value
     }
 
+    isInstalled() {
+        return this.data?.is_installed ?? false
+    }
     toJsFunc() {
         return toJS(this)
     }
@@ -112,6 +101,7 @@ const configValues = Object.entries(ui_config).reduce(
 const default_values: any = {
     _: '',
     ...configValues,
+    is_installed: false,
 }
 export const ultimate_sd_upscaler_store = new UltimateSDUpscalerStore(
     default_values
@@ -127,26 +117,17 @@ export class UltimateSDUpscalerForm extends React.Component<{
         items: ['Item 1', 'Item 2', 'Item 3'],
         sd_upscalers: [],
     }
-    componentDidMount(): void {
-        this.getUpscalers()
+    async componentDidMount(): Promise<void> {
+        if (await this.isInstalled()) {
+            await this.getUpscalers()
+        }
     }
     handleUpdateItems = () => {
         this.setState({
             items: ['New Item 1', 'New Item 2', 'New Item 3'],
         })
     }
-    handleSlider1ValueChange = (newValue: any) => {
-        // this.props.store.setTestValue(newValue)
-        this.props.store.test_value = newValue
 
-        // this.props.store.
-        console.log('store.test_value: ', this.props.store.test_value)
-        console.log('newValue: ', newValue)
-    }
-
-    handleSlider2ValueChange = (newValue: any) => {
-        // scriptFormStore.setSlider2Value(newValue)
-    }
     handleSliderChange = (key: any, newValue: any) => {
         this.props.store.updateProperty(key, newValue)
     }
@@ -170,7 +151,41 @@ export class UltimateSDUpscalerForm extends React.Component<{
         return sd_upscalers
     }
 
+    handleRefresh = async () => {
+        if (await this.isInstalled()) {
+            await this.getUpscalers()
+        }
+    }
+    async isInstalled() {
+        const full_url = `${g_sd_url}/sdapi/v1/scripts`
+        const scripts = await requestGet(full_url)
+        const is_installed =
+            scripts?.txt2img?.includes(script_name) ||
+            scripts?.img2img?.includes(script_name) ||
+            false
+
+        console.log('is_installed: ', is_installed)
+        this.props.store.updateProperty('is_installed', is_installed)
+        return is_installed
+    }
     render() {
+        if (!this.props.store.data.is_installed) {
+            return (
+                <div>
+                    <sp-label class="missing-error">
+                        Script is not available; Make sure to install it from
+                        Automatic1111 webui
+                    </sp-label>
+                    <button
+                        className="btnSquare refreshButton"
+                        id="btnResetSettings"
+                        title="Refresh the Ultimte SD Upscale script"
+                        onClick={this.handleRefresh}
+                    ></button>
+                </div>
+            )
+        }
+
         const ids = [
             'tile_width',
             'tile_height',

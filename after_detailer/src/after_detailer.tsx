@@ -1,8 +1,8 @@
-import React, { ReactEventHandler, ReactPropTypes } from 'react'
+import React, { ReactPropTypes } from 'react'
 import ReactDOM from 'react-dom/client'
 
-import { action, makeAutoObservable, reaction, toJS } from 'mobx'
-import { Provider, inject, observer } from 'mobx-react'
+// import { action, makeAutoObservable, reaction, toJS } from 'mobx'
+import { observer } from 'mobx-react'
 
 import {
     SliderType,
@@ -19,7 +19,7 @@ import { requestControlNetModelList } from '../../utility/tab/control_net'
 import './style/after_detailer.css'
 
 declare let g_sd_url: string
-export let script_name: string = 'Ultimate SD upscale'
+
 export enum ScriptMode {
     Txt2Img = 'txt2img',
     Img2Img = 'img2img',
@@ -56,7 +56,6 @@ export const store = new AStore({
     controlnet_models: [],
     controlNetWeight: 1,
     script_name: 'after detailer',
-    // script_name: 'Ultimate sd upscale',
 
     is_installed: false,
     is_enabled: false,
@@ -143,7 +142,7 @@ export class AfterDetailerComponent extends React.Component<{
                     <button
                         className="btnSquare refreshButton"
                         id="btnResetSettings"
-                        title="Refresh the After Detailer"
+                        title="Refresh the After Detailer Extension"
                         onClick={this.handleRefresh}
                     ></button>
                 </div>
