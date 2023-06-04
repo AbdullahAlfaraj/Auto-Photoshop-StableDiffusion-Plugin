@@ -1,26 +1,24 @@
+from itertools import islice
 
 try:
-    from duckduckgo_search import ddg_images
+    from duckduckgo_search import DDGS
 except ImportError:
     raise ImportError(
-        "duckduckgo_search is required to image search. Please install it with `pip install duckduckgo_search`."
+        "duckduckgo_search is required to image search. Please install it with `pip install --upgrade duckduckgo_search`."
     )
 
 
+async def imageSearch(keywords="cute cats"):
+    with DDGS() as ddgs:
+        return [x for x in islice(ddgs.images(keywords), 30)]
 
-async def imageSearch(keywords = 'cute cats'):
-
-    r = ddg_images(keywords, region='wt-wt', safesearch='Off', size=None,
-                type_image=None, layout=None, license_image=None, max_results=30)
-    
-    # print(r)
-    return r
 
 if __name__ == "__main__":
+
     async def main():
         result = await imageSearch()
         print(result)
 
     import asyncio
+
     asyncio.run(main())
-    

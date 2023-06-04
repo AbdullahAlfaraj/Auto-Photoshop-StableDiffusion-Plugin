@@ -43,19 +43,19 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 | [Ronny Khalil](https://ronnykhalil.com/) | zachary | Razvan Matei
 
 **🥇 Gold:**
-| ![Alex ](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Alex+) | ![Florin-Alexandru Ilinescu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Florin-Alexandru+Ilinescu) | ![Robin Edwards](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Robin+Edwards)
-|:---:|:---:|:---:|
-| Alex  | Florin-Alexandru Ilinescu | Robin Edwards
+| ![Alex ](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Alex+) | ![Florin-Alexandru Ilinescu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Florin-Alexandru+Ilinescu) | ![Robin Edwards](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Robin+Edwards) | ![Danny Sahagun](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Danny+Sahagun)
+|:---:|:---:|:---:|:---:|
+| Alex  | Florin-Alexandru Ilinescu | Robin Edwards | Danny Sahagun
 
 **🥈 Silver:**
-| ![Amith Thomas](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Amith+Thomas) | ![Olivier Lefebvre](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre) | ![xiao yuan](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=xiao+yuan) | ![Ezra Blake](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ezra+Blake) | ![Zenko ](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Zenko+) | ![Frederic Dreuilhe](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Frederic+Dreuilhe)
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| Amith Thomas | Olivier Lefebvre | xiao yuan | Ezra Blake | Zenko  | Frederic Dreuilhe
+| ![Amith Thomas](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Amith+Thomas) | ![Olivier Lefebvre](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre) | ![xiao yuan](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=xiao+yuan) | ![Ezra Blake](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ezra+Blake) | ![Zenko ](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Zenko+) | ![Frederic Dreuilhe](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Frederic+Dreuilhe) | ![Kevin Schofield](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kevin+Schofield) | ![darius coal](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=darius+coal) | ![Kerwin](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kerwin) | ![The Dread Vixen Alinsa](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=The+Dread+Vixen+Alinsa) | ![Chris Canterbury](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Chris+Canterbury)
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Amith Thomas | Olivier Lefebvre | xiao yuan | Ezra Blake | Zenko  | Frederic Dreuilhe | Kevin Schofield | darius coal | Kerwin | The Dread Vixen Alinsa | Chris Canterbury
 
 **🥉 Copper:**
-| ![Sebastian Karbowniczek](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek) | ![Arthur Liu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu) | ![Juan Pablo Mendiola](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Juan+Pablo+Mendiola)
-|:---:|:---:|:---:|
-| Sebastian Karbowniczek | Arthur Liu | Juan Pablo Mendiola
+| ![Sebastian Karbowniczek](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek) | ![Arthur Liu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu) | ![Juan Pablo Mendiola](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Juan+Pablo+Mendiola) | ![Bruce Hunter](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Bruce+Hunter)
+|:---:|:---:|:---:|:---:|
+| Sebastian Karbowniczek | Arthur Liu | Juan Pablo Mendiola | Bruce Hunter
 
 
 
@@ -197,6 +197,6 @@ we provide two options to use the auto-photoshp plugin without GPU.
 ## Stable Horde
 This is an awesome free crowdsourced distributed cluster of Stable Diffusion workers. If you like this service, consider joining the horde yourself!
 the horde is enabled completely by the generosity of volunteers so make sure you don't overwhelm the service and help join the cause if you can.
-read more on their [github page](https://github.com/db0/AI-Horde)
+read more on their [GitHub page](https://github.com/db0/AI-Horde)
 ## Colab:
 we link to this [Colab](https://colab.research.google.com/drive/1nbcx_WOneRmYv9idBO33pN5CbxXrqZHu?usp=sharing#scrollTo=Y4ebYsPqTrGb) directly inside plugin find it in the settings tab. you only need to run it. no need to change any of the settings. copy the gradio.live url the colab will generate and paste it into ```sd url``` field in the settings tab.
