@@ -9,7 +9,6 @@ import {
     SpMenu,
     SpSliderWithLabel,
 } from '../../ultimate_sd_upscaler/src/elements'
-// import * as sdapi from '../../sdapi_py_re'
 
 import { AStore } from '../../main/src/astore'
 import { ui_config, model_list } from './config'
@@ -141,7 +140,6 @@ export class AfterDetailerComponent extends React.Component<{
                     </sp-label>
                     <button
                         className="btnSquare refreshButton"
-                        id="btnResetSettings"
                         title="Refresh the After Detailer Extension"
                         onClick={this.handleRefresh}
                     ></button>

@@ -487,6 +487,7 @@ async function refreshUI() {
 
         g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
         await control_net.initializeControlNetTab(g_controlnet_max_models)
+        await main.populateVAE()
     } catch (e) {
         console.warn(e)
     }

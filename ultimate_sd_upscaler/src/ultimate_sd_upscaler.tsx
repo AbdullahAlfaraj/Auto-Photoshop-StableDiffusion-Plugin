@@ -178,7 +178,6 @@ export class UltimateSDUpscalerForm extends React.Component<{
                     </sp-label>
                     <button
                         className="btnSquare refreshButton"
-                        id="btnResetSettings"
                         title="Refresh the Ultimte SD Upscale script"
                         onClick={this.handleRefresh}
                     ></button>
