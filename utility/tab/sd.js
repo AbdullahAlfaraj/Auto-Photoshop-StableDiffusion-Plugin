@@ -158,7 +158,7 @@ function getImageCfgScaleSDValue() {
 function setImageCfgScaleSDValue(sd_value) {
     const slider_id = 'slImageCfgScale'
     const label_id = 'lImageCfgScale'
-    // debugger
+
     html_manip.setSliderSdValue(slider_id, label_id, sd_value, 0, 30, 0, 3)
 }
 
@@ -361,7 +361,7 @@ function ctrlBackspaceDelete(text) {
 }
 
 // document.getElementById('taPrompt').addEventListener('input', (event) => {
-//     // debugger
+//
 //     const value = event.target.value
 //     console.log('value: ', value)
 //     let index = value.indexOf(String.fromCharCode(127))

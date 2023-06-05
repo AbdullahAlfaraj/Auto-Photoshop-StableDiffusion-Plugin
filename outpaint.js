@@ -277,8 +277,6 @@ async function outpaintExe(session_id) {
 
             await psapi.reSelectMarqueeExe(selectionInfo)
 
-            // await psapi.silentSetInitImageMask(snapshotMaskGroup,session_id)
-
             const mask_name = mask_info['name']
             const mask_path = `./server/python_server/init_images/${mask_name}`
             await psapi.reSelectMarqueeExe(selectionInfo)
@@ -332,7 +330,6 @@ async function outpaintExe(session_id) {
 }
 
 async function inpaintFasterExe(session_id) {
-    //
     //create a snapshot of canvas
     //select opaque pixel and create black fill layer
     //create a snapshot of mask
@@ -432,7 +429,7 @@ async function inpaintFasterExe(session_id) {
             // await psapi.selectLayers([snapshotGroup])
 
             await psapi.selectLayers([maskGroup])
-            // await psapi.silentSetInitImageMask(maskGroup,session_id)
+
             const mask_info = await psapi.silentSetInitImageMask(
                 maskGroup,
                 session_id

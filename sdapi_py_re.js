@@ -13,42 +13,6 @@ const {
 const api = require('./utility/api')
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
 
-async function getInitImage(init_image_name) {
-    console.log('getInitImage(): get Init Image from the server :')
-    const payload = {
-        init_image_name: init_image_name,
-    }
-
-    // const full_url = 'http://127.0.0.1:8000/getInitImage/'
-    // console.log(full_url)
-    // console.log('getInitImage payload:', payload)
-    // let request = await fetch(full_url, {
-    //     method: 'POST',
-    //     headers: {
-    //         Accept: 'application/json',
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(payload),
-    //     // "body": payload
-    // })
-
-    // let json = await request.json()
-
-    // console.log('json:')
-    // console.dir(json)
-    // base64data = json.init_image_str
-    // image_src = `data:image/png;base64, ${base64data}`
-    console.warn('this function is deprecated!')
-    const image_src =
-        'https://im ages.pexels.com/photos/1386604/pexels-photo-1386604.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
-    return image_src
-
-    // console.log(img.src)
-
-    // let img_blob =  await (await fetch(img.src)).blob()
-    // console.log("img_blob:")
-    // console.dir(img_blob)
-}
 //REFACTOR: move this function to io.js
 async function requestSavePng(base64_image, image_name) {
     try {
@@ -68,20 +32,6 @@ async function requestTxt2Img(payload) {
     try {
         console.log('requestTxt2Img(): about to send a fetch request')
 
-        // const full_url = 'http://127.0.0.1:8000/txt2img/'
-        // console.log(full_url)
-
-        // let request = await fetch(full_url, {
-        //     method: 'POST',
-        //     headers: {
-        //         Accept: 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(payload),
-        //     // "body": payload
-        // })
-
-        // let json = await request.json()
         let json = await py_re.txt2ImgRequest(payload)
         console.log('requestTxt2Img json:', json)
 
@@ -95,20 +45,6 @@ async function requestTxt2Img(payload) {
 async function requestImg2Img(payload) {
     console.log('requestImg2Img(): about to send a fetch request')
     try {
-        // const full_url = 'http://127.0.0.1:8000/img2img/'
-        // console.log(full_url)
-        // console.log('requestImg2Img payload is: ', payload)
-        // let request = await fetch(full_url, {
-        //     method: 'POST',
-        //     headers: {
-        //         Accept: 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(payload),
-        //     // "body": payload
-        // })
-
-        // let json = await request.json()
         let json = await py_re.img2ImgRequest(g_sd_url, payload)
         console.log('requestImg2Img json:')
         console.dir(json)
@@ -169,7 +105,6 @@ async function requestGetSamplers() {
 
 async function requestSwapModel(model_title) {
     console.log('requestSwapModel: ')
-    // const full_url = 'http://127.0.0.1:8000/swapModel'
 
     const full_url = `${g_sd_url}/sdapi/v1/options`
     payload = {
@@ -182,7 +117,6 @@ async function requestSwapModel(model_title) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-        // "body": payload
     })
 
     let json = await request.json()
@@ -219,23 +153,9 @@ async function requestInterrupt() {
 }
 
 async function getVersionRequest() {
-    // version = "v0.0.0"
     console.log('requestGetSamplers: ')
     const current_version = g_version
-    // try {
-    //     const full_url = 'http://127.0.0.1:8000/version'
-    //     let request = await fetch(full_url)
-    //     let json = await request.json()
-    //     console.log('version json:', json)
-    //     version = json['version']
 
-    //     return version
-    // } catch (e) {
-    //     console.warn(e)
-    //     version = 'v0.0.0'
-
-    //     return version
-    // }
     return current_version
 }
 
@@ -278,21 +198,6 @@ async function loadHistory(uniqueDocumentId) {
             uniqueDocumentId: uniqueDocumentId,
         }
         json = await py_re.loadHistory(payload)
-        // const full_url = 'http://127.0.0.1:8000/history/load'
-
-        // let request = await fetch(full_url, {
-        //     method: 'POST',
-        //     headers: {
-        //         Accept: 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(payload),
-        // })
-
-        // json = await request.json()
-        // console.log('loadHistory:', json)
-
-        // console.log('loadPromptShortcut: request: ',request)
     } catch (e) {
         console.warn(e)
     }
@@ -300,23 +205,8 @@ async function loadHistory(uniqueDocumentId) {
     return [json['image_paths'], json['metadata_jsons'], json['base64_images']]
 }
 async function loadPromptShortcut() {
-    // console.log('loadPromptShortcut:')
     let prompt_shortcut_json = {}
     try {
-        // payload = {}
-
-        // const full_url = 'http://127.0.0.1:8000/prompt_shortcut/load'
-
-        // let request = await fetch(full_url, {
-        //     method: 'POST',
-        //     headers: {
-        //         Accept: 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(payload),
-        // })
-
-        // json = await request.json()
         prompt_shortcut_json = await py_re.loadPromptShortcut(
             'prompt_shortcut.json'
         )
@@ -331,23 +221,8 @@ async function loadPromptShortcut() {
 }
 
 async function savePromptShortcut(prompt_shortcut) {
-    // console.log('loadPromptShortcut:')
     let json = prompt_shortcut
     try {
-        // payload = { prompt_shortcut: prompt_shortcut }
-
-        // const full_url = 'http://127.0.0.1:8000/prompt_shortcut/save'
-
-        // let request = await fetch(full_url, {
-        //     method: 'POST',
-        //     headers: {
-        //         Accept: 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(payload),
-        // })
-
-        // json = await request.json()
         await py_re.savePromptShortcut(json, 'prompt_shortcut.json')
         console.log('savePromptShortcut:', json)
         // console.log('loadPromptShortcut: request: ',request)
@@ -588,7 +463,7 @@ async function requestControlNetTxt2Img(plugin_settings) {
 
     // const full_url = `${g_sd_url}/controlnet/txt2img`
     const full_url = `${g_sd_url}/sdapi/v1/txt2img`
-    // debugger
+
     const control_net_settings = mapPluginSettingsToControlNet(plugin_settings)
     let control_networks = []
     // let active_control_networks = 0
@@ -598,7 +473,7 @@ async function requestControlNetTxt2Img(plugin_settings) {
             continue
         }
         control_networks[index] = true
-        // debugger
+
         if (!control_net_settings['controlnet_units'][index]['input_image']) {
             app.showAlert('you need to add a valid ControlNet input image')
             throw 'you need to add a valid ControlNet input image'
@@ -670,9 +545,7 @@ async function requestControlNetTxt2Img(plugin_settings) {
 //REFACTOR: reuse the same code for (requestControlNetTxt2Img,requestControlNetImg2Img)
 async function requestControlNetImg2Img(plugin_settings) {
     console.log('requestControlNetImg2Img: ')
-    // const full_url = 'http://127.0.0.1:8000/swapModel'
 
-    // const full_url = `${g_sd_url}/controlnet/img2img`
     const full_url = `${g_sd_url}/sdapi/v1/img2img`
     const control_net_settings = mapPluginSettingsToControlNet(plugin_settings)
 
@@ -790,7 +663,7 @@ async function requestLoraModels() {
 module.exports = {
     requestTxt2Img,
     requestImg2Img,
-    getInitImage,
+
     requestProgress,
     requestGetModels,
     requestSwapModel,

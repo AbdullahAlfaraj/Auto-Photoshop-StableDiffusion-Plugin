@@ -43,8 +43,7 @@ let g_online_data_url =
 const Enum = require('./enum')
 const helper = require('./helper')
 const sd_tab = require('./utility/tab/sd')
-// let g_sdapi_path = 'sdapi_py_re'
-// const sdapi = require(`./${g_sdapi_path}`)
+
 const sdapi = require('./sdapi_py_re')
 
 // const exportHelper = require('./export_png')
@@ -871,7 +870,6 @@ async function deleteTempInpaintMaskLayer() {
 }
 //REFACTOR: move to ui.js
 async function postModeSelection() {
-    //
     try {
         if (g_sd_mode === generationMode['Inpaint']) {
             //check if the we already have created a mask layer
@@ -1213,34 +1211,6 @@ function selectTool() {
 
     //rectanglemarquee
     // await require('photoshop').core.executeAsModal(newNormalLayer);
-}
-//Refactor: Delete testServerPath() method
-async function testServerPath() {
-    // const serverPath = "https://api.github.com/users/abdullah"
-
-    try {
-        // const serverPath = 'https://api.weather.gov/points/123.4,342.5'
-        // const serverPath = 'https://api.github.com/users/abdullah'
-        // const serverPath = "https://api.coindesk.com/v1/bpi/currentprice.json"
-        // const serverPath = "http://127.0.0.1:3000"
-        // const serverPath = "http://localhost:3000"
-        const serverPath = 'http://127.0.0.1:8000/txt2img/random%20prompt'
-        // const serverPath = "https://3330-37-106-100-102.eu.ngrok.io"
-        console.log('testServerPath function was called')
-
-        let response = await fetch(serverPath)
-        console.log('testServerPath finished fetch')
-
-        if (!response.ok) {
-            throw new Error(
-                `HTTP error fetching weather station; status: ${response.status}`
-            )
-        }
-        let stationJson = await response.json()
-        console.dir(stationJson)
-    } catch (err) {
-        console.error('testServerPath error: ' + err.message)
-    }
 }
 
 // User picks an image file
@@ -2465,7 +2435,7 @@ async function easyModeGenerate(mode) {
 
         if (g_generation_session.isActive()) {
             //active session
-            //
+
             if (g_generation_session.mode !== mode) {
                 //active session but it's a new mode
 
@@ -2904,7 +2874,7 @@ async function progressRecursive() {
         if (g_generation_session.sudo_timer_id) {
             //for sudo timer update
             //for controlnet only: disable the sudo timer when the real timer start
-            // debugger
+            //
             if (progress_value > 1) {
                 //disable the sudo timer at the end of the generation
                 g_generation_session.sudo_timer_id = clearInterval(
@@ -4001,7 +3971,6 @@ async function deleteNoneSelected(viewer_objects) {
             g_viewer_manager.pathToViewerImage = {}
             g_viewer_manager.initImageLayersJson = {}
             g_viewer_manager.outputImages = []
-            //
 
             g_generation_session.image_paths_to_layers = {}
         })

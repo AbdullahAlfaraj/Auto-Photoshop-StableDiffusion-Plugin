@@ -177,7 +177,7 @@ function getPresetType() {
 
 document.getElementById('btnNewPreset').addEventListener('click', () => {
     // const g_ui_settings_object = getUISettingsObject()
-    // debugger
+
     const preset_type = getPresetType()
     const preset_settings = getPresetSettings(preset_type)
 

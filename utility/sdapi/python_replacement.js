@@ -224,6 +224,7 @@ async function txt2ImgRequest(payload) {
 function getExtensionUrl() {
     const extension_type = settings_tab.getExtensionType()
     let extension_url
+
     if (extension_type === 'auto1111_extension') {
         extension_url = `${g_sd_url}/sdapi/auto-photoshop-sd`
     } else if (extension_type === 'proxy_server') {
@@ -240,7 +241,7 @@ async function openUrlRequest(url) {
         const payload = {
             url: url,
         }
-        // const full_url = 'http://127.0.0.1:8000/mask/expansion/'
+
         const extension_url = getExtensionUrl()
         const full_url = `${extension_url}/open/url/`
         let request = await fetch(full_url, {
@@ -270,7 +271,7 @@ async function maskExpansionRequest(original_mask, mask_expansion_value) {
             mask: original_mask,
             mask_expansion: mask_expansion_value,
         }
-        // const full_url = 'http://127.0.0.1:8000/mask/expansion/'
+
         const extension_url = getExtensionUrl()
         const full_url = `${extension_url}/mask/expansion/`
         let request = await fetch(full_url, {

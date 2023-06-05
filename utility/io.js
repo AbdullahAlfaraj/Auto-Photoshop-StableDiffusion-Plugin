@@ -1,5 +1,5 @@
 const psapi = require('../psapi')
-// const sdapi = require('../sdapi_py_re')
+
 const layer_util = require('../utility/layer')
 const general = require('./general')
 const Jimp = require('../jimp/browser/lib/jimp.min')
@@ -392,7 +392,7 @@ class IO {
             //send the base64 to the server to save the file in the desired directory
             // await sdapi.requestSavePng(base64_image, image_name)
             // await saveFileInSubFolder(base64_image, document_name, image_name)
-            // debugger
+
             const { requestSavePng } = require('../sdapi_py_re')
             await requestSavePng(base64_image, image_name)
             return base64_image
@@ -776,7 +776,6 @@ class IOJson {
 
     static async saveSettingsToFile(settings_json, settings_file_name) {
         await executeAsModal(async () => {
-            // debugger
             const folder_entry = await IOFolder.getSettingsFolder('Settings')
             await this.saveJsonToFile(
                 settings_json,

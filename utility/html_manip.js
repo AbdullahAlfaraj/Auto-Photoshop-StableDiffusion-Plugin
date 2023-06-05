@@ -1019,7 +1019,7 @@ function selectMenuItemByElement(menu_element, item) {
         const option = Array.from(menu_element.options).filter(
             (element) => element.value === item
         )[0]
-        // debugger
+
         option.selected = true
         // option.dispatchEvent(new Event('click'))
         // option.click()

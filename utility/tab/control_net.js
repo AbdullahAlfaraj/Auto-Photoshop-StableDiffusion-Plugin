@@ -238,8 +238,6 @@ async function requestControlNetDetectMap(
         }
         const full_url = `${g_sd_url}/controlnet/detect`
 
-        // debugger
-
         const response_data = await api.requestPost(full_url, payload)
 
         // update the mask preview with the new detectMap
@@ -341,7 +339,7 @@ function changeModule(_module, index) {
 
     // threshold_a_element.min = prams.
     //     threshold_a_element.max =
-    // debugger
+
     if (model_free)
         controlnetElement(
             index,
@@ -397,7 +395,6 @@ function changeModule(_module, index) {
 }
 async function populatePreprocessorMenu() {
     try {
-        // debugger
         const modules = await requestControlNetModuleList()
         for (let index = 0; index < g_controlnet_max_models; index++) {
             const menu_element = controlnetElement(
@@ -570,7 +567,7 @@ function setEnable(index) {
 }
 function getSelectedModule(index = 0) {
     const menu_element = controlnetElement(index, '.mModulesMenuControlNet_')
-    // debugger
+
     const module_name =
         html_manip.getSelectedMenuItemTextContentByElement(menu_element)
 
@@ -661,7 +658,6 @@ function mapPluginSettingsToControlNet(plugin_settings) {
     const ps = plugin_settings // for shortness
     let controlnet_units = []
 
-    // debugger
     let active_index = 0
     for (let index = 0; index < g_controlnet_max_models; index++) {
         const preprocessor_name = getSelectedModule(index)
@@ -782,7 +778,6 @@ function initControlNetUnitsEventListeners(controlnet_max_models) {
             index,
             '.slControlNetGuidanceStrengthStart_'
         ).addEventListener('input', (evt) => {
-            // debugger
             const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 1) // convert slider value to SD ready value
             controlnetElement(
                 index,
@@ -794,7 +789,6 @@ function initControlNetUnitsEventListeners(controlnet_max_models) {
             index,
             '.slControlNetGuidanceStrengthEnd_'
         ).addEventListener('input', (evt) => {
-            // debugger
             const sd_value = general.mapRange(evt.target.value, 0, 100, 0, 1) // convert slider value to SD ready value
             controlnetElement(
                 index,
@@ -805,7 +799,6 @@ function initControlNetUnitsEventListeners(controlnet_max_models) {
         document
             .querySelector(`#controlnet_settings_${index} .slControlNetWeight_`)
             .addEventListener('input', (evt) => {
-                // debugger
                 const sd_value = general.mapRange(
                     evt.target.value,
                     0,
@@ -821,7 +814,7 @@ function initControlNetUnitsEventListeners(controlnet_max_models) {
         // controlnetElement(index, '.slControlNetProcessorRes_').addEventListener(
         //     'input',
         //     (evt) => {
-        //         // debugger
+        //
         //         const sd_value = general.mapRange(
         //             evt.target.value,
         //             64,
@@ -883,7 +876,6 @@ function initControlNetUnitsEventListeners(controlnet_max_models) {
                 const selectionInfo =
                     await selection.Selection.getSelectionInfoExe()
                 if (selectionInfo) {
-                    // debugger
                     const base64_image =
                         await g_generation_session.setControlNetImageHelper()
                     await g_generation_session.setControlNetImage(
@@ -1011,7 +1003,6 @@ function initPreviewElement(index) {
     mask_parent_element.appendChild(thumbnail_container)
 
     async function toCanvas(index) {
-        // debugger
         if (
             g_generation_session.control_net_preview_selection_info &&
             g_generation_session.controlNetMask[index]

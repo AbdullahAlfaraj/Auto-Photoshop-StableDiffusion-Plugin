@@ -116,7 +116,6 @@ class ViewerImage {
                 //keep if can be highlighted and either is highlighted or active
                 this.state = ViewerObjState['Unlink']
             } else {
-                //
                 this.state = ViewerObjState['Delete']
             }
 
