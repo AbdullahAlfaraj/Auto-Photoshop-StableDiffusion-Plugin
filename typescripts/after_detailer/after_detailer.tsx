@@ -8,13 +8,13 @@ import {
     SliderType,
     SpMenu,
     SpSliderWithLabel,
-} from '../ultimate_sd_upscaler/elements'
+} from '../util/elements'
 // import * as sdapi from '../../sdapi_py_re'
-
+import { api } from '../util/oldSystem'
 import { AStore } from '../main/astore'
 import { ui_config, model_list } from './config'
-import { requestGet } from '../../utility/api'
-import { requestControlNetModelList } from '../../utility/tab/control_net'
+const { requestGet } = api
+import { requestControlNetModelList } from '../controlnet/entry'
 
 import './style/after_detailer.css'
 

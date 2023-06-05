@@ -3,7 +3,6 @@ const html_manip = require('../html_manip')
 const Enum = require('../../enum')
 const event = require('../event')
 
-// const control_net = require('../../utility/tab/control_net')
 let settings = {
     model: null,
     prompt_shortcut: null,
@@ -161,7 +160,7 @@ function getPresetSettings(preset_type) {
     if (preset_type === Enum.PresetTypeEnum['SDPreset']) {
         preset_settings = g_ui_settings_object.getSettings()
     } else if (preset_type === Enum.PresetTypeEnum['ControlNetPreset']) {
-        const { ControlNetUnit } = require('../../utility/tab/control_net') // only import ControlNetUnit to avoid circular dependency
+        const { ControlNetUnit } = require('../typescripts/dist/bundle').control_net // only import ControlNetUnit to avoid circular dependency
         // preset_settings = control_net.ControlNetUnit.getUnits()
 
         preset_settings = ControlNetUnit.getUnits()

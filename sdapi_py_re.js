@@ -3,12 +3,12 @@ const { base64ToBase64Url } = require('./utility/general')
 const { getExtensionType } = require('./utility/html_manip')
 const py_re = require('./utility/sdapi/python_replacement')
 const Enum = require('./enum')
-// const control_net = require('./utility/tab/control_net')
+const { control_net } = require('./typescripts/dist/bundle')
 const {
     mapPluginSettingsToControlNet,
     getEnableControlNet,
     getModuleDetail,
-} = require('./utility/tab/control_net')
+} = control_net
 
 const api = require('./utility/api')
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
@@ -648,8 +648,8 @@ async function requestControlNetTxt2Img(plugin_settings) {
             mask_index >= numberOfAnnotations
         )
             continue
-        html_manip.setControlMaskSrc(
-            base64ToBase64Url(base64_mask[mask_index]),
+        control_net.setControlMaskSrc(
+            base64_mask[mask_index],
             index
         )
         g_generation_session.controlNetMask[index] = base64_mask[mask_index]
@@ -742,8 +742,8 @@ async function requestControlNetImg2Img(plugin_settings) {
             mask_index >= numberOfAnnotations
         )
             continue
-        html_manip.setControlMaskSrc(
-            base64ToBase64Url(base64_mask[mask_index]),
+        control_net.setControlMaskSrc(
+            base64_mask[mask_index],
             index
         )
         g_generation_session.controlNetMask[index] = base64_mask[mask_index]

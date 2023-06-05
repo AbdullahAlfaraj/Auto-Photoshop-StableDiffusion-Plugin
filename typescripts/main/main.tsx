@@ -2,11 +2,10 @@ import React, { ReactEventHandler } from 'react'
 import ReactDOM from 'react-dom/client'
 import { observer } from 'mobx-react'
 import { AStore } from './astore'
-import { SpMenu } from '../ultimate_sd_upscaler/elements'
+import { SpMenu } from '../util/elements'
 
-import { getExtensionUrl } from '../../utility/sdapi/python_replacement'
-import * as api from '../../utility/api'
-
+import { api, python_replacement } from '../util/oldSystem'
+const { getExtensionUrl } = python_replacement
 // class SDStore extends AStore {
 //     constructor(data: any) {
 //         super(data)

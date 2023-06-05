@@ -4,13 +4,11 @@ import ReactDOM from 'react-dom/client'
 import { action, makeAutoObservable, reaction, toJS } from 'mobx'
 import { Provider, inject, observer } from 'mobx-react'
 
-import { SliderType, SpMenu, SpSliderWithLabel } from './elements'
-
-import * as sdapi from '../../sdapi_py_re'
+import { SliderType, SpMenu, SpSliderWithLabel } from '../util/elements'
 
 import { ui_config } from './config'
-import { requestGet } from '../../utility/api'
-
+import { api, sdapi } from '../util/oldSystem'
+const { requestGet } = api
 declare let g_sd_url: string
 
 export let script_name: string = 'ultimate sd upscale'

@@ -258,3 +258,102 @@ export class SpMenu extends React.Component<{
         )
     }
 }
+class PhotoshopElem extends React.Component<{ [key: string]: any }, {}> {
+    protected elem: Element | null = null;
+
+    protected curEvents: { [key: string]: (evt: Event) => any } = {
+
+    }
+
+    componentDidMount(): void {
+        this.updateEventListener()
+    }
+
+    // componentDidUpdate(): void {
+    //     this.updateEventListener()
+    // }
+
+    updateEventListener() {
+        if (!this.elem) throw new Error('elem is not rendered with ref');
+
+        const [, newEvent] = this.splitProps(this.props)
+
+        Object.keys(this.curEvents).forEach(evkey => {
+            if (this.curEvents[evkey] != newEvent[evkey]) {
+                this.elem?.removeEventListener(evkey, this.curEvents[evkey]);
+            }
+        });
+        Object.keys(newEvent).forEach(evkey => {
+            this.elem?.addEventListener(evkey, newEvent[evkey]);
+        })
+    }
+
+    componentWillUnmount(): void {
+        Object.keys(this.curEvents).forEach(evkey => {
+            this.elem?.removeEventListener(evkey, this.curEvents[evkey]);
+        });
+    }
+    splitProps(props: any): [any, any] {
+        const attr: any = {};
+        const event: any = {};
+        Object.keys(props).forEach((propKey: string) => {
+            if (propKey.startsWith('on')) {
+                const key = propKey[2].toLocaleLowerCase() + propKey.slice(3)
+                event[key] = props[propKey];
+
+            } else {
+                attr[propKey] = props[propKey];
+            }
+        })
+        return [attr, event]
+    }
+}
+export class SpPicker extends PhotoshopElem {
+    render() {
+        const [attr] = this.splitProps(this.props)
+        return <sp-picker ref={(elem: Element) => this.elem = elem} {...attr}></sp-picker>
+    }
+}
+export class SpMenuItem extends PhotoshopElem {
+    render() {
+        const [attr] = this.splitProps(this.props)
+        return <sp-menu-item ref={(elem: Element) => this.elem = elem} {...attr}></sp-menu-item>
+    }
+}
+export class SpLabel extends PhotoshopElem {
+    render() {
+        const [attr] = this.splitProps(this.props)
+        return <sp-label ref={(elem: Element) => this.elem = elem} {...attr}></sp-label>
+    }
+}
+export class SpCheckBox extends PhotoshopElem {
+    render() {
+        const [attr] = this.splitProps(this.props)
+        if (!attr['checked']) delete attr['checked']
+        return <sp-checkbox ref={(elem: Element) => this.elem = elem} {...attr}></sp-checkbox>
+    }
+}
+export class SpSlider extends PhotoshopElem {
+    render() {
+        const [attr] = this.splitProps(this.props)
+        return <sp-slider ref={(elem: Element) => this.elem = elem} {...attr}></sp-slider>
+    }
+}
+export class SpRadioGroup extends PhotoshopElem {
+    render() {
+        const [attr] = this.splitProps(this.props)
+        return <sp-radio-group ref={(elem: Element) => this.elem = elem} {...attr}></sp-radio-group>
+    }
+}
+export class SpRadio extends PhotoshopElem {
+    render() {
+        const [attr] = this.splitProps(this.props)
+        return <sp-radio ref={(elem: Element) => this.elem = elem} {...attr}></sp-radio>
+    }
+}
+export class SpDivider extends PhotoshopElem {
+    render() {
+        const [attr] = this.splitProps(this.props)
+        return <sp-divider ref={(elem: Element) => this.elem = elem} {...attr}></sp-divider>
+    }
+}
