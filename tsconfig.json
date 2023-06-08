@@ -108,4 +108,5 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "exclude": ["./jimp"],
+  // "include": ["./typescripts/@types/custom.d.ts"]
 }
