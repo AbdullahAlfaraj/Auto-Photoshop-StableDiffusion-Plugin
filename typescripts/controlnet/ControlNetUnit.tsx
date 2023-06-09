@@ -372,7 +372,7 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                         min="0"
                         max="200"
                         value="100"
-                        onMousemove={this.onWeightMove.bind(this)}
+                        onInput={this.onWeightMove.bind(this)}
                         title="2 will keep the composition; 0 will allow composition to change"
                     >
                         <sp-label slot="label">Weight:</sp-label>
@@ -384,7 +384,7 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                         min="0"
                         max="10"
                         value="0"
-                        onMousemove={this.onGuidanceStartMove.bind(this)}
+                        onInput={this.onGuidanceStartMove.bind(this)}
                     >
                         <sp-label slot="label">Guidance strength start:</sp-label>
                         <sp-label
@@ -398,7 +398,7 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                         min="0"
                         max="10"
                         value="100"
-                        onMousemove={this.onGuidanceEndMove.bind(this)}
+                        onInput={this.onGuidanceEndMove.bind(this)}
                     >
                         <sp-label slot="label">Guidance strength end:</sp-label>
                         <sp-label
@@ -411,7 +411,7 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                         min={ppSlider[0].min / (ppSlider[0].step || 1)}
                         max={ppSlider[0].max / (ppSlider[0].step || 1)}
                         value={storeData.processor_res / (ppSlider[0].step || 1)}
-                        onMousemove={this.onResolutionMove.bind(this)}
+                        onInput={this.onResolutionMove.bind(this)}
                     >
                         <sp-label slot="label">{ppSlider[0].name}:</sp-label>
                         <sp-label slot="label">{storeData.processor_res.toFixed(2)}</sp-label>
@@ -421,7 +421,7 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                         min={ppSlider[1].min / (ppSlider[1].step || 1)}
                         max={ppSlider[1].max / (ppSlider[1].step || 1)}
                         value={storeData.threshold_a / (ppSlider[1].step || 1)}
-                        onMousemove={this.onThresholdAMove.bind(this)}
+                        onInput={this.onThresholdAMove.bind(this)}
                     >
                         <sp-label slot="label">{ppSlider[1].name}:</sp-label>
                         <sp-label slot="label">{storeData.threshold_a.toFixed(2)}</sp-label>
@@ -431,7 +431,7 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                         min={ppSlider[2].min / (ppSlider[2].step || 1)}
                         max={ppSlider[2].max / (ppSlider[2].step || 1)}
                         value={storeData.threshold_b / (ppSlider[2].step || 1)}
-                        onMousemove={this.onThresholdBMove.bind(this)}
+                        onInput={this.onThresholdBMove.bind(this)}
                     >
                         <sp-label slot="label">{ppSlider[2].name}:</sp-label>
                         <sp-label slot="label">{storeData.threshold_b.toFixed(2)}</sp-label>
