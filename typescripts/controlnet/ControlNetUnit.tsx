@@ -341,10 +341,10 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                 </div>
             </div>
 
-            <SpCheckBox onChange={this.onEnableChange.bind(this)} checked={storeData.enabled} id={`chEnableControlNet_${this.props.index}`} value={this.props.appState.controlNetUnitData[this.props.index].enabled}>Enable</SpCheckBox>
-            <SpCheckBox onChange={this.onLowVRamChange.bind(this)} checked={storeData.lowvram} id={`chlowVram_${this.props.index}`}>Low VRAM</SpCheckBox>
-            <SpCheckBox style={{display: this.props.appState.controlnetApiVersion > 1 ? 'none' : void 0}} onChange={this.onGuessModeChange.bind(this)} checked={storeData.guessmode} id={`chGuessMode_${this.props.index}`}>Guess Mode</SpCheckBox>
-            <SpCheckBox style={{display: this.props.appState.controlnetApiVersion > 1 ? void 0 : 'none'}} onChange={this.onPixelPerfectChange.bind(this)} checked={storeData.pixel_perfect} id={`chPixelPerfect_${this.props.index}`}>Pixel Perfect</SpCheckBox>
+            <SpCheckBox style={{marginRight: "10px"}} onChange={this.onEnableChange.bind(this)} checked={storeData.enabled} id={`chEnableControlNet_${this.props.index}`} value={this.props.appState.controlNetUnitData[this.props.index].enabled}>Enable</SpCheckBox>
+            <SpCheckBox style={{marginRight: "10px"}} onChange={this.onLowVRamChange.bind(this)} checked={storeData.lowvram} id={`chlowVram_${this.props.index}`}>Low VRAM</SpCheckBox>
+            <SpCheckBox style={{display: this.props.appState.controlnetApiVersion > 1 ? 'none' : void 0, marginRight: "10px"}} onChange={this.onGuessModeChange.bind(this)} checked={storeData.guessmode} id={`chGuessMode_${this.props.index}`}>Guess Mode</SpCheckBox>
+            <SpCheckBox style={{display: this.props.appState.controlnetApiVersion > 1 ? void 0 : 'none', marginRight: "10px"}} onChange={this.onPixelPerfectChange.bind(this)} checked={storeData.pixel_perfect} id={`chPixelPerfect_${this.props.index}`}>Pixel Perfect</SpCheckBox>
             {
                 this.props.appState.controlnetApiVersion > 1 &&
                 <sp-radio-group id={`rgControlNetMode_${this.props.index}`} style={{ display: 'flex' }}>
@@ -443,14 +443,18 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                     onChange={this.onPreprocsesorChange.bind(this)}
                     id={`mModulesMenuControlNet_${this.props.index}`}
                     items={this.props.appState.supportedPreprocessors}
+                    label_item='Select Module'
                     selected_index={this.props.appState.supportedPreprocessors.indexOf(storeData.module || 'none')}
-                />
+                    style={{width:'100%',display:'flex'}}
+                /> 
                 {!pd.model_free && 
                 (<SpMenu
                     onChange={this.onModelChange.bind(this)}
                     id={`mModelsMenuControlNet_${this.props.index}`}
                     items={['none'].concat(this.props.appState.supportedModels)}
+                    label_item='Select Model'
                     selected_index={this.props.appState.supportedModels.indexOf(storeData.model || 'none')+1}// 'none' item will offset the index by 1
+                    style={{width:'100%',display:'flex'}}
                 />)
                 }
             </div>
