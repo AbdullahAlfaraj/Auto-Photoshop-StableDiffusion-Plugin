@@ -1,13 +1,15 @@
 import { observer } from 'mobx-react';
 import React from 'react';
-import { SpCheckBox, SpMenu, SpSlider } from '../util/elements';
+import { MoveToCanvasSvg,ActionButtonSVG, SpCheckBox, SpMenu, SpSlider, Thumbnail, PenSvg, PreviewSvg } from '../util/elements';
 import ControlNetStore from './store';
 import { mapRange, versionCompare } from './util';
-import { note, selection } from '../util/oldSystem';
+import { note, selection, html_manip, psapi,api, general } from '../util/oldSystem';
+
 
 declare const g_generation_session: any;
 declare const io: any;
 declare const app: any;
+declare let g_sd_url: string;
 
 
 @observer
@@ -116,6 +118,159 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
         }
     }
 
+    async requestControlNetDetectMap(
+        controlnet_init_image:string,
+        _module:string,
+        processor_res:number,
+        threshold_a:number,
+        threshold_b:number
+    ) {
+        try {
+            const payload = {
+                controlnet_module: _module,
+                controlnet_input_images: [controlnet_init_image],
+                controlnet_processor_res: processor_res,
+                controlnet_threshold_a: threshold_a,
+                controlnet_threshold_b: threshold_b,
+            }
+            const full_url = `${g_sd_url}/controlnet/detect`
+    
+            const response_data = await api.requestPost(full_url, payload)
+    
+            // update the mask preview with the new detectMap
+            if (response_data['images'].length === 0) {
+                app.showAlert(response_data['info'])
+            }
+            return response_data['images'][0]
+        } catch (e) {
+            console.warn('requestControlNetDetectMap(): ', _module, e)
+        }
+    }
+    
+
+    async  previewAnnotator() {
+        const index = this.props.index
+        try {
+            const storeData = this.props.appState.controlNetUnitData[index];
+            
+            const controlnet_init_image = storeData.input_image
+            
+                const _module = storeData.module || 'none';
+                const processor_res = storeData.processor_res
+                const threshold_a = storeData.threshold_a
+                const threshold_b = storeData.threshold_b
+
+            if (!controlnet_init_image) {
+                const error = 'ControlNet initial image is empty'
+                app.showAlert(error)
+                throw error
+            }
+            if (!_module || _module === 'none') {
+                const error = 'select a valid controlnet module (preprocessor)'
+                app.showAlert(error)
+                throw error
+            }
+    
+            const detect_map = await this.requestControlNetDetectMap(
+                controlnet_init_image,
+                _module,
+                processor_res,
+                threshold_a,
+                threshold_b
+            )
+    
+            const rgb_detect_map_url =
+                await io.convertBlackAndWhiteImageToRGBChannels3(detect_map)
+            const rgb_detect_map = general.base64UrlToBase64(rgb_detect_map_url)
+            g_generation_session.controlNetMask[index] = rgb_detect_map
+    
+            storeData.mask = rgb_detect_map
+            
+        } catch (e) {
+            console.warn('PreviewAnnotator click(): index: ', index, e)
+        }
+    }
+    async  toCanvas() {
+        if (
+            g_generation_session.control_net_preview_selection_info &&
+            g_generation_session.controlNetMask[this.props.index]
+        ) {
+            const selection_info =
+                g_generation_session.control_net_preview_selection_info
+            const layer = await io.IO.base64ToLayer(
+                g_generation_session.controlNetMask[this.props.index],
+                'ControlNet Mask.png',
+                selection_info.left,
+                selection_info.top,
+                selection_info.width,
+                selection_info.height
+            )
+        } else {
+            // await note.Notification.inactiveSelectionArea()
+            app.showAlert('Mask Image is not available')
+        }
+    }
+    async toControlNetInitImage() {
+        const preview_result_base64 = g_generation_session.controlNetMask[this.props.index]
+        g_generation_session.controlNetImage[this.props.index] = preview_result_base64
+        g_generation_session.control_net_selection_info =
+            g_generation_session.control_net_preview_selection_info
+
+        const rgb_detect_map_url =
+            await io.convertBlackAndWhiteImageToRGBChannels3(
+                preview_result_base64
+            )
+
+        // g_generation_session.controlNetMask[index] = rgb_detect_map
+
+        // html_manip.setControlImageSrc(rgb_detect_map_url, this.props.index)
+        const storeData = this.props.appState.controlNetUnitData[this.props.index];
+        
+        storeData.input_image = storeData.mask
+    }
+    async  previewAnnotatorFromCanvas() {
+        try {
+            const storeData = this.props.appState.controlNetUnitData[this.props.index];
+            const _module = storeData.module || 'none';
+            
+            const width = html_manip.getWidth()
+            const height = html_manip.getHeight()
+            const selectionInfo = await psapi.getSelectionInfoExe()
+            g_generation_session.control_net_preview_selection_info = selectionInfo
+            const base64 = await io.IO.getSelectionFromCanvasAsBase64Interface_New(
+                width,
+                height,
+                selectionInfo,
+                true
+            )
+    
+            if (!_module || _module === 'none') {
+                const error = 'select a valid controlnet module (preprocessor)'
+                app.showAlert(error)
+                throw error
+            }
+    
+            const processor_res = storeData.processor_res
+            const threshold_a = storeData.threshold_a
+            const threshold_b = storeData.threshold_b
+    
+            const detect_map = await this.requestControlNetDetectMap(
+                base64,
+                _module,
+                processor_res,
+                threshold_a,
+                threshold_b
+            )
+    
+            const rgb_detect_map_url =
+                await io.convertBlackAndWhiteImageToRGBChannels3(detect_map)
+            g_generation_session.controlNetMask[this.props.index] = detect_map
+            
+            storeData.mask = general.base64UrlToBase64(rgb_detect_map_url)
+        } catch (e) {
+            console.warn('PreviewAnnotator click(): index: ', this.props.index, e)
+        }
+    }
     render() {
         const storeData = this.props.appState.controlNetUnitData[this.props.index];
         const pd = this.props.appState.preprocessorDetail[storeData.module] || {};
@@ -158,19 +313,26 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                     className="imgContainer controlNetImaageContainer"
                 >
                     <div>
-                        <img
+                    <Thumbnail>
+                    <img
                             id={`control_net_mask_${this.props.index}`}
                             className="column-item-image"
                             src={storeData.mask ? 'data:image/png;base64,' + storeData.mask : "https://source.unsplash.com/random"}
                             width="300px"
                             height="100px"
-                        />
+                        />  
+            <ActionButtonSVG onClick={this.toControlNetInitImage.bind(this)} ><PenSvg/></ActionButtonSVG>
+            <ActionButtonSVG onClick={this.toCanvas.bind(this)} ><MoveToCanvasSvg/></ActionButtonSVG>
+            <ActionButtonSVG onClick={this.previewAnnotatorFromCanvas.bind(this)} ><PreviewSvg/></ActionButtonSVG>
+            </Thumbnail>
+                       
                     </div>
                     <div className="imgButton btnClass">
                         <button
                             className="column-item button-style btnSquare"
                             id={`bControlMask_${this.props.index}`}
-                            onClick={this.onMaskButtonClick.bind(this)}
+                            onClick={this.previewAnnotator.bind(this)}
+                            
                             title="Preview Annotator"
                         >
                             Preview Annotator
