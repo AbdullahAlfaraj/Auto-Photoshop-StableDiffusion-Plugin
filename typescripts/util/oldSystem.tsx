@@ -13,7 +13,7 @@ const sdapi = req('./sdapi_py_re')
 const html_manip = req('./utility/html_manip')
 const psapi = req('./psapi')
 const general = req('./utility/general')
-
+const io = req('./utility/io')
 export {
     selection,
     note,
@@ -26,4 +26,5 @@ export {
     html_manip,
     psapi,
     general,
+    io
 }

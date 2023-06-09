@@ -1,36 +1,3 @@
-const io = require('./utility/io')
-const log = console.log
-const warn = console.warn
-const error = console.error
-const should_log = false
-if (should_log) {
-    window.addEventListener('error', (event) => {
-        const [a, b, c, d, e] = [1, 2, 3, 4, 5]
-        console.log(`message: ${a}`)
-        console.log(`source: ${b}`)
-        console.log(`lineno: ${c}`)
-        console.log(`colno: ${d}`)
-        console.log(`error: ${e}`)
-    })
-
-    console.log = (data, ...optional_param) => {
-        log(data, ...optional_param)
-        io.IOLog.saveLogToFile({ data, ...optional_param }, 'log.txt')
-    }
-    console.warn = (data, ...optional_param) => {
-        try {
-            warn(data, ...optional_param)
-            io.IOLog.saveLogToFile({ data, ...optional_param }, 'warn.txt')
-        } catch (e) {
-            warn('error while logging: ')
-            warn(e)
-        }
-    }
-    console.error = (data, ...optional_param) => {
-        error(data, ...optional_param)
-        io.IOLog.saveLogToFile({ data, ...optional_param }, 'error.txt')
-    }
-}
 
 // import {helloHelper} from 'helper.js'
 // helloHelper2 = require('./helper.js')
@@ -86,7 +53,80 @@ const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
 // const ultimate_sd_upscaler = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
 // const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
-const { scripts, main, after_detailer_script, control_net } = require('./typescripts/dist/bundle')
+const { scripts, main, after_detailer_script, control_net, logger } = require('./typescripts/dist/bundle')
+
+
+const io = require('./utility/io')
+const _log = console.log
+const _warn = console.warn
+const _error = console.error
+const should_log = true
+if (should_log) {
+    window.addEventListener('error', (event) => {
+        const [a, b, c, d, e] = [1, 2, 3, 4, 5]
+        console.log(`message: ${a}`)
+        console.log(`source: ${b}`)
+        console.log(`lineno: ${c}`)
+        console.log(`colno: ${d}`)
+        console.log(`error: ${e}`)
+    })
+
+
+    console.log = (data, ...optional_param) => {
+        try {
+            _log(data, ...optional_param)
+            
+            // const error = new Error({ data, ...optional_param });
+            const formattedOutput = logger.formateLog(data,...optional_param)
+            io.IOLog.saveLogToFile({log:formattedOutput }, 'log.txt')
+            
+        } catch (e) { 
+            _warn('error while logging: ')
+            _warn(e)
+        }
+        
+    }
+
+    console.warn = (data, ...optional_param) => {
+        try {
+            _warn(data, ...optional_param);
+            const error = new Error();
+            const stackTrace = error.stack;
+            const formattedOutput = logger.formateLog(data,...optional_param)
+            io.IOLog.saveLogToFile({ warning: formattedOutput,stackTrace }, 'log.txt');
+        } catch (e) {
+            _warn('error while logging: ');
+            _warn(e);
+        }
+    }
+    
+    
+    console.error = (data, ...optional_param) => {
+        try {
+            _error(data, ...optional_param);
+            const error = new Error();
+            const stackTrace = error.stack;
+            const formattedOutput = logger.formateLog(data,...optional_param)
+            io.IOLog.saveLogToFile({ error: formattedOutput,stackTrace }, 'log.txt');
+        } catch (e) {
+            _error('error while logging: ');
+            _error(e);
+        }
+        
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 // const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
 

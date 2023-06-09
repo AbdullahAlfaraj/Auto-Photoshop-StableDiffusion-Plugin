@@ -15,6 +15,7 @@ module.exports = {
     mode: 'development',
     // mode: 'production',
     devtool: 'inline-source-map', // won't work on XD due to lack of eval
+    // devtool: 'source-map',
     externals: {
         uxp: 'commonjs2 uxp',
         photoshop: 'commonjs2 photoshop',
@@ -22,6 +23,11 @@ module.exports = {
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js', '.jsx'],
+        
+            fallback: {
+                "util": require.resolve("util/")
+            }
+     
     },
     module: {
         rules: [
