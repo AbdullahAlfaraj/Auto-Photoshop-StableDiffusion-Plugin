@@ -2,7 +2,7 @@ import { Enum, api } from "../util/oldSystem";
 import { store, versionCompare } from "./main"
 
 declare const g_sd_config_obj: any;
-declare const g_sd_url: any;
+declare let g_sd_url: string;
 
 async function requestControlNetPreprocessors() {
     const control_net_json = await api.requestGet(`${g_sd_url}/controlnet/module_list?alias_name=1`)
@@ -25,7 +25,7 @@ async function requestControlNetApiVersion() {
 async function requestControlNetMaxUnits() {
     const json = await api.requestGet(`${g_sd_url}/controlnet/settings`)
 
-    const control_net_max_models_num = json?.control_net_max_models_num ?? 1
+    const control_net_max_models_num = json?.control_net_max_models_num ?? 0
 
     return control_net_max_models_num
 }
