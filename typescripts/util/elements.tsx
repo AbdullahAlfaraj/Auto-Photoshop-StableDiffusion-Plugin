@@ -2,9 +2,6 @@ import React, { CSSProperties, ReactEventHandler, useState } from 'react'
 // import ReactDOM from 'react-dom'
 import ReactDOM from 'react-dom/client'
 // import { versions } from 'uxp'
-
-
-
 export { ReactComponent as MoveToCanvasSvg } from '../../icon/move_to_canvas.svg';
 export { ReactComponent as PenSvg } from '../../icon/pen.svg';
 export { ReactComponent as PreviewSvg } from '../../icon/preview.svg';

@@ -7,7 +7,8 @@ import { Provider, inject, observer } from 'mobx-react'
 import { SliderType, SpMenu, SpSliderWithLabel } from '../util/elements'
 
 import { ui_config } from './config'
-import { api, sdapi } from '../util/oldSystem'
+import { api } from '../util/oldSystem'
+
 const { requestGet } = api
 declare let g_sd_url: string
 
@@ -65,6 +66,23 @@ export const script_args_ordered = [
     'custom_height',
     'custom_scale',
 ]
+
+//for some reason oldSystem.sdapi is empty {}, could be caused by a circular dependency
+//so I've copy pasted requestGetUpscalers() to the ultimate sd upscaler module, as a temporary solution
+async function requestGetUpscalers() {
+    console.log('requestGetUpscalers: ')
+    let json = []
+    const full_url = `${g_sd_url}/sdapi/v1/upscalers`
+    try {
+        let request = await fetch(full_url)
+        json = await request.json()
+        console.log('upscalers json:')
+        console.dir(json)
+    } catch (e) {
+        console.warn(`issues requesting from ${full_url}`, e)
+    }
+    return json
+}
 
 class UltimateSDUpscalerStore {
     data: UltimateSDUpscalerData
@@ -141,12 +159,18 @@ export class UltimateSDUpscalerForm extends React.Component<{
     }
 
     async getUpscalers() {
-        const sd_upscalers_json = await sdapi.requestGetUpscalers()
-        const sd_upscalers = sd_upscalers_json.map(
-            (upscaler: any) => upscaler.name
-        )
-        this.setState({ sd_upscalers: sd_upscalers })
-        return sd_upscalers
+        try{
+
+            const sd_upscalers_json = await requestGetUpscalers()
+            const sd_upscalers = sd_upscalers_json.map(
+                (upscaler: any) => upscaler.name
+                )
+                this.setState({ sd_upscalers: sd_upscalers })
+                return sd_upscalers
+            }
+            catch(e){
+                console.warn("ultimate sd upscaler getUpscalers(): ",e)
+            }
     }
 
     handleRefresh = async () => {
