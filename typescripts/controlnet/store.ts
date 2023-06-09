@@ -9,7 +9,7 @@ export const DefaultControlNetUnitData = {
     model: "",
     weight: 1.0,
     resize_mode: "Scale to Fit (Inner Fit)",
-    lowvram: false,
+    lowvram: true,
     processor_res: 512,
     threshold_a: 0,
     threshold_b: 0,
