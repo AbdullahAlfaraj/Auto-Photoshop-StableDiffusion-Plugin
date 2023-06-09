@@ -77,7 +77,6 @@ export class VAEComponent extends React.Component<{
 const vaeContainerNode = document.getElementById('settingsVAEContainer')!
 const vaeRoot = ReactDOM.createRoot(vaeContainerNode)
 
-
 async function requestGetVAE() {
     const full_url = `${g_sd_url}/sdapi/v1/options`
 
@@ -85,25 +84,23 @@ async function requestGetVAE() {
     return options?.sd_vae
 }
 export async function populateVAE() {
-    try{
-
+    try {
         const extension_url = getExtensionUrl()
-        
-    const full_url = `${extension_url}/vae/list`
-    const vae_models = await api.requestGet(full_url)
 
-    console.log('populateVAE vae_models: ', vae_models)
-    store.updateProperty('vae_model_list', vae_models)
+        const full_url = `${extension_url}/vae/list`
+        const vae_models = (await api.requestGet(full_url)) || []
 
-    const current_vae = await requestGetVAE()
-    if (current_vae && vae_models.includes(current_vae)) {
-        store.updateProperty('current_vae', current_vae)
+        console.log('populateVAE vae_models: ', vae_models)
+        store.updateProperty('vae_model_list', vae_models)
+
+        const current_vae = await requestGetVAE()
+        if (current_vae && vae_models.includes(current_vae)) {
+            store.updateProperty('current_vae', current_vae)
+        }
+    } catch (e) {
+        console.warn('populateVAE():', e)
     }
-}catch(e){
-    console.warn("populateVAE():", e)
 }
-}
-
 
 vaeRoot.render(
     <React.StrictMode>
