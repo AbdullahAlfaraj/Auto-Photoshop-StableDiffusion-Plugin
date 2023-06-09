@@ -4,6 +4,7 @@ import ControlNetUnit from './ControlNetUnit';
 import { store as ControlNetStore } from './main';
 import { DefaultControlNetUnitData } from './store';
 import { Enum, controlnet_preset, note, preset, selection } from '../util/oldSystem';
+import {SpMenuComponent} from '../util/elements';
 
 let g_controlnet_presets: any;
 declare const g_generation_session: any;
@@ -11,12 +12,14 @@ declare const g_generation_session: any;
 @observer
 class ControlNetTab extends React.Component<{ appState: typeof ControlNetStore }>{
     state = {
-        maxControlNet: 0
+        maxControlNet: 0,
+        presetMenuChildren: []
     }
 
-    private presetMenuChildren: JSX.Element[] = []
+    // private presetMenuChildren: JSX.Element[] = []
 
     onPresetMenuChange(evt: any) {
+        
         const preset_index = evt.target.selectedIndex
         const preset_name = evt.target.options[preset_index].textContent
         ControlNetStore.controlNetUnitData.forEach((dataitem, index) => {
@@ -42,7 +45,12 @@ class ControlNetTab extends React.Component<{ appState: typeof ControlNetStore }
             dataitem.pixel_perfect = presetData.pixel_perfect || DefaultControlNetUnitData.pixel_perfect
         })
     }
+  // function to update presetMenuChildren
+  updatePresetMenuChildren(newChildren:any) {
+    this.setState({ presetMenuChildren: newChildren });
+  }
     async updatePresetMenuEvent() {
+        
         const custom_presets = await preset.getAllCustomPresetsSettings(
             Enum.PresetTypeEnum['ControlNetPreset']
         )
@@ -54,12 +62,14 @@ class ControlNetTab extends React.Component<{ appState: typeof ControlNetStore }
 
         const presets_names = Object.keys(g_controlnet_presets)
 
-        this.presetMenuChildren = presets_names.map(preset_name => {
+        // debugger;
+        const presetMenuChildren = presets_names.map(preset_name => {
             if (preset_name == "Select CtrlNet Preset")
                 return <sp-menu-item key={preset_name} className="mControlNetPresetMenuItem" selected>{preset_name}</sp-menu-item>
             else
                 return <sp-menu-item key={preset_name} className="mControlNetPresetMenuItem">{preset_name}</sp-menu-item>
         })
+        this.updatePresetMenuChildren(presetMenuChildren)
     }
 
     async onSetAllControlImage() {
@@ -87,14 +97,14 @@ class ControlNetTab extends React.Component<{ appState: typeof ControlNetStore }
                     size="m"
                     label="ControlNet Preset"
                 >
-                    {/* <SpMenu
+                    <SpMenuComponent
                         id="mControlNetPresetMenu"
                         value="Select CtrlNet Preset"
                         onChange={this.onPresetMenuChange.bind(this)}
                         onUpdatePresetMenuEvent={this.updatePresetMenuEvent.bind(this)}
                     >
-                        {this.presetMenuChildren.map(child => child)}
-                    </SpMenu> */}
+                        {this.state.presetMenuChildren.map(child => child)}
+                    </SpMenuComponent>
                 </sp-picker>
                 <div></div>
                 {
@@ -123,16 +133,19 @@ class ControlNetTab extends React.Component<{ appState: typeof ControlNetStore }
                     <sp-checkbox id="chDisableControlNetTab"
                     >Disable ControlNet Tab</sp-checkbox>
                 </div>
-                {
+                <div>
+                    
+                    {
                     Array(this.props.appState.maxControlNet * 2).fill(0).map((v, index) => {
                         if (index % 2 == 0) {
-                            return <sp-divider key={`divider${index}`} className="line-divider" size="large"></sp-divider>
+                            return <div key={`divider${index}`}><sp-divider class="line-divider" size="large"></sp-divider><sp-divider class="line-divider" size="large"></sp-divider><sp-divider class="line-divider" size="large"></sp-divider></div>
                         }
                         else {
                             return <ControlNetUnit appState={this.props.appState} key={(index - 1) / 2} index={(index - 1) / 2} />
                         }
                     })
                 }
+                </div>
             </div>
         );
     }

@@ -288,7 +288,7 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                     onChange={this.onModelChange.bind(this)}
                     id={`mModelsMenuControlNet_${this.props.index}`}
                     items={['none'].concat(this.props.appState.supportedModels)}
-                    selected_index={this.props.appState.supportedModels.indexOf(storeData.model || 'none')}
+                    selected_index={this.props.appState.supportedModels.indexOf(storeData.model || 'none')+1}// 'none' item will offset the index by 1
                 />)
                 }
             </div>

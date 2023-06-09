@@ -10,6 +10,9 @@ const Enum = req('./enum')
 const api = req('./utility/api')
 const python_replacement = req('./utility/sdapi/python_replacement')
 const sdapi = req('./sdapi_py_re')
+const html_manip = req('./utility/html_manip')
+const psapi = req('./psapi')
+const general = req('./utility/general')
 
 export {
     selection,
@@ -19,5 +22,8 @@ export {
     Enum,
     api,
     python_replacement,
-    sdapi
+    sdapi,
+    html_manip,
+    psapi,
+    general,
 }
