@@ -8,12 +8,13 @@ import {
     SliderType,
     SpMenu,
     SpSliderWithLabel,
-} from '../../ultimate_sd_upscaler/src/elements'
-
-import { AStore } from '../../main/src/astore'
+} from '../util/elements'
+// import * as sdapi from '../../sdapi_py_re'
+import { api } from '../util/oldSystem'
+import { AStore } from '../main/astore'
 import { ui_config, model_list } from './config'
-import { requestGet } from '../../utility/api'
-import { requestControlNetModelList } from '../../utility/tab/control_net'
+const { requestGet } = api
+import { requestControlNetModelList } from '../controlnet/entry'
 
 import './style/after_detailer.css'
 
@@ -140,6 +141,7 @@ export class AfterDetailerComponent extends React.Component<{
                     </sp-label>
                     <button
                         className="btnSquare refreshButton"
+                        id="btnResetSettings"
                         title="Refresh the After Detailer Extension"
                         onClick={this.handleRefresh}
                     ></button>

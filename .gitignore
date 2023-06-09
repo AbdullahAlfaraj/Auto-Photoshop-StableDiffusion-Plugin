@@ -32,6 +32,4 @@ original_mask.png
 # comments when packaging (include in the package,uxp packager will use .gitignore to ignore files):
 */dist/*LICENSE.txt
 */dist/*.bundle.js
-
-# uncomments when packaging (don't include in the package)
-# /docs
+typescripts/dist

@@ -991,54 +991,6 @@
                 <!-- </div> -->
             </div>
             <div class="sp-tab-page" id="sp-control_net-tab-page">
-                <!-- control net tab page -->
-                <sp-picker
-                    title="auto fill the ControlNet with smart settings, to speed up your working process."
-                    size="m"
-                    label="ControlNet Preset"
-                >
-                    <sp-menu id="mControlNetPresetMenu" slot="options">
-                        <!-- <sp-menu-item> item </sp-menu-item> -->
-                    </sp-menu>
-                </sp-picker>
-                <div></div>
-                <sp-label
-                    id="controlnetMissingError"
-                    style="color: #ff595e; display: none; white-space: normal"
-                >
-                    The Controlnet Extension is missing from Automatic1111.
-                    Please install it to use it through the plugin.
-                </sp-label>
-                <div
-                    id="control_net_image_container"
-                    class="imgContainer controlNetImaageContainer"
-                >
-                    <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
-                    <!-- 
-                    <div>
-                        <img
-                            id="all_control_net_image"
-                            class="column-item-image"
-                            src="https://source.unsplash.com/random"
-                            width="300px"
-                            height="100px"
-                        />
-                    </div> -->
-                    <div class="imgButton">
-                        <button
-                            class="column-item button-style btnSquare"
-                            id="bSetAllControlImage"
-                        >
-                            Set All CtrlNet Images
-                        </button>
-                    </div>
-                    <sp-checkbox id="chDisableControlNetTab"
-                        >Disable ControlNet Tab</sp-checkbox
-                    >
-                    <!-- <span>
-                        version:<span id="ControlNetVersion">0.0.0</span>
-                    </span> -->
-                </div>
 
                 <div
                     id="controlnet_settings_template"
@@ -2403,10 +2355,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                             </div>
                         </sp-action-button>
                     </div>
-                    <img
-                        id="webp_container"
-                        src="https://www.keycdn.com/img/blog/convert-to-webp-the-successor-of-jpeg-lg.webp"
-                    />
+
                     <!-- <custom-element>hello custom element</custom-element> -->
                     <div class="prompts">
                         <!-- <sp-label slot="label">Prompt</sp-label> -->

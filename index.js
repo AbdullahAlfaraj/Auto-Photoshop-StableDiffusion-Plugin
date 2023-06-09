@@ -79,7 +79,6 @@ const thumbnail = require('./thumbnail')
 const note = require('./utility/notification')
 const sampler_data = require('./utility/sampler')
 const settings_tab = require('./utility/tab/settings')
-const control_net = require('./utility/tab/control_net')
 //load tabs
 const history_tab = require('./utility/tab/history_tab')
 const image_search_tab = require('./utility/tab/image_search_tab')
@@ -87,17 +86,7 @@ const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
 // const ultimate_sd_upscaler = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
 // const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
-
-// const after_detailer_script = require('./main/dist/after_detailer.bundle')
-// const scripts = require('./main/dist/scripts.bundle')
-// const main = require('./main/dist/main.bundle')
-
-const {
-    after_detailer_script,
-    scripts,
-    main,
-    ultimate_sd_upscaler,
-} = require('./main/dist/all.bundle')
+const { scripts, main, after_detailer_script, control_net } = require('./typescripts/dist/bundle')
 
 // const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
 

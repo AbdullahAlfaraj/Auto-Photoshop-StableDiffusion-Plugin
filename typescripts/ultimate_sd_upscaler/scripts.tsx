@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client'
 import { makeAutoObservable, toJS } from 'mobx'
 import { observer } from 'mobx-react'
 
-import { SpMenu } from './elements'
+import { SpMenu } from '../util/elements'
 import * as ultimate_sd_upscale_script from './ultimate_sd_upscaler'
 import { ScriptMode } from './ultimate_sd_upscaler'
 export function toJsFunc(store: any) {
