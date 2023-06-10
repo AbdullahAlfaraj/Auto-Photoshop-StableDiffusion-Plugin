@@ -2,11 +2,9 @@ import React, { CSSProperties, ReactEventHandler, useState } from 'react'
 // import ReactDOM from 'react-dom'
 import ReactDOM from 'react-dom/client'
 // import { versions } from 'uxp'
-export { ReactComponent as MoveToCanvasSvg } from '../../icon/move_to_canvas.svg';
-export { ReactComponent as PenSvg } from '../../icon/pen.svg';
-export { ReactComponent as PreviewSvg } from '../../icon/preview.svg';
-
-
+export { ReactComponent as MoveToCanvasSvg } from '../../icon/move_to_canvas.svg'
+export { ReactComponent as PenSvg } from '../../icon/pen.svg'
+export { ReactComponent as PreviewSvg } from '../../icon/preview.svg'
 
 declare global {
     namespace JSX {
@@ -266,11 +264,9 @@ export class SpMenu extends React.Component<{
     }
 }
 class PhotoshopElem extends React.Component<{ [key: string]: any }, {}> {
-    protected elem: Element | null = null;
+    protected elem: Element | null = null
 
-    protected curEvents: { [key: string]: (evt: Event) => any } = {
-
-    }
+    protected curEvents: { [key: string]: (evt: Event) => any } = {}
 
     componentDidMount(): void {
         this.updateEventListener()
@@ -281,35 +277,34 @@ class PhotoshopElem extends React.Component<{ [key: string]: any }, {}> {
     // }
 
     updateEventListener() {
-        if (!this.elem) throw new Error('elem is not rendered with ref');
+        if (!this.elem) throw new Error('elem is not rendered with ref')
 
         const [, newEvent] = this.splitProps(this.props)
 
-        Object.keys(this.curEvents).forEach(evkey => {
+        Object.keys(this.curEvents).forEach((evkey) => {
             if (this.curEvents[evkey] != newEvent[evkey]) {
-                this.elem?.removeEventListener(evkey, this.curEvents[evkey]);
+                this.elem?.removeEventListener(evkey, this.curEvents[evkey])
             }
-        });
-        Object.keys(newEvent).forEach(evkey => {
-            this.elem?.addEventListener(evkey, newEvent[evkey]);
+        })
+        Object.keys(newEvent).forEach((evkey) => {
+            this.elem?.addEventListener(evkey, newEvent[evkey])
         })
     }
 
     componentWillUnmount(): void {
-        Object.keys(this.curEvents).forEach(evkey => {
-            this.elem?.removeEventListener(evkey, this.curEvents[evkey]);
-        });
+        Object.keys(this.curEvents).forEach((evkey) => {
+            this.elem?.removeEventListener(evkey, this.curEvents[evkey])
+        })
     }
     splitProps(props: any): [any, any] {
-        const attr: any = {};
-        const event: any = {};
+        const attr: any = {}
+        const event: any = {}
         Object.keys(props).forEach((propKey: string) => {
             if (propKey.startsWith('on')) {
                 const key = propKey[2].toLocaleLowerCase() + propKey.slice(3)
-                event[key] = props[propKey];
-
+                event[key] = props[propKey]
             } else {
-                attr[propKey] = props[propKey];
+                attr[propKey] = props[propKey]
             }
         })
         return [attr, event]
@@ -318,81 +313,131 @@ class PhotoshopElem extends React.Component<{ [key: string]: any }, {}> {
 export class SpPicker extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-picker ref={(elem: Element) => this.elem = elem} {...attr}></sp-picker>
+        return (
+            <sp-picker
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-picker>
+        )
     }
 }
 export class SpMenuComponent extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-menu ref={(elem: Element) => this.elem = elem} {...attr}></sp-menu>
+        return (
+            <sp-menu
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-menu>
+        )
     }
 }
 export class SpMenuItem extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-menu-item ref={(elem: Element) => this.elem = elem} {...attr}></sp-menu-item>
+        return (
+            <sp-menu-item
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-menu-item>
+        )
     }
 }
 export class SpLabel extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-label ref={(elem: Element) => this.elem = elem} {...attr}></sp-label>
+        return (
+            <sp-label
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-label>
+        )
     }
 }
 export class SpCheckBox extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
         if (!attr['checked']) delete attr['checked']
-        return <sp-checkbox ref={(elem: Element) => this.elem = elem} {...attr}></sp-checkbox>
+        return (
+            <sp-checkbox
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-checkbox>
+        )
     }
 }
 export class SpSlider extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-slider ref={(elem: Element) => this.elem = elem} {...attr}></sp-slider>
+        return (
+            <sp-slider
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-slider>
+        )
     }
 }
 export class SpRadioGroup extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-radio-group ref={(elem: Element) => this.elem = elem} {...attr}></sp-radio-group>
+        return (
+            <sp-radio-group
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-radio-group>
+        )
     }
 }
 export class SpRadio extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-radio ref={(elem: Element) => this.elem = elem} {...attr}></sp-radio>
+        return (
+            <sp-radio
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-radio>
+        )
     }
 }
 export class SpDivider extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-divider ref={(elem: Element) => this.elem = elem} {...attr}></sp-divider>
+        return (
+            <sp-divider
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-divider>
+        )
     }
 }
 
-
-export class Thumbnail extends React.Component<{children:React.ReactNode}> { 
-       
-    render() { 
-        return <div className='viewer-image-container'>
-            
-            {this.props.children}
-        </div>
+export class Thumbnail extends React.Component<{ children: React.ReactNode }> {
+    render() {
+        return (
+            <div className="viewer-image-container">{this.props.children}</div>
+        )
     }
 }
-
-
 
 export class ActionButtonSVG extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        
-        return <sp-action-button style={{padding: 0, maxWidth: "32px",maxHeight: "32px"  /* display: none; */}}   class="thumbnail-image-button" ref={(elem: Element) => this.elem = elem} {...attr}>
 
-                            <div slot="icon" style={{fill: 'currentColor'}}>
-                            {this.props.children}
-                            </div>
-                        </sp-action-button>}}
-
-
+        return (
+            <sp-action-button
+                style={{
+                    padding: 0,
+                    maxWidth: '32px',
+                    maxHeight: '32px' /* display: none; */,
+                }}
+                class="thumbnail-image-button"
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            >
+                <div slot="icon" style={{ fill: 'currentColor' }}>
+                    {this.props.children}
+                </div>
+            </sp-action-button>
+        )
+    }
+}

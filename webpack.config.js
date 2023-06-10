@@ -1,4 +1,3 @@
-
 const path = require('path')
 // const CleanWebpackPlugin = require('clean-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
@@ -23,11 +22,10 @@ module.exports = {
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js', '.jsx'],
-        
-            fallback: {
-                "util": require.resolve("util/")
-            }
-     
+
+        fallback: {
+            util: require.resolve('util/'),
+        },
     },
     module: {
         rules: [
@@ -64,7 +62,6 @@ module.exports = {
                 test: /\.svg$/,
                 use: ['@svgr/webpack', 'url-loader'],
             },
-            
         ],
     },
     plugins: [

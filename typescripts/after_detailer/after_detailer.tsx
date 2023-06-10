@@ -4,11 +4,7 @@ import ReactDOM from 'react-dom/client'
 // import { action, makeAutoObservable, reaction, toJS } from 'mobx'
 import { observer } from 'mobx-react'
 
-import {
-    SliderType,
-    SpMenu,
-    SpSliderWithLabel,
-} from '../util/elements'
+import { SliderType, SpMenu, SpSliderWithLabel } from '../util/elements'
 // import * as sdapi from '../../sdapi_py_re'
 import { api } from '../util/oldSystem'
 import { AStore } from '../main/astore'

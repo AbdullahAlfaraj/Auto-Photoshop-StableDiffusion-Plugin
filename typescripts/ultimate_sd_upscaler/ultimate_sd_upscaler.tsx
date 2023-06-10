@@ -159,18 +159,16 @@ export class UltimateSDUpscalerForm extends React.Component<{
     }
 
     async getUpscalers() {
-        try{
-
+        try {
             const sd_upscalers_json = await requestGetUpscalers()
             const sd_upscalers = sd_upscalers_json.map(
                 (upscaler: any) => upscaler.name
-                )
-                this.setState({ sd_upscalers: sd_upscalers })
-                return sd_upscalers
-            }
-            catch(e){
-                console.warn("ultimate sd upscaler getUpscalers(): ",e)
-            }
+            )
+            this.setState({ sd_upscalers: sd_upscalers })
+            return sd_upscalers
+        } catch (e) {
+            console.warn('ultimate sd upscaler getUpscalers(): ', e)
+        }
     }
 
     handleRefresh = async () => {

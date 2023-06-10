@@ -1,16 +1,20 @@
-import { Enum, api } from "../util/oldSystem";
-import { store, versionCompare } from "./main"
+import { Enum, api } from '../util/oldSystem'
+import { store, versionCompare } from './main'
 
-declare const g_sd_config_obj: any;
-declare let g_sd_url: string;
+declare const g_sd_config_obj: any
+declare let g_sd_url: string
 
 async function requestControlNetPreprocessors() {
-    const control_net_json = await api.requestGet(`${g_sd_url}/controlnet/module_list?alias_name=1`)
+    const control_net_json = await api.requestGet(
+        `${g_sd_url}/controlnet/module_list?alias_name=1`
+    )
 
     return control_net_json
 }
 async function requestControlNetModelList(): Promise<any> {
-    const control_net_json = await api.requestGet(`${g_sd_url}/controlnet/model_list`)
+    const control_net_json = await api.requestGet(
+        `${g_sd_url}/controlnet/model_list`
+    )
 
     const model_list = control_net_json?.model_list
     return model_list
@@ -36,15 +40,14 @@ async function initializeControlNetTab(controlnet_max_models: number) {
 
     try {
         const models = await requestControlNetModelList()
-        store.supportedModels = models || [];
+        store.supportedModels = models || []
     } catch (e) {
         console.warn(e)
     }
     try {
         const pps = await requestControlNetPreprocessors()
-        store.supportedPreprocessors = pps ? pps.module_list : [];
+        store.supportedPreprocessors = pps ? pps.module_list : []
         store.preprocessorDetail = pps ? pps.module_detail : {}
-
     } catch (e) {
         console.warn(e)
     }
@@ -52,9 +55,10 @@ async function initializeControlNetTab(controlnet_max_models: number) {
 
 function getEnableControlNet(index: number) {
     if (typeof index == 'undefined')
-        return store.controlNetUnitData.filter(item => item.enabled).length > 0
-    else
-        return store.controlNetUnitData[index || 0].enabled
+        return (
+            store.controlNetUnitData.filter((item) => item.enabled).length > 0
+        )
+    else return store.controlNetUnitData[index || 0].enabled
 }
 function mapPluginSettingsToControlNet(plugin_settings: any) {
     const ps = plugin_settings // for shortness
@@ -79,8 +83,9 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
             guessmode: false,
         }
         if (store.controlnetApiVersion > 1) {
-            controlnet_units[index].control_mode = store.controlNetUnitData[index].control_mode;
-            controlnet_units[index].pixel_perfect = true;
+            controlnet_units[index].control_mode =
+                store.controlNetUnitData[index].control_mode
+            controlnet_units[index].pixel_perfect = true
         }
     }
 
@@ -89,7 +94,7 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
         plugin_settings['mode'] === Enum.generationModeEnum['Inpaint'] ||
         plugin_settings['mode'] === Enum.generationModeEnum['Outpaint']
     ) {
-        const b_use_guess_mode = store.controlNetUnitData[0].guessmode;
+        const b_use_guess_mode = store.controlNetUnitData[0].guessmode
         controlnet_units[0]['guessmode'] = b_use_guess_mode
     }
 
@@ -105,23 +110,23 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
                 args: controlnet_units,
             },
         },
-    
     }
 
     return controlnet_payload
 }
 function getControlNetMaxModelsNumber() {
-    return store.maxControlNet;
+    return store.maxControlNet
 }
 function getUnitsData() {
     return store.controlNetUnitData
 }
 function setControlMaskSrc(base64: string, index: number) {
-    store.controlNetUnitData[index].mask = base64;
+    store.controlNetUnitData[index].mask = base64
 }
 function isControlNetModeEnable() {
     //@ts-ignore
-    let is_tab_enabled = !document.getElementById('chDisableControlNetTab').checked
+    let is_tab_enabled = !document.getElementById('chDisableControlNetTab')
+        .checked
 
     let numOfEnabled = 0
     if (is_tab_enabled) {
@@ -138,7 +143,7 @@ function isControlNetModeEnable() {
     return is_mode_enabled
 }
 function getModuleDetail() {
-    return store.preprocessorDetail;
+    return store.preprocessorDetail
 }
 export {
     requestControlNetModelList,
@@ -150,5 +155,5 @@ export {
     getUnitsData,
     setControlMaskSrc,
     isControlNetModeEnable,
-    getModuleDetail
+    getModuleDetail,
 }
