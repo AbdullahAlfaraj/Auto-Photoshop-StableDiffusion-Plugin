@@ -5,6 +5,7 @@ import { store as ControlNetStore } from './main';
 import { DefaultControlNetUnitData } from './store';
 import { Enum, controlnet_preset, note, preset, selection } from '../util/oldSystem';
 import {SpMenuComponent} from '../util/elements';
+import Locale from '../locale/locale';
 
 let g_controlnet_presets: any;
 declare const g_generation_session: any;
@@ -113,8 +114,7 @@ class ControlNetTab extends React.Component<{ appState: typeof ControlNetStore }
                             id="controlnetMissingError"
                             style={{ color: '#ff595e', whiteSpace: 'normal' }}
                         >
-                            The Controlnet Extension is missing from Automatic1111.
-                            Please install it to use it through the plugin.
+                            {Locale('controlnet.missing')}
                         </sp-label>)
                 }
                 <div
@@ -127,11 +127,11 @@ class ControlNetTab extends React.Component<{ appState: typeof ControlNetStore }
                             id="bSetAllControlImage"
                             onClick={this.onSetAllControlImage.bind(this)}
                         >
-                            Set All CtrlNet Images
+                            {Locale('controlnet.setall')}
                         </button>
                     </div>
                     <sp-checkbox id="chDisableControlNetTab"
-                    >Disable ControlNet Tab</sp-checkbox>
+                    >{Locale('controlnet.disableall')}</sp-checkbox>
                 </div>
                 <div>
                     

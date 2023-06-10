@@ -4,6 +4,7 @@ import { MoveToCanvasSvg,ActionButtonSVG, SpCheckBox, SpMenu, SpSlider, Thumbnai
 import ControlNetStore from './store';
 import { mapRange, versionCompare } from './util';
 import { note, selection, html_manip, psapi,api, general } from '../util/oldSystem';
+import Locale from '../locale/locale';
 
 
 declare const g_generation_session: any;
@@ -276,12 +277,10 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
         const pd = this.props.appState.preprocessorDetail[storeData.module] || {};
         const ppSlider = pd.sliders || [];
 
-        console.log("pixel_perfect:" + storeData.pixel_perfect);
-
         return <div id={`controlnet_settings_${this.props.index}`}>
             <div className="flexContainer">
                 <sp-label slot="label"
-                >Control Net Settings Slot {this.props.index}</sp-label>
+                >{Locale('controlnet.index')}{this.props.index}</sp-label>
             </div>
             <div style={{ display: "flex" }}>
                 <div
@@ -304,7 +303,7 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                             onClick={this.onSetImageButtonClick.bind(this)}
                             title="Set CtrlNet Img"
                         >
-                            Set CtrlNet Img
+                            {Locale('controlnet.setimage')}
                         </button>
                     </div>
                 </div>
@@ -335,32 +334,32 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                             
                             title="Preview Annotator"
                         >
-                            Preview Annotator
+                            {Locale('controlnet.preview')}
                         </button>
                     </div>
                 </div>
             </div>
 
-            <SpCheckBox style={{marginRight: "10px"}} onChange={this.onEnableChange.bind(this)} checked={storeData.enabled} id={`chEnableControlNet_${this.props.index}`} value={this.props.appState.controlNetUnitData[this.props.index].enabled}>Enable</SpCheckBox>
-            <SpCheckBox style={{marginRight: "10px"}} onChange={this.onLowVRamChange.bind(this)} checked={storeData.lowvram} id={`chlowVram_${this.props.index}`}>Low VRAM</SpCheckBox>
-            <SpCheckBox style={{display: this.props.appState.controlnetApiVersion > 1 ? 'none' : void 0, marginRight: "10px"}} onChange={this.onGuessModeChange.bind(this)} checked={storeData.guessmode} id={`chGuessMode_${this.props.index}`}>Guess Mode</SpCheckBox>
-            <SpCheckBox style={{display: this.props.appState.controlnetApiVersion > 1 ? void 0 : 'none', marginRight: "10px"}} onChange={this.onPixelPerfectChange.bind(this)} checked={storeData.pixel_perfect} id={`chPixelPerfect_${this.props.index}`}>Pixel Perfect</SpCheckBox>
+            <SpCheckBox style={{marginRight: "10px"}} onChange={this.onEnableChange.bind(this)} checked={storeData.enabled} id={`chEnableControlNet_${this.props.index}`} value={this.props.appState.controlNetUnitData[this.props.index].enabled}>{Locale('controlnet.enable')}</SpCheckBox>
+            <SpCheckBox style={{marginRight: "10px"}} onChange={this.onLowVRamChange.bind(this)} checked={storeData.lowvram} id={`chlowVram_${this.props.index}`}>{Locale('controlnet.lowVRam')}</SpCheckBox>
+            <SpCheckBox style={{display: this.props.appState.controlnetApiVersion > 1 ? 'none' : void 0, marginRight: "10px"}} onChange={this.onGuessModeChange.bind(this)} checked={storeData.guessmode} id={`chGuessMode_${this.props.index}`}>{Locale('controlnet.GuessMode')}</SpCheckBox>
+            <SpCheckBox style={{display: this.props.appState.controlnetApiVersion > 1 ? void 0 : 'none', marginRight: "10px"}} onChange={this.onPixelPerfectChange.bind(this)} checked={storeData.pixel_perfect} id={`chPixelPerfect_${this.props.index}`}>{Locale('controlnet.PixelPerfect')}</SpCheckBox>
             {
                 this.props.appState.controlnetApiVersion > 1 &&
                 <sp-radio-group id={`rgControlNetMode_${this.props.index}`} style={{ display: 'flex' }}>
-                    <sp-label slot="label">Control Mode:</sp-label>
+                    <sp-label slot="label">{Locale('controlnet.ControlMode')}</sp-label>
                     <sp-radio
                         checked
                         value="0"
-                    >Balanced</sp-radio>
+                    >{Locale('controlnet.ControlMode.Balanced')}</sp-radio>
                     <sp-radio
                         title="My prompt is more important"
                         value="1"
-                    >Prompt</sp-radio>
+                    >{Locale('controlnet.ControlMode.Prompt')}</sp-radio>
                     <sp-radio
                         title="ControlNet is more important"
                         value="2"
-                    >ControlNet</sp-radio>
+                    >{Locale('controlnet.ControlMode.ControlNet')}</sp-radio>
                 </sp-radio-group>
             }
 
@@ -375,7 +374,7 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                         onInput={this.onWeightMove.bind(this)}
                         title="2 will keep the composition; 0 will allow composition to change"
                     >
-                        <sp-label slot="label">Weight:</sp-label>
+                        <sp-label slot="label">{Locale('controlnet.weight')}</sp-label>
                         <sp-label slot="label" id={`lControlNetWeight_${this.props.index}`}>{storeData.weight}</sp-label>
                     </SpSlider>
                     <SpSlider
@@ -386,7 +385,7 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                         value="0"
                         onInput={this.onGuidanceStartMove.bind(this)}
                     >
-                        <sp-label slot="label">Guidance strength start:</sp-label>
+                        <sp-label slot="label">{Locale('controlnet.guidancestart')}</sp-label>
                         <sp-label
                             slot="label"
                             id={`lControlNetGuidanceStrengthStart_${this.props.index}`}
@@ -400,7 +399,7 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
                         value="100"
                         onInput={this.onGuidanceEndMove.bind(this)}
                     >
-                        <sp-label slot="label">Guidance strength end:</sp-label>
+                        <sp-label slot="label">{Locale('controlnet.guidanceend')}</sp-label>
                         <sp-label
                             slot="label"
                             id={`lControlNetGuidanceStrengthEnd_${this.props.index}`}
