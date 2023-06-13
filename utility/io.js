@@ -565,7 +565,7 @@ class IOHelper {
         const crop_h = selectionInfo.height
         const base64_url_result = await Jimp.read(arrayBuffer)
             .then(async (img) => {
-                let cropped_img = await img.crop(crop_x, crop_y, crop_w, crop_h)
+                let cropped_img = await img.crop(crop_x, crop_y, crop_w + 1, crop_h + 1)
 
                 let resized_img
                 if (b_resize) {
