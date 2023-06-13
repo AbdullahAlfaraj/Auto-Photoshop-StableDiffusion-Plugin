@@ -58,12 +58,14 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Florin-Alexandru+Ilinescu" alt="Florin-Alexandru Ilinescu"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Robin+Edwards" alt="Robin Edwards"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Danny+Sahagun" alt="Danny Sahagun"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Bruce+Hunter" alt="Bruce Hunter"></td>
 </tr>
 <tr>
 <td>Alex </td>
 <td>Florin-Alexandru Ilinescu</td>
 <td>Robin Edwards</td>
 <td>Danny Sahagun</td>
+<td>Bruce Hunter</td>
 </tr>
 </table>
 
@@ -109,15 +111,16 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek" alt="Sebastian Karbowniczek"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu" alt="Arthur Liu"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Juan+Pablo+Mendiola" alt="Juan Pablo Mendiola"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Bruce+Hunter" alt="Bruce Hunter"></td>
 </tr>
 <tr>
 <td>Sebastian Karbowniczek</td>
 <td>Arthur Liu</td>
 <td>Juan Pablo Mendiola</td>
-<td>Bruce Hunter</td>
 </tr>
 </table>
+
+
+
 
 
 
