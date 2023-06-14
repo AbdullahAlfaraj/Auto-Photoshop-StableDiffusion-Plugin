@@ -1,33 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg id="_Слой_1" data-name="Слой 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
     <style>
-      .c, .d, .e {
+      .cls-1 {
         stroke: #d6d6d6;
         stroke-linecap: round;
         stroke-linejoin: round;
         stroke-width: 4px;
       }
 
-      .c, .d, .e, .f {
+      .cls-1, .cls-2 {
         fill: none;
-      }
-
-      .d {
-        fill-rule: evenodd;
-      }
-
-      .e {
-        stroke-dasharray: 0 8;
       }
     </style>
   </defs>
-  <g id="a" data-name="frame">
-    <rect class="f" width="64" height="64"/>
+  <g id="a">
+    <rect class="cls-2" width="64" height="64"/>
   </g>
-  <g id="b" data-name="Select">
-    <rect class="e" x="13.34" y="12.24" width="38.49" height="39.43" rx="2.69" ry="2.69"/>
-    <polyline class="d" points="13.33 45.4 22.29 33.75 28.56 41.81 42.89 26.58 51.85 39.12"/>
-    <circle class="c" cx="25.87" cy="22.1" r="1.79"/>
+  <g id="b">
+    <rect class="cls-1" x="13.34" y="12.24" width="38.49" height="39.43" rx="2.69" ry="2.69"/>
+    <polyline class="cls-1" points="13.33 45.4 22.29 33.75 28.56 41.81 42.89 26.58 51.85 39.12"/>
+    <circle class="cls-1" cx="25.87" cy="22.1" r="1.79"/>
   </g>
 </svg>
