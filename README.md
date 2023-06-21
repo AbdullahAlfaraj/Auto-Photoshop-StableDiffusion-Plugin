@@ -55,6 +55,7 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <table>
 <tr>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Alex+" alt="Alex "></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre" alt="Olivier Lefebvre"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Florin-Alexandru+Ilinescu" alt="Florin-Alexandru Ilinescu"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Robin+Edwards" alt="Robin Edwards"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Danny+Sahagun" alt="Danny Sahagun"></td>
@@ -62,6 +63,7 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 </tr>
 <tr>
 <td>Alex </td>
+<td>Olivier Lefebvre</td>
 <td>Florin-Alexandru Ilinescu</td>
 <td>Robin Edwards</td>
 <td>Danny Sahagun</td>
@@ -73,9 +75,9 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <table>
 <tr>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Amith+Thomas" alt="Amith Thomas"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre" alt="Olivier Lefebvre"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=xiao+yuan" alt="xiao yuan"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ezra+Blake" alt="Ezra Blake"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu" alt="Arthur Liu"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Zenko+" alt="Zenko "></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Frederic+Dreuilhe" alt="Frederic Dreuilhe"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kevin+Schofield" alt="Kevin Schofield"></td>
@@ -83,9 +85,9 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 </tr>
 <tr>
 <td>Amith Thomas</td>
-<td>Olivier Lefebvre</td>
 <td>xiao yuan</td>
 <td>Ezra Blake</td>
+<td>Arthur Liu</td>
 <td>Zenko </td>
 <td>Frederic Dreuilhe</td>
 <td>Kevin Schofield</td>
@@ -96,12 +98,16 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=The+Dread+Vixen+Alinsa" alt="The Dread Vixen Alinsa"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Chris+Canterbury" alt="Chris Canterbury"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Mvs+Srs" alt="Mvs Srs"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Lawrence+L+Tran" alt="Lawrence L Tran"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Felipe+Cortes" alt="Felipe Cortes"></td>
 </tr>
 <tr>
 <td>Kerwin</td>
 <td>The Dread Vixen Alinsa</td>
 <td>Chris Canterbury</td>
 <td>Mvs Srs</td>
+<td>Lawrence L Tran</td>
+<td>Felipe Cortes</td>
 </tr>
 </table>
 
@@ -109,15 +115,15 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <table>
 <tr>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek" alt="Sebastian Karbowniczek"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu" alt="Arthur Liu"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Juan+Pablo+Mendiola" alt="Juan Pablo Mendiola"></td>
 </tr>
 <tr>
 <td>Sebastian Karbowniczek</td>
-<td>Arthur Liu</td>
 <td>Juan Pablo Mendiola</td>
 </tr>
 </table>
+
+
 
 
 
