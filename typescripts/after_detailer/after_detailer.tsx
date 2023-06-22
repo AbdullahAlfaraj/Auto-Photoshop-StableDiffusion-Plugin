@@ -265,10 +265,15 @@ import { useState, ReactNode } from 'react'
 
 interface CollapsibleProps {
     label: string
+    defaultIsOpen?: boolean
     children: ReactNode
 }
-const Collapsible = ({ label, children }: CollapsibleProps) => {
-    const [isOpen, setIsOpen] = useState(false)
+const Collapsible = ({
+    label,
+    defaultIsOpen = false,
+    children,
+}: CollapsibleProps) => {
+    const [isOpen, setIsOpen] = useState(defaultIsOpen)
 
     const handleToggle = () => {
         setIsOpen(!isOpen)
