@@ -2661,14 +2661,14 @@ async function generate(settings, mode) {
                 const base64_image = image_info['base64']
                 g_generation_session.base64OutputImages[path] = base64_image
                 const [document_name, image_name] = path.split('/')
-                await saveFileInSubFolder(
+                await io.saveFileInSubFolder(
                     base64_image,
                     document_name,
                     image_name
                 ) //save the output image
                 const json_file_name = `${image_name.split('.')[0]}.json`
                 settings['auto_metadata'] = image_info?.auto_metadata
-                await saveJsonFileInSubFolder(
+                await io.saveJsonFileInSubFolder(
                     settings,
                     document_name,
                     json_file_name
@@ -2687,14 +2687,14 @@ async function generate(settings, mode) {
                 const base64_image = image_info['base64']
                 g_generation_session.base64OutputImages[path] = base64_image
                 const [document_name, image_name] = path.split('/')
-                await saveFileInSubFolder(
+                await io.saveFileInSubFolder(
                     base64_image,
                     document_name,
                     image_name
                 )
                 const json_file_name = `${image_name.split('.')[0]}.json`
                 settings['auto_metadata'] = image_info?.auto_metadata
-                await saveJsonFileInSubFolder(
+                await io.saveJsonFileInSubFolder(
                     settings,
                     document_name,
                     json_file_name
@@ -3195,67 +3195,7 @@ async function getInitImagesDir() {
     }
     return init_folder
 }
-//REFACTOR: move to document.js
-async function saveFileInSubFolder(b64Image, sub_folder_name, file_name) {
-    // const b64Image =
-    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
 
-    const img = _base64ToArrayBuffer(b64Image)
-
-    // const img_name = 'temp_output_image.png'
-    const img_name = file_name
-    const folder = await storage.localFileSystem.getDataFolder()
-    const documentFolderName = sub_folder_name
-    let documentFolder
-    try {
-        documentFolder = await folder.getEntry(documentFolderName)
-    } catch (e) {
-        console.warn(e)
-        //create document folder
-        documentFolder = await folder.createFolder(documentFolderName)
-    }
-
-    console.log('documentFolder.nativePath: ', documentFolder.nativePath)
-    const file = await documentFolder.createFile(img_name, { overwrite: true })
-
-    await file.write(img, { format: storage.formats.binary })
-
-    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
-}
-//REFACTOR: move to document.js
-async function saveJsonFileInSubFolder(json, sub_folder_name, file_name) {
-    // const b64Image =
-    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
-
-    // const img_name = 'temp_output_image.png'
-
-    const json_file_name = file_name
-
-    const folder = await storage.localFileSystem.getDataFolder()
-    const documentFolderName = sub_folder_name
-    let documentFolder
-    try {
-        documentFolder = await folder.getEntry(documentFolderName)
-    } catch (e) {
-        console.warn(e)
-        //create document folder
-        documentFolder = await folder.createFolder(documentFolderName)
-    }
-
-    console.log('documentFolder.nativePath: ', documentFolder.nativePath)
-    const file = await documentFolder.createFile(json_file_name, {
-        type: storage.types.file,
-        overwrite: true,
-    })
-
-    const JSONInPrettyFormat = JSON.stringify(json, undefined, 4)
-    await file.write(JSONInPrettyFormat, {
-        format: storage.formats.utf8,
-        append: false,
-    })
-
-    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
-}
 //REFACTOR: move to document.js
 async function base64ToFile(b64Image, image_name = 'output_image.png') {
     // const b64Image =
