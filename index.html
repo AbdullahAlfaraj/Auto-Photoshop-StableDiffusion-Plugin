@@ -588,6 +588,18 @@
             height: 30px;
             background-repeat: no-repeat;
         }
+        .svgButton {
+            font-family: Arial, Verdana;
+
+            background-color: #777;
+            background-size: 30px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
+        }
+        .selectionAreaButton {
+            background-image: url(./icon/selection-area_2.svg);
+        }
         .interrogateButton {
             font-family: Arial, Verdana;
             background-image: url(./icon/writing-icon.svg);
@@ -698,6 +710,19 @@
         /* .sp-tab.selected sp-label {
             color: white;
         } */
+    </style>
+    <style>
+        .second_panel {
+            flex: 1 1 auto;
+            /* overflow: scroll; */
+            overflow-y: scroll;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            flex-direction: column;
+            height: 100%; /* Set a fixed height for the container */
+        }
     </style>
 
     <body>
@@ -2047,8 +2072,7 @@
                             ></button>
 
                             <button
-                                class="btnSquare layerToSelection"
-                                id="btnLayerToSelection"
+                                class="btnSquare layerToSelection btnLayerToSelection"
                                 title="Move and reSize the highlighted layer to fit into the Selection Area "
                             ></button>
                             <button
@@ -3008,5 +3032,112 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                 </div>
             </div>
         </div>
+
+        <uxp-panel panelid="second_panel">
+            <div id="search_second_panel" class="container second_panel">
+                <div id="sp-control_net-tab-page2"></div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <div class="reactViewerContainer"></div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <div class="previewContainer"></div>
+            </div>
+        </uxp-panel>
+
+        <uxp-panel panelid="toolbar">
+            <div
+                id="toolbar_panel"
+                class="_container"
+                style="
+                    margin: 0;
+                    display: flex;
+                    justify-content: flex-start;
+                    /* padding-bottom: 5px; */
+                    flex-direction: column;
+                "
+            >
+                <div
+                    style="
+                        margin: 0;
+                        display: flex;
+                        justify-content: flex-start;
+                        /* padding: 1px; */
+                        flex-direction: column;
+                    "
+                >
+                    <button
+                        class="btnSquare btnGenerateClass"
+                        id="btnGenerateUpscale"
+                    >
+                        Generate upscale
+                    </button>
+                    <button
+                        class="btnSquare btnInterruptClass"
+                        id="btnInterruptUpscale"
+                        style="display: none"
+                    >
+                        Interrupt
+                    </button>
+                    <div>
+                        <button
+                            title="Keep all generated images on the canvas"
+                            class="btnSquare acceptClass acceptAllImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button>
+                        <button
+                            title="Delete all generated images from the canvas"
+                            class="btnSquare discardClass discardAllImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button>
+                        <button
+                            title="Keep only the highlighted images"
+                            class="btnSquare acceptSelectedClass acceptSelectedImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button>
+                        <button
+                            title="Delete only the highlighted images"
+                            class="btnSquare discardSelectedClass discardSelectedImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button>
+
+                        <button
+                            class="btnSquare layerToSelection btnLayerToSelection"
+                            title="Move and reSize the highlighted layer to fit into the Selection Area "
+                            style="margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare snapshotButton"
+                            title="create a snapshot of what you see on the canvas and place on a new layer"
+                            style="margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare resetButton"
+                            id="btnResetSettings"
+                            title="reset the ui settings to their default values"
+                            style="margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare interrogateButton"
+                            id="btnInterrogate"
+                            title="Interrogate the selected area, convert Image to Prompt"
+                            style="margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare svgButton selectionAreaButton"
+                            id="btnSelectionArea"
+                            style="margin-right: 3px"
+                            title="Reselect the selection area for the current session"
+                        ></button>
+                        <!-- <button id="scrollToPrompt" class="btnSquare svgButton">
+                            P
+                        </button> -->
+                        <!-- <button id="scrollToViewer" class="btnSquare svgButton">
+                            V
+                        </button> -->
+                    </div>
+                </div>
+            </div>
+        </uxp-panel>
     </body>
 </html>

@@ -2761,9 +2761,8 @@ document.querySelector('#mModelsMenu').addEventListener('change', (evt) => {
     sdapi.requestSwapModel(g_model_title)
 })
 //REFACTOR: move to events.js
-document
-    .getElementById('btnLayerToSelection')
-    .addEventListener('click', async () => {
+document.querySelectorAll('.btnLayerToSelection').forEach((el) => {
+    el.addEventListener('click', async () => {
         try {
             const isSelectionAreaValid =
                 await psapi.checkIfSelectionAreaIsActive()
@@ -2777,6 +2776,8 @@ document
             console.warn(e)
         }
     })
+})
+
 //REFACTOR: move to events.js
 document
     .getElementById('btnSetInitImageViewer')
