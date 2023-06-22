@@ -4,3 +4,5 @@ export * as ultimate_sd_upscaler from './ultimate_sd_upscaler/ultimate_sd_upscal
 export * as scripts from './ultimate_sd_upscaler/scripts'
 export * as main from './main/main'
 export * as logger from './util/logger'
+export * as image_search from './image_search/image_search'
+export { toJS } from 'mobx'
