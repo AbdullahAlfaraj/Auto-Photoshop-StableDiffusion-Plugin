@@ -114,10 +114,10 @@ class ControlNetTab extends React.Component<{ appState: typeof ControlNetStore }
                             id="controlnetMissingError"
                             style={{ color: '#ff595e', whiteSpace: 'normal' }}
                         >
-                            {Locale('controlnet.missing')}
+                            {Locale("The Controlnet Extension is missing from Automatic1111.\nPlease install it to use it through the plugin.")}
                         </sp-label>)
                 }
-                <div
+                {/* <div
                     id="control_net_image_container"
                     className="imgContainer controlNetImaageContainer"
                 >
@@ -130,13 +130,13 @@ class ControlNetTab extends React.Component<{ appState: typeof ControlNetStore }
                             {Locale('controlnet.setall')}
                         </button>
                     </div>
-                    {/* <sp-checkbox id="chDisableControlNetTab"
-                    >{Locale('controlnet.disableall')}</sp-checkbox> */}
-                </div>
+                    <sp-checkbox id="chDisableControlNetTab"
+                    >{Locale('controlnet.disableall')}</sp-checkbox>
+                </div> */}
                 <div>
                     {
                         Array(this.props.appState.maxControlNet).fill(0).map((v, index) => {
-                                return <ControlNetUnit appState={this.props.appState} key={index} index={index} />
+                            return <ControlNetUnit appState={this.props.appState} key={index} index={index} />
                         })
                     }
                 </div>
