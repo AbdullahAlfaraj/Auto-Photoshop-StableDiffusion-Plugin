@@ -41,6 +41,7 @@ export enum SliderType {
 }
 export class SpSliderWithLabel extends React.Component<{
     onSliderChange?: any
+    onSliderInput?: any
     id?: string
     'show-value'?: boolean
     steps?: number
@@ -120,17 +121,19 @@ export class SpSliderWithLabel extends React.Component<{
         this.setState({ output_value: to_value })
     }
 
+    onSliderValueInputHandler(event: React.ChangeEvent<HTMLInputElement>) {
+        const newValue: string = event.target.value
+
+        let output_value = this.stepToOutputValue(parseInt(newValue))
+        this.setState({ output_value: output_value })
+        if (this.props.onSliderInput && this.props.id) {
+            this.props.onSliderInput(this.props.id, output_value)
+        } else if (this.props.onSliderInput) {
+            this.props.onSliderInput(output_value)
+        }
+    }
     onSliderValueChangeHandler(event: React.ChangeEvent<HTMLInputElement>) {
         const newValue: string = event.target.value
-        console.log('onSliderValueChangeHandler value: ', newValue)
-        this.setState({ output_value: newValue })
-
-        console.log({
-            in_min: this.in_min,
-            in_max: this.in_max,
-            out_min: this.out_min,
-            out_max: this.out_max,
-        })
 
         let output_value = this.stepToOutputValue(parseInt(newValue))
         this.setState({ output_value: output_value })
@@ -151,7 +154,7 @@ export class SpSliderWithLabel extends React.Component<{
             //     <div>{versions.plugin}</div>
             // </div>
             <div>
-                <sp-slider
+                <SpSlider
                     show-value="false"
                     // id="slControlNetWeight_0"
                     class="slControlNetWeight_"
@@ -159,7 +162,12 @@ export class SpSliderWithLabel extends React.Component<{
                     max={this.in_max}
                     value={this.state.slider_value}
                     title="2 will keep the composition; 0 will allow composition to change"
-                    onInput={this.onSliderValueChangeHandler.bind(this)}
+                    onInput={
+                        this.props.onSliderInput
+                            ? this.onSliderValueInputHandler.bind(this)
+                            : void 0
+                    }
+                    onChange={this.onSliderValueChangeHandler.bind(this)}
                 >
                     <sp-label slot="label">{this.props.label}:</sp-label>
                     <sp-label
@@ -169,7 +177,7 @@ export class SpSliderWithLabel extends React.Component<{
                     >
                         {this.state.output_value}
                     </sp-label>
-                </sp-slider>
+                </SpSlider>
             </div>
         )
     }

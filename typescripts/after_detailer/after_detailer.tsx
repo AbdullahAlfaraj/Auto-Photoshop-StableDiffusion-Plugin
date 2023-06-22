@@ -200,7 +200,7 @@ export class AfterDetailerComponent extends React.Component<{
                     output_value={store.data['ad_conf']}
                     // title={ui_config[id].label}
                     label="Detection Confidence Threshold %:"
-                    onSliderChange={(new_value: number) => {
+                    onSliderInput={(new_value: number) => {
                         // console.log('slider_change: ', new_value)
                         store.updateProperty('ad_conf', new_value)
                     }}
@@ -248,7 +248,7 @@ export class AfterDetailerComponent extends React.Component<{
                             ? SliderType.Integer
                             : SliderType.Float
                     }
-                    onSliderChange={(new_value: number) => {
+                    onSliderInput={(new_value: number) => {
                         // console.log('slider_change: ', new_value)
                         store.updateProperty('controlNetWeight', new_value)
                     }}

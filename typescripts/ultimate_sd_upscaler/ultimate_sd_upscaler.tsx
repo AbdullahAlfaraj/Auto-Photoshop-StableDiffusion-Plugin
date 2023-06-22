@@ -223,7 +223,7 @@ export class UltimateSDUpscalerForm extends React.Component<{
                 output_value={this.props.store.data[id]}
                 title={ui_config[id].label}
                 label={ui_config[id].label}
-                onSliderChange={this.handleSliderChange}
+                onSliderInput={this.handleSliderChange}
             />
         ))
         const seamfix_ids = [
@@ -243,7 +243,7 @@ export class UltimateSDUpscalerForm extends React.Component<{
                 output_value={this.props.store.data[id]}
                 title={ui_config[id].label}
                 label={ui_config[id].label}
-                onSliderChange={this.handleSliderChange}
+                onSliderInput={this.handleSliderChange}
                 slider_type={
                     Number.isInteger(ui_config[id].step)
                         ? SliderType.Integer
@@ -275,7 +275,7 @@ export class UltimateSDUpscalerForm extends React.Component<{
                     id={'custom_scale'}
                     out_min={ui_config.custom_scale.minimum}
                     out_max={ui_config.custom_scale.maximum}
-                    onSliderChange={this.handleSliderChange}
+                    onSliderInput={this.handleSliderChange}
                     steps={0.01}
                     slider_type={SliderType.Float}
                 />
