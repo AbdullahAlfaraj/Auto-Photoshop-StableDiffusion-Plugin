@@ -279,183 +279,185 @@ export default class ControlNetUnit extends React.Component<{ index: number, app
 
         return <div id={`controlnet_settings_${this.props.index}`}>
             <div className="flexContainer">
-                <sp-label slot="label"
-                >{Locale('controlnet.index')}{this.props.index}</sp-label>
+                <SpCheckBox style={{marginRight: "10px"}} onChange={this.onEnableChange.bind(this)} checked={storeData.enabled} id={`chEnableControlNet_${this.props.index}`} value={this.props.appState.controlNetUnitData[this.props.index].enabled}>
+                    {Locale('controlnet.index')}{this.props.index}
+                </SpCheckBox>
             </div>
-            <div style={{ display: "flex" }}>
-                <div
-                    id={`control_net_image_container_${this.props.index}`}
-                    className="imgContainer controlNetImaageContainer"
-                >
-                    <div>
+            <div style={{ display: storeData.enabled ? 'block' : 'none' }}>
+                <div style={{ display: "flex" }}>
+                    <div
+                        id={`control_net_image_container_${this.props.index}`}
+                        className="imgContainer controlNetImaageContainer"
+                    >
+                        <div>
+                            <img
+                                id={`control_net_image_${this.props.index}`}
+                                className="column-item-image"
+                                src={storeData.input_image ? 'data:image/png;base64,' + storeData.input_image : "https://source.unsplash.com/random"}
+                                width="300px"
+                                height="100px"
+                            />
+                        </div>
+                        <div className="imgButton">
+                            <button
+                                className="column-item button-style btnSquare"
+                                id={`bSetControlImage_${this.props.index}`}
+                                onClick={this.onSetImageButtonClick.bind(this)}
+                                title="Set CtrlNet Img"
+                            >
+                                {Locale('controlnet.setimage')}
+                            </button>
+                        </div>
+                    </div>
+                    <div
+                        id={`control_net_mask_container_${this.props.index}`}
+                        className="imgContainer controlNetImaageContainer"
+                    >
+                        <div>
+                        <Thumbnail>
                         <img
-                            id={`control_net_image_${this.props.index}`}
-                            className="column-item-image"
-                            src={storeData.input_image ? 'data:image/png;base64,' + storeData.input_image : "https://source.unsplash.com/random"}
-                            width="300px"
-                            height="100px"
-                        />
-                    </div>
-                    <div className="imgButton">
-                        <button
-                            className="column-item button-style btnSquare"
-                            id={`bSetControlImage_${this.props.index}`}
-                            onClick={this.onSetImageButtonClick.bind(this)}
-                            title="Set CtrlNet Img"
-                        >
-                            {Locale('controlnet.setimage')}
-                        </button>
-                    </div>
-                </div>
-                <div
-                    id={`control_net_mask_container_${this.props.index}`}
-                    className="imgContainer controlNetImaageContainer"
-                >
-                    <div>
-                    <Thumbnail>
-                    <img
-                            id={`control_net_mask_${this.props.index}`}
-                            className="column-item-image"
-                            src={storeData.mask ? 'data:image/png;base64,' + storeData.mask : "https://source.unsplash.com/random"}
-                            width="300px"
-                            height="100px"
-                        />  
-            <ActionButtonSVG onClick={this.toControlNetInitImage.bind(this)} ><PenSvg/></ActionButtonSVG>
-            <ActionButtonSVG onClick={this.toCanvas.bind(this)} ><MoveToCanvasSvg/></ActionButtonSVG>
-            <ActionButtonSVG onClick={this.previewAnnotatorFromCanvas.bind(this)} ><PreviewSvg/></ActionButtonSVG>
-            </Thumbnail>
-                       
-                    </div>
-                    <div className="imgButton btnClass">
-                        <button
-                            className="column-item button-style btnSquare"
-                            id={`bControlMask_${this.props.index}`}
-                            onClick={this.previewAnnotator.bind(this)}
-                            
-                            title="Preview Annotator"
-                        >
-                            {Locale('controlnet.preview')}
-                        </button>
+                                id={`control_net_mask_${this.props.index}`}
+                                className="column-item-image"
+                                src={storeData.mask ? 'data:image/png;base64,' + storeData.mask : "https://source.unsplash.com/random"}
+                                width="300px"
+                                height="100px"
+                            />  
+                <ActionButtonSVG onClick={this.toControlNetInitImage.bind(this)} ><PenSvg/></ActionButtonSVG>
+                <ActionButtonSVG onClick={this.toCanvas.bind(this)} ><MoveToCanvasSvg/></ActionButtonSVG>
+                <ActionButtonSVG onClick={this.previewAnnotatorFromCanvas.bind(this)} ><PreviewSvg/></ActionButtonSVG>
+                </Thumbnail>
+                        
+                        </div>
+                        <div className="imgButton btnClass">
+                            <button
+                                className="column-item button-style btnSquare"
+                                id={`bControlMask_${this.props.index}`}
+                                onClick={this.previewAnnotator.bind(this)}
+                                
+                                title="Preview Annotator"
+                            >
+                                {Locale('controlnet.preview')}
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <SpCheckBox style={{marginRight: "10px"}} onChange={this.onEnableChange.bind(this)} checked={storeData.enabled} id={`chEnableControlNet_${this.props.index}`} value={this.props.appState.controlNetUnitData[this.props.index].enabled}>{Locale('controlnet.enable')}</SpCheckBox>
-            <SpCheckBox style={{marginRight: "10px"}} onChange={this.onLowVRamChange.bind(this)} checked={storeData.lowvram} id={`chlowVram_${this.props.index}`}>{Locale('controlnet.lowVRam')}</SpCheckBox>
-            <SpCheckBox style={{display: this.props.appState.controlnetApiVersion > 1 ? 'none' : void 0, marginRight: "10px"}} onChange={this.onGuessModeChange.bind(this)} checked={storeData.guessmode} id={`chGuessMode_${this.props.index}`}>{Locale('controlnet.GuessMode')}</SpCheckBox>
-            <SpCheckBox style={{display: this.props.appState.controlnetApiVersion > 1 ? void 0 : 'none', marginRight: "10px"}} onChange={this.onPixelPerfectChange.bind(this)} checked={storeData.pixel_perfect} id={`chPixelPerfect_${this.props.index}`}>{Locale('controlnet.PixelPerfect')}</SpCheckBox>
-            {
-                this.props.appState.controlnetApiVersion > 1 &&
-                <sp-radio-group id={`rgControlNetMode_${this.props.index}`} style={{ display: 'flex' }}>
-                    <sp-label slot="label">{Locale('controlnet.ControlMode')}</sp-label>
-                    <sp-radio
-                        checked
-                        value="0"
-                    >{Locale('controlnet.ControlMode.Balanced')}</sp-radio>
-                    <sp-radio
-                        title="My prompt is more important"
-                        value="1"
-                    >{Locale('controlnet.ControlMode.Prompt')}</sp-radio>
-                    <sp-radio
-                        title="ControlNet is more important"
-                        value="2"
-                    >{Locale('controlnet.ControlMode.ControlNet')}</sp-radio>
-                </sp-radio-group>
-            }
-
-            <div>
-                <div>
-                    <SpSlider
-                        show-value="false"
-                        id={`slControlNetWeight_${this.props.index}`}
-                        min="0"
-                        max="200"
-                        value="100"
-                        onInput={this.onWeightMove.bind(this)}
-                        title="2 will keep the composition; 0 will allow composition to change"
-                    >
-                        <sp-label slot="label">{Locale('controlnet.weight')}</sp-label>
-                        <sp-label slot="label" id={`lControlNetWeight_${this.props.index}`}>{storeData.weight}</sp-label>
-                    </SpSlider>
-                    <SpSlider
-                        show-value="false"
-                        id={`slControlNetGuidanceStrengthStart_${this.props.index}`}
-                        min="0"
-                        max="10"
-                        value="0"
-                        onInput={this.onGuidanceStartMove.bind(this)}
-                    >
-                        <sp-label slot="label">{Locale('controlnet.guidancestart')}</sp-label>
-                        <sp-label
-                            slot="label"
-                            id={`lControlNetGuidanceStrengthStart_${this.props.index}`}
-                        >{storeData.guidance_start}</sp-label>
-                    </SpSlider>
-                    <SpSlider
-                        show-value="false"
-                        id={`slControlNetGuidanceStrengthEnd_${this.props.index}`}
-                        min="0"
-                        max="10"
-                        value="100"
-                        onInput={this.onGuidanceEndMove.bind(this)}
-                    >
-                        <sp-label slot="label">{Locale('controlnet.guidanceend')}</sp-label>
-                        <sp-label
-                            slot="label"
-                            id={`lControlNetGuidanceStrengthEnd_${this.props.index}`}
-                        >{storeData.guidance_end}</sp-label>
-                    </SpSlider>
-                    {ppSlider && ppSlider[0] && !storeData.pixel_perfect && <SpSlider
-                        show-value="false"
-                        min={ppSlider[0].min / (ppSlider[0].step || 1)}
-                        max={ppSlider[0].max / (ppSlider[0].step || 1)}
-                        value={storeData.processor_res / (ppSlider[0].step || 1)}
-                        onInput={this.onResolutionMove.bind(this)}
-                    >
-                        <sp-label slot="label">{ppSlider[0].name}:</sp-label>
-                        <sp-label slot="label">{storeData.processor_res.toFixed(2)}</sp-label>
-                    </SpSlider>}
-                    {ppSlider && ppSlider[1] && <SpSlider
-                        show-value="false"
-                        min={ppSlider[1].min / (ppSlider[1].step || 1)}
-                        max={ppSlider[1].max / (ppSlider[1].step || 1)}
-                        value={storeData.threshold_a / (ppSlider[1].step || 1)}
-                        onInput={this.onThresholdAMove.bind(this)}
-                    >
-                        <sp-label slot="label">{ppSlider[1].name}:</sp-label>
-                        <sp-label slot="label">{storeData.threshold_a.toFixed(2)}</sp-label>
-                    </SpSlider>}
-                    {ppSlider && ppSlider[2] && <SpSlider
-                        show-value="false"
-                        min={ppSlider[2].min / (ppSlider[2].step || 1)}
-                        max={ppSlider[2].max / (ppSlider[2].step || 1)}
-                        value={storeData.threshold_b / (ppSlider[2].step || 1)}
-                        onInput={this.onThresholdBMove.bind(this)}
-                    >
-                        <sp-label slot="label">{ppSlider[2].name}:</sp-label>
-                        <sp-label slot="label">{storeData.threshold_b.toFixed(2)}</sp-label>
-                    </SpSlider>}
-                </div>
-            </div>
-            <div id={`menu-bar-control_net_${this.props.index}`} style={{ display: "flex" }}>
-                <SpMenu
-                    onChange={this.onPreprocsesorChange.bind(this)}
-                    id={`mModulesMenuControlNet_${this.props.index}`}
-                    items={this.props.appState.supportedPreprocessors}
-                    label_item='Select Module'
-                    selected_index={this.props.appState.supportedPreprocessors.indexOf(storeData.module || 'none')}
-                    style={{width:'100%',display:'flex'}}
-                /> 
-                {!pd.model_free && 
-                (<SpMenu
-                    onChange={this.onModelChange.bind(this)}
-                    id={`mModelsMenuControlNet_${this.props.index}`}
-                    items={['none'].concat(this.props.appState.supportedModels)}
-                    label_item='Select Model'
-                    selected_index={this.props.appState.supportedModels.indexOf(storeData.model || 'none')+1}// 'none' item will offset the index by 1
-                    style={{width:'100%',display:'flex'}}
-                />)
+                <SpCheckBox style={{marginRight: "10px"}} onChange={this.onLowVRamChange.bind(this)} checked={storeData.lowvram} id={`chlowVram_${this.props.index}`}>{Locale('controlnet.lowVRam')}</SpCheckBox>
+                <SpCheckBox style={{display: this.props.appState.controlnetApiVersion > 1 ? 'none' : void 0, marginRight: "10px"}} onChange={this.onGuessModeChange.bind(this)} checked={storeData.guessmode} id={`chGuessMode_${this.props.index}`}>{Locale('controlnet.GuessMode')}</SpCheckBox>
+                <SpCheckBox style={{display: this.props.appState.controlnetApiVersion > 1 ? void 0 : 'none', marginRight: "10px"}} onChange={this.onPixelPerfectChange.bind(this)} checked={storeData.pixel_perfect} id={`chPixelPerfect_${this.props.index}`}>{Locale('controlnet.PixelPerfect')}</SpCheckBox>
+                {
+                    this.props.appState.controlnetApiVersion > 1 &&
+                    <sp-radio-group id={`rgControlNetMode_${this.props.index}`} style={{ display: 'flex' }}>
+                        <sp-label slot="label">{Locale('controlnet.ControlMode')}</sp-label>
+                        <sp-radio
+                            checked
+                            value="0"
+                        >{Locale('controlnet.ControlMode.Balanced')}</sp-radio>
+                        <sp-radio
+                            title="My prompt is more important"
+                            value="1"
+                        >{Locale('controlnet.ControlMode.Prompt')}</sp-radio>
+                        <sp-radio
+                            title="ControlNet is more important"
+                            value="2"
+                        >{Locale('controlnet.ControlMode.ControlNet')}</sp-radio>
+                    </sp-radio-group>
                 }
+
+                <div>
+                    <div>
+                        <SpSlider
+                            show-value="false"
+                            id={`slControlNetWeight_${this.props.index}`}
+                            min="0"
+                            max="200"
+                            value="100"
+                            onInput={this.onWeightMove.bind(this)}
+                            title="2 will keep the composition; 0 will allow composition to change"
+                        >
+                            <sp-label slot="label">{Locale('controlnet.weight')}</sp-label>
+                            <sp-label slot="label" id={`lControlNetWeight_${this.props.index}`}>{storeData.weight}</sp-label>
+                        </SpSlider>
+                        <SpSlider
+                            show-value="false"
+                            id={`slControlNetGuidanceStrengthStart_${this.props.index}`}
+                            min="0"
+                            max="10"
+                            value="0"
+                            onInput={this.onGuidanceStartMove.bind(this)}
+                        >
+                            <sp-label slot="label">{Locale('controlnet.guidancestart')}</sp-label>
+                            <sp-label
+                                slot="label"
+                                id={`lControlNetGuidanceStrengthStart_${this.props.index}`}
+                            >{storeData.guidance_start}</sp-label>
+                        </SpSlider>
+                        <SpSlider
+                            show-value="false"
+                            id={`slControlNetGuidanceStrengthEnd_${this.props.index}`}
+                            min="0"
+                            max="10"
+                            value="100"
+                            onInput={this.onGuidanceEndMove.bind(this)}
+                        >
+                            <sp-label slot="label">{Locale('controlnet.guidanceend')}</sp-label>
+                            <sp-label
+                                slot="label"
+                                id={`lControlNetGuidanceStrengthEnd_${this.props.index}`}
+                            >{storeData.guidance_end}</sp-label>
+                        </SpSlider>
+                        {ppSlider && ppSlider[0] && !storeData.pixel_perfect && <SpSlider
+                            show-value="false"
+                            min={ppSlider[0].min / (ppSlider[0].step || 1)}
+                            max={ppSlider[0].max / (ppSlider[0].step || 1)}
+                            value={storeData.processor_res / (ppSlider[0].step || 1)}
+                            onInput={this.onResolutionMove.bind(this)}
+                        >
+                            <sp-label slot="label">{ppSlider[0].name}:</sp-label>
+                            <sp-label slot="label">{storeData.processor_res.toFixed(2)}</sp-label>
+                        </SpSlider>}
+                        {ppSlider && ppSlider[1] && <SpSlider
+                            show-value="false"
+                            min={ppSlider[1].min / (ppSlider[1].step || 1)}
+                            max={ppSlider[1].max / (ppSlider[1].step || 1)}
+                            value={storeData.threshold_a / (ppSlider[1].step || 1)}
+                            onInput={this.onThresholdAMove.bind(this)}
+                        >
+                            <sp-label slot="label">{ppSlider[1].name}:</sp-label>
+                            <sp-label slot="label">{storeData.threshold_a.toFixed(2)}</sp-label>
+                        </SpSlider>}
+                        {ppSlider && ppSlider[2] && <SpSlider
+                            show-value="false"
+                            min={ppSlider[2].min / (ppSlider[2].step || 1)}
+                            max={ppSlider[2].max / (ppSlider[2].step || 1)}
+                            value={storeData.threshold_b / (ppSlider[2].step || 1)}
+                            onInput={this.onThresholdBMove.bind(this)}
+                        >
+                            <sp-label slot="label">{ppSlider[2].name}:</sp-label>
+                            <sp-label slot="label">{storeData.threshold_b.toFixed(2)}</sp-label>
+                        </SpSlider>}
+                    </div>
+                </div>
+                <div id={`menu-bar-control_net_${this.props.index}`} style={{ display: "flex" }}>
+                    <SpMenu
+                        onChange={this.onPreprocsesorChange.bind(this)}
+                        id={`mModulesMenuControlNet_${this.props.index}`}
+                        items={this.props.appState.supportedPreprocessors}
+                        label_item='Select Module'
+                        selected_index={this.props.appState.supportedPreprocessors.indexOf(storeData.module || 'none')}
+                        style={{width:'100%',display:'flex'}}
+                    /> 
+                    {!pd.model_free && 
+                    (<SpMenu
+                        onChange={this.onModelChange.bind(this)}
+                        id={`mModelsMenuControlNet_${this.props.index}`}
+                        items={['none'].concat(this.props.appState.supportedModels)}
+                        label_item='Select Model'
+                        selected_index={this.props.appState.supportedModels.indexOf(storeData.model || 'none')+1}// 'none' item will offset the index by 1
+                        style={{width:'100%',display:'flex'}}
+                    />)
+                    }
+                </div>
             </div>
         </div>
     }

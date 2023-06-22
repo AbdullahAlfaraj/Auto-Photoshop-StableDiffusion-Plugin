@@ -130,21 +130,15 @@ class ControlNetTab extends React.Component<{ appState: typeof ControlNetStore }
                             {Locale('controlnet.setall')}
                         </button>
                     </div>
-                    <sp-checkbox id="chDisableControlNetTab"
-                    >{Locale('controlnet.disableall')}</sp-checkbox>
+                    {/* <sp-checkbox id="chDisableControlNetTab"
+                    >{Locale('controlnet.disableall')}</sp-checkbox> */}
                 </div>
                 <div>
-                    
                     {
-                    Array(this.props.appState.maxControlNet * 2).fill(0).map((v, index) => {
-                        if (index % 2 == 0) {
-                            return <div key={`divider${index}`}><sp-divider class="line-divider" size="large"></sp-divider><sp-divider class="line-divider" size="large"></sp-divider><sp-divider class="line-divider" size="large"></sp-divider></div>
-                        }
-                        else {
-                            return <ControlNetUnit appState={this.props.appState} key={(index - 1) / 2} index={(index - 1) / 2} />
-                        }
-                    })
-                }
+                        Array(this.props.appState.maxControlNet).fill(0).map((v, index) => {
+                                return <ControlNetUnit appState={this.props.appState} key={index} index={index} />
+                        })
+                    }
                 </div>
             </div>
         );
