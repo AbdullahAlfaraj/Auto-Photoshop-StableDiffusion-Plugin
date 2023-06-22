@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactEventHandler, useState } from 'react'
+import React, { CSSProperties, ComponentType } from 'react'
 // import ReactDOM from 'react-dom'
 import ReactDOM from 'react-dom/client'
 // import { versions } from 'uxp'
@@ -419,31 +419,40 @@ export class SpDivider extends PhotoshopElem {
     }
 }
 
-export class Thumbnail extends React.Component<{ children: React.ReactNode }> {
+export class Thumbnail extends React.Component<{
+    style?: any
+    children: React.ReactNode
+}> {
     render() {
         return (
-            <div className="viewer-image-container">{this.props.children}</div>
+            <div style={this.props?.style} className="viewer-image-container">
+                {this.props.children}
+            </div>
         )
     }
 }
 
-export class ActionButtonSVG extends PhotoshopElem {
+export class ActionButtonSVG extends React.Component<{
+    onClick?: any
+    ComponentType: ComponentType
+}> {
     render() {
-        const [attr] = this.splitProps(this.props)
+        if (!this.props.ComponentType) {
+            return null
+        }
 
         return (
             <sp-action-button
+                onClick={this.props?.onClick}
                 style={{
                     padding: 0,
                     maxWidth: '32px',
                     maxHeight: '32px' /* display: none; */,
                 }}
                 class="thumbnail-image-button"
-                ref={(elem: Element) => (this.elem = elem)}
-                {...attr}
             >
                 <div slot="icon" style={{ fill: 'currentColor' }}>
-                    {this.props.children}
+                    {<this.props.ComponentType />}
                 </div>
             </sp-action-button>
         )

@@ -405,24 +405,21 @@ export default class ControlNetUnit extends React.Component<
                                     height="100px"
                                 />
                                 <ActionButtonSVG
+                                    ComponentType={PenSvg}
                                     onClick={this.toControlNetInitImage.bind(
                                         this
                                     )}
-                                >
-                                    <PenSvg />
-                                </ActionButtonSVG>
+                                ></ActionButtonSVG>
                                 <ActionButtonSVG
+                                    ComponentType={MoveToCanvasSvg}
                                     onClick={this.toCanvas.bind(this)}
-                                >
-                                    <MoveToCanvasSvg />
-                                </ActionButtonSVG>
+                                ></ActionButtonSVG>
                                 <ActionButtonSVG
+                                    ComponentType={PreviewSvg}
                                     onClick={this.previewAnnotatorFromCanvas.bind(
                                         this
                                     )}
-                                >
-                                    <PreviewSvg />
-                                </ActionButtonSVG>
+                                ></ActionButtonSVG>
                             </Thumbnail>
                         </div>
                         <div className="imgButton btnClass">
