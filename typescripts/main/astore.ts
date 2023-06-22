@@ -1,4 +1,5 @@
 import { makeAutoObservable, reaction, toJS } from 'mobx'
+export { toJS } from 'mobx'
 // import { Provider, inject, observer } from 'mobx-react'
 export class AStore {
     data: any
