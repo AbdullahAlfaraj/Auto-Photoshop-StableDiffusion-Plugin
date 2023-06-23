@@ -21,6 +21,7 @@ declare global {
             'sp-detail': any
             'sp-textarea': any
             'sp-action-button': any
+            'sp-progressbar': any
         }
     }
 }

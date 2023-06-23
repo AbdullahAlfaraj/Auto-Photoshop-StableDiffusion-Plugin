@@ -58,6 +58,7 @@ const {
     after_detailer_script,
     control_net,
     logger,
+    preview,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
@@ -2916,6 +2917,7 @@ async function progressRecursive() {
                 Enum.RequestStateEnum['Generating']
         ) {
             const base64_url = general.base64ToBase64Url(json.current_image)
+            preview.store.updateProperty('image', json.current_image)
 
             const progress_image_html = document.getElementById('progressImage')
             const container_width = document.querySelector(
