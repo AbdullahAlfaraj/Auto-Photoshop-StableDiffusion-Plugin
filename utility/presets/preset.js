@@ -160,9 +160,9 @@ function getPresetSettings(preset_type) {
     if (preset_type === Enum.PresetTypeEnum['SDPreset']) {
         preset_settings = g_ui_settings_object.getSettings()
     } else if (preset_type === Enum.PresetTypeEnum['ControlNetPreset']) {
-        const { getUnitsData } = require('../../typescripts/dist/bundle').control_net // only import ControlNetUnit to avoid circular dependency
+        const { getUnitsData } =
+            require('../../typescripts/dist/bundle').control_net // only import ControlNetUnit to avoid circular dependency
         preset_settings = getUnitsData()
-
     }
     return preset_settings
 }

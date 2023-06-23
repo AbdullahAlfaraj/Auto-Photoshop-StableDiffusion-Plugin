@@ -1,4 +1,5 @@
 import { makeAutoObservable, reaction, toJS } from 'mobx'
+export { toJS } from 'mobx'
 // import { Provider, inject, observer } from 'mobx-react'
 export class AStore {
     data: any
@@ -19,6 +20,14 @@ export class AStore {
 
     updateProperty(key: keyof any, value: any) {
         ;(this.data as any)[key] = value
+    }
+    updatePropertyArray(key: keyof any, value: any) {
+        this.data[key] = this.data[key].concat(value)
+    }
+    updatePropertyArrayRemove(key: keyof any, valueToRemove: any) {
+        this.data[key] = this.data[key].filter(
+            (item: any) => item !== valueToRemove
+        )
     }
 
     toJsFunc() {

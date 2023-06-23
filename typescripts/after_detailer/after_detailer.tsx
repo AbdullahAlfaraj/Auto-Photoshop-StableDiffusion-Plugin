@@ -4,11 +4,7 @@ import ReactDOM from 'react-dom/client'
 // import { action, makeAutoObservable, reaction, toJS } from 'mobx'
 import { observer } from 'mobx-react'
 
-import {
-    SliderType,
-    SpMenu,
-    SpSliderWithLabel,
-} from '../util/elements'
+import { SliderType, SpMenu, SpSliderWithLabel } from '../util/elements'
 // import * as sdapi from '../../sdapi_py_re'
 import { api } from '../util/oldSystem'
 import { AStore } from '../main/astore'
@@ -89,18 +85,10 @@ export class AfterDetailerComponent extends React.Component<{
     async componentDidUpdate(
         prevProps: ReactPropTypes,
         prevState: ReactPropTypes
-    ) {
-        // if (store.data.refresh) {
-        //     if (await this.isInstalled()) {
-        //         await this.getInpaintModels()
-        //         store.updateProperty('refresh', false)
-        //     }
-        // }
-    }
+    ) {}
     handleRefresh = async () => {
         if (await this.isInstalled()) {
             await this.getInpaintModels()
-            // store.updateProperty('refresh', false)
         }
     }
     async isInstalled() {
@@ -204,7 +192,7 @@ export class AfterDetailerComponent extends React.Component<{
                     output_value={store.data['ad_conf']}
                     // title={ui_config[id].label}
                     label="Detection Confidence Threshold %:"
-                    onSliderChange={(new_value: number) => {
+                    onSliderInput={(new_value: number) => {
                         // console.log('slider_change: ', new_value)
                         store.updateProperty('ad_conf', new_value)
                     }}
@@ -252,7 +240,7 @@ export class AfterDetailerComponent extends React.Component<{
                             ? SliderType.Integer
                             : SliderType.Float
                     }
-                    onSliderChange={(new_value: number) => {
+                    onSliderInput={(new_value: number) => {
                         // console.log('slider_change: ', new_value)
                         store.updateProperty('controlNetWeight', new_value)
                     }}
@@ -269,10 +257,15 @@ import { useState, ReactNode } from 'react'
 
 interface CollapsibleProps {
     label: string
+    defaultIsOpen?: boolean
     children: ReactNode
 }
-const Collapsible = ({ label, children }: CollapsibleProps) => {
-    const [isOpen, setIsOpen] = useState(false)
+const Collapsible = ({
+    label,
+    defaultIsOpen = false,
+    children,
+}: CollapsibleProps) => {
+    const [isOpen, setIsOpen] = useState(defaultIsOpen)
 
     const handleToggle = () => {
         setIsOpen(!isOpen)

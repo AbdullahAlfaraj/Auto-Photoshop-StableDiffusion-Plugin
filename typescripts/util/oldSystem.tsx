@@ -1,5 +1,5 @@
 //@ts-ignore
-const req = window['require'];
+const req = window['require']
 
 // because we use window['require'], so the base path of this require function is the root path of plugin.
 const selection = req('./selection')
@@ -14,6 +14,9 @@ const html_manip = req('./utility/html_manip')
 const psapi = req('./psapi')
 const general = req('./utility/general')
 const io = req('./utility/io')
+const settings_tab = req('./utility/tab/settings')
+const layer_util = req('./utility/layer')
+const session = req('./utility/session')
 export {
     selection,
     note,
@@ -26,5 +29,8 @@ export {
     html_manip,
     psapi,
     general,
-    io
+    io,
+    settings_tab,
+    layer_util,
+    session,
 }

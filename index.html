@@ -588,6 +588,18 @@
             height: 30px;
             background-repeat: no-repeat;
         }
+        .svgButton {
+            font-family: Arial, Verdana;
+
+            background-color: #777;
+            background-size: 30px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
+        }
+        .selectionAreaButton {
+            background-image: url(./icon/selection-area_2.svg);
+        }
         .interrogateButton {
             font-family: Arial, Verdana;
             background-image: url(./icon/writing-icon.svg);
@@ -698,6 +710,19 @@
         /* .sp-tab.selected sp-label {
             color: white;
         } */
+    </style>
+    <style>
+        .second_panel {
+            flex: 1 1 auto;
+            /* overflow: scroll; */
+            overflow-y: scroll;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            flex-direction: column;
+            height: 100%; /* Set a fixed height for the container */
+        }
     </style>
 
     <body>
@@ -881,9 +906,6 @@
                         >
                             Interrupt
                         </button>
-                        <button class="btnSquare" id="btnSelectionArea">
-                            Selection Area
-                        </button>
                         <div
                             style="
                                 display: flex;
@@ -891,10 +913,6 @@
                                 padding-top: 3px;
                             "
                         >
-                            <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
-            <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button>
-            <button class="btnSquare acceptSelectedClass acceptSelectedImgBtn"  style="display:none;">Accept Selected</button>
-            <button class="btnSquare discardSelectedClass discardSelectedImgBtn"  style="display:none;">Discard Selected</button> -->
                             <button
                                 title="Keep all generated images on the canvas"
                                 class="btnSquare acceptClass acceptAllImgBtn"
@@ -990,8 +1008,7 @@
                 </div>
                 <!-- </div> -->
             </div>
-            <div class="sp-tab-page" id="sp-control_net-tab-page">
-            </div>
+            <div class="sp-tab-page" id="sp-control_net-tab-page"></div>
             <div class="sp-tab-page" id="sp-history-tab-page">
                 <div class="subTabOptionsContainer"></div>
 
@@ -1278,7 +1295,6 @@
                         ></button>
                         <button
                             class="btnSquare snapshotButton"
-                            id="btnSnapshotUpscale"
                             style="margin-right: 3px"
                             title="create a snapshot of what you see on the canvas and place on a new layer"
                         ></button>
@@ -1300,10 +1316,10 @@
                     >
                 </div>
                 <div style="padding-bottom: 5px">
-                    <sp-label 
+                    <sp-label
                         class="title"
                         style="width: 60px; display: inline-block"
-                    >Upscaler 1:
+                        >Upscaler 1:
                     </sp-label>
                     <sp-picker size="m" label="Upscaler Options">
                         <sp-menu
@@ -1315,10 +1331,10 @@
                         </sp-menu>
                     </sp-picker>
                     <div></div>
-                    <sp-label 
+                    <sp-label
                         class="title"
                         style="width: 60px; display: inline-block"
-                    >Upscaler 2:
+                        >Upscaler 2:
                     </sp-label>
                     <sp-picker size="m" label="Upscaler Options">
                         <sp-menu
@@ -1684,12 +1700,6 @@
                 <!-- stable diffusion tab page -->
 
                 <div id="sdBtnContainer">
-                    <!-- <button
-                            class="btnSquare layerToSelection"
-                            id="btnLayerToSelection"
-                            style="margin-right: 3px"
-                            title="Move and reSize the highlighted layer to fit into the Selection Area "
-                        ></button> -->
                     <sp-picker
                         title="use lora in your prompt"
                         size="m"
@@ -1804,13 +1814,11 @@
                             ></button>
 
                             <button
-                                class="btnSquare layerToSelection"
-                                id="btnLayerToSelection"
+                                class="btnSquare layerToSelection btnLayerToSelection"
                                 title="Move and reSize the highlighted layer to fit into the Selection Area "
                             ></button>
                             <button
                                 class="btnSquare snapshotButton"
-                                id="btnSnapshot"
                                 title="create a snapshot of what you see on the canvas and place on a new layer"
                             ></button>
                             <button
@@ -1841,6 +1849,7 @@
                             >prompt shortcut</sp-checkbox
                         > -->
                     </div>
+                    <div id="generateButtonsContainer"></div>
                     <div>
                         <!-- icon only svg button -->
                         <sp-action-button
@@ -2167,6 +2176,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                         >
                         <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
                     </sp-radio-group>
+                    <div id="reactModesContainer"></div>
 
                     <div id="image_viewer">
                         <div class="imgButton">
@@ -2429,7 +2439,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 max="30"
                                 value="7"
                             >
-                                <sp-label slot="label" class="title">CFG Scale:</sp-label>
+                                <sp-label slot="label" class="title"
+                                    >CFG Scale:</sp-label
+                                >
                                 <!-- <sp-label slot="label" id="lCfgScale">7</sp-label> -->
                             </sp-slider>
 
@@ -2457,7 +2469,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                             value="15"
                             style="display: none"
                         >
-                            <sp-label slot="label" class="title">Image CFG Scale:</sp-label>
+                            <sp-label slot="label" class="title"
+                                >Image CFG Scale:</sp-label
+                            >
                             <sp-label slot="label" id="lImageCfgScale"
                                 >1.5</sp-label
                             >
@@ -2495,7 +2509,8 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 title="0 will keep the composition; 1 will allow composition to change"
                             >
                                 <sp-label slot="label" class="title"
-                                    >Inpainting conditioning mask strength:</sp-label
+                                    >Inpainting conditioning mask
+                                    strength:</sp-label
                                 >
                                 <sp-label
                                     slot="label"
@@ -2507,7 +2522,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
 
                         <div id="slInpainting_fill">
                             <sp-radio-group id="Inpainting_fill_group" class="">
-                                <sp-label class="title" slot="label">Mask Content:</sp-label>
+                                <sp-label class="title" slot="label"
+                                    >Mask Content:</sp-label
+                                >
                                 <sp-radio
                                     class="rbMaskContent"
                                     checked
@@ -2540,7 +2557,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                         <div id="HiResDiv" style="display: none">
                             <div style="display: flex">
                                 <div>
-                                    <sp-label class="title">Upscaler: </sp-label>
+                                    <sp-label class="title"
+                                        >Upscaler:
+                                    </sp-label>
                                     <sp-picker
                                         size="m"
                                         label="Upscaler Options"
@@ -2555,7 +2574,8 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                     </sp-picker>
                                 </div>
                                 <div>
-                                    <sp-label id="HiResStep">Hi Res Steps:</sp-label
+                                    <sp-label id="HiResStep"
+                                        >Hi Res Steps:</sp-label
                                     ><sp-textfield
                                         id="hrNumberOfSteps"
                                         type="number"
@@ -2761,8 +2781,128 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                     <sp-divider class="line-divider" size="large"></sp-divider>
                     <div style="margin-bottom: 3px"></div>
                     <div id="scriptsContainer"></div>
+
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+
+                    <div class="reactViewerContainer"></div>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <div class="previewContainer"></div>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <div class="samContainer"></div>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
                 </div>
             </div>
         </div>
+
+        <uxp-panel panelid="second_panel">
+            <div id="search_second_panel" class="container second_panel">
+                <div id="sp-control_net-tab-page2"></div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <div class="reactViewerContainer"></div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <div class="previewContainer"></div>
+            </div>
+        </uxp-panel>
+
+        <uxp-panel panelid="toolbar">
+            <div
+                id="toolbar_panel"
+                class="_container"
+                style="
+                    margin: 0;
+                    display: flex;
+                    justify-content: flex-start;
+                    /* padding-bottom: 5px; */
+                    flex-direction: column;
+                "
+            >
+                <div
+                    style="
+                        margin: 0;
+                        display: flex;
+                        justify-content: flex-start;
+                        /* padding: 1px; */
+                        flex-direction: column;
+                    "
+                >
+                    <button
+                        class="btnSquare btnGenerateClass"
+                        id="btnGenerateUpscale"
+                    >
+                        Generate upscale
+                    </button>
+                    <button
+                        class="btnSquare btnInterruptClass"
+                        id="btnInterruptUpscale"
+                        style="display: none"
+                    >
+                        Interrupt
+                    </button>
+                    <div>
+                        <button
+                            title="Keep all generated images on the canvas"
+                            class="btnSquare acceptClass acceptAllImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button>
+                        <button
+                            title="Delete all generated images from the canvas"
+                            class="btnSquare discardClass discardAllImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button>
+                        <button
+                            title="Keep only the highlighted images"
+                            class="btnSquare acceptSelectedClass acceptSelectedImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button>
+                        <button
+                            title="Delete only the highlighted images"
+                            class="btnSquare discardSelectedClass discardSelectedImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button>
+
+                        <button
+                            class="btnSquare layerToSelection btnLayerToSelection"
+                            title="Move and reSize the highlighted layer to fit into the Selection Area "
+                            style="margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare snapshotButton"
+                            title="create a snapshot of what you see on the canvas and place on a new layer"
+                            style="margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare resetButton"
+                            id="btnResetSettings"
+                            title="reset the ui settings to their default values"
+                            style="margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare interrogateButton"
+                            id="btnInterrogate"
+                            title="Interrogate the selected area, convert Image to Prompt"
+                            style="margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare svgButton selectionAreaButton"
+                            id="btnSelectionArea"
+                            style="margin-right: 3px"
+                            title="Reselect the selection area for the current session"
+                        ></button>
+                        <!-- <button id="scrollToPrompt" class="btnSquare svgButton">
+                            P
+                        </button> -->
+                        <!-- <button id="scrollToViewer" class="btnSquare svgButton">
+                            V
+                        </button> -->
+                    </div>
+                </div>
+            </div>
+        </uxp-panel>
     </body>
 </html>

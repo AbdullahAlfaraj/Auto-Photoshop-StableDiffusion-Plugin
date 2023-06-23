@@ -1,12 +1,10 @@
-import React, { CSSProperties, ReactEventHandler, useState } from 'react'
+import React, { CSSProperties, ComponentType } from 'react'
 // import ReactDOM from 'react-dom'
 import ReactDOM from 'react-dom/client'
 // import { versions } from 'uxp'
-export { ReactComponent as MoveToCanvasSvg } from '../../icon/move_to_canvas.svg';
-export { ReactComponent as PenSvg } from '../../icon/pen.svg';
-export { ReactComponent as PreviewSvg } from '../../icon/preview.svg';
-
-
+export { ReactComponent as MoveToCanvasSvg } from '../../icon/move_to_canvas.svg'
+export { ReactComponent as PenSvg } from '../../icon/pen.svg'
+export { ReactComponent as PreviewSvg } from '../../icon/preview.svg'
 
 declare global {
     namespace JSX {
@@ -23,6 +21,7 @@ declare global {
             'sp-detail': any
             'sp-textarea': any
             'sp-action-button': any
+            'sp-progressbar': any
         }
     }
 }
@@ -43,6 +42,7 @@ export enum SliderType {
 }
 export class SpSliderWithLabel extends React.Component<{
     onSliderChange?: any
+    onSliderInput?: any
     id?: string
     'show-value'?: boolean
     steps?: number
@@ -122,17 +122,19 @@ export class SpSliderWithLabel extends React.Component<{
         this.setState({ output_value: to_value })
     }
 
+    onSliderValueInputHandler(event: React.ChangeEvent<HTMLInputElement>) {
+        const newValue: string = event.target.value
+
+        let output_value = this.stepToOutputValue(parseInt(newValue))
+        this.setState({ output_value: output_value })
+        if (this.props.onSliderInput && this.props.id) {
+            this.props.onSliderInput(this.props.id, output_value)
+        } else if (this.props.onSliderInput) {
+            this.props.onSliderInput(output_value)
+        }
+    }
     onSliderValueChangeHandler(event: React.ChangeEvent<HTMLInputElement>) {
         const newValue: string = event.target.value
-        console.log('onSliderValueChangeHandler value: ', newValue)
-        this.setState({ output_value: newValue })
-
-        console.log({
-            in_min: this.in_min,
-            in_max: this.in_max,
-            out_min: this.out_min,
-            out_max: this.out_max,
-        })
 
         let output_value = this.stepToOutputValue(parseInt(newValue))
         this.setState({ output_value: output_value })
@@ -153,7 +155,7 @@ export class SpSliderWithLabel extends React.Component<{
             //     <div>{versions.plugin}</div>
             // </div>
             <div>
-                <sp-slider
+                <SpSlider
                     show-value="false"
                     // id="slControlNetWeight_0"
                     class="slControlNetWeight_"
@@ -161,7 +163,12 @@ export class SpSliderWithLabel extends React.Component<{
                     max={this.in_max}
                     value={this.state.slider_value}
                     title="2 will keep the composition; 0 will allow composition to change"
-                    onInput={this.onSliderValueChangeHandler.bind(this)}
+                    onInput={
+                        this.props.onSliderInput
+                            ? this.onSliderValueInputHandler.bind(this)
+                            : void 0
+                    }
+                    onChange={this.onSliderValueChangeHandler.bind(this)}
                 >
                     <sp-label slot="label">{this.props.label}:</sp-label>
                     <sp-label
@@ -171,7 +178,7 @@ export class SpSliderWithLabel extends React.Component<{
                     >
                         {this.state.output_value}
                     </sp-label>
-                </sp-slider>
+                </SpSlider>
             </div>
         )
     }
@@ -266,11 +273,9 @@ export class SpMenu extends React.Component<{
     }
 }
 class PhotoshopElem extends React.Component<{ [key: string]: any }, {}> {
-    protected elem: Element | null = null;
+    protected elem: Element | null = null
 
-    protected curEvents: { [key: string]: (evt: Event) => any } = {
-
-    }
+    protected curEvents: { [key: string]: (evt: Event) => any } = {}
 
     componentDidMount(): void {
         this.updateEventListener()
@@ -281,35 +286,34 @@ class PhotoshopElem extends React.Component<{ [key: string]: any }, {}> {
     // }
 
     updateEventListener() {
-        if (!this.elem) throw new Error('elem is not rendered with ref');
+        if (!this.elem) throw new Error('elem is not rendered with ref')
 
         const [, newEvent] = this.splitProps(this.props)
 
-        Object.keys(this.curEvents).forEach(evkey => {
+        Object.keys(this.curEvents).forEach((evkey) => {
             if (this.curEvents[evkey] != newEvent[evkey]) {
-                this.elem?.removeEventListener(evkey, this.curEvents[evkey]);
+                this.elem?.removeEventListener(evkey, this.curEvents[evkey])
             }
-        });
-        Object.keys(newEvent).forEach(evkey => {
-            this.elem?.addEventListener(evkey, newEvent[evkey]);
+        })
+        Object.keys(newEvent).forEach((evkey) => {
+            this.elem?.addEventListener(evkey, newEvent[evkey])
         })
     }
 
     componentWillUnmount(): void {
-        Object.keys(this.curEvents).forEach(evkey => {
-            this.elem?.removeEventListener(evkey, this.curEvents[evkey]);
-        });
+        Object.keys(this.curEvents).forEach((evkey) => {
+            this.elem?.removeEventListener(evkey, this.curEvents[evkey])
+        })
     }
     splitProps(props: any): [any, any] {
-        const attr: any = {};
-        const event: any = {};
+        const attr: any = {}
+        const event: any = {}
         Object.keys(props).forEach((propKey: string) => {
             if (propKey.startsWith('on')) {
                 const key = propKey[2].toLocaleLowerCase() + propKey.slice(3)
-                event[key] = props[propKey];
-
+                event[key] = props[propKey]
             } else {
-                attr[propKey] = props[propKey];
+                attr[propKey] = props[propKey]
             }
         })
         return [attr, event]
@@ -318,81 +322,140 @@ class PhotoshopElem extends React.Component<{ [key: string]: any }, {}> {
 export class SpPicker extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-picker ref={(elem: Element) => this.elem = elem} {...attr}></sp-picker>
+        return (
+            <sp-picker
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-picker>
+        )
     }
 }
 export class SpMenuComponent extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-menu ref={(elem: Element) => this.elem = elem} {...attr}></sp-menu>
+        return (
+            <sp-menu
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-menu>
+        )
     }
 }
 export class SpMenuItem extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-menu-item ref={(elem: Element) => this.elem = elem} {...attr}></sp-menu-item>
+        return (
+            <sp-menu-item
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-menu-item>
+        )
     }
 }
 export class SpLabel extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-label ref={(elem: Element) => this.elem = elem} {...attr}></sp-label>
+        return (
+            <sp-label
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-label>
+        )
     }
 }
 export class SpCheckBox extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
         if (!attr['checked']) delete attr['checked']
-        return <sp-checkbox ref={(elem: Element) => this.elem = elem} {...attr}></sp-checkbox>
+        return (
+            <sp-checkbox
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-checkbox>
+        )
     }
 }
 export class SpSlider extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-slider ref={(elem: Element) => this.elem = elem} {...attr}></sp-slider>
+        return (
+            <sp-slider
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-slider>
+        )
     }
 }
 export class SpRadioGroup extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-radio-group ref={(elem: Element) => this.elem = elem} {...attr}></sp-radio-group>
+        return (
+            <sp-radio-group
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-radio-group>
+        )
     }
 }
 export class SpRadio extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-radio ref={(elem: Element) => this.elem = elem} {...attr}></sp-radio>
+        return (
+            <sp-radio
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-radio>
+        )
     }
 }
 export class SpDivider extends PhotoshopElem {
     render() {
         const [attr] = this.splitProps(this.props)
-        return <sp-divider ref={(elem: Element) => this.elem = elem} {...attr}></sp-divider>
+        return (
+            <sp-divider
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-divider>
+        )
     }
 }
 
-
-export class Thumbnail extends React.Component<{children:React.ReactNode}> { 
-       
-    render() { 
-        return <div className='viewer-image-container'>
-            
-            {this.props.children}
-        </div>
-    }
-}
-
-
-
-export class ActionButtonSVG extends PhotoshopElem {
+export class Thumbnail extends React.Component<{
+    style?: any
+    children: React.ReactNode
+}> {
     render() {
-        const [attr] = this.splitProps(this.props)
-        
-        return <sp-action-button style={{padding: 0, maxWidth: "32px",maxHeight: "32px"  /* display: none; */}}   class="thumbnail-image-button" ref={(elem: Element) => this.elem = elem} {...attr}>
+        return (
+            <div style={this.props?.style} className="viewer-image-container">
+                {this.props.children}
+            </div>
+        )
+    }
+}
 
-                            <div slot="icon" style={{fill: 'currentColor'}}>
-                            {this.props.children}
-                            </div>
-                        </sp-action-button>}}
+export class ActionButtonSVG extends React.Component<{
+    onClick?: any
+    ComponentType: ComponentType
+}> {
+    render() {
+        if (!this.props.ComponentType) {
+            return null
+        }
 
-
+        return (
+            <sp-action-button
+                onClick={this.props?.onClick}
+                style={{
+                    padding: 0,
+                    maxWidth: '32px',
+                    maxHeight: '32px' /* display: none; */,
+                }}
+                class="thumbnail-image-button"
+            >
+                <div slot="icon" style={{ fill: 'currentColor' }}>
+                    {<this.props.ComponentType />}
+                </div>
+            </sp-action-button>
+        )
+    }
+}

@@ -4,11 +4,8 @@ const { getExtensionType } = require('./utility/html_manip')
 const py_re = require('./utility/sdapi/python_replacement')
 const Enum = require('./enum')
 const { control_net } = require('./typescripts/dist/bundle')
-const {
-    mapPluginSettingsToControlNet,
-    getEnableControlNet,
-    getModuleDetail,
-} = control_net
+const { mapPluginSettingsToControlNet, getEnableControlNet, getModuleDetail } =
+    control_net
 
 const api = require('./utility/api')
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
@@ -21,7 +18,7 @@ async function requestSavePng(base64_image, image_name) {
         const uniqueDocumentId = await getUniqueDocumentId()
         const folder = `${uniqueDocumentId}/init_images`
         const init_entry = await getInitImagesDir()
-        saveFileInSubFolder(base64_image, folder, image_name)
+        io.saveFileInSubFolder(base64_image, folder, image_name)
         console.warn('this function is deprecated')
     } catch (e) {
         console.warn(e)
@@ -42,6 +39,7 @@ async function requestTxt2Img(payload) {
     }
 }
 
+//Refactor: move to modes.ts
 async function requestImg2Img(payload) {
     console.log('requestImg2Img(): about to send a fetch request')
     try {
@@ -56,8 +54,8 @@ async function requestImg2Img(payload) {
     }
 }
 
+//Refactor: move to progress.ts
 async function requestProgress() {
-    let json = {}
     try {
         console.log('requestProgress: ')
 
@@ -71,6 +69,7 @@ async function requestProgress() {
         console.warn(e)
         // console.log('json: ', json)
     }
+    return null
 }
 
 async function requestGetModels() {
@@ -483,13 +482,13 @@ async function requestControlNetTxt2Img(plugin_settings) {
             app.showAlert('you need to select a valid ControlNet Module')
             throw 'you need to select a valid ControlNet Module'
         }
-        
+
         if (
-            !control_net_settings['controlnet_units'][index]['model']  &&
-            !getModuleDetail()[
-                control_net_settings['controlnet_units'][index]['module']
-            ].model_free 
-            || control_net_settings['controlnet_units'][index]['model'] === 'none'
+            (!control_net_settings['controlnet_units'][index]['model'] &&
+                !getModuleDetail()[
+                    control_net_settings['controlnet_units'][index]['module']
+                ].model_free) ||
+            control_net_settings['controlnet_units'][index]['model'] === 'none'
         ) {
             app.showAlert('you need to select a valid ControlNet Model')
             throw 'you need to select a valid ControlNet Model'
@@ -525,10 +524,7 @@ async function requestControlNetTxt2Img(plugin_settings) {
             mask_index >= numberOfAnnotations
         )
             continue
-        control_net.setControlMaskSrc(
-            base64_mask[mask_index],
-            index
-        )
+        control_net.setControlMaskSrc(base64_mask[mask_index], index)
         g_generation_session.controlNetMask[index] = base64_mask[mask_index]
         mask_index++
     }
@@ -569,10 +565,10 @@ async function requestControlNetImg2Img(plugin_settings) {
             throw 'you need to select a valid ControlNet Module'
         }
         if (
-            !control_net_settings['controlnet_units'][index]['model'] &&
-            !getModuleDetail()[
-                control_net_settings['controlnet_units'][index]['module']
-            ].model_free || 
+            (!control_net_settings['controlnet_units'][index]['model'] &&
+                !getModuleDetail()[
+                    control_net_settings['controlnet_units'][index]['module']
+                ].model_free) ||
             control_net_settings['controlnet_units'][index]['model'] === 'none'
         ) {
             app.showAlert('you need to select a valid ControlNet Model')
@@ -618,10 +614,7 @@ async function requestControlNetImg2Img(plugin_settings) {
             mask_index >= numberOfAnnotations
         )
             continue
-        control_net.setControlMaskSrc(
-            base64_mask[mask_index],
-            index
-        )
+        control_net.setControlMaskSrc(base64_mask[mask_index], index)
         g_generation_session.controlNetMask[index] = base64_mask[mask_index]
         mask_index++
     }

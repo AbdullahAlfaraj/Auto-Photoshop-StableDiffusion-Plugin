@@ -1,14 +1,14 @@
-import { observable, reaction } from "mobx";
+import { observable, reaction } from 'mobx'
 
 export const DefaultControlNetUnitData = {
     enabled: false,
     input_image: '',
     mask: '',
 
-    module: "",
-    model: "",
+    module: '',
+    model: '',
     weight: 1.0,
-    resize_mode: "Scale to Fit (Inner Fit)",
+    resize_mode: 'Scale to Fit (Inner Fit)',
     lowvram: true,
     processor_res: 512,
     threshold_a: 0,
@@ -18,38 +18,41 @@ export const DefaultControlNetUnitData = {
     guidance_end: 1,
     guessmode: false,
 
-    control_mode: "Balanced",
+    control_mode: 'Balanced',
     pixel_perfect: true,
 }
 
 export interface controlNetUnitData {
-    enabled: boolean,
-    input_image: string,
-    mask: string,
+    enabled: boolean
+    input_image: string
+    mask: string
 
-    module: string,
-    model: string,
-    weight: number,
-    resize_mode: "Just Resize" | "Crop and Resize" | "Resize and Fill",
-    lowvram: boolean,
-    processor_res: number,
-    threshold_a: number,
-    threshold_b: number,
+    module: string
+    model: string
+    weight: number
+    resize_mode: 'Just Resize' | 'Crop and Resize' | 'Resize and Fill'
+    lowvram: boolean
+    processor_res: number
+    threshold_a: number
+    threshold_b: number
 
-    guidance_start: number,
-    guidance_end: number,
-    guessmode: boolean,
+    guidance_start: number
+    guidance_end: number
+    guessmode: boolean
 
-    control_mode: "Balanced" | "My prompt is more important" | "ControlNet is more important",
-    pixel_perfect: boolean,
+    control_mode:
+        | 'Balanced'
+        | 'My prompt is more important'
+        | 'ControlNet is more important'
+    pixel_perfect: boolean
 }
 interface ControlNetMobxStore {
-    maxControlNet: number,
-    controlnetApiVersion: number,
+    maxControlNet: number
+    controlnetApiVersion: number
 
-    supportedModels: string[],
-    supportedPreprocessors: string[],
-    preprocessorDetail: {[key: string]: any},
+    supportedModels: string[]
+    supportedPreprocessors: string[]
+    preprocessorDetail: { [key: string]: any }
 
     controlNetUnitData: controlNetUnitData[]
 }
@@ -62,12 +65,12 @@ var ControlNetStore = observable<ControlNetMobxStore>({
     supportedPreprocessors: [],
     preprocessorDetail: {},
 
-    controlNetUnitData: []
-});
+    controlNetUnitData: [],
+})
 
 reaction(
     () => {
-        return ControlNetStore.controlNetUnitData.map(data => data.module)
+        return ControlNetStore.controlNetUnitData.map((data) => data.module)
     },
     (module_, index) => {
         ControlNetStore.controlNetUnitData.forEach((data, index) => {
@@ -81,10 +84,15 @@ reaction(
 )
 reaction(
     () => ControlNetStore.maxControlNet,
-    maxControlNet => {
-        ControlNetStore.controlNetUnitData = Array(maxControlNet).fill(0).map((v, index) => {
-            return ControlNetStore.controlNetUnitData[index] || DefaultControlNetUnitData;
-        })
+    (maxControlNet) => {
+        ControlNetStore.controlNetUnitData = Array(maxControlNet)
+            .fill(0)
+            .map((v, index) => {
+                return (
+                    ControlNetStore.controlNetUnitData[index] ||
+                    DefaultControlNetUnitData
+                )
+            })
     }
 )
 

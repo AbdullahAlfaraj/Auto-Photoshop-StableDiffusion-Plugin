@@ -9,7 +9,7 @@ export const model_list = [
     'person_yolov8n-seg.pt',
 
     'person_yolov8s-seg.pt',
-    'None'
+    'None',
 ]
 export let ui_config = {
     ad_model: {

@@ -216,6 +216,7 @@ class IO {
                 new_doc.width,
                 new_doc.height
             ) //
+
             await layer_util.Layer.moveTo(new_layer, 0, 0) //move to the top left corner
             //
             await IOHelper.saveAsWebpExe(doc_entry) //save current document as .webp file, save it into doc_entry folder
@@ -565,13 +566,22 @@ class IOHelper {
         const crop_h = selectionInfo.height
         const base64_url_result = await Jimp.read(arrayBuffer)
             .then(async (img) => {
-                let cropped_img = await img.crop(crop_x, crop_y, crop_w, crop_h)
+                let cropped_img = await img.crop(
+                    crop_x,
+                    crop_y,
+                    crop_w,
+                    crop_h
+                    // crop_w - 1,
+                    // crop_h - 1
+                )
 
                 let resized_img
                 if (b_resize) {
                     resized_img = await cropped_img.resize(
                         resize_width,
-                        resize_height
+                        resize_height,
+                        // Jimp.RESIZE_BILINEAR
+                        Jimp.RESIZE_NEAREST_NEIGHBOR
                     )
                 } else {
                     resized_img = cropped_img
@@ -821,6 +831,350 @@ class IOJson {
     }
 }
 
+async function createThumbnail(base64Image, width = 100) {
+    const image = await Jimp.read(Buffer.from(base64Image, 'base64'))
+    image.resize(width, Jimp.AUTO, Jimp.RESIZE_NEAREST_NEIGHBOR)
+    const thumbnail = await image.getBase64Async(Jimp.MIME_PNG)
+    return thumbnail
+}
+
+async function getImageFromCanvas() {
+    const width = html_manip.getWidth()
+    const height = html_manip.getHeight()
+    const selectionInfo = await psapi.getSelectionInfoExe()
+    const base64 = await io.IO.getSelectionFromCanvasAsBase64Interface_New(
+        width,
+        height,
+        selectionInfo,
+        true
+    )
+    return base64
+}
+async function getBase64FromJimp(jimp_image) {
+    const dataURL = await jimp_image.getBase64Async(Jimp.MIME_PNG)
+    const base64 = dataURL.replace(/^data:image\/png;base64,/, '')
+    return base64
+}
+
+function transparentToMask(x, y, idx) {
+    const alpha = this.bitmap.data[idx + 3]
+    let color
+    if (alpha === 0) {
+        color = 0xffffffff
+    } else if (alpha === 255) {
+        color = 0x000000ff
+    } else {
+        color = Jimp.rgbaToInt(alpha, alpha, alpha, 255)
+    }
+    this.setPixelColor(color, x, y)
+}
+function inpaintTransparentToMask(x, y, idx) {
+    const alpha = this.bitmap.data[idx + 3]
+    let color
+    // if (alpha === 0) {
+    //     color = 0x000000ff
+    // } else if (alpha === 255) {
+    //     color = 0xffffffff
+    // } else {
+    //     color = Jimp.rgbaToInt(alpha, alpha, alpha, 255)
+    // }
+
+    if (alpha === 0) {
+        color = 0x000000ff
+    } else {
+        color = 0xffffffff
+    }
+    this.setPixelColor(color, x, y)
+}
+function transparentToWhiteBackground(x, y, idx) {
+    const alpha = this.bitmap.data[idx + 3]
+    let color
+    if (alpha === 0) {
+        color = 0xffffffff
+    } else {
+        color = Jimp.rgbaToInt(
+            this.bitmap.data[idx],
+            this.bitmap.data[idx + 1],
+            this.bitmap.data[idx + 2],
+            255
+        ) // remove transparency but keep the color, This is bad. used as workaround Auto1111 not able to handle alpha channels
+    }
+    this.setPixelColor(color, x, y)
+}
+async function getMask() {
+    try {
+        let b = app.activeDocument.backgroundLayer
+        await executeAsModal(() => (b.visible = false))
+        const base64 = await getImageFromCanvas()
+        await executeAsModal(() => (b.visible = true))
+        const jimp_image = await Jimp.read(Buffer.from(base64, 'base64'))
+
+        const jimp_mask = await jimp_image.scan(
+            0,
+            0,
+            jimp_image.bitmap.width,
+            jimp_image.bitmap.height,
+            transparentToMask
+        )
+        html_manip.setInitImageSrc(
+            await jimp_mask.getBase64Async(Jimp.MIME_PNG)
+        )
+        const mask = await getBase64FromJimp(jimp_mask)
+        return mask
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+async function getImg2ImgInitImage() {
+    //the init image will has transparent pixel in it
+    //the mask will be a grayscale image/white and black
+    try {
+        let b = app.activeDocument.backgroundLayer
+        await executeAsModal(() => (b.visible = false))
+        const base64 = await getImageFromCanvas()
+        await executeAsModal(() => (b.visible = true))
+        const init_image = base64
+
+        html_manip.setInitImageSrc(general.base64ToBase64Url(init_image)) // convert jimp_image to img.src data
+
+        // console.log('mask: ', mask)
+        return init_image
+    } catch (e) {
+        console.warn(e)
+    }
+}
+async function getOutpaintInitImageAndMask() {
+    //the init image will has transparent pixel in it
+    //the mask will be a grayscale image/white and black
+    try {
+        let b = app.activeDocument.backgroundLayer
+        await executeAsModal(() => (b.visible = false))
+        const base64 = await getImageFromCanvas()
+        await executeAsModal(() => (b.visible = true))
+        const init_image = base64
+        let jimp_init = await Jimp.read(Buffer.from(base64, 'base64'))
+
+        let jimp_mask = await jimp_init
+            .clone()
+            .scan(
+                0,
+                0,
+                jimp_init.bitmap.width,
+                jimp_init.bitmap.height,
+                transparentToMask
+            )
+        // jimp_init = await jimp_init.scan(
+        //     0,
+        //     0,
+        //     jimp_init.bitmap.width,
+        //     jimp_init.bitmap.height,
+        //     transparentToWhiteBackground
+        //     // transparentToMask
+        // )
+        html_manip.setInitImageMaskSrc(
+            await jimp_mask.getBase64Async(Jimp.MIME_PNG)
+        ) // convert jimp_image to img.src data
+        html_manip.setInitImageSrc(
+            await jimp_init.getBase64Async(Jimp.MIME_PNG)
+        ) // convert jimp_image to img.src data
+
+        const mask = await getBase64FromJimp(jimp_mask)
+        // console.log('mask: ', mask)
+        return {
+            init_image,
+            mask,
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+async function getInpaintInitImageAndMask() {
+    try {
+        await executeAsModal(async () => await layer_util.toggleActiveLayer()) //only white mark layer should be visible
+        const mask_base64 = await getImageFromCanvas()
+        await executeAsModal(async () => {
+            await layer_util.toggleActiveLayer() // undo the toggling operation, active layer will be visible
+            app.activeDocument.activeLayers[0].visible = false //hide the white mark
+        })
+        const init_base64 = await getImageFromCanvas()
+
+        let jimp_mask = await Jimp.read(Buffer.from(mask_base64, 'base64')) //make jimp object
+        let jimp_init = await Jimp.read(Buffer.from(init_base64, 'base64')) //make jimp object, jimp_init will have transparent pixels, should we convert to white??
+
+        jimp_mask = await jimp_mask.scan(
+            0,
+            0,
+            jimp_mask.bitmap.width,
+            jimp_mask.bitmap.height,
+            inpaintTransparentToMask
+        ) //convert transparent image to black and white image
+
+        html_manip.setInitImageMaskSrc(
+            await jimp_mask.getBase64Async(Jimp.MIME_PNG)
+        )
+        html_manip.setInitImageSrc(
+            await jimp_init.getBase64Async(Jimp.MIME_PNG)
+        )
+
+        const mask = await getBase64FromJimp(jimp_mask)
+        const init_image = await getBase64FromJimp(jimp_init)
+        return { init_image, mask }
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+async function saveFileInSubFolder(b64Image, sub_folder_name, file_name) {
+    // const b64Image =
+    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
+
+    const img = _base64ToArrayBuffer(b64Image)
+
+    // const img_name = 'temp_output_image.png'
+    const img_name = file_name
+    const folder = await storage.localFileSystem.getDataFolder()
+    const documentFolderName = sub_folder_name
+    let documentFolder
+    try {
+        documentFolder = await folder.getEntry(documentFolderName)
+    } catch (e) {
+        console.warn(e)
+        //create document folder
+        documentFolder = await folder.createFolder(documentFolderName)
+    }
+
+    console.log('documentFolder.nativePath: ', documentFolder.nativePath)
+    const file = await documentFolder.createFile(img_name, { overwrite: true })
+
+    await file.write(img, { format: storage.formats.binary })
+
+    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
+}
+//REFACTOR: move to document.js
+async function saveJsonFileInSubFolder(json, sub_folder_name, file_name) {
+    // const b64Image =
+    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
+
+    // const img_name = 'temp_output_image.png'
+
+    const json_file_name = file_name
+
+    const folder = await storage.localFileSystem.getDataFolder()
+    const documentFolderName = sub_folder_name
+    let documentFolder
+    try {
+        documentFolder = await folder.getEntry(documentFolderName)
+    } catch (e) {
+        console.warn(e)
+        //create document folder
+        documentFolder = await folder.createFolder(documentFolderName)
+    }
+
+    console.log('documentFolder.nativePath: ', documentFolder.nativePath)
+    const file = await documentFolder.createFile(json_file_name, {
+        type: storage.types.file,
+        overwrite: true,
+    })
+
+    const JSONInPrettyFormat = JSON.stringify(json, undefined, 4)
+    await file.write(JSONInPrettyFormat, {
+        format: storage.formats.utf8,
+        append: false,
+    })
+
+    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
+}
+async function fixTransparentEdges(base64) {
+    function transparentToOpaque(x, y, idx) {
+        const alpha = this.bitmap.data[idx + 3]
+        if (alpha > 0 && alpha < 255) {
+            this.bitmap.data[idx + 3] = 0 //make semi transparent pixels completely transparent
+        }
+    }
+
+    try {
+        let jimp_img = await Jimp.read(Buffer.from(base64, 'base64'))
+
+        jimp_img = await jimp_img.scan(
+            0,
+            0,
+            jimp_img.bitmap.width,
+            jimp_img.bitmap.height,
+            transparentToOpaque
+        )
+        const opaque_base64 = await getBase64FromJimp(jimp_img)
+        return opaque_base64
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+async function maskFromInitImage(base64) {
+    function setTransparentToBlack(x, y, idx) {
+        let alpha = this.bitmap.data[idx + 3]
+        if (alpha !== 0) {
+            this.bitmap.data[idx] = 0
+            this.bitmap.data[idx + 1] = 0
+            this.bitmap.data[idx + 2] = 0
+            this.bitmap.data[idx + 3] = 255
+        } else {
+            //alpha === 0
+
+            this.bitmap.data[idx] = 255
+            this.bitmap.data[idx + 1] = 255
+            this.bitmap.data[idx + 2] = 255
+            this.bitmap.data[idx + 3] = 255
+        }
+    }
+
+    try {
+        let jimp_img = await Jimp.read(Buffer.from(base64, 'base64'))
+
+        jimp_img = await jimp_img.scan(
+            0,
+            0,
+            jimp_img.bitmap.width,
+            jimp_img.bitmap.height,
+            setTransparentToBlack
+        )
+        const mask_base64 = await getBase64FromJimp(jimp_img)
+        return mask_base64
+    } catch (e) {
+        console.warn(e)
+    }
+}
+async function fixMaskEdges(base64) {
+    function grayScaleToBlack(x, y, idx) {
+        if (
+            this.bitmap.data[idx] !== 255 ||
+            this.bitmap.data[idx + 1] !== 255 ||
+            this.bitmap.data[idx + 2] !== 255
+        ) {
+            this.bitmap.data[idx] = 0
+            this.bitmap.data[idx + 1] = 0
+            this.bitmap.data[idx + 2] = 0
+        }
+    }
+
+    try {
+        let jimp_img = await Jimp.read(Buffer.from(base64, 'base64'))
+
+        jimp_img = await jimp_img.scan(
+            0,
+            0,
+            jimp_img.bitmap.width,
+            jimp_img.bitmap.height,
+            grayScaleToBlack
+        )
+        const opaque_base64 = await getBase64FromJimp(jimp_img)
+        return opaque_base64
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
 module.exports = {
     IO,
     snapShotLayerExe,
@@ -832,4 +1186,15 @@ module.exports = {
     convertBlackAndWhiteImageToRGBChannels2,
     convertBlackAndWhiteImageToRGBChannels3,
     isBlackAndWhiteImage,
+    createThumbnail,
+    getMask,
+    getOutpaintInitImageAndMask,
+    getInpaintInitImageAndMask,
+    getImg2ImgInitImage,
+    saveFileInSubFolder,
+    saveJsonFileInSubFolder,
+    fixTransparentEdges,
+    fixMaskEdges,
+    maskFromInitImage,
+    getImageFromCanvas,
 }

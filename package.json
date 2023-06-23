@@ -5,6 +5,7 @@
     "author": "Adobe Inc",
     "license": "Apache-2.0",
     "dependencies": {
+        "@types/photoshop": "^24.5.1",
         "@types/react": "^18.2.6",
         "@types/react-dom": "^18.2.4",
         "fastify": "^4.10.2",
