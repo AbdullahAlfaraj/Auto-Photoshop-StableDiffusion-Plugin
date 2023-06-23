@@ -1300,8 +1300,10 @@
                     >
                 </div>
                 <div style="padding-bottom: 5px">
-                    <sp-label style="width: 60px; display: inline-block"
-                        >Upscaler 1:
+                    <sp-label 
+                        class="title"
+                        style="width: 60px; display: inline-block"
+                    >Upscaler 1:
                     </sp-label>
                     <sp-picker size="m" label="Upscaler Options">
                         <sp-menu
@@ -1313,8 +1315,10 @@
                         </sp-menu>
                     </sp-picker>
                     <div></div>
-                    <sp-label style="width: 60px; display: inline-block"
-                        >Upscaler 2:
+                    <sp-label 
+                        class="title"
+                        style="width: 60px; display: inline-block"
+                    >Upscaler 2:
                     </sp-label>
                     <sp-picker size="m" label="Upscaler Options">
                         <sp-menu
@@ -1337,6 +1341,7 @@
                         value="0"
                     >
                         <sp-label
+                            class="title"
                             style="width: 110px; display: inline-block"
                             slot="label"
                             >Upscaler 2 visibility:
@@ -1361,6 +1366,7 @@
                         value="0"
                     >
                         <sp-label
+                            class="title"
                             style="width: 110px; display: inline-block"
                             slot="label"
                             >GFPGAN visibility:
@@ -1385,6 +1391,7 @@
                         value="0"
                     >
                         <sp-label
+                            class="title"
                             style="width: 110px; display: inline-block"
                             slot="label"
                             >CodeFormer visibility:
@@ -1409,6 +1416,7 @@
                         value="0"
                     >
                         <sp-label
+                            class="title"
                             style="width: 110px; display: inline-block"
                             slot="label"
                             >CodeFormer weight:
@@ -2263,7 +2271,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                     ></sp-textfield>
                                 </div>
                                 <div
-                                    id="batchNumberSdUiTabContainer"
+                                    id="batchCountSdUiTabContainer"
                                     style="
                                         width: 20%;
                                         display: flex;
@@ -2421,7 +2429,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 max="30"
                                 value="7"
                             >
-                                <sp-label slot="label">CFG Scale:</sp-label>
+                                <sp-label slot="label" class="title">CFG Scale:</sp-label>
                                 <!-- <sp-label slot="label" id="lCfgScale">7</sp-label> -->
                             </sp-slider>
 
@@ -2432,7 +2440,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 max="100"
                                 value="70"
                             >
-                                <sp-label slot="label"
+                                <sp-label slot="label" class="title"
                                     >Denoising Strength:</sp-label
                                 >
                                 <sp-label slot="label" id="lDenoisingStrength"
@@ -2449,7 +2457,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                             value="15"
                             style="display: none"
                         >
-                            <sp-label slot="label">Image CFG Scale:</sp-label>
+                            <sp-label slot="label" class="title">Image CFG Scale:</sp-label>
                             <sp-label slot="label" id="lImageCfgScale"
                                 >1.5</sp-label
                             >
@@ -2486,9 +2494,8 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 value="100"
                                 title="0 will keep the composition; 1 will allow composition to change"
                             >
-                                <sp-label slot="label"
-                                    >Inpainting conditioning mask
-                                    strength:</sp-label
+                                <sp-label slot="label" class="title"
+                                    >Inpainting conditioning mask strength:</sp-label
                                 >
                                 <sp-label
                                     slot="label"
@@ -2500,7 +2507,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
 
                         <div id="slInpainting_fill">
                             <sp-radio-group id="Inpainting_fill_group" class="">
-                                <sp-label slot="label">Mask Content:</sp-label>
+                                <sp-label class="title" slot="label">Mask Content:</sp-label>
                                 <sp-radio
                                     class="rbMaskContent"
                                     checked
@@ -2533,7 +2540,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                         <div id="HiResDiv" style="display: none">
                             <div style="display: flex">
                                 <div>
-                                    <sp-label>Upscaler: </sp-label>
+                                    <sp-label class="title">Upscaler: </sp-label>
                                     <sp-picker
                                         size="m"
                                         label="Upscaler Options"
@@ -2548,7 +2555,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                     </sp-picker>
                                 </div>
                                 <div>
-                                    <sp-label>Hi Res Steps:</sp-label
+                                    <sp-label id="HiResStep">Hi Res Steps:</sp-label
                                     ><sp-textfield
                                         id="hrNumberOfSteps"
                                         type="number"
@@ -2569,7 +2576,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                     max="100"
                                     value="50"
                                 >
-                                    <sp-label slot="label"
+                                    <sp-label slot="label" class="title"
                                         >Hi Res Scale:</sp-label
                                     >
                                     <sp-label
@@ -2593,7 +2600,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                     max="100"
                                     value="70"
                                 >
-                                    <sp-label slot="label">
+                                    <sp-label slot="label" class="title">
                                         High Res Denoising Strength:</sp-label
                                     >
                                     <sp-label
@@ -2612,7 +2619,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                     value="8"
                                     style="display: none"
                                 >
-                                    <sp-label slot="label"
+                                    <sp-label slot="label" class="title"
                                         >Hi Res Output Width:</sp-label
                                     >
                                     <sp-label

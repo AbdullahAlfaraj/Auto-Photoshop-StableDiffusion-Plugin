@@ -11,6 +11,14 @@ const zhHansForPSPlugin = {
 export default function Locale(key: keyof typeof zhHans | keyof typeof zhHansForPSPlugin): string
 {
     const locale = globalStore.Locale;
-    //@ts-ignore
-    return locale == 'zh_CN' ? (key in zhHans) ? zhHans[key] : zhHansForPSPlugin[key] : key;
+    let res = '';
+    if (locale == 'zh_CN')
+    {
+        //@ts-ignore
+        if (key in zhHansForPSPlugin) res = zhHansForPSPlugin[key];
+        //@ts-ignore
+        if (key in zhHans) res = zhHans[key];
+    }
+    res = res || key
+    return res;
 }

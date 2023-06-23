@@ -1,5 +1,5 @@
 import { observable } from "mobx";
-import {host} from 'uxp'
+import { host } from 'uxp'
 
 interface GlobalStore {
     Locale: 'zh_CN' | 'default',

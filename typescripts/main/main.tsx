@@ -6,6 +6,7 @@ import { SpMenu } from '../util/elements'
 
 import { api, python_replacement } from '../util/oldSystem'
 const { getExtensionUrl } = python_replacement
+import './locale-for-old-html'
 
 declare let g_sd_url: string
 // class SDStore extends AStore {
