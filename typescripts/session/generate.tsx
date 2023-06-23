@@ -6,6 +6,15 @@ import { observer } from 'mobx-react'
 import { sd_tab_ts, session_ts, viewer } from '../entry'
 import './style/generate.css'
 import { io } from '../util/oldSystem'
+import { GenerationModeEnum } from '../util/ts/enum'
+
+//example: take 'oI' in 'LassoInpaint' and replace it with 'o I' thus creating 'Lasso Inpaint'
+const modeDisplayNames = Object.fromEntries(
+    Object.entries(GenerationModeEnum).map(([key, value]) => [
+        value,
+        key.replace(/([a-z])([A-Z])/g, '$1 $2'),
+    ])
+)
 
 const GenerateButtons = observer(() => {
     return (
@@ -15,7 +24,7 @@ const GenerateButtons = observer(() => {
                 className="btnSquare generateButtonMargin"
                 onClick={handleGenerate}
             >
-                Generate txt2img
+                Generate {modeDisplayNames[sd_tab_ts.store.data.mode]}
             </button>
             <button
                 onClick={handleGenerateMore}
