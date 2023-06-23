@@ -168,7 +168,7 @@ const onlySelected = () => {
 const handleOutputImageThumbnailClick = async (index: number, event?: any) => {
     try {
         if (!store.data.can_click) return null
-        // debugger
+
         store.data.can_click = false
         const prev_index = store.data.prev_index
         const image = store.data.images[index] || ''

@@ -102,7 +102,6 @@ const modeToClassMap: ModeToClassMap = {
 export class Session {
     constructor() {}
     static async initializeSession(mode: GenerationModeEnum): Promise<any> {
-        // debugger
         const selectionInfo = await psapi.getSelectionInfoExe()
         store.data.selectionInfo = selectionInfo
         store.data.mode = mode
@@ -183,7 +182,7 @@ export class Session {
 
             const { init_image, mask } = await this.initializeSession(mode)
             const ui_settings = await this.getSettings({ init_image, mask })
-            debugger
+
             var { output_images, response_json } = await modeToClassMap[
                 mode
             ].generate(ui_settings)

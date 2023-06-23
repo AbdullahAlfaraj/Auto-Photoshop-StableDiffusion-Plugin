@@ -11,7 +11,7 @@ const general = require('../general')
 
 function convertMetadataToJson(metadata_str) {
     try {
-        console.log('metadata_str:', metadata_str)
+        // console.log('metadata_str:', metadata_str)
         const last_new_line_index = metadata_str.lastIndexOf('\n')
 
         const prompt = metadata_str.slice(0, last_new_line_index)
@@ -61,9 +61,9 @@ async function getAuto1111Metadata(base64_image) {
         })
 
         let json = await request.json()
-        console.log("json['info']:", json['info'])
+        // console.log("json['info']:", json['info'])
 
-        console.log('getAuto1111Metadata json:', json)
+        // console.log('getAuto1111Metadata json:', json)
 
         return json['info']
     } catch (e) {
@@ -161,7 +161,7 @@ async function txt2ImgRequest(payload) {
         })
 
         let r = await request.json()
-        console.log('txt2ImgRequest json:', r)
+        // console.log('txt2ImgRequest json:', r)
 
         const uniqueDocumentId = payload['uniqueDocumentId']
         // dir_fullpath,dirName = serverHelper.getUniqueDocumentDirPathName(uniqueDocumentId)

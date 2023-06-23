@@ -213,12 +213,12 @@ export class Txt2ImgMode extends Mode {
 
             if (b_enable_control_net) {
                 //use control net
-                debugger
+
                 response_json = await this.requestControlNetTxt2Img(settings)
             } else {
                 response_json = await this.requestTxt2Img(settings)
             }
-            debugger
+
             output_images = await this.processOutput(
                 response_json.images_info,
                 settings

@@ -88,7 +88,6 @@ class ControlNetTab extends React.Component<{
 
         const presets_names = Object.keys(g_controlnet_presets)
 
-        // debugger;
         const presetMenuChildren = presets_names.map((preset_name) => {
             if (preset_name == 'Select CtrlNet Preset')
                 return (

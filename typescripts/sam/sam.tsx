@@ -114,7 +114,7 @@ const Sam = observer(() => {
                                 const height =
                                     store.data.selection_info_list[index]
                                         ?.height
-                                debugger
+
                                 await io.IO.base64ToLayer(
                                     general.base64UrlToBase64(
                                         store.data.thumbnails[index]
