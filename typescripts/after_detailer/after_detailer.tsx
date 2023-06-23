@@ -85,18 +85,10 @@ export class AfterDetailerComponent extends React.Component<{
     async componentDidUpdate(
         prevProps: ReactPropTypes,
         prevState: ReactPropTypes
-    ) {
-        // if (store.data.refresh) {
-        //     if (await this.isInstalled()) {
-        //         await this.getInpaintModels()
-        //         store.updateProperty('refresh', false)
-        //     }
-        // }
-    }
+    ) {}
     handleRefresh = async () => {
         if (await this.isInstalled()) {
             await this.getInpaintModels()
-            // store.updateProperty('refresh', false)
         }
     }
     async isInstalled() {

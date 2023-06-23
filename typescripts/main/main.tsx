@@ -1,4 +1,4 @@
-import React, { ReactEventHandler } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { observer } from 'mobx-react'
 import { AStore } from './astore'

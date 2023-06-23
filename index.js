@@ -62,6 +62,7 @@ const {
     viewer,
     preview,
     progress,
+    sd_tab_ts,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
