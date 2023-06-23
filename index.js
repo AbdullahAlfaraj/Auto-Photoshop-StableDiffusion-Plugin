@@ -1692,60 +1692,60 @@ Array.from(document.getElementsByClassName('discardClass')).forEach(
     }
 )
 //REFACTOR: move to events.js
-Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
-    (element) => {
-        element.addEventListener('click', async () => {
-            try {
-                if (
-                    g_generation_session.request_status ===
-                    Enum.RequestStateEnum['Finished']
-                ) {
-                    toggleTwoButtonsByClass(
-                        false,
-                        'btnGenerateClass',
-                        'btnInterruptClass'
-                    )
-                    g_can_request_progress = false
+// Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
+//     (element) => {
+//         element.addEventListener('click', async () => {
+//             try {
+//                 if (
+//                     g_generation_session.request_status ===
+//                     Enum.RequestStateEnum['Finished']
+//                 ) {
+//                     toggleTwoButtonsByClass(
+//                         false,
+//                         'btnGenerateClass',
+//                         'btnInterruptClass'
+//                     )
+//                     g_can_request_progress = false
 
-                    return null // cann't inturrept a finished generation
-                }
-                g_generation_session.request_status =
-                    Enum.RequestStateEnum['Interrupted']
+//                     return null // cann't inturrept a finished generation
+//                 }
+//                 g_generation_session.request_status =
+//                     Enum.RequestStateEnum['Interrupted']
 
-                g_batch_count_interrupt_status = true // interrupt batch count generations
-                const backend_type = html_manip.getBackendType()
+//                 g_batch_count_interrupt_status = true // interrupt batch count generations
+//                 const backend_type = html_manip.getBackendType()
 
-                if (backend_type === backendTypeEnum['HordeNative']) {
-                    //interrupt the horde
+//                 if (backend_type === backendTypeEnum['HordeNative']) {
+//                     //interrupt the horde
 
-                    await g_horde_generator.interrupt()
-                } else {
-                    //interrupt auto1111
+//                     await g_horde_generator.interrupt()
+//                 } else {
+//                     //interrupt auto1111
 
-                    json = await sdapi.requestInterrupt()
-                }
+//                     json = await sdapi.requestInterrupt()
+//                 }
 
-                toggleTwoButtonsByClass(
-                    false,
-                    'btnGenerateClass',
-                    'btnInterruptClass'
-                )
-                g_can_request_progress = false
+//                 toggleTwoButtonsByClass(
+//                     false,
+//                     'btnGenerateClass',
+//                     'btnInterruptClass'
+//                 )
+//                 g_can_request_progress = false
 
-                // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
-            } catch (e) {
-                // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
-                toggleTwoButtonsByClass(
-                    false,
-                    'btnGenerateClass',
-                    'btnInterruptClass'
-                )
-                g_can_request_progress = false
-                console.warn(e)
-            }
-        })
-    }
-)
+//                 // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+//             } catch (e) {
+//                 // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+//                 toggleTwoButtonsByClass(
+//                     false,
+//                     'btnGenerateClass',
+//                     'btnInterruptClass'
+//                 )
+//                 g_can_request_progress = false
+//                 console.warn(e)
+//             }
+//         })
+//     }
+// )
 //REFACTOR: move to psapi.js
 //store active layers only if they are not stored.
 async function storeActiveLayers() {

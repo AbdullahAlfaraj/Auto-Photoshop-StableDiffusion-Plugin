@@ -38,6 +38,7 @@ const GenerateButtons = observer(() => {
                 Generate more
             </button>
             <button
+                onClick={handleInterrupt}
                 id="btnNewInterrupt"
                 className="btnSquare generateButtonMargin"
             >
@@ -53,6 +54,10 @@ const handleGenerate = async () => {
     try {
         const { output_images, response_json } =
             await session_ts.Session.generate(sd_tab_ts.store.data.mode)
+
+        if (session_ts.store.data.is_interrupted) {
+            return void 0
+        }
 
         const thumbnail_list = []
         for (const base64 of output_images) {
@@ -76,6 +81,10 @@ const handleGenerateMore = async () => {
         const { output_images, response_json } =
             await session_ts.Session.generateMore()
 
+        if (session_ts.store.data.is_interrupted) {
+            return void 0
+        }
+
         const thumbnail_list = []
         for (const base64 of output_images) {
             const thumbnail = await io.createThumbnail(base64, 300)
@@ -96,6 +105,15 @@ const handleGenerateMore = async () => {
             'session_ts.store.toJsFunc(): ',
             session_ts.store.toJsFunc()
         )
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+const handleInterrupt = async () => {
+    try {
+        // debugger
+        await session_ts.Session.interrupt()
     } catch (e) {
         console.error(e)
     }

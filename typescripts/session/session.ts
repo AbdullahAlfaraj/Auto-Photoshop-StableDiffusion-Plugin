@@ -24,9 +24,10 @@ export const store = new AStore({
     ui_settings: {},
     selectionInfo: {}, //the session selection info
     current_selection_info: {}, // any new selection, could be undefined too
-    can_generate: true,
+    can_generate: true, // is generation currently in progress
     can_generate_more: false,
-    is_active: false,
+    is_active: false, // is session active
+    is_interrupted: false, // did we interrupt the generation
 })
 
 function hasSelectionChanged(new_selection: any, old_selection: any) {
@@ -156,6 +157,10 @@ export class Session {
         }
         return true
     }
+    static async initializeGeneration() {
+        store.data.is_interrupted = false
+        store.data.can_generate = false
+    }
     static async generate(mode: GenerationModeEnum): Promise<{
         output_images: any
         response_json: any
@@ -176,7 +181,8 @@ export class Session {
         }
 
         try {
-            store.data.can_generate = false
+            this.initializeGeneration()
+
             store.data.is_active = true
             this.getProgress()
 
@@ -207,6 +213,7 @@ export class Session {
         }
 
         try {
+            this.initializeGeneration()
             store.data.can_generate = false
             this.getProgress()
             const session_data = {
@@ -224,6 +231,18 @@ export class Session {
             this.endProgress()
         }
         return { output_images, response_json }
+    }
+    static async interrupt(): Promise<any> {
+        try {
+            await modeToClassMap[store.data.mode].interrupt()
+            store.data.is_interrupted = true
+        } catch (e) {
+            console.warn(e)
+        } finally {
+            //no need to reset progress since generate and generateMore will always finish executing after interrupt
+            // store.data.can_generate = true
+            // this.endProgress()
+        }
     }
     static async getProgress() {
         // Progress.startSudoProgress()

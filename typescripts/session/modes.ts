@@ -74,6 +74,29 @@ class Mode {
         )
         return base64OutputImages
     }
+    static async interrupt() {
+        return await this.requestInterrupt()
+    }
+
+    static async requestInterrupt() {
+        const full_url = `${g_sd_url}/sdapi/v1/interrupt`
+        try {
+            console.log('requestInterrupt: ')
+            let request = await fetch(full_url, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            })
+
+            // console.log('interrupt request:', request)
+            let json = await request.json()
+            return json
+        } catch (e) {
+            console.warn(e)
+        }
+    }
 }
 
 export class Txt2ImgMode extends Mode {
