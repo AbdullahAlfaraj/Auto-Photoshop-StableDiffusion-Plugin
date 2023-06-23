@@ -29,6 +29,8 @@ const layer_util = require('./utility/layer')
 const sd_options = require('./utility/sdapi/options')
 // const sd_config = require('./utility/sdapi/config')
 const session = require('./utility/session')
+const { getSettings } = require('./utility/session')
+
 const ui = require('./utility/ui')
 const preset_util = require('./utility/presets/preset')
 const script_horde = require('./utility/sd_scripts/horde')
@@ -61,6 +63,7 @@ const {
     toJS,
     viewer,
     preview,
+    session_ts,
     progress,
     sd_tab_ts,
 } = require('./typescripts/dist/bundle')
@@ -191,6 +194,11 @@ async function calcWidthHeightFromSelection() {
 const eventHandler = async (event, descriptor) => {
     try {
         console.log(event, descriptor)
+        const new_selection_info = await psapi.getSelectionInfoExe()
+        session_ts.store.updateProperty(
+            'current_selection_info',
+            new_selection_info
+        )
 
         const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
         if (isSelectionActive) {
@@ -819,6 +827,7 @@ for (let rbModeElement of rbModeElements) {
         try {
             g_sd_mode = evt.target.value
             scripts.script_store.setMode(g_sd_mode)
+            sd_tab_ts.store.updateProperty('mode', g_sd_mode)
             // console.log(`You clicked: ${g_sd_mode}`)
             await displayUpdate()
             await postModeSelection() // do things after selection
