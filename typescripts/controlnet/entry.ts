@@ -124,9 +124,9 @@ function setControlMaskSrc(base64: string, index: number) {
     store.controlNetUnitData[index].mask = base64
 }
 function isControlNetModeEnable() {
-    //@ts-ignore
     let is_tab_enabled =
         !document.getElementById('chDisableControlNetTab') ||
+        //@ts-ignore
         !document.getElementById('chDisableControlNetTab').checked
 
     let numOfEnabled = 0
