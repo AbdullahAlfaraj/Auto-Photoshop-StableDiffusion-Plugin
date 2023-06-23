@@ -906,9 +906,6 @@
                         >
                             Interrupt
                         </button>
-                        <button class="btnSquare" id="btnSelectionArea">
-                            Selection Area
-                        </button>
                         <div
                             style="
                                 display: flex;
@@ -916,10 +913,6 @@
                                 padding-top: 3px;
                             "
                         >
-                            <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
-            <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button>
-            <button class="btnSquare acceptSelectedClass acceptSelectedImgBtn"  style="display:none;">Accept Selected</button>
-            <button class="btnSquare discardSelectedClass discardSelectedImgBtn"  style="display:none;">Discard Selected</button> -->
                             <button
                                 title="Keep all generated images on the canvas"
                                 class="btnSquare acceptClass acceptAllImgBtn"
@@ -1554,7 +1547,6 @@
                         ></button>
                         <button
                             class="btnSquare snapshotButton"
-                            id="btnSnapshotUpscale"
                             style="margin-right: 3px"
                             title="create a snapshot of what you see on the canvas and place on a new layer"
                         ></button>
@@ -1952,12 +1944,6 @@
                 <!-- stable diffusion tab page -->
 
                 <div id="sdBtnContainer">
-                    <!-- <button
-                            class="btnSquare layerToSelection"
-                            id="btnLayerToSelection"
-                            style="margin-right: 3px"
-                            title="Move and reSize the highlighted layer to fit into the Selection Area "
-                        ></button> -->
                     <sp-picker
                         title="use lora in your prompt"
                         size="m"
@@ -2077,7 +2063,6 @@
                             ></button>
                             <button
                                 class="btnSquare snapshotButton"
-                                id="btnSnapshot"
                                 title="create a snapshot of what you see on the canvas and place on a new layer"
                             ></button>
                             <button
@@ -2108,6 +2093,7 @@
                             >prompt shortcut</sp-checkbox
                         > -->
                     </div>
+                    <div id="generateButtonsContainer"></div>
                     <div>
                         <!-- icon only svg button -->
                         <sp-action-button
@@ -2434,6 +2420,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                         >
                         <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
                     </sp-radio-group>
+                    <div id="reactModesContainer"></div>
 
                     <div id="image_viewer">
                         <div class="imgButton">
@@ -3029,7 +3016,17 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                     <sp-divider class="line-divider" size="large"></sp-divider>
                     <div style="margin-bottom: 3px"></div>
                     <div id="scriptsContainer"></div>
+
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+
+                    <div class="reactViewerContainer"></div>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
                     <div class="previewContainer"></div>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <div class="samContainer"></div>
                     <sp-divider class="line-divider" size="large"></sp-divider>
                     <sp-divider class="line-divider" size="large"></sp-divider>
                 </div>

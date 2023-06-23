@@ -11,6 +11,7 @@ const {
 } = require('../psapi')
 
 const psapi = require('../psapi')
+const constants = require('photoshop').constants
 
 async function createNewLayerExe(layerName, opacity = 100) {
     await executeAsModal(async () => {
@@ -157,12 +158,125 @@ class Layer {
                 const scale_x_ratio = (new_width / layer_info.width) * 100
                 const scale_y_ratio = (new_height / layer_info.height) * 100
                 console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
-                await layer.scale(scale_x_ratio, scale_y_ratio)
+                // await layer.scale(
+                //     scale_x_ratio,
+                //     scale_y_ratio,
+                //     constants.ResampleMethod.BILINEAR
+                // )
+                await layer_util.Layer.resizeImageExe(
+                    scale_x_ratio,
+                    scale_y_ratio
+                )
                 await psapi.reSelectMarqueeExe(selection_info)
             } catch (e) {
                 console.warn(e)
             }
         })
+    }
+    static async resizeImage(percent_width, percent_height) {
+        // let imageSizeDescriptor = {
+        //     _obj: 'imageSize',
+        //     scaleStyles: true,
+        //     constrainProportions: true,
+        //     interfaceIconFrameDimmed: {
+        //         _enum: 'interpolationType',
+        //         // _value: 'automaticInterpolation',
+        //         _value: 'bilinear',
+        //     },
+        //     _options: {
+        //         dialogOptions: 'dontDisplay',
+        //     },
+        // }
+
+        // if (width !== undefined && width !== null) {
+        //     imageSizeDescriptor.width = {
+        //         _unit: 'pixelsUnit',
+        //         _value: width,
+        //     }
+        // }
+        // if (height !== undefined && height !== null) {
+        //     imageSizeDescriptor.height = {
+        //         _unit: 'pixelsUnit',
+        //         _value: height,
+        //     }
+        // }
+        const setInterpolationMethodDesc = {
+            _obj: 'set',
+            _target: [
+                {
+                    _ref: 'property',
+                    _property: 'generalPreferences',
+                },
+                {
+                    _ref: 'application',
+                    _enum: 'ordinal',
+                    _value: 'targetEnum',
+                },
+            ],
+            to: {
+                _obj: 'generalPreferences',
+                interpolationMethod: {
+                    _enum: 'interpolationType',
+                    // _value: 'bilinear',
+                    _value: 'nearestNeighbor',
+                },
+            },
+            _isCommand: true,
+        }
+        let imageSizeDescriptor = {
+            _obj: 'transform',
+            _target: [
+                {
+                    _ref: 'layer',
+                    _enum: 'ordinal',
+                    _value: 'targetEnum',
+                },
+            ],
+            freeTransformCenterState: {
+                _enum: 'quadCenterState',
+                _value: 'QCSAverage',
+            },
+            // offset: {
+            //     _obj: 'offset',
+            //     horizontal: {
+            //         _unit: 'pixelsUnit',
+            //         _value: 24.4388124547429,
+            //     },
+            //     vertical: {
+            //         _unit: 'pixelsUnit',
+            //         _value: -24.4388124547429,
+            //     },
+            // },
+            width: {
+                _unit: 'percentUnit',
+                _value: percent_width,
+            },
+            height: {
+                _unit: 'percentUnit',
+                _value: percent_height,
+            },
+            linked: true,
+            interfaceIconFrameDimmed: {
+                _enum: 'interpolationType',
+                // _value: 'bilinear',
+                _value: 'nearestNeighbor',
+            },
+            _isCommand: true,
+        }
+
+        return batchPlay([setInterpolationMethodDesc, imageSizeDescriptor], {
+            synchronousExecution: true,
+            modalBehavior: 'execute',
+        })
+    }
+    static async resizeImageExe(percent_width, percent_height) {
+        try {
+            await executeAsModal(async () => {
+                await this.resizeImage(percent_width, percent_height)
+            })
+        } catch (e) {
+            console.warn(e)
+        }
     }
 
     static async moveTo(layer, to_x, to_y) {
@@ -277,6 +391,27 @@ const createSolidLayerDesc = (r, g, b) => ({
     },
 })
 
+async function toggleActiveLayer() {
+    const result = await batchPlay(
+        [
+            {
+                _obj: 'show',
+                null: [
+                    {
+                        _ref: 'layer',
+                        _enum: 'ordinal',
+                        _value: 'targetEnum',
+                    },
+                ],
+                toggleOptionsPalette: true,
+                _options: {
+                    dialogOptions: 'dontDisplay',
+                },
+            },
+        ],
+        {}
+    )
+}
 const toggleBackgroundLayerDesc = () => ({
     _obj: 'show',
     null: [
@@ -354,4 +489,5 @@ module.exports = {
     createSolidLayerDesc,
     makeBackgroundLayerDesc,
     toggleBackgroundLayerExe,
+    toggleActiveLayer,
 }

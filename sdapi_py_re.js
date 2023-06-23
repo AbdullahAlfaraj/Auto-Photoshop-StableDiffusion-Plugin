@@ -39,6 +39,7 @@ async function requestTxt2Img(payload) {
     }
 }
 
+//Refactor: move to modes.ts
 async function requestImg2Img(payload) {
     console.log('requestImg2Img(): about to send a fetch request')
     try {
@@ -53,8 +54,8 @@ async function requestImg2Img(payload) {
     }
 }
 
+//Refactor: move to progress.ts
 async function requestProgress() {
-    let json = {}
     try {
         console.log('requestProgress: ')
 
@@ -68,6 +69,7 @@ async function requestProgress() {
         console.warn(e)
         // console.log('json: ', json)
     }
+    return null
 }
 
 async function requestGetModels() {
