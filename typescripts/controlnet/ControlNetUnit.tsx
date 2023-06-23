@@ -362,7 +362,10 @@ export default class ControlNetUnit extends React.Component<
                             ].enabled
                         }
                     >
-                        ControlNet Unit {this.props.index}
+                        ControlNet Unit {this.props.index}{' '}
+                        {storeData.module && storeData.module !== 'none'
+                            ? `(${storeData.module})`
+                            : void 0}
                     </SpCheckBox>
                 </div>
                 <div style={{ display: storeData.enabled ? 'block' : 'none' }}>
