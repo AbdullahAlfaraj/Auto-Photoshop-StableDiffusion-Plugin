@@ -66,6 +66,7 @@ const {
     session_ts,
     progress,
     sd_tab_ts,
+    sam,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
