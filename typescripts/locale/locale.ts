@@ -1,12 +1,6 @@
 import globalStore from "../globalstore"
-import zhHans from './zh_Hans.json';
-
-
-const zhHansForPSPlugin = {
-    "The Controlnet Extension is missing from Automatic1111.\nPlease install it to use it through the plugin.": `本地SD中缺少控制网扩展。\n请安装该插件后再使用。`,
-    "Set CtrlImg": `设置原始图`,
-    "Preview Annotator": `查看标注图`,
-}
+import zhHans from './zh_CN/zh_Hans.json';
+import zhHansForPSPlugin from "./zh_CN/zh_Hans_PS.json"
 
 export default function Locale(key: keyof typeof zhHans | keyof typeof zhHansForPSPlugin): string
 {
