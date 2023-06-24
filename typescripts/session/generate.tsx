@@ -26,33 +26,41 @@ const GenerateButtons = observer(() => {
             >
                 Generate {modeDisplayNames[sd_tab_ts.store.data.mode]}
             </button>
-            <button
-                onClick={handleGenerateMore}
-                disabled={
-                    session_ts.store.data.can_generate_more ? void 0 : true
-                }
-                id="btnNewGenerateMore"
-                className={
-                    'btnSquare generateButtonMargin ' +
-                    (session_ts.store.data.can_generate_more
-                        ? ''
-                        : 'disableBtn')
-                }
-                style={{
-                    display: session_ts.store.data.can_generate_more
-                        ? 'inline-block'
-                        : 'none',
-                }}
-            >
-                Generate more
-            </button>
-            <button
-                onClick={handleInterrupt}
-                id="btnNewInterrupt"
-                className="btnSquare generateButtonMargin"
-            >
-                Interrupt
-            </button>
+            {session_ts.store.data.can_generate ? (
+                <button
+                    onClick={handleGenerateMore}
+                    disabled={
+                        session_ts.store.data.can_generate_more ? void 0 : true
+                    }
+                    id="btnNewGenerateMore"
+                    className={
+                        'btnSquare generateButtonMargin ' +
+                        (session_ts.store.data.can_generate_more
+                            ? ''
+                            : 'disableBtn')
+                    }
+                    style={{
+                        display: session_ts.store.data.can_generate_more
+                            ? 'inline-block'
+                            : 'none',
+                    }}
+                >
+                    Generate more
+                </button>
+            ) : (
+                void 0
+            )}
+            {!session_ts.store.data.can_generate ? (
+                <button
+                    onClick={handleInterrupt}
+                    id="btnNewInterrupt"
+                    className="btnSquare generateButtonMargin"
+                >
+                    Interrupt
+                </button>
+            ) : (
+                void 0
+            )}
         </div>
     )
 })
