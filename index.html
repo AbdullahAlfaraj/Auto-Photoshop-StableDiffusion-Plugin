@@ -2309,7 +2309,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                         align-items: flex-start;
                                     "
                                 >
-                                    <sp-label>Steps:</sp-label
+                                    <sp-label id="sdLabelSampleStep">Sampling Steps</sp-label
                                     ><sp-textfield
                                         style="width: 100%"
                                         title="the higher the steps the longer it will take to generate an image"
@@ -2379,7 +2379,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 value="8"
                                 data-old_value="512"
                             >
-                                <sp-label slot="label">Width:</sp-label>
+                                <sp-label slot="label" class="title">Width:</sp-label>
                                 <sp-label
                                     class="labelNumber"
                                     slot="label"
@@ -2401,7 +2401,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 value="8"
                                 data-old_value="512"
                             >
-                                <sp-label slot="label">Height:</sp-label>
+                                <sp-label slot="label" class="title">Height:</sp-label>
                                 <sp-label
                                     class="labelNumber"
                                     slot="label"
@@ -2696,7 +2696,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                     <div>
                         <!-- <sp-checkbox id="chHiResFixs">Hi Res Fix</sp-checkbox> -->
                         <div style="display: flex">
-                            <sp-label>Seed:</sp-label
+                            <sp-label id="sdLabelSeed">Seed:</sp-label
                             ><sp-textfield
                                 id="tiSeed"
                                 placeholder="Seed"
