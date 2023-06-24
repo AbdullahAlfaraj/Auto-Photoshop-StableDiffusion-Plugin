@@ -75,7 +75,12 @@ const elemSelectorForLocale = {
     "#lNameInpaintPdding": "Inpaint Padding",
     "#btnRandomSeed": "Random",
     "#btnLastSeed": "Last",
-    "#sampler_group sp-label": "Sampling method"
+    "#sampler_group sp-label": "Sampling method",
+    "#sdLabelSeed": "Seed",
+    "#collapsible": "Show Samplers",
+    "#slHeight .title": "Height",
+    "#slWidth .title": "Width",
+    "#sdLabelSampleStep": "Sampling Steps"
 
 };
 
