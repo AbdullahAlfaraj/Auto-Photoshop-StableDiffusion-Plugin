@@ -1,12 +1,12 @@
 import { reaction } from 'mobx'
 import globalStore from '../globalstore'
-import Locale from '../locale/locale'
+import Locale from './locale'
 
 const elemSelectorForLocale = {
     // tab bar
-    '#sp-stable-diffusion-ui-tab sp-label': 'StableDiffusion',
+    '#sp-stable-diffusion-ui-tab sp-label': 'Stable Diffusion',
     '#sp-viewer-tab sp-label': 'Viewer',
-    '#sp-control_net-label': 'Controlet',
+    '#sp-control_net-tab sp-label': 'ControlNet',
     '#sp-history-tab sp-label': 'History',
     '#sp-lexica-tab sp-label': 'Lexica',
     '#sp-image_search-tab sp-label': 'Image Search',
@@ -84,7 +84,6 @@ const elemSelectorForLocale = {
     '#sdLabelSampleStep': 'Sampling Steps',
 }
 
-reaction(() => globalStore.Locale, renderLocale)
 function renderLocale(locale: string) {
     Object.keys(elemSelectorForLocale).forEach((selector) => {
         const elem = document.querySelector(selector)
@@ -94,4 +93,6 @@ function renderLocale(locale: string) {
         }
     })
 }
+
+reaction(() => globalStore.Locale, renderLocale)
 renderLocale(globalStore.Locale)

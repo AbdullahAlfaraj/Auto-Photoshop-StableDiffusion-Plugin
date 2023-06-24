@@ -19,6 +19,7 @@ module.exports = {
         uxp: 'commonjs2 uxp',
         photoshop: 'commonjs2 photoshop',
         os: 'commonjs2 os',
+        fs: 'commonjs2 fs',
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js', '.jsx'],

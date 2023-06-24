@@ -1,9 +1,0 @@
-{
-    "The Controlnet Extension is missing from Automatic1111.\nPlease install it to use it through the plugin.": "本地SD中缺少控制网扩展。\n请安装该插件后再使用。",
-    "Set CtrlImg": "设置原始图",
-    "Preview Annotator": "查看标注图",
-    "Progress...": "进度...",
-    "Random": "随机",
-    "Last": "上一个",
-    "Show Samplers": "显示采样方法"
-}
