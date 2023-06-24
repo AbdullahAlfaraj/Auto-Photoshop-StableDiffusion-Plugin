@@ -846,6 +846,7 @@ document
         try {
             // g_sd_mode_last = g_sd_mode
             g_sd_mode = 'upscale'
+            sd_tab_ts.store.updateProperty('mode', 'upscale')
             console.log(`You clicked: ${g_sd_mode}`)
             await displayUpdate()
             await postModeSelection() // do things after selection
@@ -860,6 +861,7 @@ document
         try {
             // g_sd_mode = g_sd_mode_last
             g_sd_mode = html_manip.getMode()
+            sd_tab_ts.store.updateProperty('mode', html_manip.getMode())
             console.log(`mode restored to: ${g_sd_mode}`)
             await displayUpdate()
             await postModeSelection() // do things after selection
@@ -1874,61 +1876,6 @@ function updateMetadata(new_metadata) {
     return metadatas
 }
 
-//REFACTOR: move to generation_settings.js
-async function getExtraSettings() {
-    let payload = {}
-    try {
-        const html_manip = require('./utility/html_manip')
-        const upscaling_resize = html_manip.getUpscaleSize()
-        const gfpgan_visibility = html_manip.getGFPGANVisibility()
-        const codeformer_visibility = html_manip.getCodeFormerVisibility()
-        const codeformer_weight = html_manip.getCodeFormerWeight()
-        const selection_info = await psapi.getSelectionInfoExe()
-        const width = selection_info.width * upscaling_resize
-        const height = selection_info.height * upscaling_resize
-        //resize_mode = 0 means "resize to upscaling_resize"
-        //resize_mode = 1 means "resize to width and height"
-        payload['resize_mode'] = 0
-        payload['show_extras_results'] = 0
-        payload['gfpgan_visibility'] = gfpgan_visibility
-        payload['codeformer_visibility'] = codeformer_visibility
-        payload['codeformer_weight'] = codeformer_weight
-        payload['upscaling_resize'] = upscaling_resize
-        payload['upscaling_resize_w'] = width
-        payload['upscaling_resize_h'] = height
-        payload['upscaling_crop'] = true
-        const upscaler1 = document.querySelector('#hrModelsMenuUpscale1').value
-        payload['upscaler_1'] = upscaler1 === undefined ? 'None' : upscaler1
-        const upscaler2 = document.querySelector('#hrModelsMenuUpscale2').value
-        payload['upscaler_2'] = upscaler2 === undefined ? 'None' : upscaler2
-        const extras_upscaler_2_visibility = html_manip.getUpscaler2Visibility()
-        payload['extras_upscaler_2_visibility'] = extras_upscaler_2_visibility
-        payload['upscale_first'] = false
-        const uniqueDocumentId = await getUniqueDocumentId()
-        payload['uniqueDocumentId'] = uniqueDocumentId
-
-        // const layer = await app.activeDocument.activeLayers[0]
-        const layer = await app.activeDocument.activeLayers[0]
-        const old_name = layer.name
-
-        // image_name = await app.activeDocument.activeLayers[0].name
-
-        //convert layer name to a file name
-        let image_name = psapi.layerNameToFileName(
-            old_name,
-            layer.id,
-            random_session_id
-        )
-        image_name = `${image_name}.png`
-
-        const base64_image = g_generation_session.activeBase64InitImage
-
-        payload['image'] = base64_image
-    } catch (e) {
-        console.error(e)
-    }
-    return payload
-}
 //REFACTOR: move to generation_settings.js
 async function getExtraSettings() {
     let payload = {}

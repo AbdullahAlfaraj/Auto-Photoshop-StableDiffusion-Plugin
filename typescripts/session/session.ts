@@ -8,6 +8,7 @@ import {
     LassoInpaintMode,
     OutpaintMode,
     Txt2ImgMode,
+    UpscaleMode,
 } from './modes'
 import { Progress } from './progress'
 import { reaction } from 'mobx'
@@ -25,7 +26,7 @@ export const store = new AStore({
     selectionInfo: {}, //the session selection info
     current_selection_info: {}, // any new selection, could be undefined too
     can_generate: true, // is generation currently in progress
-    can_generate_more: false,
+    can_generate_more: false, //
     is_active: false, // is session active
     is_interrupted: false, // did we interrupt the generation
 })
@@ -91,6 +92,7 @@ interface ModeToClassMap {
         | typeof InpaintMode
         | typeof LassoInpaintMode
         | typeof OutpaintMode
+        | typeof UpscaleMode
 }
 
 const modeToClassMap: ModeToClassMap = {
@@ -99,6 +101,7 @@ const modeToClassMap: ModeToClassMap = {
     [GenerationModeEnum.Inpaint]: InpaintMode,
     [GenerationModeEnum.LassoInpaint]: LassoInpaintMode,
     [GenerationModeEnum.Outpaint]: OutpaintMode,
+    [GenerationModeEnum.Upscale]: UpscaleMode,
 }
 export class Session {
     constructor() {}
@@ -137,7 +140,7 @@ export class Session {
                     [store.data.mask]
                 )
             }
-            return { init_image, mask }
+            return { init_image, mask, selectionInfo }
         }
     }
     static async getSettings(session_data: any) {
@@ -174,7 +177,9 @@ export class Session {
         if (store.data.is_active) {
             //you can only use the generate button once per session
             //@ts-ignore
-            app.showAlert('You forgot to select images!')
+            app.showAlert(
+                'You must end the current session before starting a new one'
+            )
             throw Error(
                 'Session is still Active. Need to end the Session before starting a new Session'
             )
@@ -186,8 +191,13 @@ export class Session {
             store.data.is_active = true
             this.getProgress()
 
-            const { init_image, mask } = await this.initializeSession(mode)
-            const ui_settings = await this.getSettings({ init_image, mask })
+            const { init_image, mask, selectionInfo } =
+                await this.initializeSession(mode)
+            const ui_settings = await this.getSettings({
+                init_image,
+                mask,
+                selectionInfo,
+            })
 
             var { output_images, response_json } = await modeToClassMap[
                 mode
@@ -219,6 +229,7 @@ export class Session {
             const session_data = {
                 init_image: store.data.init_image,
                 mask: store.data.mask,
+                selectionInfo: store.data.selectionInfo,
             }
             const ui_settings = await this.getSettings(session_data)
             var { output_images, response_json } = await modeToClassMap[

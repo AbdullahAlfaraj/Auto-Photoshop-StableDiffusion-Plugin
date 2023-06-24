@@ -1,6 +1,7 @@
 import { control_net, scripts, session_ts } from '../entry'
 
 import {
+    html_manip,
     io,
     layer_util,
     psapi,
@@ -478,5 +479,78 @@ export class OutpaintMode extends Img2ImgMode {
         }
 
         return { selectionInfo, init_image, mask }
+    }
+}
+export class UpscaleMode extends Img2ImgMode {
+    static async requestExtraSingleImage(payload: any) {
+        try {
+            let json = await python_replacement.extraSingleImageRequest(
+                g_sd_url,
+                payload
+            )
+
+            return json
+        } catch (e) {
+            console.warn(e)
+            return {}
+        }
+    }
+
+    static async getSettings(session_data: any) {
+        //REFACTOR: move to generation_settings.js
+
+        let payload: any = {}
+        try {
+            const upscaling_resize = html_manip.getUpscaleSize()
+            const gfpgan_visibility = html_manip.getGFPGANVisibility()
+            const codeformer_visibility = html_manip.getCodeFormerVisibility()
+            const codeformer_weight = html_manip.getCodeFormerWeight()
+            // const selection_info = await psapi.getSelectionInfoExe()
+            const selection_info = session_data.selectionInfo
+            const width = selection_info.width * upscaling_resize
+            const height = selection_info.height * upscaling_resize
+            //resize_mode = 0 means "resize to upscaling_resize"
+            //resize_mode = 1 means "resize to width and height"
+            payload['resize_mode'] = 0
+            payload['show_extras_results'] = 0
+            payload['gfpgan_visibility'] = gfpgan_visibility
+            payload['codeformer_visibility'] = codeformer_visibility
+            payload['codeformer_weight'] = codeformer_weight
+            payload['upscaling_resize'] = upscaling_resize
+            payload['upscaling_resize_w'] = width
+            payload['upscaling_resize_h'] = height
+            payload['upscaling_crop'] = true
+            const upscaler1 =
+                //@ts-ignore
+                document.querySelector('#hrModelsMenuUpscale1').value
+
+            payload['upscaler_1'] = upscaler1 === undefined ? 'None' : upscaler1
+            const upscaler2 =
+                //@ts-ignore
+                document.querySelector('#hrModelsMenuUpscale2').value
+            payload['upscaler_2'] = upscaler2 === undefined ? 'None' : upscaler2
+            const extras_upscaler_2_visibility =
+                html_manip.getUpscaler2Visibility()
+            payload['extras_upscaler_2_visibility'] =
+                extras_upscaler_2_visibility
+            payload['upscale_first'] = false
+
+            payload['image'] = session_data.init_image
+        } catch (e) {
+            console.error(e)
+        }
+        return payload
+    }
+    static async generate(settings: any): Promise<{
+        output_images: any
+        response_json: any
+    }> {
+        const response_json = await this.requestExtraSingleImage(settings)
+        const output_images = await this.processOutput(
+            response_json.images_info,
+            settings
+        )
+
+        return { output_images, response_json }
     }
 }

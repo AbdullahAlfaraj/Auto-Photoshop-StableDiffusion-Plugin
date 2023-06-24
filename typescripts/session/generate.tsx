@@ -144,3 +144,12 @@ root.render(
         <GenerateButtons></GenerateButtons>
     </React.StrictMode>
 )
+
+const extraContainer = document.getElementById('extraGenerateButtonsContainer')!
+const extraRoot = ReactDOM.createRoot(extraContainer)
+
+extraRoot.render(
+    <React.StrictMode>
+        <GenerateButtons></GenerateButtons>
+    </React.StrictMode>
+)
