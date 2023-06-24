@@ -6,6 +6,7 @@ let g_version = 'v1.2.6'
 let g_sd_url = 'http://127.0.0.1:7860'
 let g_online_data_url =
     'https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/master/utility/online_data.json'
+const Jimp = require('./jimp/browser/lib/jimp.min')
 const Enum = require('./enum')
 const helper = require('./helper')
 const sd_tab = require('./utility/tab/sd')
@@ -67,6 +68,7 @@ const {
     progress,
     sd_tab_ts,
     sam,
+    settings_tab_ts,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')

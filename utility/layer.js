@@ -11,6 +11,8 @@ const {
 } = require('../psapi')
 
 const psapi = require('../psapi')
+// const Jimp = require('../jimp/browser/lib/jimp.min')
+// const { settings_tab_ts } = require('../typescripts/dist/bundle')
 const constants = require('photoshop').constants
 
 async function createNewLayerExe(layerName, opacity = 100) {
@@ -218,7 +220,8 @@ class Layer {
                 interpolationMethod: {
                     _enum: 'interpolationType',
                     // _value: 'bilinear',
-                    _value: 'nearestNeighbor',
+                    _value: settings_tab_ts.store.data
+                        .scale_interpolation_method.photoshop,
                 },
             },
             _isCommand: true,
@@ -259,7 +262,8 @@ class Layer {
             interfaceIconFrameDimmed: {
                 _enum: 'interpolationType',
                 // _value: 'bilinear',
-                _value: 'nearestNeighbor',
+                _value: settings_tab_ts.store.data.scale_interpolation_method
+                    .photoshop,
             },
             _isCommand: true,
         }

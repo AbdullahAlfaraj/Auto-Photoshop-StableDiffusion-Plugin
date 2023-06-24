@@ -13,5 +13,6 @@ export * as progress from './session/progress'
 export * as generate from './session/generate'
 export * as sd_tab_ts from './sd_tab/sd_tab'
 export * as sam from './sam/sam'
+export * as settings_tab_ts from './settings/settings'
 
 export { toJS } from 'mobx'

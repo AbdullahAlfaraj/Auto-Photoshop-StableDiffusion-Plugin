@@ -2,7 +2,6 @@ const psapi = require('../psapi')
 
 const layer_util = require('../utility/layer')
 const general = require('./general')
-const Jimp = require('../jimp/browser/lib/jimp.min')
 
 const { executeAsModal } = require('photoshop').core
 const batchPlay = require('photoshop').action.batchPlay
@@ -581,7 +580,9 @@ class IOHelper {
                         resize_width,
                         resize_height,
                         // Jimp.RESIZE_BILINEAR
-                        Jimp.RESIZE_NEAREST_NEIGHBOR
+                        // Jimp.RESIZE_NEAREST_NEIGHBOR
+                        settings_tab_ts.store.data.scale_interpolation_method
+                            .jimp
                     )
                 } else {
                     resized_img = cropped_img
@@ -833,7 +834,11 @@ class IOJson {
 
 async function createThumbnail(base64Image, width = 100) {
     const image = await Jimp.read(Buffer.from(base64Image, 'base64'))
-    image.resize(width, Jimp.AUTO, Jimp.RESIZE_NEAREST_NEIGHBOR)
+    image.resize(
+        width,
+        Jimp.AUTO,
+        settings_tab_ts.store.data.scale_interpolation_method.jimp
+    )
     const thumbnail = await image.getBase64Async(Jimp.MIME_PNG)
     return thumbnail
 }
@@ -1175,6 +1180,35 @@ async function fixMaskEdges(base64) {
     }
 }
 
+async function getUniqueDocumentId() {
+    try {
+        let uniqueDocumentId = await psapi.readUniqueDocumentIdExe()
+
+        console.log(
+            'getUniqueDocumentId():  uniqueDocumentId: ',
+            uniqueDocumentId
+        )
+
+        // Regular expression to check if string is a valid UUID
+        const regexExp =
+            /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi
+
+        // String with valid UUID separated by dash
+        // const str = 'a24a6ea4-ce75-4665-a070-57453082c256'
+
+        const isValidId = regexExp.test(uniqueDocumentId) // true
+        console.log('isValidId: ', isValidId)
+        if (isValidId == false) {
+            let uuid = self.crypto.randomUUID()
+            console.log(uuid) // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
+            await psapi.saveUniqueDocumentIdExe(uuid)
+            uniqueDocumentId = uuid
+        }
+        return uniqueDocumentId
+    } catch (e) {
+        console.warn('warning Document Id may not be valid', e)
+    }
+}
 module.exports = {
     IO,
     snapShotLayerExe,
@@ -1197,4 +1231,5 @@ module.exports = {
     fixMaskEdges,
     maskFromInitImage,
     getImageFromCanvas,
+    getUniqueDocumentId,
 }
