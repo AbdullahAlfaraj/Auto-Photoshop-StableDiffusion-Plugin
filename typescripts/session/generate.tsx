@@ -64,6 +64,53 @@ const GenerateButtons = observer(() => {
         </div>
     )
 })
+
+const ToolbarGenerateButtons = observer(() => {
+    const button_style: any = {
+        width: '30px',
+        height: '30px',
+        marginBottom: '3px',
+    }
+    const generate_more_display =
+        session_ts.store.data.can_generate &&
+        session_ts.store.data.can_generate_more
+            ? 'inline-flex'
+            : 'none'
+    const interrupt_display = session_ts.store.data.can_generate
+        ? 'none'
+        : 'inline-flex'
+    return (
+        <div>
+            <button
+                className="btnSquare"
+                onClick={handleGenerate}
+                style={button_style}
+            >
+                G
+            </button>
+            <button
+                onClick={handleGenerateMore}
+                className={'btnSquare'}
+                style={{
+                    ...button_style,
+                    display: generate_more_display,
+                }}
+            >
+                M
+            </button>
+            <button
+                onClick={handleInterrupt}
+                className="btnSquare"
+                style={{
+                    ...button_style,
+                    display: interrupt_display,
+                }}
+            >
+                I
+            </button>
+        </div>
+    )
+})
 const canStartSession = async () => {
     // check for automatic1111 connection: fail if false
     // check for automatic1111 api: fail if false
@@ -188,5 +235,15 @@ const extraRoot = ReactDOM.createRoot(extraContainer)
 extraRoot.render(
     <React.StrictMode>
         <GenerateButtons></GenerateButtons>
+    </React.StrictMode>
+)
+
+const toolBarButtonsContainer = document.getElementById(
+    'toolbarGenerateButtonsContainer'
+)!
+const toolBarButtonsContainerRoot = ReactDOM.createRoot(toolBarButtonsContainer)
+toolBarButtonsContainerRoot.render(
+    <React.StrictMode>
+        <ToolbarGenerateButtons></ToolbarGenerateButtons>
     </React.StrictMode>
 )

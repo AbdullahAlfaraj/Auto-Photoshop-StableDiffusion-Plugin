@@ -896,6 +896,7 @@
                         <button
                             class="btnSquare btnGenerateClass"
                             id="btnGenerate"
+                            style="display: none"
                         >
                             Generate txt2img
                         </button>
@@ -1265,7 +1266,7 @@
                     </sp-slider>
                 </div>
                 <div id="extraGenerateButtonsContainer"></div>
-                <div
+                <!-- <div
                     style="
                         display: inline-flex;
                         justify-content: flex-start;
@@ -1275,6 +1276,7 @@
                     <button
                         class="btnSquare btnGenerateClass"
                         id="btnGenerateUpscale"
+                        style="display: none"
                     >
                         Generate upscale
                     </button>
@@ -1305,7 +1307,7 @@
                             title="reset the ui settings to their default values"
                         ></button>
                     </div>
-                </div>
+                </div> -->
 
                 <div
                     id="progressContainerUpscale"
@@ -1723,7 +1725,8 @@
                         style="
                             margin-top: 1px;
                             margin-bottom: 3px;
-                            display: inline-block;
+                            /* display: inline-block; */
+                            display: none;
                         "
                     >
                         Generate txt2img
@@ -1796,7 +1799,7 @@
                                 class="chLiveProgressImageClass"
                             />
                         </div>
-                        <div
+                        <!-- <div
                             class="svg-buttons-container"
                             style="
                                 display: inline-flex;
@@ -1833,7 +1836,7 @@
                                 id="btnInterrogate"
                                 title="Interrogate the selected area, convert Image to Prompt"
                             ></button>
-                        </div>
+                        </div> -->
                         <!-- <sp-picker
                             title="use lora in your prompt"
                             size="s"
@@ -2838,22 +2841,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                         flex-direction: column;
                     "
                 >
-                    <button
-                        class="btnSquare btnGenerateClass"
-                        id="btnGenerateUpscale"
-                        style="display: none"
-                    >
-                        Generate upscale
-                    </button>
-                    <button
-                        class="btnSquare btnInterruptClass"
-                        id="btnInterruptUpscale"
-                        style="display: none"
-                    >
-                        Interrupt
-                    </button>
-                    <div>
-                        <button
+                    <div id="toolbarGenerateButtonsContainer"></div>
+                    <div id="viewerButtonContainer">
+                        <!-- <button
                             title="Keep all generated images on the canvas"
                             class="btnSquare acceptClass acceptAllImgBtn"
                             style="display: none; margin-right: 3px"
@@ -2872,7 +2862,29 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                             title="Delete only the highlighted images"
                             class="btnSquare discardSelectedClass discardSelectedImgBtn"
                             style="display: none; margin-right: 3px"
+                        ></button> -->
+                    </div>
+                    <div>
+                        <!-- <button
+                            title="Keep all generated images on the canvas"
+                            class="btnSquare acceptClass acceptAllImgBtn"
+                            style="display: none; margin-right: 3px"
                         ></button>
+                        <button
+                            title="Delete all generated images from the canvas"
+                            class="btnSquare discardClass discardAllImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button>
+                        <button
+                            title="Keep only the highlighted images"
+                            class="btnSquare acceptSelectedClass acceptSelectedImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button>
+                        <button
+                            title="Delete only the highlighted images"
+                            class="btnSquare discardSelectedClass discardSelectedImgBtn"
+                            style="display: none; margin-right: 3px"
+                        ></button> -->
 
                         <button
                             class="btnSquare layerToSelection btnLayerToSelection"

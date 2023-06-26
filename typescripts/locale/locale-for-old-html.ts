@@ -27,7 +27,7 @@ const elemSelectorForLocale = {
     '#btnSetMaskViewer': 'Set Mask',
     '#btnSetInitImageViewer': 'Set Init Image',
     '#btnInterruptViewer': 'Interrupt',
-    '#btnSelectionArea': 'Selection Area',
+    // '#btnSelectionArea': 'Selection Area',
 
     // extra tab
     '#slThumbnailSize sp-label': 'Thumbnail Size',

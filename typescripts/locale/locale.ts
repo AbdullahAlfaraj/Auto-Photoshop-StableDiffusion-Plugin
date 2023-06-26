@@ -8,10 +8,10 @@ const localeFileCache: any = {}
 function isExists(path: string): boolean {
     try {
         lstatSync(path)
-        console.log(path, 'exists')
+        // console.log(path, 'exists')
         return true
     } catch (e) {
-        console.log(path, 'not exists')
+        // console.log(path, 'not exists')
         return false
     }
 }

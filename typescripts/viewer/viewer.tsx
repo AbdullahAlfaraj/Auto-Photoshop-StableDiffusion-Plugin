@@ -461,6 +461,45 @@ const Viewer = observer(() => {
     )
 })
 
+const ToolbarViewerButtons = observer(() => {
+    const display_button: Boolean =
+        session_ts.store.data.is_active && session_ts.store.data.can_generate
+    const button_style = {
+        // display: display_button ? 'block' : 'none',
+        display: 'block',
+        marginRight: '3px',
+        marginBottom: '3px',
+    }
+    return (
+        <div
+        // style={{
+        //     display: 'flex',
+        //     justifyContent: 'space-evenly',
+        //     paddingTop: '3px',
+        // }}
+        >
+            <button
+                title="Keep all generated images on the canvas"
+                className="btnSquare acceptClass acceptAllImgBtn"
+                style={button_style}
+                onClick={addAll}
+            ></button>
+            <button
+                title="Delete all generated images from the canvas"
+                className="btnSquare discardClass discardAllImgBtn"
+                style={button_style}
+                onClick={discardAll}
+            ></button>
+            <button
+                title="Keep only the highlighted images"
+                className="btnSquare acceptSelectedClass acceptSelectedImgBtn"
+                style={button_style}
+                onClick={onlySelected}
+            ></button>
+        </div>
+    )
+})
+
 // const node = document.getElementById('reactViewerContainer')!
 const containers = document.querySelectorAll('.reactViewerContainer')
 
@@ -476,3 +515,11 @@ containers.forEach((container) => {
         </React.StrictMode>
     )
 })
+
+const button_container = document.getElementById('viewerButtonContainer')!
+const root = ReactDOM.createRoot(button_container)
+root.render(
+    <React.StrictMode>
+        <ToolbarViewerButtons />
+    </React.StrictMode>
+)
