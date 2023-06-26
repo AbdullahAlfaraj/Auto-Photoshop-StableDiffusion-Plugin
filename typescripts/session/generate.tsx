@@ -21,7 +21,7 @@ const GenerateButtons = observer(() => {
         <div>
             <button
                 id="btnNewGenerate"
-                className="btnSquare generateButtonMargin"
+                className="btnSquare generateButtonMargin generateColor"
                 onClick={handleGenerate}
             >
                 Generate {modeDisplayNames[sd_tab_ts.store.data.mode]}
@@ -34,7 +34,7 @@ const GenerateButtons = observer(() => {
                     }
                     id="btnNewGenerateMore"
                     className={
-                        'btnSquare generateButtonMargin ' +
+                        'btnSquare generateButtonMargin generateMoreColor' +
                         (session_ts.store.data.can_generate_more
                             ? ''
                             : 'disableBtn')
@@ -82,15 +82,15 @@ const ToolbarGenerateButtons = observer(() => {
     return (
         <div>
             <button
-                className="btnSquare"
+                className="btnSquare generateColor"
                 onClick={handleGenerate}
-                style={button_style}
+                style={{ ...button_style }}
             >
                 G
             </button>
             <button
                 onClick={handleGenerateMore}
-                className={'btnSquare'}
+                className={'btnSquare generateMoreColor'}
                 style={{
                     ...button_style,
                     display: generate_more_display,

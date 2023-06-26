@@ -83,16 +83,3 @@ containers.forEach((container) => {
         </React.StrictMode>
     )
 })
-
-// // const node = document.getElementById('previewContainer')!
-// const root = ReactDOM.createRoot(node)
-
-// root.render(
-//     <React.StrictMode>
-//         <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-//             <Collapsible defaultIsOpen={true} label={'Preview'}>
-//                 <Previewer></Previewer>
-//             </Collapsible>
-//         </div>
-//     </React.StrictMode>
-// )
