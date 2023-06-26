@@ -1,14 +1,28 @@
+import { reaction } from 'mobx'
 import { AStore } from '../main/astore'
-import { layer_util } from '../util/oldSystem'
+import { io, layer_util } from '../util/oldSystem'
 
 export const store = new AStore({
     progress_layer: null,
     timer_id: null,
     progress_value: 0,
     progress_image: '',
+    progress_image_height: 0,
     can_update: true,
 })
 declare let g_sd_url: string
+
+reaction(
+    () => {
+        return store.data.progress_image
+    },
+    async (progress_image) => {
+        if (store.data.progress_image_height === 0) {
+            const { width, height } = await io.getImageSize(progress_image)
+            store.data.progress_image_height = height
+        }
+    }
+)
 
 export async function requestProgress() {
     try {
@@ -49,6 +63,7 @@ export class Progress {
         try {
             store.data.progress_value = 0
             store.data.progress_image = ''
+            store.data.progress_image_height = 0
             this.timer_id = clearInterval(this.timer_id)
         } catch (e) {
             console.warn(e)

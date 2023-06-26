@@ -1209,6 +1209,12 @@ async function getUniqueDocumentId() {
         console.warn('warning Document Id may not be valid', e)
     }
 }
+async function getImageSize(base64) {
+    const image = await Jimp.read(Buffer.from(base64, 'base64'))
+    const width = image.bitmap.width
+    const height = image.bitmap.height
+    return { width, height }
+}
 module.exports = {
     IO,
     snapShotLayerExe,
@@ -1232,4 +1238,5 @@ module.exports = {
     maskFromInitImage,
     getImageFromCanvas,
     getUniqueDocumentId,
+    getImageSize,
 }

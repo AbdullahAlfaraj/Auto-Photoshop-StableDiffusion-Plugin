@@ -288,6 +288,7 @@ export class Session {
         progress.Progress.endTimer(() => {
             progress.store.data.progress_value = 0
             progress.store.data.progress_image = ''
+            progress.store.data.progress_image_height = 0
         })
     }
 

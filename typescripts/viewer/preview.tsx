@@ -26,7 +26,12 @@ const Previewer = observer(() => {
             )
         }
         return (
-            <div>
+            <div
+                className="progressImageContainer"
+                style={{
+                    minHeight: progress.store.data.progress_image_height,
+                }}
+            >
                 <sp-progressbar
                     class="pProgressBars preview_progress_bar"
                     max="100"
@@ -41,16 +46,29 @@ const Previewer = observer(() => {
 
 const containers = document.querySelectorAll('.previewContainer')
 
+const PreviewerContainer = observer(() => {
+    return (
+        <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+            <Collapsible
+                defaultIsOpen={true}
+                label={
+                    'Preview' +
+                    (progress.store.data.progress_value
+                        ? `: ${progress.store.data.progress_value?.toFixed(2)}%`
+                        : '')
+                }
+            >
+                <Previewer></Previewer>
+            </Collapsible>
+        </div>
+    )
+})
 containers.forEach((container) => {
     const root = ReactDOM.createRoot(container)
 
     root.render(
         <React.StrictMode>
-            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Collapsible defaultIsOpen={true} label={'Preview'}>
-                    <Previewer></Previewer>
-                </Collapsible>
-            </div>
+            <PreviewerContainer />
         </React.StrictMode>
     )
 })
