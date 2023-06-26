@@ -382,7 +382,7 @@ async function getSettings(session_data) {
                 if (expanded_mask) {
                     payload['expanded_mask'] = expanded_mask
                     payload['mask'] = expanded_mask
-                    session_ts.store.expanded_mask = expanded_mask
+                    session_ts.store.data.expanded_mask = expanded_mask
                 }
             }
             // viewer.store.mask = payload['mask'] // make sure
