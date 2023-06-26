@@ -23,10 +23,14 @@ const interpolationMethods: InterpolationMethod = {
         photoshop: 'bicubicAutomatic',
         jimp: Jimp.RESIZE_BICUBIC,
     },
+    bilinear: {
+        photoshop: 'bilinear',
+        jimp: Jimp.RESIZE_BILINEAR,
+    },
 }
 
 export const store = new AStore({
-    scale_interpolation_method: interpolationMethods.bicubic,
+    scale_interpolation_method: interpolationMethods.bilinear,
 })
 
 const Settings = observer(() => {
