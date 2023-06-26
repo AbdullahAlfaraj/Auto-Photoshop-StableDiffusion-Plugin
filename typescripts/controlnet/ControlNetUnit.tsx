@@ -501,7 +501,10 @@ export default class ControlNetUnit extends React.Component<
                         checked={storeData.auto_image}
                         // id={`chPixelPerfect_${this.props.index}`}
                     >
-                        {Locale('Auto Image')}
+                        {
+                            //@ts-ignore
+                            Locale('Auto Image')
+                        }
                     </SpCheckBox>
                     {this.props.appState.controlnetApiVersion > 1 && (
                         <sp-radio-group

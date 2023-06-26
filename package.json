@@ -46,7 +46,8 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "watch": "npx webpack --config webpack.config.js --watch",
-        "build": "npx webpack --config webpack.config.js"
+        "build": "npx webpack --config webpack.config.js",
+        "format": "npx prettier -w typescripts"
     },
     "repository": {
         "type": "git",

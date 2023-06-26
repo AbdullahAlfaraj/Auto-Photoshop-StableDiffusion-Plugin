@@ -40,7 +40,8 @@
       "label": {
         "default": "Auto-Photoshop-SD",
         "en-US": "Auto-Photoshop-SD",
-        "es-ES": "Auto-Photoshop-SD"
+        "es-ES": "Auto-Photoshop-SD",
+        "zh-CN": "SD插件（明空汉化）"
       },
       "minimumSize": {
         "width": 400,
@@ -92,7 +93,8 @@
       "label": {
         "default": "Second Auto-Photoshop-SD",
         "en-US": "Second Auto-Photoshop-SD",
-        "es-ES": "Second Auto-Photoshop-SD"
+        "es-ES": "Second Auto-Photoshop-SD",
+        "zh-CN": "SD插件（明空汉化）"
       },
       "minimumSize": {
         "width": 100,
