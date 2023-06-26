@@ -57,6 +57,13 @@ export default class ControlNetUnit extends React.Component<
         console.log('onPixelPerfectChange', storeData.pixel_perfect)
         storeData.pixel_perfect = !storeData.pixel_perfect
     }
+    onAutoImageChange(event: any) {
+        event.preventDefault()
+        const storeData =
+            this.props.appState.controlNetUnitData[this.props.index]
+        console.log('onAutoImageChange', storeData.auto_image)
+        storeData.auto_image = !storeData.auto_image
+    }
     onWeightMove(event: any) {
         event.preventDefault()
         if (event.target.tagName != 'SP-SLIDER') return
@@ -485,6 +492,16 @@ export default class ControlNetUnit extends React.Component<
                         id={`chPixelPerfect_${this.props.index}`}
                     >
                         {Locale('Pixel Perfect')}
+                    </SpCheckBox>
+                    <SpCheckBox
+                        style={{
+                            marginRight: '10px',
+                        }}
+                        onChange={this.onAutoImageChange.bind(this)}
+                        checked={storeData.auto_image}
+                        // id={`chPixelPerfect_${this.props.index}`}
+                    >
+                        {Locale('Auto Image')}
                     </SpCheckBox>
                     {this.props.appState.controlnetApiVersion > 1 && (
                         <sp-radio-group

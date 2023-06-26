@@ -1,3 +1,5 @@
+import { setControlImageSrc } from '../../utility/html_manip'
+import { session_ts } from '../entry'
 import { Enum, api } from '../util/oldSystem'
 import { store, versionCompare } from './main'
 
@@ -63,11 +65,25 @@ function getEnableControlNet(index: number) {
 function mapPluginSettingsToControlNet(plugin_settings: any) {
     const ps = plugin_settings // for shortness
     let controlnet_units: any[] = []
+    function getControlNetInputImage(index: number) {
+        try {
+            const b_sync_input_image =
+                store.controlNetUnitData[index].auto_image
+            let input_image = store.controlNetUnitData[index].input_image
+            if (b_sync_input_image && session_ts.store.data.init_image) {
+                input_image = session_ts.store.data.init_image
+                store.controlNetUnitData[index].input_image = input_image
+            }
 
+            return input_image
+        } catch (e) {
+            console.warn(e)
+        }
+    }
     for (let index = 0; index < store.maxControlNet; index++) {
         controlnet_units[index] = {
             enabled: getEnableControlNet(index),
-            input_image: store.controlNetUnitData[index].input_image,
+            input_image: getControlNetInputImage(index),
             mask: '',
             module: store.controlNetUnitData[index].module,
             model: store.controlNetUnitData[index].model,
@@ -123,6 +139,9 @@ function getUnitsData() {
 function setControlMaskSrc(base64: string, index: number) {
     store.controlNetUnitData[index].mask = base64
 }
+function setControlInputImageSrc(base64: string, index: number) {
+    store.controlNetUnitData[index].input_image = base64
+}
 function isControlNetModeEnable() {
     let is_tab_enabled =
         !document.getElementById('chDisableControlNetTab') ||
@@ -155,6 +174,7 @@ export {
     getControlNetMaxModelsNumber,
     getUnitsData,
     setControlMaskSrc,
+    setControlInputImageSrc,
     isControlNetModeEnable,
     getModuleDetail,
 }

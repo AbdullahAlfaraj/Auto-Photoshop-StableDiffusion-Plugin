@@ -20,6 +20,7 @@ export const DefaultControlNetUnitData = {
 
     control_mode: 'Balanced',
     pixel_perfect: true,
+    auto_image: true,
 }
 
 export interface controlNetUnitData {
@@ -45,6 +46,7 @@ export interface controlNetUnitData {
         | 'My prompt is more important'
         | 'ControlNet is more important'
     pixel_perfect: boolean
+    auto_image: boolean // sync CtrlNet image with sd input image
 }
 interface ControlNetMobxStore {
     maxControlNet: number
