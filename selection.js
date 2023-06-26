@@ -847,6 +847,36 @@ async function base64ToLassoSelection(base64, selection_info) {
     await colorRangeExe()
     await layer_util.deleteLayers([temp_layer])
 }
+
+async function base64ToChannel(base64, selection_info, channel_name) {
+    const layer = app.activeDocument.activeLayers[0]
+
+    if (!layer_util.Layer.doesLayerExist(layer)) {
+        return null
+    }
+    await psapi.unSelectMarqueeExe()
+    await psapi.unselectActiveLayersExe()
+    await base64ToLassoSelection(base64, selection_info)
+
+    const channelToSelection = {
+        _obj: 'set',
+        _target: { _ref: 'channel', _property: 'selection' },
+        to: { _ref: 'channel', _name: channel_name },
+    }
+    await executeAsModal(async () => {
+        const result = await batchPlay(
+            [
+                ...deleteChannel(channel_name),
+                makeMaskChannel(channel_name),
+                channelToSelection,
+            ],
+            { modalBehavior: 'execute', synchronousExecution: true }
+        )
+    })
+    await psapi.selectLayersExe([layer])
+    await applyMaskChannelExe(channel_name)
+}
+
 module.exports = {
     finalWidthHeight,
     selectionToFinalWidthHeight,
@@ -866,4 +896,5 @@ module.exports = {
     moveToTopLayerStackExe,
     colorRangeExe,
     base64ToLassoSelection,
+    base64ToChannel,
 }

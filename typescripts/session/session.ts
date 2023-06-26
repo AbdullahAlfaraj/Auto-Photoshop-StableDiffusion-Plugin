@@ -129,7 +129,10 @@ export class Session {
             }
 
             if (mask) {
-                store.data.mask = mask
+                const mask_monochrome = await io.convertGrayscaleToMonochrome(
+                    mask
+                )
+                store.data.mask = mask_monochrome
                 // store.data.mask = await io.maskFromInitImage(
                 //     store.data.init_image
                 // )
@@ -140,7 +143,7 @@ export class Session {
                     [store.data.mask]
                 )
             }
-            return { init_image, mask, selectionInfo }
+            return { init_image, mask: store.data.mask, selectionInfo }
         }
     }
     static async getSettings(session_data: any) {

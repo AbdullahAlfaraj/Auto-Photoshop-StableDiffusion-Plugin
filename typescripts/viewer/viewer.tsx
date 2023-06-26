@@ -6,7 +6,7 @@ import { AStore } from '../main/astore'
 import { Grid } from '../util/grid'
 import { MoveToCanvasSvg, SpSlider, SpSliderWithLabel } from '../util/elements'
 import { moveImageToLayer } from '../util/ts/io'
-import { io, layer_util } from '../util/oldSystem'
+import { io, layer_util, selection } from '../util/oldSystem'
 import Collapsible from '../after_detailer/after_detailer'
 import { session_ts } from '../entry'
 declare let g_generation_session: any
@@ -125,6 +125,18 @@ const add = async (base64: string) => {
         base64,
         session_ts.store.data.selectionInfo
     )
+    // base64 = session_ts.store.data.mask
+    const base64_monochrome_mask = await io.convertGrayscaleToMonochrome(
+        session_ts.store.data.mask
+    )
+
+    const selectionInfo = session_ts.store.data.selectionInfo
+    await selection.base64ToChannel(
+        base64_monochrome_mask,
+        selectionInfo,
+        'inpaint_mask'
+    )
+
     return layer
 }
 const remove = async (layer: any) => {
@@ -382,6 +394,30 @@ const Viewer = observer(() => {
                     height={mask_store.data.height}
                     // clicked_index={init_store.data.clicked_index}
                     // permanent_indices={init_store.data.permanent_indices}
+                    action_buttons={[
+                        {
+                            ComponentType: MoveToCanvasSvg,
+                            callback: async (index: number) => {
+                                await moveImageToLayer(
+                                    mask_store.data.images[index],
+                                    session_ts.store.data.selectionInfo
+                                )
+                            },
+                        },
+                        {
+                            ComponentType: MoveToCanvasSvg,
+                            callback: async (index: number) => {
+                                const base64_monochrome_mask =
+                                    await io.convertGrayscaleToMonochrome(
+                                        mask_store.data.images[index]
+                                    )
+                                await moveImageToLayer(
+                                    base64_monochrome_mask,
+                                    session_ts.store.data.selectionInfo
+                                )
+                            },
+                        },
+                    ]}
                 ></Grid>
             </div>
             <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>

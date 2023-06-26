@@ -1215,6 +1215,47 @@ async function getImageSize(base64) {
     const height = image.bitmap.height
     return { width, height }
 }
+async function convertGrayscaleToMonochrome(base64) {
+    function grayToMonoPixel(x, y, idx) {
+        // convert any grayscale value to white, resulting in black and white image
+
+        // if (this.bitmap.data[idx] > 0) {
+        //     this.bitmap.data[idx] = 255
+        // }
+        // if (this.bitmap.data[idx + 1] > 0) {
+        //     this.bitmap.data[idx + 1] = 255
+        // }
+        // if (this.bitmap.data[idx + 2] > 0) {
+        //     this.bitmap.data[idx + 2] = 255
+        // }
+        let color
+        if (
+            this.bitmap.data[idx] !== 0 &&
+            this.bitmap.data[idx + 1] !== 0 &&
+            this.bitmap.data[idx + 2] !== 0
+        ) {
+            color = 0xffffffff
+        } else {
+            color = 0x000000ff
+        }
+        this.setPixelColor(color, x, y)
+    }
+    try {
+        const jimp_image = await Jimp.read(Buffer.from(base64, 'base64'))
+
+        const jimp_mask = await jimp_image.scan(
+            0,
+            0,
+            jimp_image.bitmap.width,
+            jimp_image.bitmap.height,
+            grayToMonoPixel
+        )
+        const base64_monochrome_mask = await getBase64FromJimp(jimp_mask)
+        return base64_monochrome_mask
+    } catch (e) {
+        console.warn(e)
+    }
+}
 module.exports = {
     IO,
     snapShotLayerExe,
@@ -1239,4 +1280,5 @@ module.exports = {
     getImageFromCanvas,
     getUniqueDocumentId,
     getImageSize,
+    convertGrayscaleToMonochrome,
 }
