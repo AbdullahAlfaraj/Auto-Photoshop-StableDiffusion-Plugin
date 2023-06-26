@@ -131,7 +131,7 @@ const remove = async (layer: any) => {
     await layer_util.deleteLayers([layer]) // delete previous layer
 }
 
-const endSession = async () => {
+export const resetViewer = () => {
     store.updateProperty('images', [])
     store.data.thumbnails = []
     store.data.prev_index = -1
@@ -139,8 +139,8 @@ const endSession = async () => {
     store.data.layers = []
     store.data.class_name = []
     store.data.can_click = true
-    session_ts.store.data.is_active = false //
 }
+
 const addAll = async () => {
     let i = 0
     for (let i = 0; i < store.data.images.length; i++) {
@@ -153,17 +153,17 @@ const addAll = async () => {
         )
     }
 
-    endSession()
+    session_ts.Session.endSession()
 }
 const discardAll = async () => {
     for (let i = 0; i < store.data.images.length; i++) {
         await remove(store.data.layers[i])
     }
 
-    endSession()
+    session_ts.Session.endSession()
 }
 const onlySelected = () => {
-    endSession()
+    session_ts.Session.endSession()
 }
 const handleOutputImageThumbnailClick = async (index: number, event?: any) => {
     try {

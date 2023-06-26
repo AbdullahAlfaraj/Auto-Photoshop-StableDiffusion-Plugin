@@ -6,7 +6,7 @@ import {
     layer_util,
     psapi,
     python_replacement,
-    selection, 
+    selection,
     session,
 } from '../util/oldSystem'
 
@@ -249,6 +249,8 @@ export class Txt2ImgMode extends Mode {
             )
         } catch (e) {
             console.warn(e)
+            console.warn('output_images: ', output_images)
+            console.warn('response_json: ', response_json)
         }
         return { output_images, response_json }
     }
@@ -408,6 +410,8 @@ export class Img2ImgMode extends Mode {
             )
         } catch (e) {
             console.warn(e)
+            console.warn('output_images: ', output_images)
+            console.warn('response_json: ', response_json)
         }
 
         return { output_images, response_json }
@@ -545,12 +549,19 @@ export class UpscaleMode extends Img2ImgMode {
         output_images: any
         response_json: any
     }> {
-        const response_json = await this.requestExtraSingleImage(settings)
-        const output_images = await this.processOutput(
-            response_json.images_info,
-            settings
-        )
-
+        let response_json
+        let output_images
+        try {
+            response_json = await this.requestExtraSingleImage(settings)
+            output_images = await this.processOutput(
+                response_json.images_info,
+                settings
+            )
+        } catch (e) {
+            console.warn(e)
+            console.warn('output_images: ', output_images)
+            console.warn('response_json: ', response_json)
+        }
         return { output_images, response_json }
     }
 }

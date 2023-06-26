@@ -2309,7 +2309,8 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                         align-items: flex-start;
                                     "
                                 >
-                                    <sp-label id="sdLabelSampleStep">Sampling Steps</sp-label
+                                    <sp-label id="sdLabelSampleStep"
+                                        >Sampling Steps</sp-label
                                     ><sp-textfield
                                         style="width: 100%"
                                         title="the higher the steps the longer it will take to generate an image"
@@ -2379,7 +2380,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 value="8"
                                 data-old_value="512"
                             >
-                                <sp-label slot="label" class="title">Width:</sp-label>
+                                <sp-label slot="label" class="title"
+                                    >Width:</sp-label
+                                >
                                 <sp-label
                                     class="labelNumber"
                                     slot="label"
@@ -2401,7 +2404,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 value="8"
                                 data-old_value="512"
                             >
-                                <sp-label slot="label" class="title">Height:</sp-label>
+                                <sp-label slot="label" class="title"
+                                    >Height:</sp-label
+                                >
                                 <sp-label
                                     class="labelNumber"
                                     slot="label"
@@ -2836,6 +2841,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                     <button
                         class="btnSquare btnGenerateClass"
                         id="btnGenerateUpscale"
+                        style="display: none"
                     >
                         Generate upscale
                     </button>

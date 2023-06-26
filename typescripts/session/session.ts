@@ -291,6 +291,10 @@ export class Session {
             progress.store.data.progress_image_height = 0
         })
     }
+    static endSession() {
+        viewer.resetViewer() //may cause circular dependency
+        store.data.is_active = false //
+    }
 
     static async getOutput() {}
 }

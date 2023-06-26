@@ -5,7 +5,7 @@ import { observer } from 'mobx-react'
 
 import { sd_tab_ts, session_ts, viewer } from '../entry'
 import './style/generate.css'
-import { io } from '../util/oldSystem'
+import { io, note, psapi } from '../util/oldSystem'
 import { GenerationModeEnum } from '../util/ts/enum'
 
 //example: take 'oI' in 'LassoInpaint' and replace it with 'o I' thus creating 'Lasso Inpaint'
@@ -64,12 +64,44 @@ const GenerateButtons = observer(() => {
         </div>
     )
 })
+const canStartSession = async () => {
+    // check for automatic1111 connection: fail if false
+    // check for automatic1111 api: fail if false
+    // check for having a background layer: create if false
+    // check for artboard: fail if true
+    // check for selection: fail if false
+    let can_start_session = false
+    try {
+        const selection_info = await psapi.getSelectionInfoExe()
+        if (selection_info) {
+            session_ts.Session.endSession()
 
+            can_start_session = true
+        } else {
+            can_start_session = await note.Notification.inactiveSelectionArea(
+                session_ts.store.data.is_active
+            )
+            if (can_start_session) {
+                //end current session and start a new one
+                session_ts.Session.endSession()
+                await psapi.reSelectMarqueeExe(
+                    session_ts.store.data.selectionInfo
+                )
+            }
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+    return can_start_session
+}
 // declare let g_sd_mode: any
 const handleGenerate = async () => {
     console.log('mode: ', sd_tab_ts.store.data.mode)
     try {
-        const { output_images, response_json } =
+        if (!(await canStartSession())) {
+            return void 0
+        }
+        var { output_images, response_json } =
             await session_ts.Session.generate(sd_tab_ts.store.data.mode)
 
         if (session_ts.store.data.is_interrupted) {
@@ -84,18 +116,21 @@ const handleGenerate = async () => {
 
         viewer.store.updateProperty('thumbnails', thumbnail_list)
         viewer.store.updateProperty('images', output_images)
+
         console.log(
             'session_ts.store.toJsFunc(): ',
             session_ts.store.toJsFunc()
         )
     } catch (e) {
         console.error(e)
+        console.warn('output_images: ', output_images)
+        console.warn('response_json: ', response_json)
     }
 }
 
 const handleGenerateMore = async () => {
     try {
-        const { output_images, response_json } =
+        var { output_images, response_json } =
             await session_ts.Session.generateMore()
 
         if (session_ts.store.data.is_interrupted) {
@@ -124,6 +159,8 @@ const handleGenerateMore = async () => {
         )
     } catch (e) {
         console.error(e)
+        console.warn('output_images: ', output_images)
+        console.warn('response_json: ', response_json)
     }
 }
 
