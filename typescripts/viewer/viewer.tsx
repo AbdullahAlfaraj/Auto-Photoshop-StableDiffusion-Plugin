@@ -9,6 +9,7 @@ import { moveImageToLayer } from '../util/ts/io'
 import { io, layer_util, selection } from '../util/oldSystem'
 import Collapsible from '../after_detailer/after_detailer'
 import { session_ts } from '../entry'
+import { reaction } from 'mobx'
 declare let g_generation_session: any
 
 enum ClickTypeEnum {
@@ -57,6 +58,22 @@ export const store = new AStore({
     class_name: [],
     can_click: true,
 })
+
+//when a generation is done, add the last generated image from the viewer to tha canvas
+reaction(
+    () => {
+        return store.data.images
+    },
+    async (images: string[]) => {
+        try {
+            images.length > 0
+                ? await handleOutputImageThumbnailClick(images.length - 1)
+                : void 0
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+)
 export const init_store = new AStore({
     images: [],
     thumbnails: [],
@@ -177,7 +194,10 @@ const discardAll = async () => {
 const onlySelected = () => {
     session_ts.Session.endSession()
 }
-const handleOutputImageThumbnailClick = async (index: number, event?: any) => {
+export const handleOutputImageThumbnailClick = async (
+    index: number,
+    event?: any
+) => {
     try {
         if (!store.data.can_click) return null
 
