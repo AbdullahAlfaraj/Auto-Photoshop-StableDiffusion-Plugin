@@ -292,8 +292,10 @@ const handleOutputImageThumbnailClick = async (index: number, event?: any) => {
 }
 const Viewer = observer(() => {
     // console.log('rendered', store.toJsFunc())
+    const display_button: Boolean =
+        session_ts.store.data.is_active && session_ts.store.data.can_generate
     const button_style = {
-        display: 'none',
+        display: display_button ? 'block' : 'none',
         marginRight: '3px',
     }
     return (
@@ -328,17 +330,6 @@ const Viewer = observer(() => {
                 output_value={store.data.width}
                 label="Thumbnail Size:"
             ></SpSliderWithLabel>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <button className="btnSquare" onClick={addAll}>
-                    Add All
-                </button>
-                <button className="btnSquare" onClick={discardAll}>
-                    Discard All
-                </button>
-                <button className="btnSquare" onClick={onlySelected}>
-                    Keep Only Selected
-                </button>
-            </div>
 
             <div
                 style={{
@@ -351,21 +342,19 @@ const Viewer = observer(() => {
                     title="Keep all generated images on the canvas"
                     className="btnSquare acceptClass acceptAllImgBtn"
                     style={button_style}
+                    onClick={addAll}
                 ></button>
                 <button
                     title="Delete all generated images from the canvas"
                     className="btnSquare discardClass discardAllImgBtn"
                     style={button_style}
+                    onClick={discardAll}
                 ></button>
                 <button
                     title="Keep only the highlighted images"
                     className="btnSquare acceptSelectedClass acceptSelectedImgBtn"
                     style={button_style}
-                ></button>
-                <button
-                    title="Delete only the highlighted images"
-                    className="btnSquare discardSelectedClass discardSelectedImgBtn"
-                    style={button_style}
+                    onClick={onlySelected}
                 ></button>
             </div>
             <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
