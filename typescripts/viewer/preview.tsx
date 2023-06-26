@@ -6,11 +6,22 @@ import { observer } from 'mobx-react'
 import { AStore } from '../main/astore'
 import { progress } from '../entry'
 import './style/preview.css'
+import { reaction } from 'mobx'
 export const store = new AStore({
     // image: '',
     // progress_value: 0,
 })
-
+// update all progress bar when progress store progress_value update
+reaction(
+    () => {
+        return progress.store.data.progress_value
+    },
+    (value: number) => {
+        document.querySelectorAll('.pProgressBars').forEach((progress: any) => {
+            progress.value = value?.toFixed(2)
+        })
+    }
+)
 const Previewer = observer(() => {
     const renderImage = () => {
         let preview_img_html
