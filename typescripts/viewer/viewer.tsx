@@ -168,6 +168,11 @@ export const resetViewer = () => {
     store.data.layers = []
     store.data.class_name = []
     store.data.can_click = true
+
+    mask_store.data.images = []
+    mask_store.data.thumbnails = []
+    init_store.data.images = []
+    init_store.data.thumbnails = []
 }
 
 const addAll = async () => {
@@ -465,8 +470,8 @@ const ToolbarViewerButtons = observer(() => {
     const display_button: Boolean =
         session_ts.store.data.is_active && session_ts.store.data.can_generate
     const button_style = {
-        // display: display_button ? 'block' : 'none',
-        display: 'block',
+        display: display_button ? 'block' : 'none',
+
         marginRight: '3px',
         marginBottom: '3px',
     }

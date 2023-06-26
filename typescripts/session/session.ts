@@ -297,6 +297,9 @@ export class Session {
     static endSession() {
         viewer.resetViewer() //may cause circular dependency
         store.data.is_active = false //
+        store.data.init_image = ''
+        store.data.mask = ''
+        store.data.expanded_mask = ''
     }
 
     static async getOutput() {}
