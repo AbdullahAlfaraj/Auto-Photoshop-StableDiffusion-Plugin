@@ -20,6 +20,7 @@ declare global {
             'sp-divider': any
             'sp-detail': any
             'sp-textarea': any
+            'sp-textfield': any
             'sp-action-button': any
             'sp-progressbar': any
         }

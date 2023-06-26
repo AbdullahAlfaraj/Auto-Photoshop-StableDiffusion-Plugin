@@ -1,8 +1,4 @@
-//deprecated file don't use
-
-console.warn('api.js is deprecated, use typescript/util/ts/api.ts')
-
-async function requestGet(url) {
+export async function requestGet(url: string) {
     let json = null
 
     const full_url = url
@@ -20,7 +16,7 @@ async function requestGet(url) {
     }
     return json
 }
-async function requestPost(url, payload) {
+export async function requestPost(url: string, payload: any) {
     let json = null
 
     const full_url = url
@@ -46,14 +42,15 @@ async function requestPost(url, payload) {
     }
     return json
 }
-async function requestFormDataPost(url, payload) {
+export async function requestFormDataPost(url: string, payload: any) {
     try {
         var myHeaders = new Headers()
         myHeaders.append('Cookie', 'PHPSESSID=n70fa2vmvm6tfmktf4jmstmd1i')
 
         var formdata = new FormData()
 
-        for ([key, value] of Object.entries(payload)) {
+        for (const [key, value] of Object.entries(payload)) {
+            //@ts-ignore
             formdata.append(key, value)
         }
         // formdata.append(
@@ -69,6 +66,7 @@ async function requestFormDataPost(url, payload) {
             redirect: 'follow',
         }
 
+        //@ts-ignore
         const response = await fetch(url, requestOptions)
         const result_json = response.json()
         return result_json

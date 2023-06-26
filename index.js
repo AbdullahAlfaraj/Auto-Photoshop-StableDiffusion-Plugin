@@ -69,6 +69,7 @@ const {
     sd_tab_ts,
     sam,
     settings_tab_ts,
+    one_button_prompt,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
