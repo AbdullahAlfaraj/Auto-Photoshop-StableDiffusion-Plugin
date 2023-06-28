@@ -37,25 +37,92 @@ With Auto-Photoshop-StableDiffusion-Plugin, you can directly use the capabilitie
 # Support Us On Patreon:
 By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll help us continue to develop and improve the Auto-Photoshop-StableDiffusion-Plugin, making it even easier for you to use Stable Diffusion AI in a familiar environment. As a supporter, you’ll have the opportunity to provide feedback and suggestions for future development. Plus, you’ll get early access to new features and tutorials, as well as exclusive art tutorials and tips from a professional artist. We’re passionate about making AI approachable to artists and with your help, we can continue to do just that.	
 # Auto-Photoshop-SD Backers and Sponsors:
-**💎 Diamond:**
-| [![Ronny Khalil](https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/A934E4F0-7778-47E9-A395-531BFF2E61F1_1_105_c.jpeg&h=80&w=80&fit=cover&mask=circle&maxage=7d)](https://ronnykhalil.com/) | ![zachary](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=zachary) | ![Razvan Matei](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Razvan+Matei)
-|:---:|:---:|:---:|
-| [Ronny Khalil](https://ronnykhalil.com/) | zachary | Razvan Matei
+<h2>💎 Diamond</h2>
+<table>
+<tr>
+<td><a href="https://ronnykhalil.com/"><img src="https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/A934E4F0-7778-47E9-A395-531BFF2E61F1_1_105_c.jpeg&h=80&w=80&fit=cover&mask=circle&maxage=7d" alt="Ronny Khalil"></a></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=zachary" alt="zachary"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Razvan+Matei" alt="Razvan Matei"></td>
+</tr>
+<tr>
+<td><a href="https://ronnykhalil.com/">Ronny Khalil</a></td>
+<td>zachary</td>
+<td>Razvan Matei</td>
+</tr>
+</table>
 
-**🥇 Gold:**
-| ![Alex ](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Alex+) | ![Florin-Alexandru Ilinescu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Florin-Alexandru+Ilinescu) | ![Robin Edwards](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Robin+Edwards) | ![Danny Sahagun](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Danny+Sahagun)
-|:---:|:---:|:---:|:---:|
-| Alex  | Florin-Alexandru Ilinescu | Robin Edwards | Danny Sahagun
+<h2>🥇 Gold</h2>
+<table>
+<tr>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Alex+" alt="Alex "></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Florin-Alexandru+Ilinescu" alt="Florin-Alexandru Ilinescu"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Robin+Edwards" alt="Robin Edwards"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Danny+Sahagun" alt="Danny Sahagun"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Bruce+Hunter" alt="Bruce Hunter"></td>
+</tr>
+<tr>
+<td>Alex </td>
+<td>Florin-Alexandru Ilinescu</td>
+<td>Robin Edwards</td>
+<td>Danny Sahagun</td>
+<td>Bruce Hunter</td>
+</tr>
+</table>
 
-**🥈 Silver:**
-| ![Amith Thomas](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Amith+Thomas) | ![Olivier Lefebvre](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre) | ![xiao yuan](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=xiao+yuan) | ![Ezra Blake](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ezra+Blake) | ![Zenko ](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Zenko+) | ![Frederic Dreuilhe](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Frederic+Dreuilhe) | ![Kevin Schofield](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kevin+Schofield) | ![darius coal](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=darius+coal) | ![Kerwin](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kerwin) | ![The Dread Vixen Alinsa](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=The+Dread+Vixen+Alinsa) | ![Chris Canterbury](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Chris+Canterbury)
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Amith Thomas | Olivier Lefebvre | xiao yuan | Ezra Blake | Zenko  | Frederic Dreuilhe | Kevin Schofield | darius coal | Kerwin | The Dread Vixen Alinsa | Chris Canterbury
+<h2>🥈 Silver</h2>
+<table>
+<tr>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Amith+Thomas" alt="Amith Thomas"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre" alt="Olivier Lefebvre"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=xiao+yuan" alt="xiao yuan"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ezra+Blake" alt="Ezra Blake"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Zenko+" alt="Zenko "></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Frederic+Dreuilhe" alt="Frederic Dreuilhe"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kevin+Schofield" alt="Kevin Schofield"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=darius+coal" alt="darius coal"></td>
+</tr>
+<tr>
+<td>Amith Thomas</td>
+<td>Olivier Lefebvre</td>
+<td>xiao yuan</td>
+<td>Ezra Blake</td>
+<td>Zenko </td>
+<td>Frederic Dreuilhe</td>
+<td>Kevin Schofield</td>
+<td>darius coal</td>
+</tr>
+<tr>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kerwin" alt="Kerwin"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=The+Dread+Vixen+Alinsa" alt="The Dread Vixen Alinsa"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Chris+Canterbury" alt="Chris Canterbury"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Mvs+Srs" alt="Mvs Srs"></td>
+</tr>
+<tr>
+<td>Kerwin</td>
+<td>The Dread Vixen Alinsa</td>
+<td>Chris Canterbury</td>
+<td>Mvs Srs</td>
+</tr>
+</table>
 
-**🥉 Copper:**
-| ![Sebastian Karbowniczek](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek) | ![Arthur Liu](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu) | ![Juan Pablo Mendiola](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Juan+Pablo+Mendiola) | ![Bruce Hunter](https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Bruce+Hunter)
-|:---:|:---:|:---:|:---:|
-| Sebastian Karbowniczek | Arthur Liu | Juan Pablo Mendiola | Bruce Hunter
+<h2>🥉 Copper</h2>
+<table>
+<tr>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek" alt="Sebastian Karbowniczek"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu" alt="Arthur Liu"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Juan+Pablo+Mendiola" alt="Juan Pablo Mendiola"></td>
+</tr>
+<tr>
+<td>Sebastian Karbowniczek</td>
+<td>Arthur Liu</td>
+<td>Juan Pablo Mendiola</td>
+</tr>
+</table>
+
+
+
+
+
 
 
 

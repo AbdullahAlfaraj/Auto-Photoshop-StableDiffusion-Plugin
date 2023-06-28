@@ -21,8 +21,9 @@
   <g id="a" data-name="frame">
     <rect class="e" width="64" height="64"/>
   </g>
-  <g id="b" data-name="Layer_+1">
-    <rect class="c" x="13.34" y="12.24" width="38.49" height="39.43" rx="2.69" ry="2.69"/>
-    <polyline class="d" points="24.98 29.27 31.25 38.23 39.31 25.68"/>
+  <g id="b" data-name="reset">
+    <path class="d" d="m23.51,17.36c-5.8,3.19-9.73,9.35-9.73,16.44,0,10.35,8.39,18.75,18.75,18.75s18.75-8.39,18.75-18.75-8.39-18.75-18.75-18.75"/>
+    <circle class="c" cx="32.59" cy="34.2" r="4.93"/>
+    <polyline class="d" points="41.36 10.64 31.43 15.06 38.05 21.67"/>
   </g>
 </svg>
