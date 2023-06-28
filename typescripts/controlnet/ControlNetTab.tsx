@@ -12,6 +12,7 @@ import {
 } from '../util/oldSystem'
 import { SpMenuComponent } from '../util/elements'
 import Locale from '../locale/locale'
+import Collapsible from '../after_detailer/after_detailer'
 
 let g_controlnet_presets: any
 declare const g_generation_session: any
@@ -135,8 +136,11 @@ class ControlNetTab extends React.Component<{
             <div>
                 <sp-picker
                     title="auto fill the ControlNet with smart settings, to speed up your working process."
-                    size="m"
+                    size="s"
                     label="ControlNet Preset"
+                    style={{
+                        width: '65%',
+                    }}
                 >
                     <SpMenuComponent
                         id="mControlNetPresetMenu"
@@ -180,12 +184,48 @@ class ControlNetTab extends React.Component<{
                     {Array(this.props.appState.maxControlNet)
                         .fill(0)
                         .map((v, index) => {
+                            const storeData =
+                                this.props.appState.controlNetUnitData[index]
+
+                            let controlNetLabel = `CtrlNet Unit ${index}: ${
+                                storeData.module && storeData.module !== 'none'
+                                    ? `${storeData.module}`
+                                    : ''
+                            }`
+
+                            console.log('controlNetLabel: ', controlNetLabel)
                             return (
-                                <ControlNetUnit
-                                    appState={this.props.appState}
+                                <div
                                     key={index}
-                                    index={index}
-                                />
+                                    style={{
+                                        border: '2px solid #6d6c6c',
+                                        padding: '3px',
+                                    }}
+                                >
+                                    <Collapsible
+                                        defaultIsOpen={false}
+                                        label={controlNetLabel}
+                                        labelStyle={{ fontSize: '12px' }}
+                                        containerStyle={{
+                                            alignItems: 'center',
+                                            backgroundColor: storeData.enabled
+                                                ? '#2c4639'
+                                                : void 0,
+                                        }}
+                                        checkboxCallback={(checked) => {
+                                            storeData.enabled = checked
+                                        }}
+                                        checked={storeData.enabled}
+                                    >
+                                        <div style={{ paddingTop: '10px' }}>
+                                            <ControlNetUnit
+                                                appState={this.props.appState}
+                                                // key={index}
+                                                index={index}
+                                            />
+                                        </div>
+                                    </Collapsible>
+                                </div>
                             )
                         })}
                 </div>

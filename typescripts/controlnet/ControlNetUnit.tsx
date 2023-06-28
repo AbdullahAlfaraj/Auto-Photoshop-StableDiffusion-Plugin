@@ -375,7 +375,7 @@ export default class ControlNetUnit extends React.Component<
 
         return (
             <div id={`controlnet_settings_${this.props.index}`}>
-                <div className="flexContainer">
+                {/* <div className="flexContainer">
                     <SpCheckBox
                         style={{ marginRight: '10px' }}
                         onChange={this.onEnableChange.bind(this)}
@@ -392,8 +392,13 @@ export default class ControlNetUnit extends React.Component<
                             ? `(${storeData.module})`
                             : void 0}
                     </SpCheckBox>
-                </div>
-                <div style={{ display: storeData.enabled ? 'block' : 'none' }}>
+                </div> */}
+                <div
+                    style={{
+                        display: 'block',
+                        // display: storeData.enabled ? 'block' : 'none'
+                    }}
+                >
                     <div style={{ display: 'flex' }}>
                         <div
                             id={`control_net_image_container_${this.props.index}`}
