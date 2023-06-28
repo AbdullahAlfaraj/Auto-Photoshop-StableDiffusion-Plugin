@@ -121,12 +121,17 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
             // guidance: ,
             guidance_start: store.controlNetUnitData[index].guidance_start,
             guidance_end: store.controlNetUnitData[index].guidance_end,
-            guessmode: false,
         }
         if (store.controlnetApiVersion > 1) {
+            //new controlnet v2
             controlnet_units[index].control_mode =
                 store.controlNetUnitData[index].control_mode
-            controlnet_units[index].pixel_perfect = true
+            controlnet_units[index].pixel_perfect =
+                store.controlNetUnitData[index].pixel_perfect
+        } else {
+            // old controlnet v1
+            controlnet_units[index].guessmode =
+                store.controlNetUnitData[index].guessmode
         }
     }
 
