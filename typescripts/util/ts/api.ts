@@ -74,9 +74,3 @@ export async function requestFormDataPost(url: string, payload: any) {
         console.warn(e)
     }
 }
-
-module.exports = {
-    requestGet,
-    requestPost,
-    requestFormDataPost,
-}
