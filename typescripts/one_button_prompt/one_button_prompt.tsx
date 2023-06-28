@@ -128,7 +128,11 @@ const OneButtonPrompt = observer(() => {
                                 use
                             </button>
                             <sp-textarea
-                                onInput={handleInput}
+                                onInput={(event: any) => {
+                                    handleInput(event)
+                                    store.data.prompts[index] =
+                                        event.target.value
+                                }}
                                 placeholder={`random prompt ${index}`}
                                 value={prompt}
                             ></sp-textarea>
