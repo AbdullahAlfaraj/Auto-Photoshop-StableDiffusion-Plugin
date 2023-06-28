@@ -2,6 +2,10 @@
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
 // let g_sdapi_path = 'sdapi'
+const _log = console.log
+const _warn = console.warn
+const _error = console.error
+
 let g_version = 'v1.2.6'
 let g_sd_url = 'http://127.0.0.1:7860'
 let g_online_data_url =
@@ -73,11 +77,12 @@ const {
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
-const _log = console.log
-const _warn = console.warn
-const _error = console.error
+
 const should_log = true
 if (should_log) {
+    setInterval(async () => {
+        await io.deleteFileIfLargerThan('log.txt', 200)
+    }, 2 * 60 * 1000)
     window.addEventListener('error', (event) => {
         const [a, b, c, d, e] = [1, 2, 3, 4, 5]
         console.log(`message: ${a}`)

@@ -1256,6 +1256,31 @@ async function convertGrayscaleToMonochrome(base64) {
         console.warn(e)
     }
 }
+
+async function deleteFileIfLargerThan(file_name, size_mb = 200) {
+    // const file = await fs.getEntry('path/to/file.txt')
+    try {
+        const plugin_folder = await fs.getDataFolder()
+        try {
+            var file = await plugin_folder.getEntry(file_name)
+        } catch (e) {
+            _warn(e)
+        }
+        if (file) {
+            const contents = await file.read({ format: storage.formats.binary })
+            //  storage.formats.utf8
+            const fileSizeInBytes = contents.byteLength
+            const fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024)
+
+            if (fileSizeInMegabytes > size_mb) {
+                await fs.removeEntry(file)
+            }
+        }
+    } catch (e) {
+        // console.warn(e)
+        _warn(e)
+    }
+}
 module.exports = {
     IO,
     snapShotLayerExe,
@@ -1281,4 +1306,5 @@ module.exports = {
     getUniqueDocumentId,
     getImageSize,
     convertGrayscaleToMonochrome,
+    deleteFileIfLargerThan,
 }
