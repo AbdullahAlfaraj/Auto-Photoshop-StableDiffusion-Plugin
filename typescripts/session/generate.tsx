@@ -23,6 +23,11 @@ const GenerateButtons = observer(() => {
                 id="btnNewGenerate"
                 className="btnSquare generateButtonMargin generateColor"
                 onClick={handleGenerate}
+                style={{
+                    display: session_ts.store.data.can_generate
+                        ? void 0
+                        : 'none',
+                }}
             >
                 Generate {modeDisplayNames[sd_tab_ts.store.data.mode]}
             </button>
@@ -71,6 +76,9 @@ const ToolbarGenerateButtons = observer(() => {
         height: '30px',
         marginBottom: '3px',
     }
+    const generate_display = session_ts.store.data.can_generate
+        ? 'inline-flex'
+        : 'none'
     const generate_more_display =
         session_ts.store.data.can_generate &&
         session_ts.store.data.can_generate_more
@@ -84,7 +92,7 @@ const ToolbarGenerateButtons = observer(() => {
             <button
                 className="btnSquare generateColor"
                 onClick={handleGenerate}
-                style={{ ...button_style }}
+                style={{ ...button_style, display: generate_display }}
             >
                 G
             </button>
