@@ -4,7 +4,12 @@ import ReactDOM from 'react-dom/client'
 // import { action, makeAutoObservable, reaction, toJS } from 'mobx'
 import { observer } from 'mobx-react'
 
-import { SliderType, SpMenu, SpSliderWithLabel } from '../util/elements'
+import {
+    SliderType,
+    SpCheckBox,
+    SpMenu,
+    SpSliderWithLabel,
+} from '../util/elements'
 // import * as sdapi from '../../sdapi_py_re'
 import { api } from '../util/oldSystem'
 import { AStore } from '../main/astore'
@@ -257,12 +262,20 @@ import { useState, ReactNode } from 'react'
 
 interface CollapsibleProps {
     label: string
+    labelStyle?: React.CSSProperties
+    containerStyle?: React.CSSProperties
     defaultIsOpen?: boolean
+    checked?: boolean
+    checkboxCallback?: (checked: boolean) => void
     children: ReactNode
 }
 const Collapsible = ({
     label,
+    labelStyle,
+    containerStyle,
     defaultIsOpen = false,
+    checkboxCallback,
+    checked,
     children,
 }: CollapsibleProps) => {
     const [isOpen, setIsOpen] = useState(defaultIsOpen)
@@ -273,10 +286,36 @@ const Collapsible = ({
 
     return (
         <div>
-            <div className="collapsible" onClick={handleToggle}>
-                <span>{label}</span>
-                <span style={{ float: 'right' }} className="triangle">
-                    {isOpen ? '∨' : '<'}
+            <div
+                className="collapsible"
+                style={containerStyle}
+                onClick={handleToggle}
+            >
+                <span className="truncate" style={labelStyle}>
+                    {label}
+                </span>
+
+                <span
+                    style={{ float: 'right', display: 'flex' }}
+                    className="triangle"
+                >
+                    {checkboxCallback && checked !== void 0 ? (
+                        <input
+                            type="checkbox"
+                            className="minimal-checkbox"
+                            onClick={(event) => {
+                                event.stopPropagation()
+                            }}
+                            onChange={(event: any) => {
+                                checkboxCallback(event.target.checked)
+                            }}
+                            checked={checked}
+                        />
+                    ) : (
+                        void 0
+                    )}
+
+                    <span>{isOpen ? '∨' : '<'}</span>
                 </span>
             </div>
             {/* {isOpen && <div>{children}</div>} */}

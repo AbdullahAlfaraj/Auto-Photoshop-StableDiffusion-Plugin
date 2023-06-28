@@ -26,3 +26,15 @@
 .triangle {
     background-color: transparent;
 }
+
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.minimal-checkbox {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
