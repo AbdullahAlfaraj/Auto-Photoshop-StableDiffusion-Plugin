@@ -28,8 +28,11 @@ export interface controlNetUnitData {
     input_image: string
     mask: string
 
+    module_list: string[]
+    model_list: string[]
     module: string
     model: string
+    filter_keyword: string
     weight: number
     resize_mode: 'Just Resize' | 'Crop and Resize' | 'Resize and Fill'
     lowvram: boolean
@@ -54,6 +57,7 @@ interface ControlNetMobxStore {
 
     supportedModels: string[]
     supportedPreprocessors: string[]
+    filterKeywords: string[]
     preprocessorDetail: { [key: string]: any }
 
     controlNetUnitData: controlNetUnitData[]
@@ -65,6 +69,7 @@ var ControlNetStore = observable<ControlNetMobxStore>({
 
     supportedModels: [],
     supportedPreprocessors: [],
+    filterKeywords: [],
     preprocessorDetail: {},
 
     controlNetUnitData: [],

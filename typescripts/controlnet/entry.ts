@@ -36,6 +36,13 @@ async function requestControlNetMaxUnits() {
     return control_net_max_models_num
 }
 
+async function requestControlNetFiltersKeywords(keyword = 'All') {
+    const control_net_json = await api.requestGet(
+        `${g_sd_url}/controlnet/filter?keyword=${keyword}`
+    )
+
+    return control_net_json
+}
 async function initializeControlNetTab(controlnet_max_models: number) {
     store.maxControlNet = controlnet_max_models || store.maxControlNet
     store.controlnetApiVersion = await requestControlNetApiVersion()
@@ -50,6 +57,24 @@ async function initializeControlNetTab(controlnet_max_models: number) {
         const pps = await requestControlNetPreprocessors()
         store.supportedPreprocessors = pps ? pps.module_list : []
         store.preprocessorDetail = pps ? pps.module_detail : {}
+    } catch (e) {
+        console.warn(e)
+    }
+    try {
+        //retrieve all keywords to popular the dropdown menu
+
+        const filters = await requestControlNetFiltersKeywords('All')
+
+        store.filterKeywords = filters ? filters.keywords : []
+        if (filters) {
+            store.controlNetUnitData.forEach((unitData) => {
+                unitData.module_list = filters.module_list
+                unitData.model_list = filters.model_list
+                unitData.model = filters.default_model
+                unitData.module = filters.default_option
+                unitData.model = filters.default_model
+            })
+        }
     } catch (e) {
         console.warn(e)
     }
@@ -168,6 +193,7 @@ function getModuleDetail() {
 export {
     requestControlNetModelList,
     requestControlNetMaxUnits,
+    requestControlNetFiltersKeywords,
     initializeControlNetTab,
     getEnableControlNet,
     mapPluginSettingsToControlNet,

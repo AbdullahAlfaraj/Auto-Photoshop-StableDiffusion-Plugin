@@ -21,6 +21,7 @@ import {
     general,
 } from '../util/oldSystem'
 import Locale from '../locale/locale'
+import { requestControlNetFiltersKeywords } from './entry'
 
 declare const g_generation_session: any
 declare const io: any
@@ -105,6 +106,23 @@ export default class ControlNetUnit extends React.Component<
             1,
             0.1
         ).toFixed(1)
+    }
+    async onFilterChange(
+        event: any,
+        { index, item }: { index: number; item: string }
+    ) {
+        const storeData =
+            this.props.appState.controlNetUnitData[this.props.index]
+        storeData.filter_keyword = item
+        const filters = await requestControlNetFiltersKeywords(
+            storeData.filter_keyword
+        )
+
+        storeData.module_list = filters.module_list
+        storeData.model_list = filters.model_list
+        storeData.model = filters.default_model
+        storeData.module = filters.default_option
+        storeData.model = filters.default_model
     }
     onPreprocsesorChange(
         event: any,
@@ -670,6 +688,17 @@ export default class ControlNetUnit extends React.Component<
                             )}
                         </div>
                     </div>
+                    <div>
+                        <SpMenu
+                            onChange={this.onFilterChange.bind(this)}
+                            items={this.props.appState.filterKeywords}
+                            label_item="Select Filter"
+                            selected_index={this.props.appState.filterKeywords.indexOf(
+                                storeData.filter_keyword || 'All'
+                            )}
+                            style={{ width: '50%', display: 'flex' }}
+                        />
+                    </div>
                     <div
                         id={`menu-bar-control_net_${this.props.index}`}
                         style={{ display: 'flex' }}
@@ -677,10 +706,10 @@ export default class ControlNetUnit extends React.Component<
                         <SpMenu
                             onChange={this.onPreprocsesorChange.bind(this)}
                             id={`mModulesMenuControlNet_${this.props.index}`}
-                            items={this.props.appState.supportedPreprocessors}
+                            items={storeData.module_list || ['none']}
                             label_item="Select Module"
-                            selected_index={this.props.appState.supportedPreprocessors.indexOf(
-                                storeData.module || 'none'
+                            selected_index={storeData.module_list?.indexOf(
+                                storeData.module
                             )}
                             style={{ width: '100%', display: 'flex' }}
                         />
@@ -688,15 +717,11 @@ export default class ControlNetUnit extends React.Component<
                             <SpMenu
                                 onChange={this.onModelChange.bind(this)}
                                 id={`mModelsMenuControlNet_${this.props.index}`}
-                                items={['none'].concat(
-                                    this.props.appState.supportedModels
-                                )}
+                                items={storeData.model_list || []}
                                 label_item="Select Model"
-                                selected_index={
-                                    this.props.appState.supportedModels.indexOf(
-                                        storeData.model || 'none'
-                                    ) + 1
-                                } // 'none' item will offset the index by 1
+                                selected_index={storeData.model_list?.indexOf(
+                                    storeData.model
+                                )}
                                 style={{ width: '100%', display: 'flex' }}
                             />
                         )}
