@@ -164,7 +164,7 @@ class ControlNetTab extends React.Component<{
                         )}
                     </sp-label>
                 )}
-                {/* <div
+                <div
                     id="control_net_image_container"
                     className="imgContainer controlNetImaageContainer"
                 >
@@ -174,12 +174,13 @@ class ControlNetTab extends React.Component<{
                             id="bSetAllControlImage"
                             onClick={this.onSetAllControlImage.bind(this)}
                         >
-                            {Locale('controlnet.setall')}
+                            {Locale('Set All CtrlNet Images')}
                         </button>
                     </div>
-                    <sp-checkbox id="chDisableControlNetTab"
-                    >{Locale('controlnet.disableall')}</sp-checkbox>
-                </div> */}
+                    <sp-checkbox id="chDisableControlNetTab">
+                        {Locale('Disable ControlNet Tab')}
+                    </sp-checkbox>
+                </div>
                 <div>
                     {Array(this.props.appState.maxControlNet)
                         .fill(0)
