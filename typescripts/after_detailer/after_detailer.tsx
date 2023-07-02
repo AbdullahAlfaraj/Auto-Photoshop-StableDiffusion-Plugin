@@ -2,7 +2,7 @@ import React, { ReactPropTypes } from 'react'
 import ReactDOM from 'react-dom/client'
 
 // import { action, makeAutoObservable, reaction, toJS } from 'mobx'
-import { observer } from 'mobx-react'
+import { observer, useObserver } from 'mobx-react'
 
 import {
     SliderType,
@@ -90,7 +90,7 @@ export class AfterDetailerComponent extends React.Component<{
     async componentDidUpdate(
         prevProps: ReactPropTypes,
         prevState: ReactPropTypes
-    ) {}
+    ) { }
     handleRefresh = async () => {
         if (await this.isInstalled()) {
             await this.getInpaintModels()
@@ -259,6 +259,7 @@ const domNode = document.getElementById('alwaysOnScriptsContainer')!
 const root = ReactDOM.createRoot(domNode)
 
 import { useState, ReactNode } from 'react'
+import Locale from '../locale/locale'
 
 interface CollapsibleProps {
     label: string
@@ -269,7 +270,8 @@ interface CollapsibleProps {
     checkboxCallback?: (checked: boolean) => void
     children: ReactNode
 }
-const Collapsible = ({
+
+function Collapsible({
     label,
     labelStyle,
     containerStyle,
@@ -277,14 +279,14 @@ const Collapsible = ({
     checkboxCallback,
     checked,
     children,
-}: CollapsibleProps) => {
+}: CollapsibleProps) {
     const [isOpen, setIsOpen] = useState(defaultIsOpen)
 
     const handleToggle = () => {
         setIsOpen(!isOpen)
     }
 
-    return (
+    return useObserver(()=> (
         <div>
             <div
                 className="collapsible"
@@ -292,7 +294,7 @@ const Collapsible = ({
                 onClick={handleToggle}
             >
                 <span className="truncate" style={labelStyle}>
-                    {label}
+                    {Locale(label as any)}
                 </span>
 
                 <span
@@ -321,7 +323,7 @@ const Collapsible = ({
             {/* {isOpen && <div>{children}</div>} */}
             <div style={{ display: isOpen ? 'block' : 'none' }}>{children}</div>
         </div>
-    )
+    ))
 }
 
 export default Collapsible

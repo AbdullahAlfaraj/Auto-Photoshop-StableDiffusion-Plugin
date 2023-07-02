@@ -697,7 +697,7 @@ export default class ControlNetUnit extends React.Component<
                         <SpMenu
                             onChange={this.onFilterChange.bind(this)}
                             items={this.props.appState.filterKeywords}
-                            label_item="Select Filter"
+                            label_item={Locale("Select Filter")}
                             selected_index={this.props.appState.filterKeywords.indexOf(
                                 storeData.filter_keyword || 'All'
                             )}
@@ -712,7 +712,7 @@ export default class ControlNetUnit extends React.Component<
                             onChange={this.onPreprocsesorChange.bind(this)}
                             id={`mModulesMenuControlNet_${this.props.index}`}
                             items={storeData.module_list || ['none']}
-                            label_item="Select Module"
+                            label_item={Locale("Select Module")}
                             selected_index={storeData.module_list?.indexOf(
                                 storeData.module
                             )}
@@ -723,7 +723,7 @@ export default class ControlNetUnit extends React.Component<
                                 onChange={this.onModelChange.bind(this)}
                                 id={`mModelsMenuControlNet_${this.props.index}`}
                                 items={storeData.model_list || []}
-                                label_item="Select Model"
+                                label_item={Locale("Select Module")}
                                 selected_index={storeData.model_list?.indexOf(
                                     storeData.model
                                 )}

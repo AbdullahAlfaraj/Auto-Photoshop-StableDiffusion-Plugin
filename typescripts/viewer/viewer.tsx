@@ -353,7 +353,7 @@ const Viewer = observer(() => {
                 show-value={false}
                 steps={1}
                 output_value={store.data.width}
-                label="Thumbnail Size:"
+                label="Thumbnail Size"
             ></SpSliderWithLabel>
 
             <div

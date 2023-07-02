@@ -187,13 +187,12 @@ class ControlNetTab extends React.Component<{
                             const storeData =
                                 this.props.appState.controlNetUnitData[index]
 
-                            let controlNetLabel = `CtrlNet Unit ${index}: ${
+                            let controlNetLabel = `${Locale('ControlNet Unit')} ${index}: ${
                                 storeData.module && storeData.module !== 'none'
                                     ? `${storeData.module}`
                                     : ''
                             }`
 
-                            console.log('controlNetLabel: ', controlNetLabel)
                             return (
                                 <div
                                     key={index}
