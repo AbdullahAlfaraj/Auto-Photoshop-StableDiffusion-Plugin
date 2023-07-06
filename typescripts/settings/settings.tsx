@@ -3,9 +3,11 @@ import ReactDOM from 'react-dom/client'
 import { observer } from 'mobx-react'
 import { AStore } from '../main/astore'
 
-import { SpMenu } from '../util/elements'
+import { SpCheckBox, SpMenu } from '../util/elements'
 import Locale from '../locale/locale'
 import globalStore from '../globalstore'
+import { io } from '../util/oldSystem'
+import { reaction } from 'mobx'
 // import { Jimp } from '../util/oldSystem'
 declare const Jimp: any // make sure you import jimp before importing settings.tsx
 
@@ -33,8 +35,62 @@ const interpolationMethods: InterpolationMethod = {
 
 export const store = new AStore({
     scale_interpolation_method: interpolationMethods.bilinear,
+    should_log_to_file: false,
+    delete_log_file_timer_id: null,
 })
+function onShouldLogToFileChange(event: any) {
+    try {
+        const should_log_to_file: boolean = event.target.checked
+        store.data.should_log_to_file = should_log_to_file
+        if (should_log_to_file && !store.data.delete_log_file_timer_id) {
+            store.data.delete_log_file_timer_id = setDeleteLogTimer()
+        } else {
+            //don't log and clear delete file timer
+            try {
+                store.data.delete_log_file_timer_id = clearInterval(
+                    store.data.delete_log_file_timer_id
+                )
+            } catch (e) {
+                console.warn(e)
+            }
+        }
 
+        //@ts-ignore
+        setLogMethod(should_log_to_file)
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
+function setDeleteLogTimer() {
+    const timer_id = setInterval(async () => {
+        await io.deleteFileIfLargerThan('log.txt', 200)
+    }, 2 * 60 * 1000)
+    console.log('setDeleteLogTimer() timer_id :', timer_id)
+    return timer_id
+}
+// reaction(
+//     () => {
+//         return store.data.should_log_to_file
+//     },
+//     (should_log_to_file) => {
+//         if (should_log_to_file && !store.data.delete_log_file_timer_id) {
+//             store.data.delete_log_file_timer_id = setDeleteLogTimer()
+//         } else {
+//             //don't log and clear delete file timer
+//             try {
+//                 store.data.delete_log_file_timer_id = clearInterval(
+//                     store.data.delete_log_file_timer_id
+//                 )
+//             } catch (e) {
+//                 console.warn(e)
+//             }
+//         }
+
+//         //@ts-ignore
+//         setLogMethod(should_log_to_file)
+//     }
+// )
 const Settings = observer(() => {
     return (
         <div style={{ width: '100%' }}>
@@ -67,10 +123,22 @@ const Settings = observer(() => {
                 label_item="select language"
                 selected_index={['en_US', 'zh_CN'].indexOf(globalStore.Locale)}
                 onChange={(id: any, value: any) => {
-                    globalStore.Locale = value.item;
-                    localStorage.setItem('last_selected_locale', value);
+                    globalStore.Locale = value.item
+                    localStorage.setItem('last_selected_locale', value)
                 }}
             ></SpMenu>
+            <SpCheckBox
+                style={{
+                    marginRight: '10px',
+                }}
+                onChange={onShouldLogToFileChange}
+                checked={store.data.should_log_to_file}
+            >
+                {
+                    //@ts-ignore
+                    Locale('Log Errors To File')
+                }
+            </SpCheckBox>
         </div>
     )
 })

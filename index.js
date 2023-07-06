@@ -78,66 +78,69 @@ const {
 
 const io = require('./utility/io')
 
-const should_log = true
-if (should_log) {
-    setInterval(async () => {
-        await io.deleteFileIfLargerThan('log.txt', 200)
-    }, 2 * 60 * 1000)
-    window.addEventListener('error', (event) => {
-        const [a, b, c, d, e] = [1, 2, 3, 4, 5]
-        console.log(`message: ${a}`)
-        console.log(`source: ${b}`)
-        console.log(`lineno: ${c}`)
-        console.log(`colno: ${d}`)
-        console.log(`error: ${e}`)
-    })
+function setLogMethod(should_log_to_file = true) {
+    let timer_id
+    if (should_log_to_file) {
+        console.log = (data, ...optional_param) => {
+            try {
+                _log(data, ...optional_param)
 
-    console.log = (data, ...optional_param) => {
-        try {
-            _log(data, ...optional_param)
-
-            // const error = new Error({ data, ...optional_param });
-            const formattedOutput = logger.formateLog(data, ...optional_param)
-            io.IOLog.saveLogToFile({ log: formattedOutput }, 'log.txt')
-        } catch (e) {
-            _warn('error while logging: ')
-            _warn(e)
+                // const error = new Error({ data, ...optional_param });
+                const formattedOutput = logger.formateLog(
+                    data,
+                    ...optional_param
+                )
+                io.IOLog.saveLogToFile({ log: formattedOutput }, 'log.txt')
+            } catch (e) {
+                _warn('error while logging: ')
+                _warn(e)
+            }
         }
-    }
 
-    console.warn = (data, ...optional_param) => {
-        try {
-            _warn(data, ...optional_param)
-            const error = new Error()
-            const stackTrace = error.stack
-            const formattedOutput = logger.formateLog(data, ...optional_param)
-            io.IOLog.saveLogToFile(
-                { warning: formattedOutput, stackTrace },
-                'log.txt'
-            )
-        } catch (e) {
-            _warn('error while logging: ')
-            _warn(e)
+        console.warn = (data, ...optional_param) => {
+            try {
+                _warn(data, ...optional_param)
+                const error = new Error()
+                const stackTrace = error.stack
+                const formattedOutput = logger.formateLog(
+                    data,
+                    ...optional_param
+                )
+                io.IOLog.saveLogToFile(
+                    { warning: formattedOutput, stackTrace },
+                    'log.txt'
+                )
+            } catch (e) {
+                _warn('error while logging: ')
+                _warn(e)
+            }
         }
-    }
 
-    console.error = (data, ...optional_param) => {
-        try {
-            _error(data, ...optional_param)
-            const error = new Error()
-            const stackTrace = error.stack
-            const formattedOutput = logger.formateLog(data, ...optional_param)
-            io.IOLog.saveLogToFile(
-                { error: formattedOutput, stackTrace },
-                'log.txt'
-            )
-        } catch (e) {
-            _error('error while logging: ')
-            _error(e)
+        console.error = (data, ...optional_param) => {
+            try {
+                _error(data, ...optional_param)
+                const error = new Error()
+                const stackTrace = error.stack
+                const formattedOutput = logger.formateLog(
+                    data,
+                    ...optional_param
+                )
+                io.IOLog.saveLogToFile(
+                    { error: formattedOutput, stackTrace },
+                    'log.txt'
+                )
+            } catch (e) {
+                _error('error while logging: ')
+                _error(e)
+            }
         }
+    } else {
+        console.log = _log
+        console.warn = _warn
+        console.error = _error
     }
 }
-
+setLogMethod(settings_tab_ts.store.data.should_log_to_file)
 // const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
 
 // const {
