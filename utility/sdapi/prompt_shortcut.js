@@ -29,7 +29,7 @@ function replaceShortcut(text, prompt_shortcut_json) {
         //     print("word: ",word)
         if (word.length > 0 && prompt_shortcut_json.hasOwnProperty(word)) {
             const prompt = prompt_shortcut_json[word]
-            console.log('prompt: ', prompt)
+            // console.log('prompt: ', prompt)
             text = text.replace(original_keywords[i], prompt)
         }
     }

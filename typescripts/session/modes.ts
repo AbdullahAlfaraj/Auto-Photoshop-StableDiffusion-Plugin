@@ -22,7 +22,7 @@ declare let g_inpaint_mask_layer: any
 declare let g_sd_url: any
 declare let g_controlnet_max_models: any
 declare let g_generation_session: any
-
+declare let g_last_seed: any
 interface SessionData {
     init_image?: string
     mask?: string
@@ -47,6 +47,8 @@ async function saveOutputImagesToDrive(images_info: any, settings: any) {
         ) //save the settings
         index += 1
     }
+    g_last_seed =
+        images_info?.length > 0 ? images_info[0]?.auto_metadata?.Seed : '-1'
     return base64OutputImages
 }
 class Mode {

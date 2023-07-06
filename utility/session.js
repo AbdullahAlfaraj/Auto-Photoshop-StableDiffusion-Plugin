@@ -435,7 +435,7 @@ async function getSettings(session_data) {
         // payload['script_name'] = 'after detailer'
         function setAlwaysOnScripts() {
             const data = after_detailer_script.store.toJsFunc().data
-            console.log('setAlwaysOnScripts=> data:', data)
+            // console.log('setAlwaysOnScripts=> data:', data)
 
             const alwayson_scripts = {
                 'After Detailer': {

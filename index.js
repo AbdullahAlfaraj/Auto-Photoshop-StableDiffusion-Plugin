@@ -1599,14 +1599,14 @@ document.getElementById('btnRandomSeed').addEventListener('click', async () => {
 //REFACTOR: move to events.js
 document.getElementById('btnLastSeed').addEventListener('click', async () => {
     try {
-        console.log('click on Last seed')
+        // console.log('click on Last seed')
         let seed = '-1'
 
         if (g_last_seed >= 0) {
             seed = g_last_seed.toString() //make sure the seed is a string
         }
 
-        console.log('seed:', seed)
+        // console.log('seed:', seed)
         document.querySelector('#tiSeed').value = seed
     } catch (e) {
         console.warn(e)

@@ -17,10 +17,10 @@ function convertMetadataToJson(metadata_str) {
         const prompt = metadata_str.slice(0, last_new_line_index)
         const other_settings = metadata_str.slice(last_new_line_index + 1, -1)
 
-        console.log('prompt:', prompt)
-        console.log('other_settings:', other_settings)
+        // console.log('prompt:', prompt)
+        // console.log('other_settings:', other_settings)
         const sub_settings = other_settings.split(',')
-        console.log('sub_settings: ', sub_settings)
+        // console.log('sub_settings: ', sub_settings)
 
         const settings_json = {}
         settings_json['prompt'] = prompt
