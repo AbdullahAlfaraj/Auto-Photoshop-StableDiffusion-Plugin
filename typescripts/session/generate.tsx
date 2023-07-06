@@ -8,6 +8,7 @@ import './style/generate.css'
 import { io, note, psapi, selection } from '../util/oldSystem'
 import { GenerationModeEnum } from '../util/ts/enum'
 import { initializeBackground } from '../util/ts/document'
+import Locale from '../locale/locale'
 
 //example: take 'oI' in 'LassoInpaint' and replace it with 'o I' thus creating 'Lasso Inpaint'
 const modeDisplayNames = Object.fromEntries(
@@ -91,6 +92,7 @@ const ToolbarGenerateButtons = observer(() => {
     return (
         <div>
             <button
+                title={Locale("Generate")}
                 className="btnSquare generateColor"
                 onClick={handleGenerate}
                 style={{ ...button_style, display: generate_display }}
@@ -98,6 +100,7 @@ const ToolbarGenerateButtons = observer(() => {
                 G
             </button>
             <button
+                title={Locale("Generate More")}
                 onClick={handleGenerateMore}
                 className={'btnSquare generateMoreColor'}
                 style={{
@@ -108,6 +111,7 @@ const ToolbarGenerateButtons = observer(() => {
                 M
             </button>
             <button
+                title={Locale("Interrupt")}
                 onClick={handleInterrupt}
                 className="btnSquare"
                 style={{
