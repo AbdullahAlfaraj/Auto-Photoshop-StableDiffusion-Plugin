@@ -96,11 +96,33 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
                 store.controlNetUnitData[index].auto_image
             let input_image = store.controlNetUnitData[index].input_image
             if (b_sync_input_image && session_ts.store.data.init_image) {
+                // img2img mode
                 input_image = session_ts.store.data.init_image
                 store.controlNetUnitData[index].input_image = input_image
+            } else if (
+                b_sync_input_image &&
+                store.controlNetUnitData[index].enabled
+            ) {
+                //txt2img mode
             }
 
             return input_image
+        } catch (e) {
+            console.warn(e)
+        }
+    }
+    function getControlNetMask(index: number) {
+        try {
+            const b_sync_input_image =
+                store.controlNetUnitData[index].auto_image
+            let mask = store.controlNetUnitData[index].mask // the user created mask
+            if (b_sync_input_image && session_ts.store.data.expanded_mask) {
+                //use the mask from inpaint and outpaint mode
+                mask = '' // this will tell controlnet to use SD mask
+                store.controlNetUnitData[index].mask = ''
+            }
+
+            return mask
         } catch (e) {
             console.warn(e)
         }
@@ -109,7 +131,7 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
         controlnet_units[index] = {
             enabled: getEnableControlNet(index),
             input_image: getControlNetInputImage(index),
-            mask: '',
+            mask: '', //getControlNetMask(index) ?? '',
             module: store.controlNetUnitData[index].module,
             model: store.controlNetUnitData[index].model,
             weight: store.controlNetUnitData[index].weight,
@@ -135,15 +157,6 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
         }
     }
 
-    if (
-        plugin_settings['mode'] === Enum.generationModeEnum['Img2Img'] ||
-        plugin_settings['mode'] === Enum.generationModeEnum['Inpaint'] ||
-        plugin_settings['mode'] === Enum.generationModeEnum['Outpaint']
-    ) {
-        const b_use_guess_mode = store.controlNetUnitData[0].guessmode
-        controlnet_units[0]['guessmode'] = b_use_guess_mode
-    }
-
     const controlnet_payload = {
         ...ps,
         controlnet_units, //keep for backward compatibility for now
@@ -166,8 +179,9 @@ function getControlNetMaxModelsNumber() {
 function getUnitsData() {
     return store.controlNetUnitData
 }
-function setControlMaskSrc(base64: string, index: number) {
-    store.controlNetUnitData[index].mask = base64
+function setControlDetectMapSrc(base64: string, index: number) {
+    // store.controlNetUnitData[index].mask = base64
+    store.controlNetUnitData[index].detect_map = base64
 }
 function setControlInputImageSrc(base64: string, index: number) {
     store.controlNetUnitData[index].input_image = base64
@@ -204,8 +218,9 @@ export {
     mapPluginSettingsToControlNet,
     getControlNetMaxModelsNumber,
     getUnitsData,
-    setControlMaskSrc,
+    setControlDetectMapSrc,
     setControlInputImageSrc,
     isControlNetModeEnable,
     getModuleDetail,
+    store,
 }

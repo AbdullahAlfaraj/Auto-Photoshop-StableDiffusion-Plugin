@@ -268,23 +268,41 @@ export default class ControlNetUnit extends React.Component<
             const rgb_detect_map_url =
                 await io.convertBlackAndWhiteImageToRGBChannels3(detect_map)
             const rgb_detect_map = general.base64UrlToBase64(rgb_detect_map_url)
-            g_generation_session.controlNetMask[index] = rgb_detect_map
-
-            storeData.mask = rgb_detect_map
+            // g_generation_session.controlNetMask[index] = rgb_detect_map
+            storeData.detect_map = rgb_detect_map
         } catch (e) {
             console.warn('PreviewAnnotator click(): index: ', index, e)
+        }
+    }
+    async setMask() {
+        try {
+            const selectionInfo = await psapi.getSelectionInfoExe()
+            if (selectionInfo) {
+                const mask_base64 = await io.getMaskFromCanvas()
+                this.props.appState.controlNetUnitData[this.props.index].mask =
+                    mask_base64
+                this.props.appState.controlNetUnitData[
+                    this.props.index
+                ].detect_map = mask_base64
+            } else {
+                // await note.Notification.inactiveSelectionArea()
+                app.showAlert('No Selection is available')
+            }
+        } catch (e) {
+            console.warn(e)
         }
     }
     async toCanvas() {
         if (
             g_generation_session.control_net_preview_selection_info &&
-            g_generation_session.controlNetMask[this.props.index]
+            this.props.appState.controlNetUnitData[this.props.index].detect_map
         ) {
             const selection_info =
                 g_generation_session.control_net_preview_selection_info
             const layer = await io.IO.base64ToLayer(
-                g_generation_session.controlNetMask[this.props.index],
-                'ControlNet Mask.png',
+                this.props.appState.controlNetUnitData[this.props.index]
+                    .detect_map,
+                'ControlNet Detection Map.png',
                 selection_info.left,
                 selection_info.top,
                 selection_info.width,
@@ -292,7 +310,7 @@ export default class ControlNetUnit extends React.Component<
             )
         } else {
             // await note.Notification.inactiveSelectionArea()
-            app.showAlert('Mask Image is not available')
+            app.showAlert('Detection Map is not available')
         }
     }
     async toControlNetInitImage() {
@@ -314,7 +332,7 @@ export default class ControlNetUnit extends React.Component<
         const storeData =
             this.props.appState.controlNetUnitData[this.props.index]
 
-        storeData.input_image = storeData.mask
+        storeData.input_image = storeData.detect_map
     }
     async previewAnnotatorFromCanvas() {
         try {
@@ -357,7 +375,7 @@ export default class ControlNetUnit extends React.Component<
                 await io.convertBlackAndWhiteImageToRGBChannels3(detect_map)
             g_generation_session.controlNetMask[this.props.index] = detect_map
 
-            storeData.mask = general.base64UrlToBase64(rgb_detect_map_url)
+            storeData.detect_map = general.base64UrlToBase64(rgb_detect_map_url)
         } catch (e) {
             console.warn(
                 'PreviewAnnotator click(): index: ',
@@ -441,9 +459,9 @@ export default class ControlNetUnit extends React.Component<
                                         id={`control_net_mask_${this.props.index}`}
                                         className="column-item-image"
                                         src={
-                                            storeData.mask
+                                            storeData.detect_map
                                                 ? 'data:image/png;base64,' +
-                                                  storeData.mask
+                                                  storeData.detect_map
                                                 : 'https://source.unsplash.com/random'
                                         }
                                         width="300px"
@@ -464,6 +482,10 @@ export default class ControlNetUnit extends React.Component<
                                         onClick={this.previewAnnotatorFromCanvas.bind(
                                             this
                                         )}
+                                    ></ActionButtonSVG>
+                                    <ActionButtonSVG
+                                        ComponentType={PenSvg}
+                                        onClick={this.setMask.bind(this)}
                                     ></ActionButtonSVG>
                                 </Thumbnail>
                             </div>

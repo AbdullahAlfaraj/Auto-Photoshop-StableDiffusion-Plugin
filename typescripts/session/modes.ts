@@ -209,7 +209,7 @@ export class Txt2ImgMode extends Mode {
                 mask_index >= numberOfAnnotations
             )
                 continue
-            control_net.setControlMaskSrc(base64_mask[mask_index], index)
+            control_net.setControlDetectMapSrc(base64_mask[mask_index], index)
             g_generation_session.controlNetMask[index] = base64_mask[mask_index]
             mask_index++
         }
@@ -352,7 +352,7 @@ export class Img2ImgMode extends Mode {
                 mask_index >= numberOfAnnotations
             )
                 continue
-            control_net.setControlMaskSrc(base64_mask[mask_index], index)
+            control_net.setControlDetectMapSrc(base64_mask[mask_index], index)
             g_generation_session.controlNetMask[index] = base64_mask[mask_index]
             mask_index++
         }

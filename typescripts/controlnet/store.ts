@@ -4,7 +4,7 @@ export const DefaultControlNetUnitData = {
     enabled: false,
     input_image: '',
     mask: '',
-
+    detect_map: '',
     module: '',
     model: '',
     weight: 1.0,
@@ -27,7 +27,7 @@ export interface controlNetUnitData {
     enabled: boolean
     input_image: string
     mask: string
-
+    detect_map: string
     module_list: string[]
     model_list: string[]
     module: string
