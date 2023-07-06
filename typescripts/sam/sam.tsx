@@ -52,6 +52,7 @@ const Sam = observer(() => {
                 }}
             ></sp-textarea>
             <button
+                className="btnSquare"
                 onClick={async () => {
                     const selection_info = await psapi.getSelectionInfoExe()
                     const base64 = await io.getImageFromCanvas()
