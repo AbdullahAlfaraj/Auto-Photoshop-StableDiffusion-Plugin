@@ -5,7 +5,7 @@
 const _log = console.log
 const _warn = console.warn
 const _error = console.error
-
+let g_timer_value = 300 // temporary global variable for testing the timer pause function
 let g_version = 'v1.2.6'
 let g_sd_url = 'http://127.0.0.1:7860'
 let g_online_data_url =
@@ -182,7 +182,7 @@ async function calcWidthHeightFromSelection() {
         //change (width and height) and (hrWidth, hrHeight) to match the ratio of selection
         const [width, height, hr_width, hr_height] =
             await selection.selectionToFinalWidthHeight()
-
+        // console.log('width,height: ', width, height)
         html_manip.autoFillInWidth(width)
         html_manip.autoFillInHeight(height)
         html_manip.autoFillInHRWidth(hr_width)
@@ -209,43 +209,11 @@ const eventHandler = async (event, descriptor) => {
             new_selection_info
         )
 
-        const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
-        if (isSelectionActive) {
-            const current_selection = isSelectionActive // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.
+        // const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
+        if (new_selection_info) {
+            const current_selection = new_selection_info // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.
 
             await calcWidthHeightFromSelection()
-
-            // console.log(` (${final_width}* ${final_height})/(${current_selection.width} * ${current_selection.height})`)
-            // console.log("detail density: ",(final_width* final_height)/(current_selection.width * current_selection.height))
-
-            // const new_selection = await psapi.getSelectionInfoExe()
-
-            if (
-                await hasSelectionChanged(
-                    current_selection,
-                    g_generation_session.selectionInfo
-                ) //new selection
-            ) {
-                // endSessionUI //red color
-                // if selection has changed : change the color and text generate btn  "Generate" color "red"
-                // g_ui.endSessionUI()
-                // const selected_mode = html_manip.getMode()
-                const selected_mode = getCurrentGenerationModeByValue(g_sd_mode)
-                g_ui.generateModeUI(selected_mode)
-            } else {
-                // it's the same selection and the session is active
-
-                //indicate that the session will continue. only if the session we are in the same mode as the session's mode
-                // startSessionUI// green color
-                const current_mode = html_manip.getMode()
-                if (
-                    g_generation_session.isActive() && // the session is active
-                    g_generation_session.isSameMode(current_mode) //same mode
-                ) {
-                    // g_ui.startSessionUI()
-                    g_ui.generateMoreUI()
-                }
-            }
         }
     } catch (e) {
         console.warn(e)
@@ -265,7 +233,7 @@ function getCurrentGenerationModeByValue(value) {
 }
 
 require('photoshop').action.addNotificationListener(
-    ['set', 'move'],
+    ['set', 'move', 'addTo', 'subtractFrom'],
     eventHandler
 )
 //REFACTOR: move to document.js
@@ -2018,7 +1986,7 @@ async function easyModeGenerate(mode) {
     try {
         //save laso selection
         if (g_is_laso_inapint_mode) {
-            await selection.makeMaskChannelExe('inpaint_laso_mask')
+            await selection.makeMaskChannelExe('mask')
         }
     } catch (e) {
         console.warn(e)
@@ -2165,7 +2133,7 @@ async function easyModeGenerate(mode) {
             // await btnInitInpaintHandler()
 
             if (g_is_laso_inapint_mode) {
-                await selection.channelToSelectionExe('inpaint_laso_mask')
+                await selection.channelToSelectionExe('mask')
                 const [init_image_base64, mask_base64] =
                     await selection.inpaintLassoInitImageAndMask()
                 init_image = init_image_base64
@@ -4118,281 +4086,12 @@ document
     .addEventListener('click', async () => {
         await horde_native.HordeSettings.saveSettings()
     })
-//REFACTOR: move to psapi.js
-async function getColor(X, Y) {
-    // const background_layer_id = await app.activeDocument.backgroundLayer.id
-
-    const batchPlay = require('photoshop').action.batchPlay
-    try {
-        const result = await batchPlay(
-            [
-                {
-                    _obj: 'colorSampler',
-                    _target: {
-                        _ref: 'document',
-                        _enum: 'ordinal',
-                        _value: 'targetEnum',
-                    },
-                    samplePoint: {
-                        horizontal: X,
-                        vertical: Y,
-                    },
-                },
-            ],
-            {}
-        )
-
-        const red = result[0].colorSampler.red
-        const green = result[0].colorSampler.grain
-        const blue = result[0].colorSampler.blue
-
-        return [red, green, blue]
-    } catch (e) {
-        console.warn(e)
-    }
-}
-//REFACTOR: move to document.js
-async function findDocumentType() {
-    //check if the background layer exsit
-    //if it doesn't return false
-    //if it does:
-    //duplicate the background layer and place it on the top of the document.
-    //sampler 10 random pixles
-    //and check if all the pixels has the same values.
-    //if it doesn't duplicate the background layer and place it above the background layer.
-    // make a white background layer.
-    //return true
-
-    let document_type
-    const background_layer = await app.activeDocument.backgroundLayer
-    const has_background_layer = app.activeDocument.backgroundLayer
-        ? true
-        : false
-    const artboards = Array.from(await app.activeDocument.artboards)
-    if (artboards.length > 0) {
-        document_type = Enum.DocumentTypeEnum['ArtBoard']
-        // } else if (layer_util.Layer.doesLayerExist(background_layer)) {
-    } else if (has_background_layer) {
-        //assume it's solid white background if correctHistory > 1 || layers.length > 5
-        const b_correct_background = await isCorrectBackground() // check the history for correct operation
-        if (b_correct_background) {
-            document_type = Enum.DocumentTypeEnum['SolidBackground']
-        } else {
-            //else
-
-            //background layer does exist
-            //check if it's solid color background or an image background
-            //sampler 10 random pixels
-            let width = app.activeDocument.width
-            let height = app.activeDocument.height
-            let old_rgb
-            let same_color = true
-
-            await executeAsModal(async () => {
-                if (app.activeDocument.layers.length > 1) {
-                    await layer_util.toggleBackgroundLayerExe() // hide all layers except the background layer
-                }
-                for (let i = 0; i < 10; ++i) {
-                    let x = Math.floor(Math.random() * width)
-                    let y = Math.floor(Math.random() * height)
-
-                    const rgb = await getColor(x, y)
-                    if (old_rgb) {
-                        if (
-                            Math.round(old_rgb[0]) === Math.round(rgb[0]) &&
-                            Math.round(old_rgb[1]) === Math.round(rgb[1]) &&
-                            Math.round(old_rgb[2]) === Math.round(rgb[2])
-                        ) {
-                        } else {
-                            same_color = false //it's an image background
-                            break
-                        }
-                    }
-                    old_rgb = rgb
-                }
-                if (app.activeDocument.layers.length > 1) {
-                    await layer_util.toggleBackgroundLayerExe() // undo the toggle operation; display all layers
-                }
-            })
-
-            document_type = same_color
-                ? Enum.DocumentTypeEnum['SolidBackground']
-                : Enum.DocumentTypeEnum['ImageBackground']
-        }
-    } else {
-        //create the background layer since it doesn't exsit
-        document_type = Enum.DocumentTypeEnum['NoBackground']
-    }
-
-    return document_type
-}
-//REFACTOR: move to document.js
-async function correctDocumentType(documentType) {
-    if (documentType === Enum.DocumentTypeEnum['SolidBackground']) {
-        //do nothing
-    } else if (documentType === Enum.DocumentTypeEnum['ImageBackground']) {
-        //duplicate the layer
-        await executeAsModal(async () => {
-            const image_layer =
-                await app.activeDocument.backgroundLayer.duplicate() //
-            image_layer.name = 'Image'
-            await app.activeDocument.backgroundLayer.delete()
-            await layer_util.createBackgroundLayer(255, 255, 255)
-        })
-    } else if (documentType === Enum.DocumentTypeEnum['ArtBoard']) {
-        //duplicate the layer
-        await app.showAlert(
-            "the plugin doesn't work with artboards, create normal document with no artboard to use the plugin"
-        )
-        throw "the plugin doesn't work with artboards, create normal document with no artboard to use the plugin"
-    } else if (documentType === Enum.DocumentTypeEnum['NoBackground']) {
-        await layer_util.createBackgroundLayer(255, 255, 255)
-    }
-}
-
-async function isCorrectBackground() {
-    const historylist = app.activeDocument.historyStates.filter(
-        (h) => h.name === 'Correct Background'
-    )
-    console.log('historylist:', historylist)
-    const is_correct_background = historylist.length > 0 ? true : false
-    return is_correct_background
-}
 
 document
     .getElementById('btnSaveHordeSettings')
     .addEventListener('click', async () => {
         await horde_native.HordeSettings.saveSettings()
     })
-
-async function getColor(X, Y) {
-    // const background_layer_id = await app.activeDocument.backgroundLayer.id
-
-    const batchPlay = require('photoshop').action.batchPlay
-    try {
-        const result = await batchPlay(
-            [
-                {
-                    _obj: 'colorSampler',
-                    _target: {
-                        _ref: 'document',
-                        _enum: 'ordinal',
-                        _value: 'targetEnum',
-                    },
-                    samplePoint: {
-                        horizontal: X,
-                        vertical: Y,
-                    },
-                },
-            ],
-            {}
-        )
-
-        const red = result[0].colorSampler.red
-        const green = result[0].colorSampler.grain
-        const blue = result[0].colorSampler.blue
-
-        return [red, green, blue]
-    } catch (e) {
-        console.warn(e)
-    }
-}
-
-// async function findDocumentType() {
-//     //check if the background layer exsit
-//     //if it doesn't return false
-//     //if it does:
-//     //duplicate the background layer and place it on the top of the document.
-//     //sampler 10 random pixles
-//     //and check if all the pixels has the same values.
-//     //if it doesn't duplicate the background layer and place it above the background layer.
-//     // make a white background layer.
-//     //return true
-
-//     let document_type
-//     const background_layer = await app.activeDocument.backgroundLayer
-//     const artboards = Array.from(await app.activeDocument.artboards)
-//     if (artboards.length > 0) {
-//         document_type = Enum.DocumentTypeEnum['ArtBoard']
-//     } else if (layer_util.Layer.doesLayerExist(background_layer)) {
-//         //assume it's solid white background if correctHistory > 1 || layers.length > 5
-//         const b_correct_background = await isCorrectBackground()
-//         if (b_correct_background) {
-//             document_type = Enum.DocumentTypeEnum['SolidBackground']
-//         } else {
-//             //else
-
-//             //background layer does exist
-//             //check if it's solid color background or an image background
-//             //sampler 10 random pixels
-//             let width = app.activeDocument.width
-//             let height = app.activeDocument.height
-//             let old_rgb
-//             let same_color = true
-//             await executeAsModal(async () => {
-//                 for (let i = 0; i < 10; ++i) {
-//                     let x = Math.floor(Math.random() * width)
-//                     let y = Math.floor(Math.random() * height)
-
-//                     const rgb = await getColor(x, y)
-//                     if (old_rgb) {
-//                         if (
-//                             Math.round(old_rgb[0]) === Math.round(rgb[0]) &&
-//                             Math.round(old_rgb[1]) === Math.round(rgb[1]) &&
-//                             Math.round(old_rgb[2]) === Math.round(rgb[2])
-//                         ) {
-//                         } else {
-//                             same_color = false //it's an image background
-//                             break
-//                         }
-//                     }
-//                     old_rgb = rgb
-//                 }
-//             })
-
-//             document_type = same_color
-//                 ? Enum.DocumentTypeEnum['SolidBackground']
-//                 : Enum.DocumentTypeEnum['ImageBackground']
-//         }
-//     } else {
-//         //create the background layer since it doesn't exsit
-//         document_type = Enum.DocumentTypeEnum['NoBackground']
-//     }
-
-//     return document_type
-// }
-
-async function correctDocumentType(documentType) {
-    if (documentType === Enum.DocumentTypeEnum['SolidBackground']) {
-        //do nothing
-    } else if (documentType === Enum.DocumentTypeEnum['ImageBackground']) {
-        //duplicate the layer
-        await executeAsModal(async () => {
-            const image_layer =
-                await app.activeDocument.backgroundLayer.duplicate() //
-            image_layer.name = 'Image'
-            await app.activeDocument.backgroundLayer.delete()
-            await layer_util.createBackgroundLayer(255, 255, 255)
-        })
-    } else if (documentType === Enum.DocumentTypeEnum['ArtBoard']) {
-        //duplicate the layer
-        await app.showAlert(
-            "the plugin doesn't work with artboards, create normal document with no artboard to use the plugin"
-        )
-        throw "the plugin doesn't work with artboards, create normal document with no artboard to use the plugin"
-    } else if (documentType === Enum.DocumentTypeEnum['NoBackground']) {
-        await layer_util.createBackgroundLayer(255, 255, 255)
-    }
-}
-
-async function isCorrectBackground() {
-    const historylist = app.activeDocument.historyStates.filter(
-        (h) => h.name === 'Correct Background'
-    )
-    console.log('historylist:', historylist)
-    const is_correct_background = historylist.length > 0 ? true : false
-    return is_correct_background
-}
 
 let g_viewer_sub_menu_list = []
 
