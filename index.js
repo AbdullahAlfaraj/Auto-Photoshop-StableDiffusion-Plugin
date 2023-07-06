@@ -4511,11 +4511,15 @@ Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
     switchMenu(rb)
 })
 
-// document.getElementById('scrollToPrompt').addEventListener('click', () => {
-//     document.getElementById('taPrompt').scrollIntoView()
-// })
+document.getElementById('scrollToPrompt').addEventListener('click', () => {
+    document
+        .querySelector('#search_second_panel > div.previewContainer')
+        .scrollIntoView()
+    // document.getElementById('taPrompt').scrollIntoView()
+})
 
 // document.getElementById('scrollToViewer').addEventListener('click', () => {
+
 //     document
 //         .querySelector('#sp-stable-diffusion-ui-tab-page .reactViewerContainer')
 //         .scrollIntoView()
