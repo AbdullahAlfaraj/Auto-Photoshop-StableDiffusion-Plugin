@@ -124,7 +124,8 @@ const Settings = observer(() => {
                 selected_index={['en_US', 'zh_CN'].indexOf(globalStore.Locale)}
                 onChange={(id: any, value: any) => {
                     globalStore.Locale = value.item
-                    localStorage.setItem('last_selected_locale', value)
+                    localStorage.setItem('last_selected_locale', value.item)
+                    console.log(localStorage.getItem('last_selected_locale'))
                 }}
             ></SpMenu>
             <SpCheckBox

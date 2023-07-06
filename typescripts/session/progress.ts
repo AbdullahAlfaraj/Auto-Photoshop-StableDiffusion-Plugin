@@ -1,6 +1,7 @@
 import { reaction } from 'mobx'
 import { AStore } from '../main/astore'
 import { io, layer_util } from '../util/oldSystem'
+import Locale from '../locale/locale'
 
 export const store = new AStore({
     progress_layer: null,
@@ -8,7 +9,7 @@ export const store = new AStore({
     progress_value: 0,
     progress_image: '',
     progress_image_height: 0,
-    progress_label: 'Progress..',
+    progress_label: Locale('Progress..'),
     can_update: true,
 })
 declare let g_sd_url: string

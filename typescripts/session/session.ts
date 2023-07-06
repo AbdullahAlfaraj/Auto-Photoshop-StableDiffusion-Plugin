@@ -1,4 +1,5 @@
 import { control_net, preview, viewer, progress } from '../entry'
+import Locale from '../locale/locale'
 import { AStore } from '../main/astore'
 import {
     html_manip,
@@ -386,7 +387,7 @@ export class Session {
                     )
                 }
 
-                progress.store.data.progress_label = 'Progress...'
+                progress.store.data.progress_label = Locale('Progress...')
 
                 console.log('progress object json: ', json)
             } catch (e) {

@@ -4,6 +4,7 @@ import ControlNetTab from './ControlNetTab'
 import store from './store'
 import { versionCompare } from './util'
 import Collapsible from '../after_detailer/after_detailer'
+import Locale from '../locale/locale'
 
 const elem = document.getElementById('sp-control_net-tab-page')
 const elem2 = document.getElementById('sp-control_net-tab-page2')
@@ -23,7 +24,7 @@ if (elem2) {
                     padding: '3px',
                 }}
             >
-                <Collapsible defaultIsOpen={true} label={'ControlNet Tab'}>
+                <Collapsible defaultIsOpen={true} label={Locale('ControlNet Tab')}>
                     <div
                         id="controlNetTabParentContainer"
                         style={{ marginTop: '10px' }}
