@@ -262,7 +262,7 @@ async function openUrlRequest(url) {
         console.warn(e)
     }
 }
-async function maskExpansionRequest(original_mask, mask_expansion_value) {
+async function maskExpansionRequest(original_mask, mask_expansion_value, blur) {
     // const endpoint = 'sdapi/v1/img2img'
     // const full_url = `${g_sd_url}/${endpoint}`
 
@@ -270,6 +270,7 @@ async function maskExpansionRequest(original_mask, mask_expansion_value) {
         const payload = {
             mask: original_mask,
             mask_expansion: mask_expansion_value,
+            blur: blur,
         }
 
         const extension_url = getExtensionUrl()
@@ -286,7 +287,7 @@ async function maskExpansionRequest(original_mask, mask_expansion_value) {
 
         let r = await request.json()
 
-        console.log('maskExpansionRequest json:', r)
+        // console.log('maskExpansionRequest json:', r)
         return r['mask']
     } catch (e) {
         console.warn(e)

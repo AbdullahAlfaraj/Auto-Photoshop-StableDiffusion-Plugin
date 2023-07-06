@@ -103,6 +103,38 @@ const modeToClassMap: ModeToClassMap = {
     [GenerationModeEnum.Outpaint]: OutpaintMode,
     [GenerationModeEnum.Upscale]: UpscaleMode,
 }
+
+export async function getExpandedMask(
+    mask: string,
+    expansion_value: number,
+    blur: number
+) {
+    try {
+        let use_sharp_mask = false
+
+        let expanded_mask = mask
+
+        if (
+            use_sharp_mask === false &&
+            mask &&
+            expansion_value >= 0 &&
+            blur >= 0
+        ) {
+            //only if mask is available and sharp_mask is off
+            // use blurry and expanded mask
+            const iterations = expansion_value
+            expanded_mask = await python_replacement.maskExpansionRequest(
+                mask,
+                iterations,
+                blur
+            )
+        }
+
+        return expanded_mask
+    } catch (e) {
+        console.warn(e)
+    }
+}
 export class Session {
     constructor() {}
     static async initializeSession(mode: GenerationModeEnum): Promise<any> {

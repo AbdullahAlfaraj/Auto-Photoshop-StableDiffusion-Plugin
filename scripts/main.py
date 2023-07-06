@@ -67,13 +67,14 @@ async def maskExpansionHandler(request:Request):
         # keywords = json.get('keywords','cute dogs') 
         base64_mask_image = json['mask']
         mask_expansion = json['mask_expansion']
+        blur = json['blur']
         #convert base64 to img
         
         await img2imgapi.base64ToPng(base64_mask_image,"original_mask.png")#save a copy of the mask
 
         mask_image = img2imgapi.b64_2_img(base64_mask_image)
         
-        expanded_mask_img = img2imgapi.maskExpansion(mask_image,mask_expansion)
+        expanded_mask_img = img2imgapi.maskExpansion(mask_image,mask_expansion,blur)
         base64_expanded_mask_image = img2imgapi.img_2_b64(expanded_mask_img)
         await img2imgapi.base64ToPng(base64_expanded_mask_image,"expanded_mask.png")#save a copy of the mask
 

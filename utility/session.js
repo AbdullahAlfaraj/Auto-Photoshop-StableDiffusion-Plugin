@@ -374,10 +374,11 @@ async function getSettings(session_data) {
             ) {
                 //only if mask is available and sharp_mask is off
                 // use blurry and expanded mask
-                const iterations = payload['mask_expansion']
+
                 const expanded_mask = await py_re.maskExpansionRequest(
                     payload['mask'],
-                    iterations
+                    payload['mask_expansion'],
+                    mask_blur
                 )
                 if (expanded_mask) {
                     payload['expanded_mask'] = expanded_mask
