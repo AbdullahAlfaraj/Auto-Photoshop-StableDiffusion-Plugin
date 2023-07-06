@@ -5,8 +5,9 @@ import { observer } from 'mobx-react'
 
 import { sd_tab_ts, session_ts, viewer } from '../entry'
 import './style/generate.css'
-import { io, note, psapi } from '../util/oldSystem'
+import { io, note, psapi, selection } from '../util/oldSystem'
 import { GenerationModeEnum } from '../util/ts/enum'
+import { initializeBackground } from '../util/ts/document'
 
 //example: take 'oI' in 'LassoInpaint' and replace it with 'o I' thus creating 'Lasso Inpaint'
 const modeDisplayNames = Object.fromEntries(
@@ -149,8 +150,14 @@ const canStartSession = async () => {
     }
     return can_start_session
 }
+
 // declare let g_sd_mode: any
 const handleGenerate = async () => {
+    //save user input for later
+    //1) save selection as channel
+    await selection.selectionToChannel('mask')
+
+    await initializeBackground() //fix background if there is a need
     console.log('mode: ', sd_tab_ts.store.data.mode)
     try {
         if (!(await canStartSession())) {
