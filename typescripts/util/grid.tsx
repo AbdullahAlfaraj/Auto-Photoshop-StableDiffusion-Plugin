@@ -40,10 +40,24 @@ export class Grid extends React.Component<{
                         <Thumbnail style={img_style} key={`thumbnail-${index}`}>
                             <img
                                 style={img_style}
-                                onClick={(event: any) => {
+                                onClick={async (event: any) => {
                                     try {
                                         console.log('image clicked')
                                         if (this.props.callback) {
+                                            if (
+                                                this.props.callback.constructor
+                                                    .name === 'AsyncFunction'
+                                            ) {
+                                                await this.props?.callback(
+                                                    index,
+                                                    event
+                                                )
+                                            } else {
+                                                this.props?.callback(
+                                                    index,
+                                                    event
+                                                )
+                                            }
                                             this.props?.callback(index, event)
                                         }
                                     } catch (e) {

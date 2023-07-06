@@ -63,9 +63,11 @@ const PreviewerContainer = observer(() => {
             <Collapsible
                 defaultIsOpen={true}
                 label={
-                    'Preview' +
+                    'Preview ' +
                     (progress.store.data.progress_value
-                        ? `: ${progress.store.data.progress_value?.toFixed(2)}%`
+                        ? `: ${
+                              progress.store.data.progress_label
+                          } ${progress.store.data.progress_value?.toFixed(2)}%`
                         : '')
                 }
             >

@@ -312,15 +312,37 @@ class IO {
     ) {
         let layer
         if (format === 'png') {
-            layer = await IOBase64ToLayer.base64PngToLayer(
-                base64_png,
-                image_name
-            )
+            try {
+                await executeAsModal(async (context) => {
+                    // let history_id
+                    // try {
+                    //     history_id = await context.hostControl.suspendHistory({
+                    //         documentID: app.activeDocument.id,
+                    //         name: 'Place Image',
+                    //     })
+                    // } catch (e) {
+                    //     console.warn(e)
+                    // }
 
-            psapi.setVisibleExe(layer, true)
-            await layer_util.Layer.scaleTo(layer, width, height) //
-            await layer_util.Layer.moveTo(layer, to_x, to_y) //move to the top left corner
-            psapi.setVisibleExe(layer, true)
+                    layer = await IOBase64ToLayer.base64PngToLayer(
+                        base64_png,
+                        image_name
+                    )
+
+                    await psapi.setVisibleExe(layer, true)
+                    await layer_util.Layer.scaleTo(layer, width, height) //
+                    await layer_util.Layer.moveTo(layer, to_x, to_y) //move to the top left corner
+                    await psapi.setVisibleExe(layer, true)
+
+                    // try {
+                    //     await context.hostControl.resumeHistory(history_id)
+                    // } catch (e) {
+                    //     console.warn(e)
+                    // }
+                })
+            } catch (e) {
+                console.warn(e)
+            }
         }
         return layer
     }
@@ -739,7 +761,7 @@ class IOLog {
                 append: true,
             })
         } catch (e) {
-            console.warn(e)
+            _warn(e)
         }
     }
 }
@@ -995,6 +1017,29 @@ async function getOutpaintInitImageAndMask() {
     }
 }
 
+//generate black and white mask image from
+async function getMaskFromCanvas() {
+    try {
+        await executeAsModal(async () => await layer_util.toggleActiveLayer()) //only white mark layer should be visible
+        let mask_base64 = await getImageFromCanvas()
+        await executeAsModal(async () => {
+            await layer_util.toggleActiveLayer() // undo the toggling operation, active layer will be visible
+            app.activeDocument.activeLayers[0].visible = false //hide the white mark
+        })
+        let jimp_mask = await Jimp.read(Buffer.from(mask_base64, 'base64')) //make jimp object
+        jimp_mask = await jimp_mask.scan(
+            0,
+            0,
+            jimp_mask.bitmap.width,
+            jimp_mask.bitmap.height,
+            inpaintTransparentToMask
+        ) //convert transparent image to black and white image
+        mask_base64 = await getBase64FromJimp(jimp_mask)
+        return mask_base64
+    } catch (e) {
+        warn(e)
+    }
+}
 async function getInpaintInitImageAndMask() {
     try {
         await executeAsModal(async () => await layer_util.toggleActiveLayer()) //only white mark layer should be visible
@@ -1307,4 +1352,5 @@ module.exports = {
     getImageSize,
     convertGrayscaleToMonochrome,
     deleteFileIfLargerThan,
+    getMaskFromCanvas,
 }

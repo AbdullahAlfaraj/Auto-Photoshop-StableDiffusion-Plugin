@@ -126,7 +126,7 @@ async function createChannelIfNotExists(channelName) {
     }
 }
 
-const deleteChannel = (channel_name = 'inpaint_laso_mask') =>
+const deleteChannel = (channel_name = 'mask') =>
     app.activeDocument.channels.getByName(channel_name)
         ? [
               {
@@ -139,7 +139,7 @@ const deleteChannel = (channel_name = 'inpaint_laso_mask') =>
               },
           ]
         : []
-const makeMaskChannel = (channel_name = 'inpaint_laso_mask') => ({
+const makeMaskChannel = (channel_name = 'mask') => ({
     // _obj: 'set',
     // _target: { _ref: 'channel', _property: 'selection' },
     // to: { _ref: 'channel', _name: channel_name },
@@ -155,7 +155,7 @@ const makeMaskChannel = (channel_name = 'inpaint_laso_mask') => ({
     _isCommand: true,
     options: { failOnMissingProperty: false, failOnMissingElement: false },
 })
-async function makeMaskChannelExe(channel_name = 'inpaint_laso_mask') {
+async function makeMaskChannelExe(channel_name = 'mask') {
     await executeAsModal(async () => {
         // const channel = app.activeDocument.channels.getByName(channel_name)
         // channel?.remove()
@@ -211,7 +211,7 @@ async function multiGetExe() {
         console.warn(e)
     }
 }
-async function applyMaskChannelExe(channel_name = 'inpaint_laso_mask') {
+async function applyMaskChannelExe(channel_name = 'mask') {
     await executeAsModal(async () => {
         const result = await batchPlay(
             [
@@ -243,7 +243,30 @@ async function applyMaskChannelExe(channel_name = 'inpaint_laso_mask') {
     })
 }
 
-async function createLayerFromMaskChannel(channel_name = 'inpaint_laso_mask') {
+async function selectionToChannel(channel_name) {
+    const channelToSelection = {
+        _obj: 'set',
+        _target: { _ref: 'channel', _property: 'selection' },
+        to: { _ref: 'channel', _name: channel_name },
+    }
+    let result
+    try {
+        await executeAsModal(async () => {
+            result = await batchPlay(
+                [
+                    ...deleteChannel(channel_name),
+                    makeMaskChannel(channel_name),
+                    channelToSelection,
+                ],
+                { modalBehavior: 'execute', synchronousExecution: true }
+            )
+        })
+    } catch (e) {
+        console.warn(e)
+    }
+    return result
+}
+async function createLayerFromMaskChannel(channel_name = 'mask') {
     await executeAsModal(async () => {
         const result = await batchPlay(
             [
@@ -279,22 +302,24 @@ async function createLayerFromMaskChannel(channel_name = 'inpaint_laso_mask') {
     })
 }
 
-async function channelToSelectionExe(channel_name = 'inpaint_laso_mask') {
+async function channelToSelectionExe(channel_name = 'mask') {
     const channelToSelection = {
         _obj: 'set',
         _target: { _ref: 'channel', _property: 'selection' },
         to: { _ref: 'channel', _name: channel_name },
     }
-    await executeAsModal(async () => {
-        const result = await batchPlay([channelToSelection], {
-            modalBehavior: 'execute',
-            synchronousExecution: true,
+    try {
+        await executeAsModal(async () => {
+            const result = await batchPlay([channelToSelection], {
+                modalBehavior: 'execute',
+                synchronousExecution: true,
+            })
         })
-    })
+    } catch (e) {
+        console.warn(e)
+    }
 }
-async function inpaintLassoInitImageAndMask(
-    channel_name = 'inpaint_laso_mask'
-) {
+async function inpaintLassoInitImageAndMask(channel_name = 'mask') {
     async function getImageFromCanvas() {
         const width = html_manip.getWidth()
         const height = html_manip.getHeight()
@@ -312,18 +337,21 @@ async function inpaintLassoInitImageAndMask(
         _target: { _ref: 'channel', _property: 'selection' },
         to: { _ref: 'channel', _name: channel_name },
     }
-    await executeAsModal(async () => {
-        const result = await batchPlay(
-            [
-                ...deleteChannel(channel_name),
-                makeMaskChannel(channel_name),
-                channelToSelection,
-            ],
-            { modalBehavior: 'execute', synchronousExecution: true }
-        )
-        const selection_info = await psapi.getSelectionInfoExe()
-    })
+    // await executeAsModal(async () => {
+    //     const result = await batchPlay(
+    //         [
+    //             ...deleteChannel(channel_name),
+    //             makeMaskChannel(channel_name),
+    //             channelToSelection,
+    //         ],
+    //         { modalBehavior: 'execute', synchronousExecution: true }
+    //     )
+    //     const selection_info = await psapi.getSelectionInfoExe()
+    // })
+    await selectionToChannel('mask') //lasso selection to channel called 'mask'
+
     const init_base64 = await getImageFromCanvas()
+
     html_manip.setInitImageSrc(general.base64ToBase64Url(init_base64))
     let mask_base64
     await executeAsModal(async () => {
@@ -334,6 +362,7 @@ async function inpaintLassoInitImageAndMask(
         // const selection_info = await psapi.getSelectionInfoExe()
         mask_base64 = await fillSelectionWhiteOutsideBlack()
     })
+
     //save laso selection to channel
     //get laso selection
     //make rect selection
@@ -358,7 +387,7 @@ async function inpaintLassoInitImageAndMask(
 
 async function fillSelectionWhiteOutsideBlack() {
     // Create a new layer
-    const layer_name = 'inpaint_laso_mask'
+    const layer_name = 'mask'
     const getSelectionDesc = () => ({
         _obj: 'get',
         _target: [
@@ -787,21 +816,21 @@ async function moveToTopLayerStackExe() {
     }
 }
 async function colorRange() {
-    const select_current_layer_cmd = {
-        _obj: 'set',
-        _target: [
-            {
-                _ref: 'channel',
-                _property: 'selection',
-            },
-        ],
-        to: {
-            _ref: 'channel',
-            _enum: 'channel',
-            _value: 'transparencyEnum',
-        },
-        _isCommand: true,
-    }
+    // const select_current_layer_cmd = {
+    //     _obj: 'set',
+    //     _target: [
+    //         {
+    //             _ref: 'channel',
+    //             _property: 'selection',
+    //         },
+    //     ],
+    //     to: {
+    //         _ref: 'channel',
+    //         _enum: 'channel',
+    //         _value: 'transparencyEnum',
+    //     },
+    //     _isCommand: true,
+    // }
     const cmd = {
         _obj: 'colorRange',
         fuzziness: 0,
@@ -820,23 +849,31 @@ async function colorRange() {
         colorModel: 0,
         _isCommand: true,
     }
-    await batchPlay([select_current_layer_cmd, cmd], {
+    const result = await batchPlay([cmd], {
         modalBehavior: 'execute',
         synchronousExecution: true,
     })
+    return result
 }
 
 async function colorRangeExe() {
-    await executeAsModal(
-        async () => {
-            await colorRange()
-        },
-        { commandName: 'Convert Black and White Layer to mask selection' }
-    )
+    let result
+    try {
+        await executeAsModal(
+            async () => {
+                result = await colorRange()
+            },
+            { commandName: 'Convert Black and White Layer to mask selection' }
+        )
+    } catch (e) {
+        console.warn(e)
+    }
+    return result
 }
 
 async function base64ToLassoSelection(base64, selection_info) {
-    const temp_layer = await io.IO.base64ToLayer(
+    //place the mask on the canvas
+    const mask_layer = await io.IO.base64ToLayer(
         base64,
         'monochrome_mask.png',
         selection_info.left,
@@ -844,37 +881,243 @@ async function base64ToLassoSelection(base64, selection_info) {
         selection_info.width,
         selection_info.height
     )
-    await colorRangeExe()
-    await layer_util.deleteLayers([temp_layer])
+    //reselect the selection area
+    await psapi.reSelectMarqueeExe(selection_info)
+    //reselect the layer
+    await psapi.selectLayersExe([mask_layer])
+    await executeAsModal(async () => {
+        await layer_util.toggleActiveLayer() // undo the toggling operation, active layer will be visible
+        //select the white pixels
+        await colorRange()
+    })
+    // await colorRangeExe()
+    //delete the mask layer. we only needed to select the white pixels
+    await executeAsModal(async () => {
+        await layer_util.toggleActiveLayer() // undo the toggling operation, active layer will be visible
+    })
+    await layer_util.deleteLayers([mask_layer])
 }
 
 async function base64ToChannel(base64, selection_info, channel_name) {
-    const layer = app.activeDocument.activeLayers[0]
+    try {
+        await executeAsModal(async (context) => {
+            const history_id = await context.hostControl.suspendHistory({
+                documentID: app.activeDocument.id, //TODO: change this to the session document id
+                name: 'Mask Image',
+            })
 
-    if (!layer_util.Layer.doesLayerExist(layer)) {
-        return null
-    }
-    await psapi.unSelectMarqueeExe()
-    await psapi.unselectActiveLayersExe()
-    await base64ToLassoSelection(base64, selection_info)
+            const layer = app.activeDocument.activeLayers[0]
 
-    const channelToSelection = {
-        _obj: 'set',
-        _target: { _ref: 'channel', _property: 'selection' },
-        to: { _ref: 'channel', _name: channel_name },
+            if (!layer_util.Layer.doesLayerExist(layer)) {
+                return null
+            }
+            await psapi.unSelectMarqueeExe()
+            await psapi.unselectActiveLayersExe()
+            await base64ToLassoSelection(base64, selection_info)
+
+            const expand_cmd = {
+                _obj: 'expand',
+                by: {
+                    _unit: 'pixelsUnit',
+                    _value: 10,
+                },
+                selectionModifyEffectAtCanvasBounds: true,
+                _isCommand: true,
+            }
+            const channelToSelection = {
+                _obj: 'set',
+                _target: { _ref: 'channel', _property: 'selection' },
+                to: { _ref: 'channel', _name: channel_name },
+            }
+            await executeAsModal(async () => {
+                const result = await batchPlay(
+                    [
+                        expand_cmd,
+                        ...deleteChannel(channel_name),
+                        makeMaskChannel(channel_name),
+                        channelToSelection,
+                    ],
+                    { modalBehavior: 'execute', synchronousExecution: true }
+                )
+            })
+            await psapi.selectLayersExe([layer])
+            await applyMaskChannelExe(channel_name)
+
+            // context = stored_context
+            await context.hostControl.resumeHistory(history_id)
+        })
+    } catch (e) {
+        console.warn(e)
     }
+}
+
+async function black_white_layer_to_mask(mask_id, target_layer_id, mask_name) {
+    let result
+    let psAction = require('photoshop').action
+
+    let command = [
+        //
+        ...deleteChannel(mask_name),
+        // Select layer “Layer 33”
+        {
+            _obj: 'select',
+            _target: [{ _id: mask_id, _ref: 'layer' }],
+            // layerID: [3862],
+            makeVisible: false,
+        },
+        // Set Selection
+        {
+            _obj: 'set',
+            _target: [{ _property: 'selection', _ref: 'channel' }],
+            to: {
+                _enum: 'channel',
+                _ref: 'channel',
+                _value: 'transparencyEnum',
+            },
+        },
+        // Color Range
+        {
+            _obj: 'colorRange',
+            colorModel: 0,
+            fuzziness: 0,
+            maximum: { _obj: 'labColor', a: 0.0, b: 0.0, luminance: 100.0 },
+            minimum: { _obj: 'labColor', a: 0.0, b: 0.0, luminance: 100.0 },
+        },
+        // Duplicate Selection, make sure you delete the any mask that share the same name
+        {
+            _obj: 'duplicate',
+            _target: [{ _property: 'selection', _ref: 'channel' }],
+            name: mask_name,
+        },
+        // Select channel “Alpha 1”
+        { _obj: 'select', _target: [{ _name: mask_name, _ref: 'channel' }] },
+        // Set Selection
+        {
+            _obj: 'set',
+            _target: [{ _property: 'selection', _ref: 'channel' }],
+            to: { _enum: 'ordinal', _ref: 'channel', _value: 'targetEnum' },
+        },
+        // Select layer “Layer 43”
+        {
+            _obj: 'select',
+            _target: [{ _id: target_layer_id, _ref: 'layer' }],
+            // layerID: [3879],
+            makeVisible: false,
+        },
+        // Make
+        {
+            _obj: 'make',
+            at: { _enum: 'channel', _ref: 'channel', _value: 'mask' },
+            new: { _class: 'channel' },
+            using: { _enum: 'userMaskEnabled', _value: 'revealSelection' },
+        },
+    ]
+    result = await psAction.batchPlay(command, {})
+}
+
+async function black_white_layer_to_mask_multi_batchplay(
+    mask_id,
+    target_layer_id,
+    mask_name
+) {
+    let result
+    let psAction = require('photoshop').action
+    const timer = (ms) => new Promise((res) => setTimeout(res, ms))
+
+    let command1 = [
+        {
+            _obj: 'set',
+            _target: [{ _property: 'selection', _ref: 'channel' }],
+            to: { _enum: 'ordinal', _value: 'none' },
+        },
+        //
+        ...deleteChannel(mask_name),
+        // Select layer “Layer 33”
+        {
+            _obj: 'select',
+            _target: [{ _id: mask_id, _ref: 'layer' }],
+            // layerID: [3862],
+            makeVisible: false,
+        },
+        // Set Selection
+        {
+            _obj: 'set',
+            _target: [{ _property: 'selection', _ref: 'channel' }],
+            to: {
+                _enum: 'channel',
+                _ref: 'channel',
+                _value: 'transparencyEnum',
+            },
+        },
+    ]
+    let command2 = [
+        // Color Range
+        {
+            _obj: 'colorRange',
+            colorModel: 0,
+            fuzziness: 0,
+            maximum: { _obj: 'labColor', a: 0.0, b: 0.0, luminance: 100.0 },
+            minimum: { _obj: 'labColor', a: 0.0, b: 0.0, luminance: 100.0 },
+        },
+        {
+            _obj: 'expand',
+            by: {
+                _unit: 'pixelsUnit',
+                _value: 10,
+            },
+            selectionModifyEffectAtCanvasBounds: true,
+            _isCommand: true,
+        },
+    ]
+    let command3 = [
+        // Duplicate Selection, make sure you delete the any mask that share the same name
+        {
+            _obj: 'duplicate',
+            _target: [{ _property: 'selection', _ref: 'channel' }],
+            name: mask_name,
+        },
+        // Select channel “Alpha 1”
+        {
+            _obj: 'select',
+            _target: [{ _name: mask_name, _ref: 'channel' }],
+        },
+        // Set Selection
+        {
+            _obj: 'set',
+            _target: [{ _property: 'selection', _ref: 'channel' }],
+            to: { _enum: 'ordinal', _ref: 'channel', _value: 'targetEnum' },
+        },
+        // Select layer “Layer 43”
+        {
+            _obj: 'select',
+            _target: [{ _id: target_layer_id, _ref: 'layer' }],
+            // layerID: [3879],
+            makeVisible: false,
+        },
+        // Make
+        {
+            _obj: 'make',
+            at: { _enum: 'channel', _ref: 'channel', _value: 'mask' },
+            new: { _class: 'channel' },
+            using: { _enum: 'userMaskEnabled', _value: 'revealSelection' },
+        },
+    ]
+    await timer(g_timer_value)
+    // result = await psAction.batchPlay(command, {})
+
     await executeAsModal(async () => {
-        const result = await batchPlay(
-            [
-                ...deleteChannel(channel_name),
-                makeMaskChannel(channel_name),
-                channelToSelection,
-            ],
-            { modalBehavior: 'execute', synchronousExecution: true }
-        )
+        result = await psAction.batchPlay(command1, {})
     })
-    await psapi.selectLayersExe([layer])
-    await applyMaskChannelExe(channel_name)
+
+    await timer(g_timer_value)
+    await executeAsModal(async () => {
+        result = await psAction.batchPlay(command2, {})
+    })
+
+    await timer(g_timer_value)
+    await executeAsModal(async () => {
+        result = await psAction.batchPlay(command3, {})
+    })
 }
 
 module.exports = {
@@ -897,4 +1140,8 @@ module.exports = {
     colorRangeExe,
     base64ToLassoSelection,
     base64ToChannel,
+    deleteChannel,
+    selectionToChannel,
+    black_white_layer_to_mask,
+    black_white_layer_to_mask_multi_batchplay,
 }

@@ -92,9 +92,9 @@ async function updateClickEventHandler(current_version) {
 }
 
 function viewMaskExpansion() {
-    if (g_generation_session.base64maskExpansionImage) {
+    if (session_ts.store.data.expanded_mask) {
         const mask_src = general.base64ToBase64Url(
-            g_generation_session.base64maskExpansionImage
+            session_ts.store.data.expanded_mask
         )
         html_manip.setInitImageMaskSrc(mask_src)
     } else {
@@ -105,10 +105,8 @@ function viewMaskExpansion() {
 }
 function viewDrawnMask() {
     //this is the generated mask or user drawn mask, but it's not the mask after expansion
-    if (g_generation_session.activeBase64MaskImage) {
-        const mask_src = general.base64ToBase64Url(
-            g_generation_session.activeBase64MaskImage
-        )
+    if (session_ts.store.data.mask) {
+        const mask_src = general.base64ToBase64Url(session_ts.store.data.mask)
         html_manip.setInitImageMaskSrc(mask_src)
     } else {
         console.log('no mask is available')

@@ -163,7 +163,7 @@ export class SpSliderWithLabel extends React.Component<{
                     min={this.in_min}
                     max={this.in_max}
                     value={this.state.slider_value}
-                    title="2 will keep the composition; 0 will allow composition to change"
+                    title={this.props?.title ?? ''}
                     onInput={
                         this.props.onSliderInput
                             ? this.onSliderValueInputHandler.bind(this)

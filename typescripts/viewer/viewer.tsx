@@ -4,12 +4,23 @@ import ReactDOM from 'react-dom/client'
 import { observer } from 'mobx-react'
 import { AStore } from '../main/astore'
 import { Grid } from '../util/grid'
-import { MoveToCanvasSvg, SpSlider, SpSliderWithLabel } from '../util/elements'
+import {
+    MoveToCanvasSvg,
+    SpCheckBox,
+    SpSlider,
+    SpSliderWithLabel,
+} from '../util/elements'
 import { moveImageToLayer } from '../util/ts/io'
 import { io, layer_util, selection } from '../util/oldSystem'
 import Collapsible from '../after_detailer/after_detailer'
 import { session_ts } from '../entry'
 import { reaction } from 'mobx'
+import { GenerationModeEnum } from '../util/ts/enum'
+import { base64ToLassoSelection } from '../../selection'
+import { core } from 'photoshop'
+import Locale from '../locale/locale'
+const executeAsModal = core.executeAsModal
+
 declare let g_generation_session: any
 
 enum ClickTypeEnum {
@@ -57,6 +68,7 @@ export const store = new AStore({
     layers: [],
     class_name: [],
     can_click: true,
+    auto_mask: true,
 })
 
 //when a generation is done, add the last generated image from the viewer to tha canvas
@@ -142,17 +154,39 @@ const add = async (base64: string) => {
         base64,
         session_ts.store.data.selectionInfo
     )
-    // base64 = session_ts.store.data.mask
-    const base64_monochrome_mask = await io.convertGrayscaleToMonochrome(
-        session_ts.store.data.mask
-    )
 
-    const selectionInfo = session_ts.store.data.selectionInfo
-    await selection.base64ToChannel(
-        base64_monochrome_mask,
-        selectionInfo,
-        'inpaint_mask'
-    )
+    // create channel if the generated mode support masking
+    if (
+        [
+            GenerationModeEnum.Inpaint,
+            GenerationModeEnum.LassoInpaint,
+            GenerationModeEnum.Outpaint,
+        ].includes(session_ts.store.data.mode) &&
+        store.data.auto_mask
+    ) {
+        // const base64_monochrome_mask = await io.convertGrayscaleToMonochrome(
+        //     session_ts.store.data.selected_mask
+        // )
+
+        const mask_monochrome = await io.convertGrayscaleToMonochrome(
+            session_ts.store.data.expanded_mask
+        )
+        const channel_mask = mask_monochrome
+        const selectionInfo = session_ts.store.data.selectionInfo
+        // await selection.base64ToChannel(channel_mask, selectionInfo, 'mask')
+
+        const mask_layer = await moveImageToLayer(
+            channel_mask,
+            session_ts.store.data.selectionInfo
+        )
+
+        await selection.black_white_layer_to_mask_multi_batchplay(
+            mask_layer.id,
+            layer.id,
+            'mask'
+        )
+        await layer_util.deleteLayers([mask_layer])
+    }
 
     return layer
 }
@@ -181,10 +215,7 @@ const addAll = async () => {
         if (store.data.is_stored[i]) {
             continue
         }
-        await moveImageToLayer(
-            store.data.images[i],
-            session_ts.store.data.selectionInfo
-        )
+        await add(store.data.images[i])
     }
 
     session_ts.Session.endSession()
@@ -382,6 +413,29 @@ const Viewer = observer(() => {
                     onClick={onlySelected}
                 ></button>
             </div>
+            <div>
+                <SpCheckBox
+                    style={{
+                        display: [
+                            GenerationModeEnum.Inpaint,
+                            GenerationModeEnum.LassoInpaint,
+                            GenerationModeEnum.Outpaint,
+                        ].includes(session_ts.store.data.mode)
+                            ? void 0
+                            : 'none',
+                        marginRight: '10px',
+                    }}
+                    onChange={(event: any) => {
+                        store.data.auto_mask = event.target.checked
+                    }}
+                    checked={store.data.auto_mask}
+                >
+                    {
+                        //@ts-ignore
+                        Locale('Apply Auto Masking')
+                    }
+                </SpCheckBox>
+            </div>
             <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
                 <Grid
                     // images={init_store.data.images}
@@ -414,20 +468,8 @@ const Viewer = observer(() => {
                             callback: async (index: number) => {
                                 await moveImageToLayer(
                                     mask_store.data.images[index],
-                                    session_ts.store.data.selectionInfo
-                                )
-                            },
-                        },
-                        {
-                            ComponentType: MoveToCanvasSvg,
-                            callback: async (index: number) => {
-                                const base64_monochrome_mask =
-                                    await io.convertGrayscaleToMonochrome(
-                                        mask_store.data.images[index]
-                                    )
-                                await moveImageToLayer(
-                                    base64_monochrome_mask,
-                                    session_ts.store.data.selectionInfo
+                                    session_ts.store.data.selectionInfo,
+                                    'mask'
                                 )
                             },
                         },

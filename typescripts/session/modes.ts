@@ -107,7 +107,9 @@ export class Txt2ImgMode extends Mode {
     static async initializeSession(): Promise<SessionData> {
         const selectionInfo = await psapi.getSelectionInfoExe()
 
-        return { selectionInfo }
+        const init_image = ''
+        const mask = ''
+        return { selectionInfo, init_image, mask }
     }
 
     //return settings that would be used by the restApi
@@ -387,7 +389,8 @@ export class Img2ImgMode extends Mode {
     static async initializeSession(): Promise<SessionData> {
         const selectionInfo = await psapi.getSelectionInfoExe()
         const init_image = await io.getImg2ImgInitImage()
-        return { selectionInfo, init_image }
+        const mask = ''
+        return { selectionInfo, init_image, mask }
     }
     static async generate(
         settings: any
@@ -455,11 +458,25 @@ export class LassoInpaintMode extends Img2ImgMode {
     }
 
     static async initializeSession() {
-        await selection.makeMaskChannelExe('inpaint_laso_mask')
+        await selection.channelToSelectionExe('mask')
+
+        try {
+            await executeAsModal(
+                async () => {
+                    if (layer_util.Layer.doesLayerExist(g_inpaint_mask_layer)) {
+                        g_inpaint_mask_layer.opacity = 100
+                    }
+                },
+                { commandName: 'Set Inpaint Layer Opacity to 100%' }
+            )
+        } catch (e) {
+            console.warn(e)
+        }
+        const [init_image, mask] = await selection.inpaintLassoInitImageAndMask(
+            'mask'
+        )
+
         const selectionInfo = await psapi.getSelectionInfoExe()
-        // await selection.channelToSelectionExe('inpaint_laso_mask')
-        const [init_image, mask] =
-            await selection.inpaintLassoInitImageAndMask()
         return { selectionInfo, init_image, mask }
     }
 }

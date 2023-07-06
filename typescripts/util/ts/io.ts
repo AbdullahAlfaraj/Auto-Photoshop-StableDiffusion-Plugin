@@ -2,7 +2,8 @@ import { io } from '../oldSystem'
 
 export async function moveImageToLayer(
     base64_image: string,
-    selection_info: any
+    selection_info: any,
+    layer_name: string = 'output_image'
 ) {
     let layer
     try {
@@ -12,7 +13,7 @@ export async function moveImageToLayer(
         const height = selection_info?.height
         layer = await io.IO.base64ToLayer(
             base64_image,
-            'to_layer',
+            layer_name,
             to_x,
             to_y,
             width,

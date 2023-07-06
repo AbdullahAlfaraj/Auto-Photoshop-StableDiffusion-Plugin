@@ -8,6 +8,7 @@ export const store = new AStore({
     progress_value: 0,
     progress_image: '',
     progress_image_height: 0,
+    progress_label: 'Progress..',
     can_update: true,
 })
 declare let g_sd_url: string
@@ -64,6 +65,7 @@ export class Progress {
             store.data.progress_value = 0
             store.data.progress_image = ''
             store.data.progress_image_height = 0
+            store.data.progress_label = ''
             this.timer_id = clearInterval(this.timer_id)
         } catch (e) {
             console.warn(e)
