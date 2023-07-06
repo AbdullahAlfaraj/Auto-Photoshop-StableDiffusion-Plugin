@@ -1,6 +1,8 @@
 import React, { CSSProperties, ComponentType } from 'react'
 // import ReactDOM from 'react-dom'
 import ReactDOM from 'react-dom/client'
+import Locale from '../locale/locale'
+import { observer } from 'mobx-react'
 // import { versions } from 'uxp'
 export { ReactComponent as MoveToCanvasSvg } from '../../icon/move_to_canvas.svg'
 export { ReactComponent as PenSvg } from '../../icon/pen.svg'
@@ -41,6 +43,7 @@ export enum SliderType {
     Integer = 'integer',
     Float = 'float',
 }
+@observer
 export class SpSliderWithLabel extends React.Component<{
     onSliderChange?: any
     onSliderInput?: any
@@ -171,7 +174,7 @@ export class SpSliderWithLabel extends React.Component<{
                     }
                     onChange={this.onSliderValueChangeHandler.bind(this)}
                 >
-                    <sp-label slot="label">{this.props.label}:</sp-label>
+                    <sp-label slot="label">{Locale(this.props.label as any)}:</sp-label>
                     <sp-label
                         slot="label"
                         // id="lControlNetWeight_0"
