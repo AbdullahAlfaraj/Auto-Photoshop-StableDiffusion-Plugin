@@ -5,8 +5,12 @@ import Collapsible from '../after_detailer/after_detailer'
 import { observer } from 'mobx-react'
 import { AStore } from '../main/astore'
 
-import { requestPost, requestGet } from '../util/ts/api'
-import { SpMenu, SpSliderWithLabel } from '../util/elements'
+import { requestPost, requestGet, isScriptInstalled } from '../util/ts/api'
+import {
+    ScriptInstallComponent,
+    SpMenu,
+    SpSliderWithLabel,
+} from '../util/elements'
 
 declare let g_sd_url: string
 export const store = new AStore({
@@ -19,6 +23,8 @@ export const store = new AStore({
     subject: 'all',
     artist: 'all',
     imagetype: 'all',
+    script_name: 'one button prompt',
+    is_installed: false,
 })
 
 export async function requestRandomPrompts(
@@ -119,8 +125,14 @@ export async function requestConfig() {
 
 @observer
 class OneButtonPrompt extends React.Component {
+    async initScript() {
+        const is_installed = await isScriptInstalled(store.data.script_name)
+        await store.updateProperty('is_installed', is_installed)
+    }
+
     async componentDidMount() {
         await requestConfig()
+        await this.initScript()
     }
 
     renderContainer() {
@@ -246,7 +258,22 @@ class OneButtonPrompt extends React.Component {
     }
 
     render() {
-        return <div style={{ padding: '4px' }}>{this.renderContainer()}</div>
+        return (
+            <div>
+                {store.data.is_installed ? (
+                    <div style={{ padding: '4px' }}>
+                        {this.renderContainer()}
+                    </div>
+                ) : (
+                    <ScriptInstallComponent
+                        onRefreshHandler={async (event: any) => {
+                            console.log(`Refresh ${store.data.script_name}`)
+                            await this.initScript()
+                        }}
+                    ></ScriptInstallComponent>
+                )}
+            </div>
+        )
     }
 }
 

@@ -1,3 +1,4 @@
+declare let g_sd_url: string
 export async function requestGet(url: string) {
     let json = null
 
@@ -73,4 +74,19 @@ export async function requestFormDataPost(url: string, payload: any) {
     } catch (e) {
         console.warn(e)
     }
+}
+
+export async function isScriptInstalled(script_name: string): Promise<boolean> {
+    let is_installed = false
+    try {
+        const full_url = `${g_sd_url}/sdapi/v1/scripts`
+        const scripts = await requestGet(full_url)
+        is_installed =
+            scripts?.txt2img?.includes(script_name) ||
+            scripts?.img2img?.includes(script_name)
+    } catch (e) {
+        console.error(e)
+    }
+    console.log('is_installed: ', is_installed)
+    return is_installed
 }

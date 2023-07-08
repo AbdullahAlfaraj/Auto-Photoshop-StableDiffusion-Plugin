@@ -2,11 +2,15 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import Collapsible from '../after_detailer/after_detailer'
 import { observer } from 'mobx-react'
-
+import { isScriptInstalled } from '../util/ts/api'
 import { api, general, io, psapi, selection } from '../util/oldSystem'
 import { Grid } from '../util/grid'
 import { AStore } from '../main/astore'
-import { MoveToCanvasSvg, PenSvg } from '../util/elements'
+import {
+    MoveToCanvasSvg,
+    PenSvg,
+    ScriptInstallComponent,
+} from '../util/elements'
 declare let g_sd_url: string
 
 export async function getSamMap(base64: string, prompt: string) {
@@ -40,102 +44,140 @@ export const store = new AStore({
     prompt: '',
     width: 85,
     height: 85,
+    is_installed: false,
+    script_name: 'segment anything',
 })
-const Sam = observer(() => {
-    return (
-        <div>
-            <sp-textarea
-                placeholder="Segment Anything Prompt"
-                value={store.data.prompt}
-                onInput={(event: any) => {
-                    store.data.prompt = event.target.value
-                }}
-            ></sp-textarea>
-            <button
-                className="btnSquare"
-                onClick={async () => {
-                    const selection_info = await psapi.getSelectionInfoExe()
-                    const base64 = await io.getImageFromCanvas()
-                    const result = await getSamMap(base64, store.data.prompt)
-                    const masks = result?.masks ?? []
-                    const masks_urls = []
-                    for (const mask of masks) {
-                        const url =
-                            await io.convertBlackAndWhiteImageToRGBChannels3(
-                                mask
-                            )
-                        masks_urls.push(url)
-                    }
 
-                    store.updateProperty('thumbnails', masks_urls)
-                    store.updateProperty(
-                        'selection_info_list',
-                        Array(masks_urls.length).fill(selection_info)
-                    )
-                }}
-            >
-                Generate Mask
-            </button>
-            <Grid
-                // thumbnails_data={store.data.images?.map((base64: string) =>
-                //     base64
-                //         ? 'data:image/png;base64,' + base64
-                //         : 'https://source.unsplash.com/random'
-                // )}
-                thumbnails={store.data.thumbnails}
-                width={store.data.width}
-                height={store.data.height}
-                action_buttons={[
-                    {
-                        ComponentType: PenSvg,
-                        callback: async (index: number) => {
-                            try {
-                                const base64 = general.base64UrlToBase64(
-                                    store.data.thumbnails[index]
-                                )
-                                await selection.base64ToLassoSelection(
-                                    base64,
-                                    store.data.selection_info_list[index]
-                                )
-                            } catch (e) {
-                                console.warn(e)
-                            }
-                        },
-                    },
-                    {
-                        ComponentType: MoveToCanvasSvg,
-                        callback: async (index: number) => {
-                            try {
-                                const to_x =
-                                    store.data.selection_info_list[index]?.left
-                                const to_y =
-                                    store.data.selection_info_list[index]?.top
-                                const width =
-                                    store.data.selection_info_list[index]?.width
-                                const height =
-                                    store.data.selection_info_list[index]
-                                        ?.height
+@observer
+export class Sam extends React.Component<{
+    // store: AStore
+}> {
+    async initScript() {
+        const is_installed = await isScriptInstalled(store.data.script_name)
+        await store.updateProperty('is_installed', is_installed)
+    }
+    async componentDidMount(): Promise<void> {
+        await this.initScript()
+    }
 
-                                await io.IO.base64ToLayer(
-                                    general.base64UrlToBase64(
+    renderScript() {
+        return (
+            <div>
+                <sp-textarea
+                    placeholder="Segment Anything Prompt"
+                    value={store.data.prompt}
+                    onInput={(event: any) => {
+                        store.data.prompt = event.target.value
+                    }}
+                ></sp-textarea>
+                <button
+                    className="btnSquare"
+                    onClick={async () => {
+                        const selection_info = await psapi.getSelectionInfoExe()
+                        const base64 = await io.getImageFromCanvas()
+                        const result = await getSamMap(
+                            base64,
+                            store.data.prompt
+                        )
+                        const masks = result?.masks ?? []
+                        const masks_urls = []
+                        for (const mask of masks) {
+                            const url =
+                                await io.convertBlackAndWhiteImageToRGBChannels3(
+                                    mask
+                                )
+                            masks_urls.push(url)
+                        }
+
+                        store.updateProperty('thumbnails', masks_urls)
+                        store.updateProperty(
+                            'selection_info_list',
+                            Array(masks_urls.length).fill(selection_info)
+                        )
+                    }}
+                >
+                    Generate Mask
+                </button>
+                <Grid
+                    // thumbnails_data={store.data.images?.map((base64: string) =>
+                    //     base64
+                    //         ? 'data:image/png;base64,' + base64
+                    //         : 'https://source.unsplash.com/random'
+                    // )}
+                    thumbnails={store.data.thumbnails}
+                    width={store.data.width}
+                    height={store.data.height}
+                    action_buttons={[
+                        {
+                            ComponentType: PenSvg,
+                            callback: async (index: number) => {
+                                try {
+                                    const base64 = general.base64UrlToBase64(
                                         store.data.thumbnails[index]
-                                    ),
-                                    'segment_anything_mask.png',
-                                    to_x,
-                                    to_y,
-                                    width,
-                                    height
-                                )
-                            } catch (e) {
-                                console.warn(e)
-                            }
+                                    )
+                                    await selection.base64ToLassoSelection(
+                                        base64,
+                                        store.data.selection_info_list[index]
+                                    )
+                                } catch (e) {
+                                    console.warn(e)
+                                }
+                            },
                         },
-                    },
-                ]}
-            ></Grid>
-        </div>
-    )
-})
+                        {
+                            ComponentType: MoveToCanvasSvg,
+                            callback: async (index: number) => {
+                                try {
+                                    const to_x =
+                                        store.data.selection_info_list[index]
+                                            ?.left
+                                    const to_y =
+                                        store.data.selection_info_list[index]
+                                            ?.top
+                                    const width =
+                                        store.data.selection_info_list[index]
+                                            ?.width
+                                    const height =
+                                        store.data.selection_info_list[index]
+                                            ?.height
+
+                                    await io.IO.base64ToLayer(
+                                        general.base64UrlToBase64(
+                                            store.data.thumbnails[index]
+                                        ),
+                                        'segment_anything_mask.png',
+                                        to_x,
+                                        to_y,
+                                        width,
+                                        height
+                                    )
+                                } catch (e) {
+                                    console.warn(e)
+                                }
+                            },
+                        },
+                    ]}
+                ></Grid>
+            </div>
+        )
+    }
+    render() {
+        return (
+            <div>
+                {store.data.is_installed ? (
+                    this.renderScript()
+                ) : (
+                    <ScriptInstallComponent
+                        onRefreshHandler={async (event: any) => {
+                            console.log(`Refresh ${store.data.script_name}`)
+                            await this.initScript()
+                        }}
+                    ></ScriptInstallComponent>
+                )}
+            </div>
+        )
+    }
+}
 const containers = document.querySelectorAll('.samContainer')
 
 containers.forEach((container) => {

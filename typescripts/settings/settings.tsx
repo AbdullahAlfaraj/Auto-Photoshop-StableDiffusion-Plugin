@@ -69,28 +69,7 @@ function setDeleteLogTimer() {
     console.log('setDeleteLogTimer() timer_id :', timer_id)
     return timer_id
 }
-// reaction(
-//     () => {
-//         return store.data.should_log_to_file
-//     },
-//     (should_log_to_file) => {
-//         if (should_log_to_file && !store.data.delete_log_file_timer_id) {
-//             store.data.delete_log_file_timer_id = setDeleteLogTimer()
-//         } else {
-//             //don't log and clear delete file timer
-//             try {
-//                 store.data.delete_log_file_timer_id = clearInterval(
-//                     store.data.delete_log_file_timer_id
-//                 )
-//             } catch (e) {
-//                 console.warn(e)
-//             }
-//         }
 
-//         //@ts-ignore
-//         setLogMethod(should_log_to_file)
-//     }
-// )
 const Settings = observer(() => {
     return (
         <div style={{ width: '100%' }}>

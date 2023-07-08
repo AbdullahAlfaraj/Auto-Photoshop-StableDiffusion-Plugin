@@ -174,7 +174,9 @@ export class SpSliderWithLabel extends React.Component<{
                     }
                     onChange={this.onSliderValueChangeHandler.bind(this)}
                 >
-                    <sp-label slot="label">{Locale(this.props.label as any)}:</sp-label>
+                    <sp-label slot="label">
+                        {Locale(this.props.label as any)}:
+                    </sp-label>
                     <sp-label
                         slot="label"
                         // id="lControlNetWeight_0"
@@ -463,3 +465,25 @@ export class ActionButtonSVG extends React.Component<{
         )
     }
 }
+
+interface ScriptInstallComponentProps {
+    onRefreshHandler: any
+}
+export const ScriptInstallComponent = observer(
+    ({ onRefreshHandler }: ScriptInstallComponentProps) => {
+        return (
+            <div>
+                <sp-label class="missing-error">
+                    Script is not available; Make sure to install it from
+                    Automatic1111 webui
+                </sp-label>
+                <button
+                    className="btnSquare refreshButton"
+                    id="btnResetSettings"
+                    title="Refresh the After Detailer Extension"
+                    onClick={onRefreshHandler}
+                ></button>
+            </div>
+        )
+    }
+)
