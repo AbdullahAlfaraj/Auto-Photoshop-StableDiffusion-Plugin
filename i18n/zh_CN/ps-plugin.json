@@ -176,5 +176,9 @@
     "ControlNet Unit": "ControlNet #",
     "Select Filter": "选择过滤器",
     "Select Module": "选择预处理器",
-    "Select Model": "选择模型"
+    "Select Model": "选择模型",
+    "Keep all generated images on the canvas": "在画布上保留所有生成图像",
+    "Delete all generated images from the canvas": "在画布上删除所有生成图像",
+    "Keep only the highlighted images": "在画布上保留选中的图像",
+    "Generate More": "生成更多"
   }

@@ -7,6 +7,7 @@ import { AStore } from '../main/astore'
 import { progress } from '../entry'
 import './style/preview.css'
 import { reaction } from 'mobx'
+import Locale from '../locale/locale'
 export const store = new AStore({
     // image: '',
     // progress_value: 0,
@@ -20,7 +21,7 @@ reaction(
         document.querySelectorAll('.pProgressBars').forEach((progress: any) => {
             progress.value = value?.toFixed(2)
         })
-    }
+    } 
 )
 const Previewer = observer(() => {
     const renderImage = () => {
@@ -61,9 +62,9 @@ const PreviewerContainer = observer(() => {
     return (
         <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
             <Collapsible
-                defaultIsOpen={true}
+                defaultIsOpen={true} 
                 label={
-                    'Preview ' +
+                    Locale('Preview') + ' ' +
                     (progress.store.data.progress_value
                         ? `: ${
                               progress.store.data.progress_label

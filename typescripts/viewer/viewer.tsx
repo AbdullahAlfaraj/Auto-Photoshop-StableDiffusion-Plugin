@@ -395,19 +395,19 @@ const Viewer = observer(() => {
                 }}
             >
                 <button
-                    title="Keep all generated images on the canvas"
+                    title={Locale("Keep all generated images on the canvas")}
                     className="btnSquare acceptClass acceptAllImgBtn"
                     style={button_style}
                     onClick={addAll}
                 ></button>
                 <button
-                    title="Delete all generated images from the canvas"
+                    title={Locale("Delete all generated images from the canvas")}
                     className="btnSquare discardClass discardAllImgBtn"
                     style={button_style}
                     onClick={discardAll}
                 ></button>
                 <button
-                    title="Keep only the highlighted images"
+                    title={Locale("Keep only the highlighted images")}
                     className="btnSquare acceptSelectedClass acceptSelectedImgBtn"
                     style={button_style}
                     onClick={onlySelected}
@@ -526,26 +526,26 @@ const ToolbarViewerButtons = observer(() => {
         // }}
         >
             <button
-                title="Keep all generated images on the canvas"
+                title={Locale("Keep all generated images on the canvas")}
                 className="btnSquare acceptClass acceptAllImgBtn"
                 style={button_style}
                 onClick={addAll}
             ></button>
             <button
-                title="Delete all generated images from the canvas"
+                title={Locale("Delete all generated images from the canvas")}
                 className="btnSquare discardClass discardAllImgBtn"
                 style={button_style}
                 onClick={discardAll}
             ></button>
             <button
-                title="Keep only the highlighted images"
-                className="btnSquare acceptSelectedClass acceptSelectedImgBtn"
+                title={Locale("Keep only the highlighted images")}
+                className="btnSquare acceptSelectedClass acceptSelectedImgBtn" 
                 style={button_style}
                 onClick={onlySelected}
             ></button>
         </div>
     )
-})
+}) 
 
 // const node = document.getElementById('reactViewerContainer')!
 const containers = document.querySelectorAll('.reactViewerContainer')
@@ -555,7 +555,7 @@ containers.forEach((container) => {
     root.render(
         <React.StrictMode>
             <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Collapsible defaultIsOpen={true} label={'Viewer'}>
+                <Collapsible defaultIsOpen={true} label={Locale('Viewer')}>
                     <Viewer></Viewer>
                 </Collapsible>
             </div>

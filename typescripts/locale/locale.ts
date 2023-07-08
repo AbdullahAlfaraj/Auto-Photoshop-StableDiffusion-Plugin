@@ -17,7 +17,7 @@ function isExists(path: string): boolean {
 }
 
 export default function Locale(
-    key: keyof typeof zhHans | keyof typeof zhHansForPSPlugin
+    key: keyof typeof zhHans | keyof typeof zhHansForPSPlugin | any
 ): string {
     const locale = globalStore.Locale
 

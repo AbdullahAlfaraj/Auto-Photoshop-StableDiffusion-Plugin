@@ -286,7 +286,7 @@ function Collapsible({
         setIsOpen(!isOpen)
     }
 
-    return useObserver(()=> (
+    return /*useObserver(()=>*/( (
         <div>
             <div
                 className="collapsible"
@@ -294,7 +294,7 @@ function Collapsible({
                 onClick={handleToggle}
             >
                 <span className="truncate" style={labelStyle}>
-                    {Locale(label as any)}
+                    {label}
                 </span>
 
                 <span
