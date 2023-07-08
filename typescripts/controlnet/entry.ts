@@ -1,8 +1,9 @@
 import { setControlImageSrc } from '../../utility/html_manip'
 import { session_ts } from '../entry'
-import { Enum, api } from '../util/oldSystem'
+import { Enum, api, python_replacement } from '../util/oldSystem'
 import { store, versionCompare } from './main'
 
+const { getExtensionUrl } = python_replacement
 declare const g_sd_config_obj: any
 declare let g_sd_url: string
 
@@ -36,12 +37,29 @@ async function requestControlNetMaxUnits() {
     return control_net_max_models_num
 }
 
-async function requestControlNetFiltersKeywords(keyword = 'All') {
-    const control_net_json = await api.requestGet(
-        `${g_sd_url}/controlnet/filter?keyword=${keyword}`
-    )
+async function requestControlNetFiltersKeywords(
+    keyword = 'All',
+    module_list: string[],
+    model_list: string[]
+) {
+    try {
+        const extension_url = getExtensionUrl()
+        // const full_url = `${extension_url}/controlnet/filter?keyword=${keyword}`
 
-    return control_net_json
+        const full_url = `${extension_url}/controlnet/filter`
+
+        const payload = {
+            keyword: keyword,
+            preprocessor_list: module_list,
+            model_list: model_list,
+        }
+        //const full_url = `${g_sd_url}/controlnet/filter?keyword=${keyword}`
+        const control_net_json = await api.requestPost(full_url, payload)
+
+        return control_net_json
+    } catch (e) {
+        console.warn(e)
+    }
 }
 async function initializeControlNetTab(controlnet_max_models: number) {
     store.maxControlNet = controlnet_max_models || store.maxControlNet
@@ -63,7 +81,11 @@ async function initializeControlNetTab(controlnet_max_models: number) {
     try {
         //retrieve all keywords to popular the dropdown menu
 
-        const filters = await requestControlNetFiltersKeywords('All')
+        const filters = await requestControlNetFiltersKeywords(
+            'All',
+            store.supportedPreprocessors,
+            store.supportedModels
+        )
 
         store.filterKeywords = filters ? filters.keywords : []
         if (filters) {

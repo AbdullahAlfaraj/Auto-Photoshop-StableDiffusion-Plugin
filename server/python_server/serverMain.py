@@ -6,7 +6,7 @@ import base64
 from PIL import Image, PngImagePlugin
 import asyncio
 import httpx
-
+from typing import List
 
 import os
 import time
@@ -14,6 +14,8 @@ import serverHelper
 import prompt_shortcut
 import metadata_to_json
 import search
+import global_state
+
 sd_url = os.environ.get('SD_URL', 'http://127.0.0.1:7860')
 
 
@@ -90,8 +92,8 @@ def img_2_b64(image):
 
 from typing import Union
 
-from fastapi import FastAPI
-from fastapi import APIRouter, Request
+
+from fastapi import FastAPI,APIRouter, Request,Query, Body
 
 
 
@@ -503,6 +505,32 @@ async def list_available_vae():
         print("list_available_vae() error ",repr(e),e)
     return sd_vae_dict
 
+
+@router.post("/controlnet/filter")
+async def filter(keyword:str = Body('All',title="keyword to filter by"),
+        preprocessor_list: List[str]= Body([],title="complete preprocessor list"),
+        model_list: List[str] =Body([],title="complete model list"),):
+
+
+    filtered_preprocessor_list= []
+    filtered_model_list= []
+    default_option= 'none'
+    default_model= 'None'
+
+    print("preprocessor_list:",preprocessor_list)
+    print("model_list:",model_list)
+    try:
+        [filtered_preprocessor_list,filtered_model_list,default_option,default_model] = global_state.filter_selected_helper(keyword,preprocessor_list,model_list)
+    except Exception as e:
+        print("Invalid Keyword: ",e)
+
+    return {
+        "keywords": list(global_state.preprocessor_filters.keys()),
+        "module_list": filtered_preprocessor_list,
+        "model_list": filtered_model_list,
+        "default_option":default_option,
+        "default_model":default_model
+    }
 
 app = FastAPI()
 app.include_router(router)
