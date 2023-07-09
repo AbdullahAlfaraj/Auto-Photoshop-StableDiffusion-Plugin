@@ -1,6 +1,7 @@
 import { setControlImageSrc } from '../../utility/html_manip'
 import { session_ts } from '../entry'
 import { Enum, api, python_replacement } from '../util/oldSystem'
+import { GenerationModeEnum } from '../util/ts/enum'
 import { store, versionCompare } from './main'
 
 const { getExtensionUrl } = python_replacement
@@ -117,7 +118,26 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
             const b_sync_input_image =
                 store.controlNetUnitData[index].auto_image
             let input_image = store.controlNetUnitData[index].input_image
-            if (b_sync_input_image && session_ts.store.data.init_image) {
+            if (
+                b_sync_input_image &&
+                [GenerationModeEnum.Txt2Img].includes(
+                    session_ts.store.data.mode
+                )
+            ) {
+                //conditions: 1) txt2img mode 2)auto image on  3)first generation of session
+
+                input_image = session_ts.store.data.controlnet_input_image ?? ''
+                store.controlNetUnitData[index].input_image = input_image
+            }
+            if (
+                b_sync_input_image &&
+                [
+                    GenerationModeEnum.Img2Img,
+                    GenerationModeEnum.Inpaint,
+                    GenerationModeEnum.Outpaint,
+                    GenerationModeEnum.LassoInpaint,
+                ].includes(session_ts.store.data.mode)
+            ) {
                 // img2img mode
                 input_image = session_ts.store.data.init_image
                 store.controlNetUnitData[index].input_image = input_image

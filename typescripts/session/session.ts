@@ -40,6 +40,8 @@ export const store = new AStore({
     can_generate_more: false, //
     is_active: false, // is session active
     is_interrupted: false, // did we interrupt the generation
+    generation_number: 0, // generation number per session, 0 mean first generation
+    controlnet_input_image: '', // the controlnet the image that will controlnet load
 })
 
 function hasSelectionChanged(new_selection: any, old_selection: any) {
@@ -230,6 +232,7 @@ export class Session {
     static async initializeGeneration() {
         store.data.is_interrupted = false
         store.data.can_generate = false
+        store.data.generation_number += 1
     }
     static async generate(mode: GenerationModeEnum): Promise<{
         output_images: any
@@ -408,6 +411,8 @@ export class Session {
         store.data.init_image = ''
         store.data.mask = ''
         store.data.expanded_mask = ''
+        store.data.generation_number = 0
+        store.data.controlnet_input_image = ''
     }
 
     static async getOutput() {}

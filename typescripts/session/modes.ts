@@ -241,6 +241,14 @@ export class Txt2ImgMode extends Mode {
 
             if (b_enable_control_net) {
                 //use control net
+                if (session_ts.store.data.generation_number === 1) {
+                    session_ts.store.data.controlnet_input_image =
+                        await io.getImg2ImgInitImage()
+                }
+                console.log(
+                    'session_ts.store.data.controlnet_input_image: ',
+                    session_ts.store.data.controlnet_input_image
+                )
 
                 response_json = await this.requestControlNetTxt2Img(settings)
             } else {

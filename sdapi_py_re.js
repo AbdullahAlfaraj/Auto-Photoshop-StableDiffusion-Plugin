@@ -209,14 +209,12 @@ async function loadPromptShortcut() {
         prompt_shortcut_json = await py_re.loadPromptShortcut(
             'prompt_shortcut.json'
         )
-        console.log('loadPromptShortcut:', prompt_shortcut_json)
-        // console.log('loadPromptShortcut: request: ',request)
+        // console.log('loadPromptShortcut:', prompt_shortcut_json)
     } catch (e) {
         console.warn(e)
         prompt_shortcut_json = {}
     }
     return prompt_shortcut_json
-    // return json['prompt_shortcut']
 }
 
 async function savePromptShortcut(prompt_shortcut) {
