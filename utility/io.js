@@ -1302,6 +1302,42 @@ async function convertGrayscaleToMonochrome(base64) {
     }
 }
 
+async function convertBlackToTransparentKeepBorders(base64) {
+    try {
+        let jimp_mask = await Jimp.read(Buffer.from(base64, 'base64'))
+
+        const width = jimp_mask.bitmap.width
+        const height = jimp_mask.bitmap.height
+        jimp_mask = await jimp_mask.scan(
+            0,
+            0,
+            width,
+            height,
+            function (x, y, idx) {
+                // if (x === 0 || y === 0 || x === width - 1 || y === height - 1)
+                // return
+                if (
+                    (x === 0 && y === 0) ||
+                    (x === 0 && y === height - 1) ||
+                    (x === width - 1 && y === 0) ||
+                    (x === width - 1 && y === height - 1)
+                )
+                    return
+                const red = this.bitmap.data[idx + 0]
+                const green = this.bitmap.data[idx + 1]
+                const blue = this.bitmap.data[idx + 2]
+                if (red === 0 && green === 0 && blue === 0) {
+                    this.bitmap.data[idx + 3] = 0
+                }
+            }
+        )
+        const base64_mask = await getBase64FromJimp(jimp_mask)
+        return base64_mask
+    } catch (e) {
+        console.warn(e)
+    }
+}
+
 async function deleteFileIfLargerThan(file_name, size_mb = 200) {
     // const file = await fs.getEntry('path/to/file.txt')
     try {
@@ -1353,4 +1389,5 @@ module.exports = {
     convertGrayscaleToMonochrome,
     deleteFileIfLargerThan,
     getMaskFromCanvas,
+    convertBlackToTransparentKeepBorders,
 }
