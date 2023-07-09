@@ -92,7 +92,7 @@ const ToolbarGenerateButtons = observer(() => {
     return (
         <div>
             <button
-                title={Locale("Generate")}
+                title={Locale('Generate')}
                 className="btnSquare generateColor"
                 onClick={handleGenerate}
                 style={{ ...button_style, display: generate_display }}
@@ -100,7 +100,7 @@ const ToolbarGenerateButtons = observer(() => {
                 G
             </button>
             <button
-                title={Locale("Generate More")}
+                title={Locale('Generate More')}
                 onClick={handleGenerateMore}
                 className={'btnSquare generateMoreColor'}
                 style={{
@@ -111,7 +111,7 @@ const ToolbarGenerateButtons = observer(() => {
                 M
             </button>
             <button
-                title={Locale("Interrupt")}
+                title={Locale('Interrupt')}
                 onClick={handleInterrupt}
                 className="btnSquare"
                 style={{
@@ -139,7 +139,8 @@ const canStartSession = async () => {
             can_start_session = true
         } else {
             can_start_session = await note.Notification.inactiveSelectionArea(
-                session_ts.store.data.is_active
+                session_ts.store.data.is_active,
+                'Reuse Selection'
             )
             if (can_start_session) {
                 //end current session and start a new one

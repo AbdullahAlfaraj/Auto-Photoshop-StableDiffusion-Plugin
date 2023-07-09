@@ -245,10 +245,10 @@ export class Txt2ImgMode extends Mode {
                     session_ts.store.data.controlnet_input_image =
                         await io.getImg2ImgInitImage()
                 }
-                console.log(
-                    'session_ts.store.data.controlnet_input_image: ',
-                    session_ts.store.data.controlnet_input_image
-                )
+                // console.log(
+                //     'session_ts.store.data.controlnet_input_image: ',
+                //     session_ts.store.data.controlnet_input_image
+                // )
 
                 response_json = await this.requestControlNetTxt2Img(settings)
             } else {
@@ -408,7 +408,7 @@ export class Img2ImgMode extends Mode {
         let response_json
         let output_images
         try {
-            //checks on index 0 as if not enabled ingores the rest
+            //checks on index 0 as if not enabled ignores the rest
             const b_enable_control_net = control_net.isControlNetModeEnable()
 
             if (b_enable_control_net) {

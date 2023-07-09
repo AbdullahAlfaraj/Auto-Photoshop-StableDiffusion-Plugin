@@ -1111,11 +1111,13 @@ async function black_white_layer_to_mask_multi_batchplay(
 
     await timer(g_timer_value)
     await executeAsModal(async () => {
+        await layer_util.toggleActiveLayer() // toggle active layer will be visible, note: doesn't solve the issue in outpaint mode
         result = await psAction.batchPlay(command2, {})
     })
 
     await timer(g_timer_value)
     await executeAsModal(async () => {
+        await layer_util.toggleActiveLayer() // undo the toggling operation, active layer will be visible, note: doesn't solve the issue in outpaint mode
         result = await psAction.batchPlay(command3, {})
     })
 }

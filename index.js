@@ -1276,7 +1276,7 @@ function pastImage2Layer() {
                 ],
                 {
                     synchronousExecution: true,
-                    modalBehavior: 'fail',
+                    modalBehavior: 'execute',
                 }
             )
         },
