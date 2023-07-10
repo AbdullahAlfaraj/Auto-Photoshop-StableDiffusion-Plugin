@@ -11,6 +11,11 @@ import {
     PenSvg,
     ScriptInstallComponent,
 } from '../util/elements'
+import {
+    applyMaskFromBlackAndWhiteImage,
+    selectionFromBlackAndWhiteImage,
+} from '../util/ts/selection'
+import { app } from 'photoshop'
 declare let g_sd_url: string
 
 export async function getSamMap(base64: string, prompt: string) {
@@ -112,13 +117,17 @@ export class Sam extends React.Component<{
                             ComponentType: PenSvg,
                             callback: async (index: number) => {
                                 try {
+                                    await psapi.unSelectMarqueeExe()
                                     const base64 = general.base64UrlToBase64(
                                         store.data.thumbnails[index]
                                     )
-                                    await selection.base64ToLassoSelection(
+
+                                    await selectionFromBlackAndWhiteImage(
                                         base64,
                                         store.data.selection_info_list[index]
                                     )
+                                    //@ts-ignore
+                                    await eventHandler() // this will trigger the recalculation of the width and height sliders
                                 } catch (e) {
                                     console.warn(e)
                                 }
