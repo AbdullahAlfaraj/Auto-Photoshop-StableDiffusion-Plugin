@@ -283,9 +283,6 @@ export default class ControlNetUnit extends React.Component<
                 const mask_base64 = await io.getMaskFromCanvas()
                 this.props.appState.controlNetUnitData[this.props.index].mask =
                     mask_base64
-                this.props.appState.controlNetUnitData[
-                    this.props.index
-                ].detect_map = mask_base64
             } else {
                 // await note.Notification.inactiveSelectionArea()
                 app.showAlert('No Selection is available')
@@ -293,6 +290,9 @@ export default class ControlNetUnit extends React.Component<
         } catch (e) {
             console.warn(e)
         }
+    }
+    async resetMask() {
+        this.props.appState.controlNetUnitData[this.props.index].mask = ''
     }
     async toCanvas() {
         if (
@@ -502,6 +502,51 @@ export default class ControlNetUnit extends React.Component<
                                 </button>
                             </div>
                         </div>
+
+                        {!this.props.appState.controlNetUnitData[
+                            this.props.index
+                        ].model
+                            .toLowerCase()
+                            .includes('inpaint') ? (
+                            void 0
+                        ) : (
+                            <div className="imgContainer controlNetImaageContainer">
+                                <div>
+                                    <Thumbnail>
+                                        <img
+                                            className="column-item-image"
+                                            src={
+                                                storeData.mask
+                                                    ? 'data:image/png;base64,' +
+                                                      storeData.mask
+                                                    : 'https://source.unsplash.com/random'
+                                            }
+                                            width="300px"
+                                            height="100px"
+                                        />
+                                        <ActionButtonSVG
+                                            ComponentType={PenSvg}
+                                            onClick={this.resetMask.bind(this)}
+                                        ></ActionButtonSVG>
+
+                                        <ActionButtonSVG
+                                            ComponentType={PenSvg}
+                                            onClick={this.setMask.bind(this)}
+                                        ></ActionButtonSVG>
+                                    </Thumbnail>
+                                </div>
+                                <div className="imgButton btnClass">
+                                    <button
+                                        className="column-item button-style btnSquare"
+                                        id={`bControlMask_${this.props.index}`}
+                                        onClick={this.setMask.bind(this)}
+                                        title="Preview Annotator"
+                                    >
+                                        {Locale('Set Mask')}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <SpCheckBox

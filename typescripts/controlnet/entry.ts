@@ -155,16 +155,27 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
     }
     function getControlNetMask(index: number) {
         try {
-            const b_sync_input_image =
-                store.controlNetUnitData[index].auto_image
-            let mask = store.controlNetUnitData[index].mask // the user created mask
-            if (b_sync_input_image && session_ts.store.data.expanded_mask) {
-                //use the mask from inpaint and outpaint mode
-                mask = '' // this will tell controlnet to use SD mask
-                store.controlNetUnitData[index].mask = ''
-            }
+            // const b_sync_input_image =
+            //     store.controlNetUnitData[index].auto_image
+            // let mask = store.controlNetUnitData[index].mask // the user created mask
+            // if (b_sync_input_image && session_ts.store.data.expanded_mask) {
+            //     //use the mask from inpaint and outpaint mode
+            //     mask = '' // this will tell controlnet to use SD mask
+            //     store.controlNetUnitData[index].mask = ''
+            // }
 
-            return mask
+            if (
+                [
+                    GenerationModeEnum.Txt2Img,
+                    GenerationModeEnum.Img2Img,
+                ].includes(session_ts.store.data.mode)
+            ) {
+                //maskless mode
+            } else {
+                //mask related mode
+                store.controlNetUnitData[index].mask = '' // use the mask from the sd mode
+            }
+            return store.controlNetUnitData[index].mask
         } catch (e) {
             console.warn(e)
         }
@@ -173,7 +184,7 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
         controlnet_units[index] = {
             enabled: getEnableControlNet(index),
             input_image: getControlNetInputImage(index),
-            mask: '', //getControlNetMask(index) ?? '',
+            mask: getControlNetMask(index),
             module: store.controlNetUnitData[index].module,
             model: store.controlNetUnitData[index].model,
             weight: store.controlNetUnitData[index].weight,
