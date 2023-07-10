@@ -399,10 +399,11 @@ export class Session {
         }, 1000)
     }
     static endProgress() {
-        progress.Progress.endTimer(() => {
+        progress.Progress.endTimer(async () => {
             progress.store.data.progress_value = 0
             progress.store.data.progress_image = ''
             progress.store.data.progress_image_height = 0
+            await progress.Progress.deleteProgressLayer()
         })
     }
     static endSession() {
