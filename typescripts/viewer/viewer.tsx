@@ -19,6 +19,7 @@ import { GenerationModeEnum } from '../util/ts/enum'
 import { base64ToLassoSelection } from '../../selection'
 import { action, core } from 'photoshop'
 import Locale from '../locale/locale'
+import { applyMaskFromBlackAndWhiteImage } from '../util/ts/selection'
 const executeAsModal = core.executeAsModal
 const batchPlay = action.batchPlay
 declare let g_generation_session: any
@@ -177,91 +178,11 @@ const add = async (base64: string) => {
             const selectionInfo = session_ts.store.data.selectionInfo
             // await selection.base64ToChannel(channel_mask, selectionInfo, 'mask')
 
-            const transparent_mask_base64 =
-                await io.convertBlackToTransparentKeepBorders(channel_mask)
-            const mask_layer = await moveImageToLayer(
-                transparent_mask_base64,
-                session_ts.store.data.selectionInfo
+            await applyMaskFromBlackAndWhiteImage(
+                channel_mask,
+                layer.id,
+                selectionInfo
             )
-            // const mask_layer = await moveImageToLayer(
-            //     channel_mask,
-            //     session_ts.store.data.selectionInfo
-            // )
-            let cmd = [
-                {
-                    _obj: 'select',
-                    _target: [{ _id: mask_layer.id, _ref: 'layer' }],
-                    // layerID: [3862],
-                    makeVisible: false,
-                },
-                {
-                    _obj: 'set',
-                    _target: [
-                        {
-                            _ref: 'channel',
-                            _property: 'selection',
-                        },
-                    ],
-                    to: {
-                        _ref: 'channel',
-                        _enum: 'channel',
-                        _value: 'transparencyEnum',
-                    },
-                    _isCommand: true,
-                },
-                {
-                    _obj: 'expand',
-                    by: {
-                        _unit: 'pixelsUnit',
-                        _value: 10,
-                    },
-                    selectionModifyEffectAtCanvasBounds: true,
-                    _isCommand: true,
-                },
-                {
-                    _obj: 'select',
-                    _target: [{ _id: layer.id, _ref: 'layer' }],
-                    // layerID: [3862],
-                    makeVisible: false,
-                },
-                {
-                    _obj: 'make',
-                    new: {
-                        _class: 'channel',
-                    },
-                    at: {
-                        _ref: 'channel',
-                        _enum: 'channel',
-                        _value: 'mask',
-                    },
-                    using: {
-                        _enum: 'userMaskEnabled',
-                        _value: 'revealSelection',
-                    },
-                    _isCommand: true,
-                },
-            ]
-            //@ts-ignore
-            // await timer(g_timer_value)
-            await executeAsModal(
-                async () => {
-                    const result = await batchPlay(cmd, {
-                        synchronousExecution: true,
-                        modalBehavior: 'execute',
-                    })
-                },
-                {
-                    commandName: 'select opaque pixels',
-                }
-            )
-            //@ts-ignore
-            // await timer(g_timer_value)
-            // await selection.black_white_layer_to_mask_multi_batchplay(
-            //     mask_layer.id,
-            //     layer.id,
-            //     'mask'
-            // )
-            await layer_util.deleteLayers([mask_layer])
         }
 
         return layer
@@ -474,19 +395,21 @@ const Viewer = observer(() => {
                 }}
             >
                 <button
-                    title={Locale("Keep all generated images on the canvas")}
+                    title={Locale('Keep all generated images on the canvas')}
                     className="btnSquare acceptClass acceptAllImgBtn"
                     style={button_style}
                     onClick={addAll}
                 ></button>
                 <button
-                    title={Locale("Delete all generated images from the canvas")}
+                    title={Locale(
+                        'Delete all generated images from the canvas'
+                    )}
                     className="btnSquare discardClass discardAllImgBtn"
                     style={button_style}
                     onClick={discardAll}
                 ></button>
                 <button
-                    title={Locale("Keep only the highlighted images")}
+                    title={Locale('Keep only the highlighted images')}
                     className="btnSquare acceptSelectedClass acceptSelectedImgBtn"
                     style={button_style}
                     onClick={onlySelected}
@@ -605,26 +528,26 @@ const ToolbarViewerButtons = observer(() => {
         // }}
         >
             <button
-                title={Locale("Keep all generated images on the canvas")}
+                title={Locale('Keep all generated images on the canvas')}
                 className="btnSquare acceptClass acceptAllImgBtn"
                 style={button_style}
                 onClick={addAll}
             ></button>
             <button
-                title={Locale("Delete all generated images from the canvas")}
+                title={Locale('Delete all generated images from the canvas')}
                 className="btnSquare discardClass discardAllImgBtn"
                 style={button_style}
                 onClick={discardAll}
             ></button>
             <button
-                title={Locale("Keep only the highlighted images")}
-                className="btnSquare acceptSelectedClass acceptSelectedImgBtn" 
+                title={Locale('Keep only the highlighted images')}
+                className="btnSquare acceptSelectedClass acceptSelectedImgBtn"
                 style={button_style}
                 onClick={onlySelected}
             ></button>
         </div>
     )
-}) 
+})
 
 // const node = document.getElementById('reactViewerContainer')!
 const containers = document.querySelectorAll('.reactViewerContainer')
