@@ -2,6 +2,8 @@
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
 // let g_sdapi_path = 'sdapi'
+const g_image_not_found_url =
+    'https://images.unsplash.com/source-404?fit=crop&fm=jpg&h=800&q=60&w=1200'
 const _log = console.log
 const _warn = console.warn
 const _error = console.error
@@ -57,6 +59,7 @@ const history_tab = require('./utility/tab/history_tab')
 const image_search_tab = require('./utility/tab/image_search_tab')
 const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
+const api = require('./utility/api')
 // const ultimate_sd_upscaler = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
 // const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
 const {
@@ -437,10 +440,26 @@ async function checkAutoStatus() {
         if (options) {
             //means both automatic1111 and proxy server are online
             html_manip.setAutomaticStatus('connected', 'disconnected')
+
             g_automatic_status = Enum.AutomaticStatusEnum['RunningWithApi']
+
+            const extension_url = py_re.getExtensionUrl()
+            const full_url = `${extension_url}/heartbeat`
+            const heartbeat = (await api.requestGet(full_url))?.heartbeat
+
+            if (heartbeat) {
+                html_manip.setProxyServerStatus('connected', 'disconnected')
+                session_ts.store.data.auto_photoshop_sd_extension_status = true
+            } else {
+                html_manip.setProxyServerStatus('disconnected', 'connected')
+                g_automatic_status =
+                    Enum.AutomaticStatusEnum['AutoPhotoshopSDExtensionMissing']
+                session_ts.store.data.auto_photoshop_sd_extension_status = false
+            }
             // html_manip.setProxyServerStatus('connected','disconnected')
         } else {
             html_manip.setAutomaticStatus('disconnected', 'connected')
+
             if (await sdapi.isWebuiRunning()) {
                 //running with no api
                 g_automatic_status = Enum.AutomaticStatusEnum['RunningNoApi']

@@ -531,6 +531,12 @@ async def filter(keyword:str = Body('All',title="keyword to filter by"),
         "default_option":default_option,
         "default_model":default_model
     }
+    
+@router.get('/heartbeat')
+async def heartbeat():    
+    
+    return {'heartbeat':True}
+
 
 app = FastAPI()
 app.include_router(router)

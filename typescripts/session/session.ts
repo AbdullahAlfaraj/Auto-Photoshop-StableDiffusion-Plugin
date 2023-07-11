@@ -1,3 +1,4 @@
+import { app } from 'photoshop'
 import { control_net, preview, viewer, progress } from '../entry'
 import Locale from '../locale/locale'
 import { AStore } from '../main/astore'
@@ -42,6 +43,9 @@ export const store = new AStore({
     is_interrupted: false, // did we interrupt the generation
     generation_number: 0, // generation number per session, 0 mean first generation
     controlnet_input_image: '', // the controlnet the image that will controlnet load
+
+    //plugin related state:
+    auto_photoshop_sd_extension_status: true,
 })
 
 reaction(
@@ -57,6 +61,19 @@ reaction(
         html_manip.setInitImageMaskSrc(
             mask ? 'data:image/png;base64,' + mask : g_image_not_found_url
         )
+    }
+)
+reaction(
+    () => {
+        return store.data.auto_photoshop_sd_extension_status
+    },
+    (auto_photoshop_sd_extension_status: boolean) => {
+        if (auto_photoshop_sd_extension_status) {
+        } else {
+            app.showAlert(
+                'Please install the Auto-Photoshop-SD Extension from Automatic1111 Extensions tab '
+            )
+        }
     }
 )
 function hasSelectionChanged(new_selection: any, old_selection: any) {

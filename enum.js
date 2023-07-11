@@ -17,6 +17,7 @@ const AutomaticStatusEnum = {
     Offline: 'offline',
     RunningNoApi: 'running_no_api',
     RunningWithApi: 'running_with_api',
+    AutoPhotoshopSDExtensionMissing: 'auto_photoshop_sd_missing',
 }
 
 const ViewerObjectTypeEnum = {
