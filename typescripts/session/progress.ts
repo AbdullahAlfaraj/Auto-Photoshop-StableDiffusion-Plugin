@@ -55,6 +55,10 @@ async function updateProgressImage(progress_base64: string) {
         console.warn(e)
     } finally {
         store.data.can_update_progress_layer = true
+        if (!store.data.can_update) {
+            //delete the last progress layer
+            await Progress.deleteProgressLayer() // delete the old progress layer
+        }
     }
 }
 reaction(
@@ -72,7 +76,8 @@ reaction(
         if (
             b_update_progress_layer &&
             parseInt(session_ts.store.data.ui_settings?.batch_size) === 1 &&
-            store.data.can_update_progress_layer
+            store.data.can_update_progress_layer &&
+            store.data.can_update // progress is still active
         ) {
             await updateProgressImage(progress_image)
         }
@@ -128,7 +133,7 @@ export class Progress {
         this.timer_id = setInterval(callback, interval)
     }
 
-    static endTimer(callback: any) {
+    static async endTimer(callback: any) {
         try {
             this.timer_id = clearInterval(this.timer_id)
             store.data.can_update = false
@@ -136,7 +141,11 @@ export class Progress {
             console.warn(e)
         }
         try {
-            callback() // may cause an issue if this an async
+            if (callback?.constructor.name === 'AsyncFunction') {
+                await callback() // may cause an issue if this an async
+            } else {
+                callback() // may cause an issue if this an async
+            }
         } catch (e) {
             console.warn(e)
         }

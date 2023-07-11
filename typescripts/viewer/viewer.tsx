@@ -13,13 +13,14 @@ import {
 import { moveImageToLayer } from '../util/ts/io'
 import { io, layer_util, selection } from '../util/oldSystem'
 import Collapsible from '../after_detailer/after_detailer'
-import { session_ts } from '../entry'
+import { progress, session_ts } from '../entry'
 import { reaction } from 'mobx'
 import { GenerationModeEnum } from '../util/ts/enum'
 import { base64ToLassoSelection } from '../../selection'
 import { action, core } from 'photoshop'
 import Locale from '../locale/locale'
 import { applyMaskFromBlackAndWhiteImage } from '../util/ts/selection'
+
 const executeAsModal = core.executeAsModal
 const batchPlay = action.batchPlay
 declare let g_generation_session: any
@@ -72,6 +73,7 @@ export const store = new AStore({
     auto_mask: true,
 })
 
+const timer = (ms: any) => new Promise((res) => setTimeout(res, ms))
 //when a generation is done, add the last generated image from the viewer to tha canvas
 reaction(
     () => {
@@ -79,9 +81,26 @@ reaction(
     },
     async (images: string[]) => {
         try {
-            images.length > 0
-                ? await handleOutputImageThumbnailClick(images.length - 1)
-                : void 0
+            if (images.length > 0) {
+                let attempts: number = 5
+
+                while (attempts > 0) {
+                    if (!progress.store.data.can_update) {
+                        await timer(2000)
+                        await handleOutputImageThumbnailClick(images.length - 1)
+                        break
+                    }
+
+                    attempts -= 1
+
+                    console.log('waiting 1000:')
+                    console.log(
+                        'progress.store.data.can_update:',
+                        progress.store.data.can_update
+                    )
+                    await timer(2000)
+                }
+            }
         } catch (e) {
             console.warn(e)
         }

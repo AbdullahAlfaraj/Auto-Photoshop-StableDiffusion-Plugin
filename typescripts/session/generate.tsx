@@ -9,6 +9,7 @@ import { io, note, psapi, selection } from '../util/oldSystem'
 import { GenerationModeEnum } from '../util/ts/enum'
 import { initializeBackground } from '../util/ts/document'
 import Locale from '../locale/locale'
+declare let g_automatic_status: any
 
 //example: take 'oI' in 'LassoInpaint' and replace it with 'o I' thus creating 'Lasso Inpaint'
 const modeDisplayNames = Object.fromEntries(
@@ -133,6 +134,7 @@ const canStartSession = async () => {
     let can_start_session = false
     try {
         const selection_info = await psapi.getSelectionInfoExe()
+
         if (selection_info) {
             session_ts.Session.endSession()
 
@@ -150,9 +152,14 @@ const canStartSession = async () => {
                 )
             }
         }
+        //@ts-ignore
+        g_automatic_status = await checkAutoStatus()
+        //@ts-ignore
+        await displayNotification(g_automatic_status)
     } catch (e) {
         console.warn(e)
     }
+
     return can_start_session
 }
 
