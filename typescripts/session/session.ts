@@ -21,7 +21,7 @@ import { Progress } from './progress'
 import { reaction } from 'mobx'
 
 declare let g_inpaint_mask_layer: any
-
+declare const g_image_not_found_url: string
 export const store = new AStore({
     // activeBase64InitImage: '',
     // activeBase64Mask: '',
@@ -44,6 +44,21 @@ export const store = new AStore({
     controlnet_input_image: '', // the controlnet the image that will controlnet load
 })
 
+reaction(
+    () => {
+        return [store.data.init_image, store.data.mask] as [string, string]
+    },
+    ([init_image, mask]: [string, string]) => {
+        html_manip.setInitImageSrc(
+            init_image
+                ? 'data:image/png;base64,' + init_image
+                : g_image_not_found_url
+        )
+        html_manip.setInitImageMaskSrc(
+            mask ? 'data:image/png;base64,' + mask : g_image_not_found_url
+        )
+    }
+)
 function hasSelectionChanged(new_selection: any, old_selection: any) {
     try {
         if (
@@ -412,6 +427,7 @@ export class Session {
         store.data.init_image = ''
         store.data.mask = ''
         store.data.expanded_mask = ''
+        store.data.preprocessed_mask = ''
         store.data.generation_number = 0
         store.data.controlnet_input_image = ''
     }
