@@ -896,9 +896,13 @@ async function deleteTempInpaintMaskLayer() {
         'g_inpaint_mask_layer_history_id: ',
         g_inpaint_mask_layer_history_id
     )
-    const historyBrushTools = app.activeDocument.historyStates.filter(
-        (h) => h.id > g_inpaint_mask_layer_history_id && h.name === 'Brush Tool'
-    )
+    const historyBrushTools = app.activeDocument.historyStates
+        .slice(-10)
+        .filter(
+            (h) =>
+                h.id > g_inpaint_mask_layer_history_id &&
+                h.name === 'Brush Tool'
+        )
     console.log(historyBrushTools)
     if (historyBrushTools.length === 0 && g_b_mask_layer_exist) {
         await layer_util.deleteLayers([g_inpaint_mask_layer])
