@@ -616,27 +616,42 @@ export default class ControlNetUnit extends React.Component<
                     </SpCheckBox>
                     {this.props.appState.controlnetApiVersion > 1 && (
                         <sp-radio-group
-                            id={`rgControlNetMode_${this.props.index}`}
                             style={{ display: 'flex' }}
+                            selected={
+                                this.props.appState.controlNetUnitData[
+                                    this.props.index
+                                ].control_mode
+                            }
+                            onClick={(event: any) => {
+                                this.props.appState.controlNetUnitData[
+                                    this.props.index
+                                ].control_mode = event.target.value
+                            }}
                         >
                             <sp-label slot="label">
                                 {Locale('Control Mode')}
                             </sp-label>
-                            <sp-radio checked value="0">
-                                {Locale('Balanced')}
-                            </sp-radio>
-                            <sp-radio
-                                title="My prompt is more important"
-                                value="1"
-                            >
-                                {Locale('My prompt is more important')}
-                            </sp-radio>
-                            <sp-radio
-                                title="ControlNet is more important"
-                                value="2"
-                            >
-                                {Locale('ControlNet is more important')}
-                            </sp-radio>
+                            {controlnetModes.map(
+                                (mode: ControlnetMode, index: number) => {
+                                    console.log('mode:', mode, ' index:', index)
+                                    return (
+                                        <sp-radio
+                                            key={`mode-${index}`}
+                                            checked={
+                                                this.props.appState
+                                                    .controlNetUnitData[
+                                                    this.props.index
+                                                ].control_mode === mode
+                                                    ? true
+                                                    : void 0
+                                            }
+                                            value={`${mode}`}
+                                        >
+                                            {Locale(mode)}
+                                        </sp-radio>
+                                    )
+                                }
+                            )}
                         </sp-radio-group>
                     )}
 

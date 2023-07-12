@@ -23,6 +23,13 @@ export const DefaultControlNetUnitData = {
     auto_image: true,
 }
 
+export const controlnetModes = [
+    'Balanced',
+    'My prompt is more important',
+    'ControlNet is more important',
+] as const
+export type ControlnetMode = (typeof controlnetModes)[number]
+
 export interface controlNetUnitData {
     enabled: boolean
     input_image: string
@@ -44,10 +51,7 @@ export interface controlNetUnitData {
     guidance_end: number
     guessmode: boolean
 
-    control_mode:
-        | 'Balanced'
-        | 'My prompt is more important'
-        | 'ControlNet is more important'
+    control_mode: ControlnetMode
     pixel_perfect: boolean
     auto_image: boolean // sync CtrlNet image with sd input image
 }
