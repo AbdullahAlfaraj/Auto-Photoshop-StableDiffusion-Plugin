@@ -177,7 +177,20 @@ class ControlNetTab extends React.Component<{
                             {Locale('Set All CtrlNet Images')}
                         </button>
                     </div>
-                    <sp-checkbox id="chDisableControlNetTab">
+                    {/* <sp-checkbox id="chDisableControlNetTab"> */}
+                    <sp-checkbox
+                        checked={
+                            this.props.appState.disableControlNetTab
+                                ? true
+                                : void 0
+                        }
+                        onClick={(
+                            event: React.ChangeEvent<HTMLInputElement>
+                        ) => {
+                            this.props.appState.disableControlNetTab =
+                                event.target.checked
+                        }}
+                    >
                         {Locale('Disable ControlNet Tab')}
                     </sp-checkbox>
                 </div>
@@ -188,7 +201,9 @@ class ControlNetTab extends React.Component<{
                             const storeData =
                                 this.props.appState.controlNetUnitData[index]
 
-                            let controlNetLabel = `${Locale('ControlNet Unit')} ${index}: ${
+                            let controlNetLabel = `${Locale(
+                                'ControlNet Unit'
+                            )} ${index}: ${
                                 storeData.module && storeData.module !== 'none'
                                     ? `${storeData.module}`
                                     : ''

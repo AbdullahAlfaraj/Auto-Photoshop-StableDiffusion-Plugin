@@ -52,6 +52,7 @@ export interface controlNetUnitData {
     auto_image: boolean // sync CtrlNet image with sd input image
 }
 interface ControlNetMobxStore {
+    disableControlNetTab: boolean
     maxControlNet: number
     controlnetApiVersion: number
 
@@ -64,6 +65,7 @@ interface ControlNetMobxStore {
 }
 
 var ControlNetStore = observable<ControlNetMobxStore>({
+    disableControlNetTab: false,
     maxControlNet: 0,
     controlnetApiVersion: 1,
 

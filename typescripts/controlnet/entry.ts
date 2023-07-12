@@ -240,10 +240,7 @@ function setControlInputImageSrc(base64: string, index: number) {
     store.controlNetUnitData[index].input_image = base64
 }
 function isControlNetModeEnable() {
-    let is_tab_enabled =
-        !document.getElementById('chDisableControlNetTab') ||
-        //@ts-ignore
-        !document.getElementById('chDisableControlNetTab').checked
+    let is_tab_enabled = !store.disableControlNetTab
 
     let numOfEnabled = 0
     if (is_tab_enabled) {

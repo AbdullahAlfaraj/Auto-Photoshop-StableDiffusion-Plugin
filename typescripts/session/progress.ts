@@ -117,7 +117,7 @@ export class Progress {
         }
     }
 
-    static startTimer(callback: any, interval: number = 1000) {
+    static startTimer(callback: any, interval: number = 1500) {
         store.data.can_update = true
         //clear the old timer if it exist
         try {
