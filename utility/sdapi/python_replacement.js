@@ -85,10 +85,10 @@ async function convertToStandardResponse(settings, images, uuid) {
             try {
                 const auto_metadata_str = await getAuto1111Metadata(i)
                 auto_metadata_json = convertMetadataToJson(auto_metadata_str)
-                console.warn(
-                    'auto_metadata_json.Seed:',
-                    auto_metadata_json?.Seed
-                )
+                // console.warn(
+                //     'auto_metadata_json.Seed:',
+                //     auto_metadata_json?.Seed
+                // )
             } catch (e) {
                 console.warn(e)
                 auto_metadata_json = {} // set the metadata to empty if there an error while getting the metadata

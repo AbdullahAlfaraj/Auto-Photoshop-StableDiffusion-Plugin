@@ -227,10 +227,10 @@ const handleGenerateMore = async () => {
         ]
 
         // viewer.store.updateProperty('images', output_images)
-        console.log(
-            'session_ts.store.toJsFunc(): ',
-            session_ts.store.toJsFunc()
-        )
+        // console.log(
+        //     'session_ts.store.toJsFunc(): ',
+        //     session_ts.store.toJsFunc()
+        // )
     } catch (e) {
         console.error(e)
         console.warn('output_images: ', output_images)

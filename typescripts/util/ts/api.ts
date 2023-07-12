@@ -11,7 +11,7 @@ export async function requestGet(url: string) {
 
         json = await request.json()
 
-        console.log('json: ', json)
+        // console.log('json: ', json)
     } catch (e) {
         console.warn(`issues requesting from ${full_url}`, e)
     }
@@ -37,7 +37,7 @@ export async function requestPost(url: string, payload: any) {
 
         json = await request.json()
 
-        console.log('json: ', json)
+        // console.log('json: ', json)
     } catch (e) {
         console.warn(`issues requesting from ${full_url}`, e)
     }
