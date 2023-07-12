@@ -9,8 +9,10 @@ import {
     Thumbnail,
     PenSvg,
     PreviewSvg,
+    SpSliderWithLabel,
+    SliderType,
 } from '../util/elements'
-import ControlNetStore from './store'
+import ControlNetStore, { ControlnetMode, controlnetModes } from './store'
 import { mapRange, versionCompare } from './util'
 import {
     note,
@@ -114,17 +116,24 @@ export default class ControlNetUnit extends React.Component<
         const storeData =
             this.props.appState.controlNetUnitData[this.props.index]
         storeData.filter_keyword = item
-        const filters = await requestControlNetFiltersKeywords(
-            storeData.filter_keyword,
-            this.props.appState.supportedPreprocessors,
-            this.props.appState.supportedModels
-        )
+        if (storeData.filter_keyword.toLowerCase() === 'none') {
+            storeData.module_list = this.props.appState.supportedPreprocessors
+            storeData.model_list = ['None'].concat(
+                this.props.appState.supportedModels
+            )
+        } else {
+            const filters = await requestControlNetFiltersKeywords(
+                storeData.filter_keyword,
+                this.props.appState.supportedPreprocessors,
+                this.props.appState.supportedModels
+            )
 
-        storeData.module_list = filters.module_list
-        storeData.model_list = filters.model_list
-        storeData.model = filters.default_model
-        storeData.module = filters.default_option
-        storeData.model = filters.default_model
+            storeData.module_list = filters.module_list
+            storeData.model_list = filters.model_list
+            storeData.model = filters.default_model
+            storeData.module = filters.default_option
+            storeData.model = filters.default_model
+        }
     }
     onPreprocsesorChange(
         event: any,

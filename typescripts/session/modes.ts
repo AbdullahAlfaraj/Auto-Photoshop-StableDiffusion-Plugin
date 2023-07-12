@@ -40,6 +40,7 @@ async function saveOutputImagesToDrive(images_info: any, settings: any) {
         await io.saveFileInSubFolder(base64_image, document_name, image_name) //save the output image
         const json_file_name = `${image_name.split('.')[0]}.json`
         settings['auto_metadata'] = image_info?.auto_metadata
+
         await io.saveJsonFileInSubFolder(
             settings,
             document_name,
@@ -174,8 +175,9 @@ export class Txt2ImgMode extends Mode {
                             'module'
                         ]
                     ].model_free) ||
-                control_net_settings['controlnet_units'][index]['model'] ===
-                    'none'
+                control_net_settings['controlnet_units'][index][
+                    'model'
+                ].toLowerCase() === 'none'
             ) {
                 //@ts-ignore
                 app.showAlert('you need to select a valid ControlNet Model')
@@ -315,8 +317,9 @@ export class Img2ImgMode extends Mode {
                             'module'
                         ]
                     ].model_free) ||
-                control_net_settings['controlnet_units'][index]['model'] ===
-                    'none'
+                control_net_settings['controlnet_units'][index][
+                    'model'
+                ].toLowerCase() === 'none'
             ) {
                 //@ts-ignore
                 app.showAlert('you need to select a valid ControlNet Model')

@@ -88,7 +88,9 @@ async function initializeControlNetTab(controlnet_max_models: number) {
             store.supportedModels
         )
 
-        store.filterKeywords = filters ? filters.keywords : []
+        store.filterKeywords = filters
+            ? ['none'].concat(filters.keywords)
+            : ['none']
         if (filters) {
             store.controlNetUnitData.forEach((unitData) => {
                 unitData.module_list = filters.module_list
