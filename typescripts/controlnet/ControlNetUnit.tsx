@@ -474,20 +474,23 @@ export default class ControlNetUnit extends React.Component<
                                         onClick={this.toControlNetInitImage.bind(
                                             this
                                         )}
+                                        title={Locale(
+                                            'use as controlnet input image'
+                                        )}
                                     ></ActionButtonSVG>
                                     <ActionButtonSVG
                                         ComponentType={MoveToCanvasSvg}
                                         onClick={this.toCanvas.bind(this)}
+                                        title={Locale('Copy Image to Canvas')}
                                     ></ActionButtonSVG>
                                     <ActionButtonSVG
                                         ComponentType={PreviewSvg}
                                         onClick={this.previewAnnotatorFromCanvas.bind(
                                             this
                                         )}
-                                    ></ActionButtonSVG>
-                                    <ActionButtonSVG
-                                        ComponentType={PenSvg}
-                                        onClick={this.setMask.bind(this)}
+                                        title={Locale(
+                                            'Preview Annotation From the Selected Area on Canvas'
+                                        )}
                                     ></ActionButtonSVG>
                                 </Thumbnail>
                             </div>
@@ -524,14 +527,18 @@ export default class ControlNetUnit extends React.Component<
                                             width="300px"
                                             height="100px"
                                         />
-                                        <ActionButtonSVG
-                                            ComponentType={PenSvg}
-                                            onClick={this.resetMask.bind(this)}
-                                        ></ActionButtonSVG>
 
                                         <ActionButtonSVG
                                             ComponentType={PenSvg}
                                             onClick={this.setMask.bind(this)}
+                                            title={Locale(
+                                                'set the mask for controlnet inpaint mode'
+                                            )}
+                                        ></ActionButtonSVG>
+                                        <ActionButtonSVG
+                                            ComponentType={PenSvg}
+                                            onClick={this.resetMask.bind(this)}
+                                            title={Locale('reset the mask')}
                                         ></ActionButtonSVG>
                                     </Thumbnail>
                                 </div>

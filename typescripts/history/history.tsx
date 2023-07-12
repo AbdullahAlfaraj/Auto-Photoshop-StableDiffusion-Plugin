@@ -6,6 +6,7 @@ import { Grid } from '../util/grid'
 import { io, settings_tab } from '../util/oldSystem'
 import { MoveToCanvasSvg, PenSvg } from '../util/elements'
 import { ErrorBoundary } from '../util/errorBoundary'
+import Locale from '../locale/locale'
 
 declare let g_ui_settings_object: any
 export const store = new AStore({
@@ -118,6 +119,7 @@ const History = observer(() => {
                                 console.warn(e)
                             }
                         },
+                        title: Locale('Copy Metadata to Settings'),
                     },
                     {
                         ComponentType: MoveToCanvasSvg,
@@ -129,6 +131,7 @@ const History = observer(() => {
                                 ]
                             )
                         },
+                        title: Locale('Copy Image to Canvas'),
                     },
                 ]}
             ></Grid>

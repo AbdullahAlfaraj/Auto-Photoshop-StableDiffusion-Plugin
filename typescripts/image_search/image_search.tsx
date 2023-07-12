@@ -46,6 +46,7 @@ const ImageSearch = observer(() => {
                         callback: (index: number) => {
                             urlToCanvas(store.data.images[index])
                         },
+                        title: 'Copy Image to Canvas',
                     },
                 ]}
             ></Grid>

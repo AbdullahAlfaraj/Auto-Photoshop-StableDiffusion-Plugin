@@ -442,6 +442,7 @@ export class Thumbnail extends React.Component<{
 export class ActionButtonSVG extends React.Component<{
     onClick?: any
     ComponentType: ComponentType
+    title?: string
 }> {
     render() {
         if (!this.props.ComponentType) {
@@ -457,6 +458,7 @@ export class ActionButtonSVG extends React.Component<{
                     maxHeight: '32px' /* display: none; */,
                 }}
                 class="thumbnail-image-button"
+                title={this.props.title ?? void 0}
             >
                 <div slot="icon" style={{ fill: 'currentColor' }}>
                     {<this.props.ComponentType />}

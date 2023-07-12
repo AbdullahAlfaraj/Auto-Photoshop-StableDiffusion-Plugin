@@ -3,7 +3,7 @@ import { io } from '../oldSystem'
 export async function moveImageToLayer(
     base64_image: string,
     selection_info: any,
-    layer_name: string = 'output_image'
+    layer_name: string = 'output_image.png'
 ) {
     let layer
     try {

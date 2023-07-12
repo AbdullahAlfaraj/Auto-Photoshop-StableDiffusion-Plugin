@@ -22,7 +22,7 @@ reaction(
         document.querySelectorAll('.pProgressBars').forEach((progress: any) => {
             progress.value = value?.toFixed(2)
         })
-    } 
+    }
 )
 const Previewer = observer(() => {
     const renderImage = () => {
@@ -63,9 +63,10 @@ const PreviewerContainer = observer(() => {
     return (
         <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
             <Collapsible
-                defaultIsOpen={true} 
+                defaultIsOpen={true}
                 label={
-                    Locale('Preview') + ' ' +
+                    Locale('Preview') +
+                    ' ' +
                     (progress.store.data.progress_value
                         ? `: ${
                               progress.store.data.progress_label

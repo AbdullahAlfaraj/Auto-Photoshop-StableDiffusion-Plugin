@@ -83,6 +83,7 @@ export class Grid extends React.Component<{
                                             onClick={() => {
                                                 button.callback(index)
                                             }}
+                                            title={button?.title}
                                         ></ActionButtonSVG>
                                     )
                                 )

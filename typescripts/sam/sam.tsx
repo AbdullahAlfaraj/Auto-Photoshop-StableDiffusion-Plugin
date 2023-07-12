@@ -17,6 +17,7 @@ import {
 } from '../util/ts/selection'
 import { app } from 'photoshop'
 import { ErrorBoundary } from '../util/errorBoundary'
+import Locale from '../locale/locale'
 declare let g_sd_url: string
 
 export async function getSamMap(base64: string, prompt: string) {
@@ -133,6 +134,7 @@ export class Sam extends React.Component<{
                                     console.warn(e)
                                 }
                             },
+                            title: Locale('Select Masked Area'),
                         },
                         {
                             ComponentType: MoveToCanvasSvg,
@@ -165,6 +167,7 @@ export class Sam extends React.Component<{
                                     console.warn(e)
                                 }
                             },
+                            title: Locale('Copy Image to Canvas'),
                         },
                     ]}
                 ></Grid>
