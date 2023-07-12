@@ -8,7 +8,7 @@ const _log = console.log
 const _warn = console.warn
 const _error = console.error
 let g_timer_value = 300 // temporary global variable for testing the timer pause function
-let g_version = 'v1.2.6'
+let g_version = 'v1.2.7'
 let g_sd_url = 'http://127.0.0.1:7860'
 let g_online_data_url =
     'https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/master/utility/online_data.json'
