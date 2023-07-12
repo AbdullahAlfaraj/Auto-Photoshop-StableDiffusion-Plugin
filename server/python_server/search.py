@@ -10,7 +10,7 @@ except ImportError:
 
 async def imageSearch(keywords="cute cats"):
     with DDGS() as ddgs:
-        return [x for x in islice(ddgs.images(keywords), 30)]
+        return [x for x in islice(ddgs.images(keywords,safesearch='off'), 50)]
 
 
 if __name__ == "__main__":
