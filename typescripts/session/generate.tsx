@@ -11,7 +11,7 @@ import { initializeBackground } from '../util/ts/document'
 import Locale from '../locale/locale'
 import { ErrorBoundary } from '../util/errorBoundary'
 declare let g_automatic_status: any
-
+declare let g_current_batch_index: number
 //example: take 'oI' in 'LassoInpaint' and replace it with 'o I' thus creating 'Lasso Inpaint'
 const modeDisplayNames = Object.fromEntries(
     Object.entries(GenerationModeEnum).map(([key, value]) => [
@@ -26,7 +26,7 @@ const GenerateButtons = observer(() => {
             <button
                 id="btnNewGenerate"
                 className="btnSquare generateButtonMargin generateColor"
-                onClick={handleGenerate}
+                onClick={handleGenerateBatch}
                 style={{
                     display: session_ts.store.data.can_generate
                         ? void 0
@@ -37,7 +37,7 @@ const GenerateButtons = observer(() => {
             </button>
             {session_ts.store.data.can_generate ? (
                 <button
-                    onClick={handleGenerateMore}
+                    onClick={handleGenerateMoreBatch}
                     disabled={
                         session_ts.store.data.can_generate_more ? void 0 : true
                     }
@@ -164,6 +164,10 @@ const canStartSession = async () => {
     return can_start_session
 }
 
+const resetBatch = () => {
+    g_current_batch_index = -1
+    session_ts.store.data.is_interrupted = false
+}
 // declare let g_sd_mode: any
 const handleGenerate = async () => {
     //save user input for later
@@ -266,6 +270,59 @@ const handleGenerateMore = async () => {
     }
 }
 
+const handleGenerateBatch = async () => {
+    try {
+        const numberOfBatchCount: number = parseInt(
+            //@ts-ignore
+            document.querySelector('#tiNumberOfBatchCount').value
+        )
+
+        await handleGenerate() //first generation is always use handleGenerate
+        for (
+            let i = 1;
+            i < numberOfBatchCount && !session_ts.store.data.is_interrupted;
+            i++
+        ) {
+            // if (g_batch_count_interrupt_status === true) {
+            //     break
+            // }
+            // g_current_batch_index = i
+            await handleGenerateMore()
+        }
+        resetBatch()
+        // g_batch_count_interrupt_status = false // reset for next generation
+        // g_current_batch_index = 0 // reset curent_batch_number
+    } catch (e) {
+        console.error(e)
+    }
+}
+const handleGenerateMoreBatch = async () => {
+    try {
+        const numberOfBatchCount: number = parseInt(
+            //@ts-ignore
+            document.querySelector('#tiNumberOfBatchCount').value
+        )
+
+        // await handleGenerateMore() //first generation is always use handleGenerate
+        for (
+            let i = 0;
+            i < numberOfBatchCount && !session_ts.store.data.is_interrupted;
+            i++
+        ) {
+            // if (g_batch_count_interrupt_status === true) {
+            //     break
+            // }
+            // g_current_batch_index = i
+            await handleGenerateMore()
+        }
+
+        // g_batch_count_interrupt_status = false // reset for next generation
+        // g_current_batch_index = 0 // reset curent_batch_number
+        resetBatch()
+    } catch (e) {
+        console.error(e)
+    }
+}
 const handleInterrupt = async () => {
     try {
         // debugger

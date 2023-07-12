@@ -23,6 +23,7 @@ import { reaction } from 'mobx'
 
 declare let g_inpaint_mask_layer: any
 declare const g_image_not_found_url: string
+declare let g_current_batch_index: number
 export const store = new AStore({
     // activeBase64InitImage: '',
     // activeBase64Mask: '',
@@ -265,6 +266,7 @@ export class Session {
         store.data.is_interrupted = false
         store.data.can_generate = false
         store.data.generation_number += 1
+        g_current_batch_index += 1
     }
     static async generate(mode: GenerationModeEnum): Promise<{
         output_images: any
@@ -428,7 +430,7 @@ export class Session {
             } catch (e) {
                 console.warn(e)
             }
-        }, 1000)
+        }, 2000)
     }
     static async endProgress() {
         await progress.Progress.endTimer(async () => {
@@ -447,6 +449,7 @@ export class Session {
         store.data.preprocessed_mask = ''
         store.data.generation_number = 0
         store.data.controlnet_input_image = ''
+        g_current_batch_index = -1 // first generation will add +1 to get => 0
     }
 
     static async getOutput() {}
