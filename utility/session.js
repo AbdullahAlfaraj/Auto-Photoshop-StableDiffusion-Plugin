@@ -270,8 +270,7 @@ async function getSettings(session_data) {
 
     try {
         const extension_type = settings_tab.getExtensionType() // get the extension type
-        const selectionInfo = await psapi.getSelectionInfoExe()
-        payload['selection_info'] = selectionInfo
+        payload['selection_info'] = session_data.selectionInfo
         const numberOfBatchSize = parseInt(
             document.querySelector('#tiNumberOfBatchSize').value
         )
