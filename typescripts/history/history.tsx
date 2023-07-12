@@ -5,6 +5,7 @@ import { AStore, toJS } from '../main/astore'
 import { Grid } from '../util/grid'
 import { io, settings_tab } from '../util/oldSystem'
 import { MoveToCanvasSvg, PenSvg } from '../util/elements'
+import { ErrorBoundary } from '../util/errorBoundary'
 
 declare let g_ui_settings_object: any
 export const store = new AStore({
@@ -140,6 +141,8 @@ const gridRoot = ReactDOM.createRoot(gridContainerNode)
 
 gridRoot.render(
     <React.StrictMode>
-        <History></History>
+        <ErrorBoundary>
+            <History></History>
+        </ErrorBoundary>
     </React.StrictMode>
 )

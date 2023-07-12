@@ -8,6 +8,7 @@ import { progress } from '../entry'
 import './style/preview.css'
 import { reaction } from 'mobx'
 import Locale from '../locale/locale'
+import { ErrorBoundary } from '../util/errorBoundary'
 export const store = new AStore({
     // image: '',
     // progress_value: 0,
@@ -82,7 +83,9 @@ containers.forEach((container) => {
 
     root.render(
         <React.StrictMode>
-            <PreviewerContainer />
+            <ErrorBoundary>
+                <PreviewerContainer />
+            </ErrorBoundary>
         </React.StrictMode>
     )
 })

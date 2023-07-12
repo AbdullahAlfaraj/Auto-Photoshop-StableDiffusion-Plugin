@@ -9,6 +9,7 @@ import { io, note, psapi, selection } from '../util/oldSystem'
 import { GenerationModeEnum } from '../util/ts/enum'
 import { initializeBackground } from '../util/ts/document'
 import Locale from '../locale/locale'
+import { ErrorBoundary } from '../util/errorBoundary'
 declare let g_automatic_status: any
 
 //example: take 'oI' in 'LassoInpaint' and replace it with 'o I' thus creating 'Lasso Inpaint'
@@ -252,7 +253,9 @@ const root = ReactDOM.createRoot(container)
 
 root.render(
     <React.StrictMode>
-        <GenerateButtons></GenerateButtons>
+        <ErrorBoundary>
+            <GenerateButtons></GenerateButtons>
+        </ErrorBoundary>
     </React.StrictMode>
 )
 
@@ -261,7 +264,9 @@ const extraRoot = ReactDOM.createRoot(extraContainer)
 
 extraRoot.render(
     <React.StrictMode>
-        <GenerateButtons></GenerateButtons>
+        <ErrorBoundary>
+            <GenerateButtons></GenerateButtons>
+        </ErrorBoundary>
     </React.StrictMode>
 )
 
@@ -271,6 +276,8 @@ const toolBarButtonsContainer = document.getElementById(
 const toolBarButtonsContainerRoot = ReactDOM.createRoot(toolBarButtonsContainer)
 toolBarButtonsContainerRoot.render(
     <React.StrictMode>
-        <ToolbarGenerateButtons></ToolbarGenerateButtons>
+        <ErrorBoundary>
+            <ToolbarGenerateButtons></ToolbarGenerateButtons>
+        </ErrorBoundary>
     </React.StrictMode>
 )

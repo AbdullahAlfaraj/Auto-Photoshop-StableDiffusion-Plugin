@@ -90,24 +90,28 @@ export class AfterDetailerComponent extends React.Component<{
     async componentDidUpdate(
         prevProps: ReactPropTypes,
         prevState: ReactPropTypes
-    ) { }
+    ) {}
     handleRefresh = async () => {
         if (await this.isInstalled()) {
             await this.getInpaintModels()
         }
     }
     async isInstalled() {
-        const full_url = `${g_sd_url}/sdapi/v1/scripts`
+        try {
+            const full_url = `${g_sd_url}/sdapi/v1/scripts`
 
-        const scripts = await requestGet(full_url)
-        const is_installed =
-            scripts?.txt2img?.includes(store.data.script_name) ||
-            scripts?.img2img?.includes(store.data.script_name) ||
-            false
+            const scripts = await requestGet(full_url)
+            const is_installed =
+                scripts?.txt2img?.includes(store.data.script_name) ||
+                scripts?.img2img?.includes(store.data.script_name) ||
+                false
 
-        console.log('is_installed: ', is_installed)
-        store.updateProperty('is_installed', is_installed)
-        return is_installed
+            console.log('is_installed: ', is_installed)
+            store.updateProperty('is_installed', is_installed)
+            return is_installed
+        } catch (e) {
+            console.error(e)
+        }
     }
     async getInpaintModels() {
         try {
@@ -260,6 +264,7 @@ const root = ReactDOM.createRoot(domNode)
 
 import { useState, ReactNode } from 'react'
 import Locale from '../locale/locale'
+import { ErrorBoundary } from '../util/errorBoundary'
 
 interface CollapsibleProps {
     label: string
@@ -286,8 +291,8 @@ function Collapsible({
         setIsOpen(!isOpen)
     }
 
-    return /*useObserver(()=>*/( (
-        <div>
+    return (
+        /*useObserver(()=>*/ <div>
             <div
                 className="collapsible"
                 style={containerStyle}
@@ -323,45 +328,19 @@ function Collapsible({
             {/* {isOpen && <div>{children}</div>} */}
             <div style={{ display: isOpen ? 'block' : 'none' }}>{children}</div>
         </div>
-    ))
+    )
 }
 
 export default Collapsible
 
 root.render(
     <React.StrictMode>
-        <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-            {/* <button>test</button> */}
-            {/* <div
-                // type="button"
-                className="collapsible"
-                onClick={(event: any) => {
-                    console.log('clicked')
-                    event.target.classList.toggle('collapsible-active')
-
-                    let content = event.target.nextElementSibling
-                    console.log('collapsible content: ', content)
-                    let triangle =
-                        event.target.getElementsByClassName('triangle')[0]
-                    if (content.style.display === 'block') {
-                        content.style.display = 'none'
-                        triangle.innerText = '<'
-                    } else {
-                        content.style.display = 'block'
-                        triangle.innerText = '∨'
-                    }
-                }}
-            >
-                <span>After Detailer</span>
-                <span style={{ float: 'right' }} className="triangle">
-                    {'<'}
-                </span>
-            </div> */}
-
-            {/* <AfterDetailerComponent></AfterDetailerComponent> */}
-            <Collapsible label={'After Detailer'}>
-                <AfterDetailerComponent />
-            </Collapsible>
-        </div>
+        <ErrorBoundary>
+            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+                <Collapsible label={'After Detailer'}>
+                    <AfterDetailerComponent />
+                </Collapsible>
+            </div>
+        </ErrorBoundary>
     </React.StrictMode>
 )

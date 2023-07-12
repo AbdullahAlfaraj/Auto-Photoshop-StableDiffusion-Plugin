@@ -16,6 +16,7 @@ import {
     selectionFromBlackAndWhiteImage,
 } from '../util/ts/selection'
 import { app } from 'photoshop'
+import { ErrorBoundary } from '../util/errorBoundary'
 declare let g_sd_url: string
 
 export async function getSamMap(base64: string, prompt: string) {
@@ -193,11 +194,16 @@ containers.forEach((container) => {
     const root = ReactDOM.createRoot(container)
     root.render(
         <React.StrictMode>
-            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Collapsible defaultIsOpen={false} label={'Segment Anything'}>
-                    <Sam></Sam>
-                </Collapsible>
-            </div>
+            <ErrorBoundary>
+                <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+                    <Collapsible
+                        defaultIsOpen={false}
+                        label={'Segment Anything'}
+                    >
+                        <Sam></Sam>
+                    </Collapsible>
+                </div>
+            </ErrorBoundary>
         </React.StrictMode>
     )
 })

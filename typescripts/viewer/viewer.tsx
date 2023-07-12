@@ -575,11 +575,13 @@ containers.forEach((container) => {
     const root = ReactDOM.createRoot(container)
     root.render(
         <React.StrictMode>
-            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Collapsible defaultIsOpen={true} label={Locale('Viewer')}>
-                    <Viewer></Viewer>
-                </Collapsible>
-            </div>
+            <ErrorBoundary>
+                <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+                    <Collapsible defaultIsOpen={true} label={Locale('Viewer')}>
+                        <Viewer></Viewer>
+                    </Collapsible>
+                </div>
+            </ErrorBoundary>
         </React.StrictMode>
     )
 })
@@ -588,6 +590,8 @@ const button_container = document.getElementById('viewerButtonContainer')!
 const root = ReactDOM.createRoot(button_container)
 root.render(
     <React.StrictMode>
-        <ToolbarViewerButtons />
+        <ErrorBoundary>
+            <ToolbarViewerButtons />
+        </ErrorBoundary>
     </React.StrictMode>
 )

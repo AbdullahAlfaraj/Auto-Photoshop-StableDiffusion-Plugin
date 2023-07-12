@@ -9,6 +9,7 @@ import globalStore from '../globalstore'
 import { io } from '../util/oldSystem'
 import { reaction } from 'mobx'
 import { storage } from 'uxp'
+import { ErrorBoundary } from '../util/errorBoundary'
 // import { Jimp } from '../util/oldSystem'
 declare const Jimp: any // make sure you import jimp before importing settings.tsx
 
@@ -140,6 +141,8 @@ const root = ReactDOM.createRoot(containerNode)
 
 root.render(
     <React.StrictMode>
-        <Settings></Settings>
+        <ErrorBoundary>
+            <Settings></Settings>
+        </ErrorBoundary>
     </React.StrictMode>
 )

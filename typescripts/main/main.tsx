@@ -7,6 +7,7 @@ import { SpMenu } from '../util/elements'
 import { api, python_replacement } from '../util/oldSystem'
 const { getExtensionUrl } = python_replacement
 import '../locale/locale-for-old-html'
+import { ErrorBoundary } from '../util/errorBoundary'
 
 declare let g_sd_url: string
 // class SDStore extends AStore {
@@ -105,6 +106,8 @@ export async function populateVAE() {
 
 vaeRoot.render(
     <React.StrictMode>
-        <VAEComponent></VAEComponent>
+        <ErrorBoundary>
+            <VAEComponent></VAEComponent>
+        </ErrorBoundary>
     </React.StrictMode>
 )

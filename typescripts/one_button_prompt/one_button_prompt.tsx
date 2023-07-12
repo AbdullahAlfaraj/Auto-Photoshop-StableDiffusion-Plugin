@@ -11,6 +11,7 @@ import {
     SpMenu,
     SpSliderWithLabel,
 } from '../util/elements'
+import { ErrorBoundary } from '../util/errorBoundary'
 
 declare let g_sd_url: string
 export const store = new AStore({
@@ -284,11 +285,16 @@ containers.forEach((container) => {
 
     root.render(
         <React.StrictMode>
-            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Collapsible defaultIsOpen={false} label={'One Button Prompt'}>
-                    <OneButtonPrompt />
-                </Collapsible>
-            </div>
+            <ErrorBoundary>
+                <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+                    <Collapsible
+                        defaultIsOpen={false}
+                        label={'One Button Prompt'}
+                    >
+                        <OneButtonPrompt />
+                    </Collapsible>
+                </div>
+            </ErrorBoundary>
         </React.StrictMode>
     )
 })

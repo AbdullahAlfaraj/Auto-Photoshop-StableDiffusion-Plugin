@@ -5,6 +5,7 @@ import { AStore } from '../main/astore'
 import { Grid } from '../util/grid'
 import { MoveToCanvasSvg } from '../util/elements'
 import { io } from '../util/oldSystem'
+import { ErrorBoundary } from '../util/errorBoundary'
 
 export const store = new AStore({
     images: [],
@@ -61,6 +62,8 @@ const gridRoot = ReactDOM.createRoot(gridContainerNode)
 let images: string[] = []
 gridRoot.render(
     <React.StrictMode>
-        <ImageSearch></ImageSearch>
+        <ErrorBoundary>
+            <ImageSearch></ImageSearch>
+        </ErrorBoundary>
     </React.StrictMode>
 )

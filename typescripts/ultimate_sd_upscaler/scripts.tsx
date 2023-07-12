@@ -7,6 +7,7 @@ import { observer } from 'mobx-react'
 import { SpMenu } from '../util/elements'
 import * as ultimate_sd_upscale_script from './ultimate_sd_upscaler'
 import { ScriptMode } from './ultimate_sd_upscaler'
+import { ErrorBoundary } from '../util/errorBoundary'
 export function toJsFunc(store: any) {
     return toJS(store)
 }
@@ -164,10 +165,10 @@ const root = ReactDOM.createRoot(domNode)
 
 root.render(
     <React.StrictMode>
-        <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-            <ScriptComponent></ScriptComponent>
-        </div>
-
-        {/* <SliderValuesDisplay /> */}
+        <ErrorBoundary>
+            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+                <ScriptComponent></ScriptComponent>
+            </div>
+        </ErrorBoundary>
     </React.StrictMode>
 )

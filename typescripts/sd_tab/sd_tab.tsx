@@ -7,6 +7,7 @@ import { AStore } from '../main/astore'
 import { GenerationModeEnum } from '../util/ts/enum'
 import { reaction } from 'mobx'
 import { SpCheckBox } from '../util/elements'
+import { ErrorBoundary } from '../util/errorBoundary'
 
 export const store = new AStore({
     is_lasso_mode: false,
@@ -75,6 +76,8 @@ const root = ReactDOM.createRoot(container)
 
 root.render(
     <React.StrictMode>
-        <Modes />
+        <ErrorBoundary>
+            <Modes />
+        </ErrorBoundary>
     </React.StrictMode>
 )
