@@ -17,9 +17,10 @@ import { progress, session_ts } from '../entry'
 import { reaction } from 'mobx'
 import { GenerationModeEnum } from '../util/ts/enum'
 import { base64ToLassoSelection } from '../../selection'
-import { action, core } from 'photoshop'
+import { action, app, core } from 'photoshop'
 import Locale from '../locale/locale'
 import { applyMaskFromBlackAndWhiteImage } from '../util/ts/selection'
+import { ErrorBoundary } from '../util/errorBoundary'
 
 const executeAsModal = core.executeAsModal
 const batchPlay = action.batchPlay
@@ -128,6 +129,7 @@ export const init_store = new AStore({
 export const mask_store = new AStore({
     images: [],
     thumbnails: [],
+    output_images_masks: [],
 
     width: 50,
     height: 50,
@@ -167,7 +169,7 @@ export async function updateViewerStoreImageAndThumbnail(
     }
 }
 
-const add = async (base64: string) => {
+const add = async (base64: string, mask?: string) => {
     try {
         //change the color of thumbnail border
         //add image to the canvas
@@ -191,7 +193,8 @@ const add = async (base64: string) => {
             const timer = (ms: any) => new Promise((res) => setTimeout(res, ms))
 
             const mask_monochrome = await io.convertGrayscaleToMonochrome(
-                session_ts.store.data.expanded_mask
+                // session_ts.store.data.expanded_mask
+                mask
             )
             const channel_mask = mask_monochrome
             const selectionInfo = session_ts.store.data.selectionInfo
@@ -209,6 +212,35 @@ const add = async (base64: string) => {
         console.error(e)
     }
 }
+const addWithHistory = async (base64: string, mask?: string) => {
+    let layer
+    await executeAsModal(
+        async (context: any) => {
+            let history_id
+            try {
+                history_id = await context.hostControl.suspendHistory({
+                    documentID: app.activeDocument.id,
+                    name: 'Add Image to Canvas',
+                })
+            } catch (e) {
+                console.warn(e)
+            }
+
+            layer = await add(base64, mask)
+
+            try {
+                await context.hostControl.resumeHistory(history_id)
+            } catch (e) {
+                console.warn(e)
+            }
+        },
+        {
+            commandName: 'Add Image to Canvas',
+        }
+    )
+    return layer
+}
+
 const remove = async (layer: any) => {
     await layer_util.deleteLayers([layer]) // delete previous layer
 }
@@ -234,7 +266,10 @@ const addAll = async () => {
         if (store.data.is_stored[i]) {
             continue
         }
-        await add(store.data.images[i])
+        await addWithHistory(
+            store.data.images[i],
+            mask_store.data?.output_images_masks?.[i] ?? void 0
+        )
     }
 
     session_ts.Session.endSession()
@@ -286,7 +321,10 @@ export const handleOutputImageThumbnailClick = async (
         if (click_type === ClickTypeEnum.Click) {
             //1) modify layer stacks
 
-            const layer = await add(image)
+            const layer = await addWithHistory(
+                image,
+                mask_store.data?.output_images_masks?.[index] ?? void 0
+            )
             await remove(store.data.layers[index])
             console.log('layer:', layer)
             store.data.layers[index] = layer
@@ -316,7 +354,10 @@ export const handleOutputImageThumbnailClick = async (
                     // await remove(prev_layer)
                 }
 
-                const layer = await add(image)
+                const layer = await addWithHistory(
+                    image,
+                    mask_store.data?.output_images_masks?.[index] ?? void 0
+                )
                 await remove(store.data.layers[index])
                 store.data.layers[index] = layer
                 //2)change style
