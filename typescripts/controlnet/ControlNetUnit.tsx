@@ -644,29 +644,33 @@ export default class ControlNetUnit extends React.Component<
                         <div>
                             <SpSlider
                                 show-value="false"
-                                id={`slControlNetWeight_${this.props.index}`}
-                                min="0"
-                                max="200"
-                                value="100"
+                                min={0}
+                                max={200}
+                                value={storeData.weight * 100}
                                 onInput={this.onWeightMove.bind(this)}
                                 title="2 will keep the composition; 0 will allow composition to change"
                             >
                                 <sp-label slot="label">
                                     {Locale('Control Weight')}
                                 </sp-label>
-                                <sp-label
-                                    slot="label"
-                                    id={`lControlNetWeight_${this.props.index}`}
-                                >
+                                <sp-label slot="label">
                                     {storeData.weight}
                                 </sp-label>
                             </SpSlider>
                             <SpSlider
                                 show-value="false"
-                                id={`slControlNetGuidanceStrengthStart_${this.props.index}`}
                                 min="0"
                                 max="10"
-                                value="0"
+                                value={
+                                    +mapRange(
+                                        storeData.guidance_start,
+                                        0,
+                                        1,
+                                        0,
+                                        10,
+                                        1
+                                    ).toFixed(1)
+                                }
                                 onInput={this.onGuidanceStartMove.bind(this)}
                             >
                                 <sp-label slot="label">
@@ -681,10 +685,18 @@ export default class ControlNetUnit extends React.Component<
                             </SpSlider>
                             <SpSlider
                                 show-value="false"
-                                id={`slControlNetGuidanceStrengthEnd_${this.props.index}`}
                                 min="0"
                                 max="10"
-                                value="100"
+                                value={
+                                    +mapRange(
+                                        storeData.guidance_end,
+                                        0,
+                                        1,
+                                        0,
+                                        10,
+                                        1
+                                    ).toFixed(1)
+                                }
                                 onInput={this.onGuidanceEndMove.bind(this)}
                             >
                                 <sp-label slot="label">
