@@ -191,7 +191,20 @@ const handleGenerate = async () => {
 
         viewer.store.updateProperty('thumbnails', thumbnail_list)
         viewer.store.updateProperty('images', output_images)
-
+        if (
+            [
+                GenerationModeEnum.Inpaint,
+                GenerationModeEnum.LassoInpaint,
+                GenerationModeEnum.Outpaint,
+            ].includes(session_ts.store.data.mode)
+        ) {
+            viewer.mask_store.updateProperty(
+                'output_images_masks',
+                Array(output_images.length).fill(
+                    session_ts.store.data.expanded_mask
+                )
+            )
+        }
         console.log(
             'session_ts.store.toJsFunc(): ',
             session_ts.store.toJsFunc()
@@ -227,6 +240,20 @@ const handleGenerateMore = async () => {
             ...output_images,
         ]
 
+        if (
+            [
+                GenerationModeEnum.Inpaint,
+                GenerationModeEnum.LassoInpaint,
+                GenerationModeEnum.Outpaint,
+            ].includes(session_ts.store.data.mode)
+        ) {
+            viewer.mask_store.updatePropertyArray(
+                'output_images_masks',
+                Array(output_images.length).fill(
+                    session_ts.store.data.expanded_mask
+                )
+            )
+        }
         // viewer.store.updateProperty('images', output_images)
         // console.log(
         //     'session_ts.store.toJsFunc(): ',
