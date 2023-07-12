@@ -119,15 +119,30 @@ export class Sam extends React.Component<{
                             ComponentType: PenSvg,
                             callback: async (index: number) => {
                                 try {
-                                    await psapi.unSelectMarqueeExe()
-                                    const base64 = general.base64UrlToBase64(
-                                        store.data.thumbnails[index]
-                                    )
+                                    // await psapi.unSelectMarqueeExe()
+                                    // const base64 = general.base64UrlToBase64(
+                                    //     store.data.thumbnails[index]
+                                    // )
 
-                                    await selectionFromBlackAndWhiteImage(
-                                        base64,
-                                        store.data.selection_info_list[index]
-                                    )
+                                    // await selectionFromBlackAndWhiteImage(
+                                    //     base64,
+                                    //     store.data.selection_info_list[index]
+                                    // )
+
+                                    try {
+                                        const base64 =
+                                            general.base64UrlToBase64(
+                                                store.data.thumbnails[index]
+                                            )
+                                        await selection.base64ToLassoSelection(
+                                            base64,
+                                            store.data.selection_info_list[
+                                                index
+                                            ]
+                                        )
+                                    } catch (e) {
+                                        console.warn(e)
+                                    }
                                     //@ts-ignore
                                     await eventHandler() // this will trigger the recalculation of the width and height sliders
                                 } catch (e) {
