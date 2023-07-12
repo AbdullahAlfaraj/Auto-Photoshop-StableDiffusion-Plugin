@@ -564,7 +564,7 @@ async function getSettings(session_data) {
             batch_size: numberOfBatchSize,
             cfg_scale: cfg_scale,
             seed: seed,
-            mask_blur: mask_blur,
+            // mask_blur: mask_blur, // don't use auto1111 blur, instead use Auto-Photoshop-SD blur
             use_sharp_mask: use_sharp_mask,
             use_prompt_shortcut: bUsePromptShortcut,
             prompt_shortcut_ui_dict: prompt_shortcut_ui_dict,
