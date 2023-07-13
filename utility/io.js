@@ -1302,7 +1302,10 @@ async function convertGrayscaleToMonochrome(base64) {
     }
 }
 
-async function convertBlackToTransparentKeepBorders(base64) {
+async function convertBlackToTransparentKeepBorders(
+    base64,
+    b_borders_or_corners = false // false for borders, true for corners
+) {
     try {
         let jimp_mask = await Jimp.read(Buffer.from(base64, 'base64'))
 
@@ -1314,15 +1317,25 @@ async function convertBlackToTransparentKeepBorders(base64) {
             width,
             height,
             function (x, y, idx) {
-                if (x === 0 || y === 0 || x === width - 1 || y === height - 1)
-                    return
-                // if (
-                //     (x === 0 && y === 0) ||
-                //     (x === 0 && y === height - 1) ||
-                //     (x === width - 1 && y === 0) ||
-                //     (x === width - 1 && y === height - 1)
-                // )
-                //     return
+                if (b_borders_or_corners === false) {
+                    // keep borders
+                    if (
+                        x === 0 ||
+                        y === 0 ||
+                        x === width - 1 ||
+                        y === height - 1
+                    )
+                        return
+                } else {
+                    // keep corners
+                    if (
+                        (x === 0 && y === 0) ||
+                        (x === 0 && y === height - 1) ||
+                        (x === width - 1 && y === 0) ||
+                        (x === width - 1 && y === height - 1)
+                    )
+                        return
+                }
                 const red = this.bitmap.data[idx + 0]
                 const green = this.bitmap.data[idx + 1]
                 const blue = this.bitmap.data[idx + 2]

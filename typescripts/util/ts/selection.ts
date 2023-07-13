@@ -9,13 +9,15 @@ const batchPlay = action.batchPlay
 export async function applyMaskFromBlackAndWhiteImage(
     black_and_white_base64: string,
     layer_id: any,
-    selectionInfo: any
+    selectionInfo: any,
+    b_borders_or_corners: boolean = false
 ) {
     let mask_layer
     try {
         const transparent_mask_base64 =
             await io.convertBlackToTransparentKeepBorders(
-                black_and_white_base64
+                black_and_white_base64,
+                b_borders_or_corners
             )
         mask_layer = await moveImageToLayer(
             transparent_mask_base64,
@@ -97,13 +99,15 @@ export async function applyMaskFromBlackAndWhiteImage(
 
 export async function selectionFromBlackAndWhiteImage(
     black_and_white_base64: string,
-    selectionInfo: any
+    selectionInfo: any,
+    b_borders_or_corners: boolean = false
 ) {
     let mask_layer
     try {
         const transparent_mask_base64 =
             await io.convertBlackToTransparentKeepBorders(
-                black_and_white_base64
+                black_and_white_base64,
+                b_borders_or_corners
             )
         mask_layer = await moveImageToLayer(
             transparent_mask_base64,

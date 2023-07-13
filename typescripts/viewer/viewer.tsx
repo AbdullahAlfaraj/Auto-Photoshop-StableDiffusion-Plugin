@@ -13,7 +13,7 @@ import {
 import { moveImageToLayer } from '../util/ts/io'
 import { io, layer_util, selection } from '../util/oldSystem'
 import Collapsible from '../after_detailer/after_detailer'
-import { progress, session_ts } from '../entry'
+import { progress, session_ts, settings_tab_ts } from '../entry'
 import { reaction } from 'mobx'
 import { GenerationModeEnum } from '../util/ts/enum'
 import { base64ToLassoSelection } from '../../selection'
@@ -203,7 +203,8 @@ const add = async (base64: string, mask?: string) => {
             await applyMaskFromBlackAndWhiteImage(
                 channel_mask,
                 layer.id,
-                selectionInfo
+                selectionInfo,
+                settings_tab_ts.store.data.b_borders_or_corners
             )
         }
 

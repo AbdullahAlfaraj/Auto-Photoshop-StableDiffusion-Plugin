@@ -40,6 +40,7 @@ export const store = new AStore({
     should_log_to_file:
         JSON.parse(storage.localStorage.getItem('should_log_to_file')) || false,
     delete_log_file_timer_id: null,
+    b_borders_or_corners: false,
 })
 
 function onShouldLogToFileChange(event: any) {
@@ -132,6 +133,40 @@ export class Settings extends React.Component<{}> {
                         Locale('Log Errors To File')
                     }
                 </SpCheckBox>
+
+                <sp-radio-group
+                    style={{ display: 'flex' }}
+                    selected={store.data.b_borders_or_corners}
+                    onClick={(event: any) => {
+                        store.data.b_borders_or_corners = JSON.parse(
+                            event.target.value
+                        )
+                    }}
+                >
+                    <sp-label slot="label">
+                        {Locale('Mask Layer Mode:')}
+                    </sp-label>
+                    {[
+                        { label: 'keep borders', value: false },
+                        { label: 'keep corners', value: true },
+                    ].map((mode: any, index: number) => {
+                        console.log('mode:', mode.label, ' index:', index)
+                        return (
+                            <sp-radio
+                                key={`mode-${index}`}
+                                checked={
+                                    store.data.b_borders_or_corners ===
+                                    mode.value
+                                        ? true
+                                        : void 0
+                                }
+                                value={mode.value}
+                            >
+                                {Locale(mode.label)}
+                            </sp-radio>
+                        )
+                    })}
+                </sp-radio-group>
             </div>
         )
     }
