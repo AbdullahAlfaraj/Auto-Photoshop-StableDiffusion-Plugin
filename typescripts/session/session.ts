@@ -426,7 +426,7 @@ export class Session {
 
                 progress.store.data.progress_label = Locale('Progress...')
 
-                console.log('progress object json: ', json)
+                // console.log('progress object json: ', json)
             } catch (e) {
                 console.warn(e)
             }

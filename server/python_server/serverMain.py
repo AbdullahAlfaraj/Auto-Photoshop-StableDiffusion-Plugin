@@ -278,7 +278,7 @@ async def savePng(request:Request):
     except: 
         json = {}
     
-    print("json:",json)
+    # print("json:",json)
     try:
         folder = './init_images'
         image_path = f"{folder}/{json['image_name']}"
@@ -420,8 +420,8 @@ async def loadPromptShortcut(request: Request):
         json = {}
 
     try:
-        print("json: ",json)
-        print("json['prompt_shortcut']: ",json['prompt_shortcut'])
+        # print("json: ",json)
+        # print("json['prompt_shortcut']: ",json['prompt_shortcut'])
         # save the prompt shortcut to the prompt_shortcut.json
         prompt_shortcut_json = json['prompt_shortcut']
         # response.body = {"prompt_shortcut":prompt_shortcut}
@@ -456,7 +456,7 @@ async def openUrl(request:Request):
         json = {}
 
     url = "" 
-    print("json: ",json)
+    # print("json: ",json)
     try:
         url = json['url']
         webbrowser.open(url)  # Go to example.com
