@@ -155,10 +155,9 @@ export async function getExpandedMask(
     expansion_value: number,
     blur: number
 ) {
+    let expanded_mask = mask
     try {
         let use_sharp_mask = false
-
-        let expanded_mask = mask
 
         if (
             use_sharp_mask === false &&
@@ -176,9 +175,11 @@ export async function getExpandedMask(
             )
         }
 
-        return expanded_mask
+        // return expanded_mask
     } catch (e) {
         console.warn(e)
+    } finally {
+        return expanded_mask
     }
 }
 
