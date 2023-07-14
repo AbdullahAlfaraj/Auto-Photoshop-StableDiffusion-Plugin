@@ -1,3 +1,5 @@
+import type Jimp from 'jimp'
+
 //@ts-ignore
 const req = window['require']
 
@@ -17,6 +19,10 @@ const io = req('./utility/io')
 const settings_tab = req('./utility/tab/settings')
 const layer_util = req('./utility/layer')
 const session = req('./utility/session')
+
+interface _Jimp extends Jimp {}
+const _Jimp: typeof Jimp = (window as any)['Jimp']
+
 export {
     selection,
     note,
@@ -33,4 +39,5 @@ export {
     settings_tab,
     layer_util,
     session,
+    _Jimp as Jimp,
 }

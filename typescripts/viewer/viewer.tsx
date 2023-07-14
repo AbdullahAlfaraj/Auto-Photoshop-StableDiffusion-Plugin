@@ -10,12 +10,15 @@ import {
     SpSlider,
     SpSliderWithLabel,
 } from '../util/elements'
-import { moveImageToLayer } from '../util/ts/io'
+import {
+    convertGrayscaleToWhiteAndTransparent,
+    moveImageToLayer,
+} from '../util/ts/io'
 import { io, layer_util, selection } from '../util/oldSystem'
 import Collapsible from '../after_detailer/after_detailer'
 import { progress, session_ts, settings_tab_ts } from '../entry'
 import { reaction } from 'mobx'
-import { GenerationModeEnum } from '../util/ts/enum'
+import { GenerationModeEnum, MaskModeEnum } from '../util/ts/enum'
 import { base64ToLassoSelection } from '../../selection'
 import { action, app, core } from 'photoshop'
 import Locale from '../locale/locale'
@@ -170,47 +173,58 @@ export async function updateViewerStoreImageAndThumbnail(
 }
 
 const add = async (base64: string, mask?: string) => {
-    try {
-        //change the color of thumbnail border
-        //add image to the canvas
-        const layer = await moveImageToLayer(
-            base64,
-            session_ts.store.data.selectionInfo
-        )
+    //change the color of thumbnail border
+    //add image to the canvas
+    const layer = await moveImageToLayer(
+        base64,
+        session_ts.store.data.selectionInfo
+    )
 
-        // create channel if the generated mode support masking
-        if (
-            [
-                GenerationModeEnum.Inpaint,
-                GenerationModeEnum.LassoInpaint,
-                GenerationModeEnum.Outpaint,
-            ].includes(session_ts.store.data.mode) &&
-            store.data.auto_mask
-        ) {
-            // const base64_monochrome_mask = await io.convertGrayscaleToMonochrome(
-            //     session_ts.store.data.selected_mask
-            // )
-            const timer = (ms: any) => new Promise((res) => setTimeout(res, ms))
-
-            const mask_monochrome = await io.convertGrayscaleToMonochrome(
-                // session_ts.store.data.expanded_mask
-                mask
+    // create channel if the generated mode support masking
+    if (
+        [
+            GenerationModeEnum.Inpaint,
+            GenerationModeEnum.LassoInpaint,
+            GenerationModeEnum.Outpaint,
+        ].includes(session_ts.store.data.mode) &&
+        store.data.auto_mask
+    ) {
+        const channel_mask_monochrome =
+            await convertGrayscaleToWhiteAndTransparent(
+                session_ts.store.data.expanded_mask
             )
-            const channel_mask = mask_monochrome
-            const selectionInfo = session_ts.store.data.selectionInfo
-            // await selection.base64ToChannel(channel_mask, selectionInfo, 'mask')
+        if (
+            settings_tab_ts.store.data.b_borders_or_corners ===
+            MaskModeEnum.Transparent
+        ) {
+            //will use colorRange() which may or may not break
+            const mask_layer = await moveImageToLayer(
+                channel_mask_monochrome.base64,
+                session_ts.store.data.selectionInfo
+            )
 
-            await applyMaskFromBlackAndWhiteImage(
-                channel_mask,
+            if (!mask_layer) {
+                throw new Error('mask_layer is empty')
+            }
+
+            await selection.black_white_layer_to_mask_multi_batchplay(
+                mask_layer.id,
                 layer.id,
-                selectionInfo,
+                'mask'
+            )
+            await layer_util.deleteLayers([mask_layer])
+        } else {
+            // if MaskModeEnum.Borders or MaskModeEnum.Corners
+            // another option that doesn't use colorRange()
+            await applyMaskFromBlackAndWhiteImage(
+                channel_mask_monochrome.base64,
+                layer.id,
+                session_ts.store.data.selectionInfo,
                 settings_tab_ts.store.data.b_borders_or_corners
             )
         }
 
         return layer
-    } catch (e) {
-        console.error(e)
     }
 }
 const addWithHistory = async (base64: string, mask?: string) => {

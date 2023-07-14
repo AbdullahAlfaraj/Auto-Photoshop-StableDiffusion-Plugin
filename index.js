@@ -77,6 +77,7 @@ const {
     sam,
     settings_tab_ts,
     one_button_prompt,
+    enum_ts,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')

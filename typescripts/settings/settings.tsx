@@ -10,6 +10,7 @@ import { io } from '../util/oldSystem'
 import { reaction } from 'mobx'
 import { storage } from 'uxp'
 import { ErrorBoundary } from '../util/errorBoundary'
+import { MaskModeEnum } from '../util/ts/enum'
 // import { Jimp } from '../util/oldSystem'
 declare const Jimp: any // make sure you import jimp before importing settings.tsx
 
@@ -40,7 +41,7 @@ export const store = new AStore({
     should_log_to_file:
         JSON.parse(storage.localStorage.getItem('should_log_to_file')) || false,
     delete_log_file_timer_id: null,
-    b_borders_or_corners: false,
+    b_borders_or_corners: MaskModeEnum.Transparent,
 })
 
 function onShouldLogToFileChange(event: any) {
@@ -138,17 +139,19 @@ export class Settings extends React.Component<{}> {
                     style={{ display: 'flex' }}
                     selected={store.data.b_borders_or_corners}
                     onClick={(event: any) => {
-                        store.data.b_borders_or_corners = JSON.parse(
-                            event.target.value
-                        )
+                        store.data.b_borders_or_corners = event.target.value
                     }}
                 >
                     <sp-label slot="label">
                         {Locale('Mask Layer Mode:')}
                     </sp-label>
                     {[
-                        { label: 'keep borders', value: false },
-                        { label: 'keep corners', value: true },
+                        {
+                            label: 'fully transparent',
+                            value: MaskModeEnum.Transparent,
+                        },
+                        { label: 'keep borders', value: MaskModeEnum.Borders },
+                        { label: 'keep corners', value: MaskModeEnum.Corners },
                     ].map((mode: any, index: number) => {
                         console.log('mode:', mode.label, ' index:', index)
                         return (

@@ -1,5 +1,9 @@
 import { app, core, action } from 'photoshop'
-import { layer_util, psapi } from '../oldSystem'
+import { Jimp, layer_util, psapi } from '../oldSystem'
+import { storage } from 'uxp'
+import { Layer } from 'photoshop/dom/Layer'
+import { changeDpiDataUrl } from 'changedpi'
+
 const executeAsModal = core.executeAsModal
 const batchPlay = action.batchPlay
 
@@ -189,4 +193,121 @@ export async function initializeBackground() {
             commandName: 'Initialize Background',
         }
     )
+}
+
+/**
+ * transfer a base64image to a layer.
+ * the image will located at the top-left corner of canvas.
+ * @param b64Image
+ * @param options
+ * @returns
+ */
+export async function base64ToFileAndGetLayer(
+    b64Image: string,
+    options: {
+        image_name?: string
+    } = {}
+): Promise<{ layer: Layer; width: number; height: number }> {
+    const imageName = options.image_name || 'output_image.png'
+
+    b64Image = changeDpiDataUrl(
+        'data:image/png;base64,' + b64Image,
+        app.activeDocument.resolution
+    )
+    const img = Buffer.from(b64Image.split(',')[1], 'base64')
+    const jimp_image = await Jimp.read(img)
+
+    const folder = await storage.localFileSystem.getTemporaryFolder()
+    const file = await folder.createFile(imageName + '.png', {
+        overwrite: true,
+    })
+
+    await file.write(img.buffer, { format: storage.formats.binary })
+
+    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
+
+    const selection_info = await psapi.getSelectionInfoExe()
+
+    let imported_layer
+
+    await executeAsModal(
+        () =>
+            batchPlay(
+                [
+                    {
+                        _obj: 'set',
+                        _target: [
+                            {
+                                _property: 'selection',
+                                _ref: 'channel',
+                            },
+                        ],
+                        to: {
+                            _obj: 'rectangle',
+                            bottom: {
+                                _unit: 'pixelsUnit',
+                                _value: jimp_image.bitmap.height,
+                            },
+                            left: {
+                                _unit: 'pixelsUnit',
+                                _value: 0.0,
+                            },
+                            right: {
+                                _unit: 'pixelsUnit',
+                                _value: jimp_image.bitmap.width,
+                            },
+                            top: {
+                                _unit: 'pixelsUnit',
+                                _value: 0.0,
+                            },
+                        },
+                    },
+                ],
+                {}
+            ),
+        {
+            commandName: 'select import area',
+        }
+    )
+    await executeAsModal(
+        async () => {
+            const result = await batchPlay(
+                [
+                    {
+                        _obj: 'placeEvent',
+                        // ID: 6,
+                        null: {
+                            _path: token,
+                            _kind: 'local',
+                        },
+                        freeTransformCenterState: {
+                            _enum: 'quadCenterState',
+                            _value: 'QCSAverage',
+                        },
+                        _isCommand: true,
+                        _options: {
+                            dialogOptions: 'dontDisplay',
+                        },
+                    },
+                ],
+                {}
+            )
+            console.log('placeEmbedd batchPlay result: ', result)
+
+            imported_layer = await app.activeDocument.activeLayers[0]
+        },
+        {
+            commandName: 'import base64',
+        }
+    )
+
+    await psapi.reSelectMarqueeExe(selection_info)
+    if (!imported_layer) {
+        throw new Error('base64ToFileAndGetLayer failed: layer is empty')
+    }
+    return {
+        layer: imported_layer,
+        height: jimp_image.bitmap.height,
+        width: jimp_image.bitmap.width,
+    }
 }
