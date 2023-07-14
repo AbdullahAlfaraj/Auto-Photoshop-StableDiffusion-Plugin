@@ -14,7 +14,7 @@ import {
     convertGrayscaleToWhiteAndTransparent,
     moveImageToLayer,
 } from '../util/ts/io'
-import { io, layer_util, selection } from '../util/oldSystem'
+import { io, layer_util, psapi, selection } from '../util/oldSystem'
 import Collapsible from '../after_detailer/after_detailer'
 import { progress, session_ts, settings_tab_ts } from '../entry'
 import { reaction } from 'mobx'
@@ -188,11 +188,13 @@ const add = async (base64: string, mask?: string) => {
             GenerationModeEnum.LassoInpaint,
             GenerationModeEnum.Outpaint,
         ].includes(session_ts.store.data.mode) &&
-        store.data.auto_mask
+        store.data.auto_mask &&
+        mask
     ) {
         const channel_mask_monochrome =
             await convertGrayscaleToWhiteAndTransparent(
-                session_ts.store.data.expanded_mask
+                // session_ts.store.data.expanded_mask
+                mask
             )
         if (
             settings_tab_ts.store.data.b_borders_or_corners ===
@@ -224,9 +226,8 @@ const add = async (base64: string, mask?: string) => {
                 settings_tab_ts.store.data.b_borders_or_corners
             )
         }
-
-        return layer
     }
+    return layer
 }
 const addWithHistory = async (base64: string, mask?: string) => {
     let layer
