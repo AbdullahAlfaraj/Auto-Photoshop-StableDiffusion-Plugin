@@ -613,6 +613,10 @@ export default class ControlNetUnit extends React.Component<
                             //@ts-ignore
                             Locale('Auto Image')
                         }
+                        title=
+                        {Locale(
+                            'load the input image from canvas automatically'
+                        )}
                     </SpCheckBox>
                     {this.props.appState.controlnetApiVersion > 1 && (
                         <sp-radio-group
