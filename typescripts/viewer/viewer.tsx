@@ -87,7 +87,7 @@ reaction(
         try {
             if (images.length > 0) {
                 let attempts: number = 5
-
+                store.data.is_stored = Array(images.length).fill(false)
                 while (attempts > 0) {
                     if (!progress.store.data.can_update) {
                         await timer(2000)
@@ -279,7 +279,10 @@ export const resetViewer = () => {
 const addAll = async () => {
     let i = 0
     for (let i = 0; i < store.data.images.length; i++) {
-        if (store.data.is_stored[i]) {
+        if (
+            store.data.is_stored[i] ||
+            layer_util.Layer.doesLayerExist(store.data.layers?.[i])
+        ) {
             continue
         }
         await addWithHistory(
