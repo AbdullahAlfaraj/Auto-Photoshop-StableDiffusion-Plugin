@@ -3,6 +3,7 @@ import { io, layer_util } from '../oldSystem'
 import { session_ts } from '../../entry'
 
 import { action, core } from 'photoshop'
+import { MaskModeEnum } from './enum'
 const executeAsModal = core.executeAsModal
 const batchPlay = action.batchPlay
 
@@ -10,7 +11,7 @@ export async function applyMaskFromBlackAndWhiteImage(
     black_and_white_base64: string,
     layer_id: any,
     selectionInfo: any,
-    b_borders_or_corners: boolean = false
+    b_borders_or_corners: MaskModeEnum = MaskModeEnum.Transparent
 ) {
     let mask_layer
     try {
@@ -100,7 +101,7 @@ export async function applyMaskFromBlackAndWhiteImage(
 export async function selectionFromBlackAndWhiteImage(
     black_and_white_base64: string,
     selectionInfo: any,
-    b_borders_or_corners: boolean = false
+    b_borders_or_corners: MaskModeEnum = MaskModeEnum.Transparent
 ) {
     let mask_layer
     try {

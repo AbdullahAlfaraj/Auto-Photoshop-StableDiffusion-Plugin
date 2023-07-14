@@ -1304,7 +1304,7 @@ async function convertGrayscaleToMonochrome(base64) {
 
 async function convertBlackToTransparentKeepBorders(
     base64,
-    b_borders_or_corners = false // false for borders, true for corners
+    b_borders_or_corners = enum_ts.MaskModeEnum.Transparent // false for borders, true for corners
 ) {
     try {
         let jimp_mask = await Jimp.read(Buffer.from(base64, 'base64'))
@@ -1317,7 +1317,7 @@ async function convertBlackToTransparentKeepBorders(
             width,
             height,
             function (x, y, idx) {
-                if (b_borders_or_corners === false) {
+                if (b_borders_or_corners === enum_ts.MaskModeEnum.Borders) {
                     // keep borders
                     if (
                         x === 0 ||
@@ -1326,7 +1326,9 @@ async function convertBlackToTransparentKeepBorders(
                         y === height - 1
                     )
                         return
-                } else {
+                } else if (
+                    b_borders_or_corners === enum_ts.MaskModeEnum.Corners
+                ) {
                     // keep corners
                     if (
                         (x === 0 && y === 0) ||
@@ -1336,6 +1338,7 @@ async function convertBlackToTransparentKeepBorders(
                     )
                         return
                 }
+
                 const red = this.bitmap.data[idx + 0]
                 const green = this.bitmap.data[idx + 1]
                 const blue = this.bitmap.data[idx + 2]

@@ -18,7 +18,7 @@ import { io, layer_util, selection } from '../util/oldSystem'
 import Collapsible from '../after_detailer/after_detailer'
 import { progress, session_ts, settings_tab_ts } from '../entry'
 import { reaction } from 'mobx'
-import { GenerationModeEnum } from '../util/ts/enum'
+import { GenerationModeEnum, MaskModeEnum } from '../util/ts/enum'
 import { base64ToLassoSelection } from '../../selection'
 import { action, app, core } from 'photoshop'
 import Locale from '../locale/locale'
@@ -193,21 +193,36 @@ const add = async (base64: string, mask?: string) => {
             await convertGrayscaleToWhiteAndTransparent(
                 session_ts.store.data.expanded_mask
             )
+        if (
+            settings_tab_ts.store.data.b_borders_or_corners ===
+            MaskModeEnum.Transparent
+        ) {
+            //will use colorRange() which may or may not break
+            const mask_layer = await moveImageToLayer(
+                channel_mask_monochrome.base64,
+                session_ts.store.data.selectionInfo
+            )
 
-        const mask_layer = await moveImageToLayer(
-            channel_mask_monochrome.base64,
-            session_ts.store.data.selectionInfo
-        )
-        if (!mask_layer) {
-            throw new Error('mask_layer is empty')
+            if (!mask_layer) {
+                throw new Error('mask_layer is empty')
+            }
+
+            await selection.black_white_layer_to_mask_multi_batchplay(
+                mask_layer.id,
+                layer.id,
+                'mask'
+            )
+            await layer_util.deleteLayers([mask_layer])
+        } else {
+            // if MaskModeEnum.Borders or MaskModeEnum.Corners
+            // another option that doesn't use colorRange()
+            await applyMaskFromBlackAndWhiteImage(
+                channel_mask_monochrome.base64,
+                layer.id,
+                session_ts.store.data.selectionInfo,
+                settings_tab_ts.store.data.b_borders_or_corners
+            )
         }
-
-        await selection.black_white_layer_to_mask_multi_batchplay(
-            mask_layer.id,
-            layer.id,
-            'mask'
-        )
-        await layer_util.deleteLayers([mask_layer])
 
         return layer
     }

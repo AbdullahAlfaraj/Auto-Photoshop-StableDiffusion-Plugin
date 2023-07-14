@@ -18,6 +18,7 @@ import {
 import { app } from 'photoshop'
 import { ErrorBoundary } from '../util/errorBoundary'
 import Locale from '../locale/locale'
+import { settings_tab_ts } from '../entry'
 declare let g_sd_url: string
 
 export async function getSamMap(base64: string, prompt: string) {
@@ -119,30 +120,32 @@ export class Sam extends React.Component<{
                             ComponentType: PenSvg,
                             callback: async (index: number) => {
                                 try {
-                                    // await psapi.unSelectMarqueeExe()
-                                    // const base64 = general.base64UrlToBase64(
-                                    //     store.data.thumbnails[index]
-                                    // )
+                                    await psapi.unSelectMarqueeExe()
+                                    const base64 = general.base64UrlToBase64(
+                                        store.data.thumbnails[index]
+                                    )
 
-                                    // await selectionFromBlackAndWhiteImage(
-                                    //     base64,
-                                    //     store.data.selection_info_list[index]
-                                    // )
+                                    await selectionFromBlackAndWhiteImage(
+                                        base64,
+                                        store.data.selection_info_list[index],
+                                        settings_tab_ts.store.data
+                                            .b_borders_or_corners
+                                    )
 
-                                    try {
-                                        const base64 =
-                                            general.base64UrlToBase64(
-                                                store.data.thumbnails[index]
-                                            )
-                                        await selection.base64ToLassoSelection(
-                                            base64,
-                                            store.data.selection_info_list[
-                                                index
-                                            ]
-                                        )
-                                    } catch (e) {
-                                        console.warn(e)
-                                    }
+                                    // try {
+                                    //     const base64 =
+                                    //         general.base64UrlToBase64(
+                                    //             store.data.thumbnails[index]
+                                    //         )
+                                    //     await selection.base64ToLassoSelection(
+                                    //         base64,
+                                    //         store.data.selection_info_list[
+                                    //             index
+                                    //         ]
+                                    //     )
+                                    // } catch (e) {
+                                    //     console.warn(e)
+                                    // }
                                     //@ts-ignore
                                     await eventHandler() // this will trigger the recalculation of the width and height sliders
                                 } catch (e) {

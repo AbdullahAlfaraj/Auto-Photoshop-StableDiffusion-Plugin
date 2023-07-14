@@ -7,3 +7,9 @@ export enum GenerationModeEnum {
     LassoInpaint = 'lasso_inpaint',
     LassoOutpaint = 'lasso_outpaint',
 }
+
+export enum MaskModeEnum {
+    Transparent = 'transparent',
+    Borders = 'border',
+    Corners = 'corner',
+}
