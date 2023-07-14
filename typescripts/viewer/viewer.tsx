@@ -175,6 +175,7 @@ export async function updateViewerStoreImageAndThumbnail(
 const add = async (base64: string, mask?: string) => {
     //change the color of thumbnail border
     //add image to the canvas
+    await psapi.unselectActiveLayersExe()
     const layer = await moveImageToLayer(
         base64,
         session_ts.store.data.selectionInfo
