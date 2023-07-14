@@ -608,15 +608,14 @@ export default class ControlNetUnit extends React.Component<
                         onChange={this.onAutoImageChange.bind(this)}
                         checked={storeData.auto_image}
                         // id={`chPixelPerfect_${this.props.index}`}
+                        title={Locale(
+                            'load the input image from canvas automatically'
+                        )}
                     >
                         {
                             //@ts-ignore
                             Locale('Auto Image')
                         }
-                        title=
-                        {Locale(
-                            'load the input image from canvas automatically'
-                        )}
                     </SpCheckBox>
                     {this.props.appState.controlnetApiVersion > 1 && (
                         <sp-radio-group
