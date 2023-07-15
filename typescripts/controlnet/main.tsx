@@ -88,6 +88,7 @@ button_root.render(
                     console.warn(e)
                 }
             }}
+            title="Quickly jump to the active ControlNet Unit"
         >
             C
         </button>

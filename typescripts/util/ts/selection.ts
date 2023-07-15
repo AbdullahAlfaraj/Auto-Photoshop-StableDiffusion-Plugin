@@ -1,4 +1,4 @@
-import { moveImageToLayer } from './io'
+import { moveImageToLayer, moveImageToLayer_old } from './io'
 import { io, layer_util } from '../oldSystem'
 import { session_ts } from '../../entry'
 
@@ -20,7 +20,7 @@ export async function applyMaskFromBlackAndWhiteImage(
                 black_and_white_base64,
                 b_borders_or_corners
             )
-        mask_layer = await moveImageToLayer(
+        mask_layer = await moveImageToLayer_old(
             transparent_mask_base64,
             selectionInfo
         )
@@ -110,7 +110,7 @@ export async function selectionFromBlackAndWhiteImage(
                 black_and_white_base64,
                 b_borders_or_corners
             )
-        mask_layer = await moveImageToLayer(
+        mask_layer = await moveImageToLayer_old(
             transparent_mask_base64,
             selectionInfo
         )

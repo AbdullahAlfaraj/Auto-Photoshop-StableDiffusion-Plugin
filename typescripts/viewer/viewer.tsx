@@ -13,6 +13,7 @@ import {
 import {
     convertGrayscaleToWhiteAndTransparent,
     moveImageToLayer,
+    moveImageToLayer_old,
 } from '../util/ts/io'
 import { io, layer_util, psapi, selection } from '../util/oldSystem'
 import Collapsible from '../after_detailer/after_detailer'
@@ -172,11 +173,11 @@ export async function updateViewerStoreImageAndThumbnail(
     }
 }
 
-const add = async (base64: string, mask?: string) => {
+const add_new = async (base64: string, mask?: string) => {
     //change the color of thumbnail border
     //add image to the canvas
     await psapi.unselectActiveLayersExe()
-    const layer = await moveImageToLayer(
+    const layer = await moveImageToLayer_old(
         base64,
         session_ts.store.data.selectionInfo
     )
@@ -228,6 +229,50 @@ const add = async (base64: string, mask?: string) => {
         }
     }
     return layer
+}
+const add = async (base64: string, mask?: string) => {
+    try {
+        //change the color of thumbnail border
+        //add image to the canvas
+        const layer = await moveImageToLayer_old(
+            base64,
+            session_ts.store.data.selectionInfo
+        )
+
+        // create channel if the generated mode support masking
+        if (
+            [
+                GenerationModeEnum.Inpaint,
+                GenerationModeEnum.LassoInpaint,
+                GenerationModeEnum.Outpaint,
+            ].includes(session_ts.store.data.mode) &&
+            store.data.auto_mask
+        ) {
+            // const base64_monochrome_mask = await io.convertGrayscaleToMonochrome(
+            //     session_ts.store.data.selected_mask
+            // )
+            const timer = (ms: any) => new Promise((res) => setTimeout(res, ms))
+
+            const mask_monochrome = await io.convertGrayscaleToMonochrome(
+                // session_ts.store.data.expanded_mask
+                mask
+            )
+            const channel_mask = mask_monochrome
+            const selectionInfo = session_ts.store.data.selectionInfo
+            // await selection.base64ToChannel(channel_mask, selectionInfo, 'mask')
+
+            await applyMaskFromBlackAndWhiteImage(
+                channel_mask,
+                layer.id,
+                selectionInfo,
+                settings_tab_ts.store.data.b_borders_or_corners
+            )
+        }
+
+        return layer
+    } catch (e) {
+        console.error(e)
+    }
 }
 const addWithHistory = async (base64: string, mask?: string) => {
     let layer
@@ -548,7 +593,7 @@ const Viewer = observer(() => {
                         {
                             ComponentType: MoveToCanvasSvg,
                             callback: async (index: number) => {
-                                await moveImageToLayer(
+                                await moveImageToLayer_old(
                                     mask_store.data.images[index],
                                     session_ts.store.data.selectionInfo,
                                     'mask'
