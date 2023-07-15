@@ -3,12 +3,9 @@ const { base64ToBase64Url } = require('./utility/general')
 const { getExtensionType } = require('./utility/html_manip')
 const py_re = require('./utility/sdapi/python_replacement')
 const Enum = require('./enum')
-// const control_net = require('./utility/tab/control_net')
-const {
-    mapPluginSettingsToControlNet,
-    getEnableControlNet,
-    getModuleDetail,
-} = require('./utility/tab/control_net')
+const { control_net } = require('./typescripts/dist/bundle')
+const { mapPluginSettingsToControlNet, getEnableControlNet, getModuleDetail } =
+    control_net
 
 const api = require('./utility/api')
 //javascript plugin can't read images from local directory so we send a request to local server to read the image file and send it back to plugin as image string base64
@@ -21,7 +18,7 @@ async function requestSavePng(base64_image, image_name) {
         const uniqueDocumentId = await getUniqueDocumentId()
         const folder = `${uniqueDocumentId}/init_images`
         const init_entry = await getInitImagesDir()
-        saveFileInSubFolder(base64_image, folder, image_name)
+        io.saveFileInSubFolder(base64_image, folder, image_name)
         console.warn('this function is deprecated')
     } catch (e) {
         console.warn(e)
@@ -42,6 +39,7 @@ async function requestTxt2Img(payload) {
     }
 }
 
+//Refactor: move to modes.ts
 async function requestImg2Img(payload) {
     console.log('requestImg2Img(): about to send a fetch request')
     try {
@@ -56,21 +54,22 @@ async function requestImg2Img(payload) {
     }
 }
 
+//Refactor: move to progress.ts
 async function requestProgress() {
-    let json = {}
     try {
         console.log('requestProgress: ')
 
         const full_url = `${g_sd_url}/sdapi/v1/progress?skip_current_image=false`
         let request = await fetch(full_url)
         json = await request.json()
-        console.log('progress json:', json)
+        // console.log('progress json:', json)
 
         return json
     } catch (e) {
         console.warn(e)
         // console.log('json: ', json)
     }
+    return null
 }
 
 async function requestGetModels() {
@@ -96,7 +95,7 @@ async function requestGetSamplers() {
         const full_url = `${g_sd_url}/sdapi/v1/samplers`
         let request = await fetch(full_url)
         json = await request.json()
-        console.log('samplers json:', json)
+        // console.log('samplers json:', json)
     } catch (e) {
         console.warn(e)
     }
@@ -210,14 +209,12 @@ async function loadPromptShortcut() {
         prompt_shortcut_json = await py_re.loadPromptShortcut(
             'prompt_shortcut.json'
         )
-        console.log('loadPromptShortcut:', prompt_shortcut_json)
-        // console.log('loadPromptShortcut: request: ',request)
+        // console.log('loadPromptShortcut:', prompt_shortcut_json)
     } catch (e) {
         console.warn(e)
         prompt_shortcut_json = {}
     }
     return prompt_shortcut_json
-    // return json['prompt_shortcut']
 }
 
 async function savePromptShortcut(prompt_shortcut) {
@@ -483,11 +480,13 @@ async function requestControlNetTxt2Img(plugin_settings) {
             app.showAlert('you need to select a valid ControlNet Module')
             throw 'you need to select a valid ControlNet Module'
         }
+
         if (
-            !control_net_settings['controlnet_units'][index]['model'] &&
-            !getModuleDetail()[
-                control_net_settings['controlnet_units'][index]['module']
-            ].model_free
+            (!control_net_settings['controlnet_units'][index]['model'] &&
+                !getModuleDetail()[
+                    control_net_settings['controlnet_units'][index]['module']
+                ].model_free) ||
+            control_net_settings['controlnet_units'][index]['model'] === 'none'
         ) {
             app.showAlert('you need to select a valid ControlNet Model')
             throw 'you need to select a valid ControlNet Model'
@@ -523,10 +522,7 @@ async function requestControlNetTxt2Img(plugin_settings) {
             mask_index >= numberOfAnnotations
         )
             continue
-        html_manip.setControlMaskSrc(
-            base64ToBase64Url(base64_mask[mask_index]),
-            index
-        )
+        control_net.setControlDetectMapSrc(base64_mask[mask_index], index)
         g_generation_session.controlNetMask[index] = base64_mask[mask_index]
         mask_index++
     }
@@ -567,10 +563,11 @@ async function requestControlNetImg2Img(plugin_settings) {
             throw 'you need to select a valid ControlNet Module'
         }
         if (
-            !control_net_settings['controlnet_units'][index]['model'] &&
-            !getModuleDetail()[
-                control_net_settings['controlnet_units'][index]['module']
-            ].model_free
+            (!control_net_settings['controlnet_units'][index]['model'] &&
+                !getModuleDetail()[
+                    control_net_settings['controlnet_units'][index]['module']
+                ].model_free) ||
+            control_net_settings['controlnet_units'][index]['model'] === 'none'
         ) {
             app.showAlert('you need to select a valid ControlNet Model')
             throw 'you need to select a valid ControlNet Model'
@@ -615,10 +612,7 @@ async function requestControlNetImg2Img(plugin_settings) {
             mask_index >= numberOfAnnotations
         )
             continue
-        html_manip.setControlMaskSrc(
-            base64ToBase64Url(base64_mask[mask_index]),
-            index
-        )
+        control_net.setControlDetectMapSrc(base64_mask[mask_index], index)
         g_generation_session.controlNetMask[index] = base64_mask[mask_index]
         mask_index++
     }

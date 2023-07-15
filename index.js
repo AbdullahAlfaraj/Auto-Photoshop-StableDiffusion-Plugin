@@ -1,45 +1,18 @@
-const io = require('./utility/io')
-const log = console.log
-const warn = console.warn
-const error = console.error
-const should_log = false
-if (should_log) {
-    window.addEventListener('error', (event) => {
-        const [a, b, c, d, e] = [1, 2, 3, 4, 5]
-        console.log(`message: ${a}`)
-        console.log(`source: ${b}`)
-        console.log(`lineno: ${c}`)
-        console.log(`colno: ${d}`)
-        console.log(`error: ${e}`)
-    })
-
-    console.log = (data, ...optional_param) => {
-        log(data, ...optional_param)
-        io.IOLog.saveLogToFile({ data, ...optional_param }, 'log.txt')
-    }
-    console.warn = (data, ...optional_param) => {
-        try {
-            warn(data, ...optional_param)
-            io.IOLog.saveLogToFile({ data, ...optional_param }, 'warn.txt')
-        } catch (e) {
-            warn('error while logging: ')
-            warn(e)
-        }
-    }
-    console.error = (data, ...optional_param) => {
-        error(data, ...optional_param)
-        io.IOLog.saveLogToFile({ data, ...optional_param }, 'error.txt')
-    }
-}
-
 // import {helloHelper} from 'helper.js'
 // helloHelper2 = require('./helper.js')
 // for organizational proposes
 // let g_sdapi_path = 'sdapi'
-let g_version = 'v1.2.6'
+const g_image_not_found_url =
+    'https://images.unsplash.com/source-404?fit=crop&fm=jpg&h=800&q=60&w=1200'
+const _log = console.log
+const _warn = console.warn
+const _error = console.error
+let g_timer_value = 300 // temporary global variable for testing the timer pause function
+let g_version = 'v1.3.0'
 let g_sd_url = 'http://127.0.0.1:7860'
 let g_online_data_url =
     'https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/master/utility/online_data.json'
+const Jimp = require('./jimp/browser/lib/jimp.min')
 const Enum = require('./enum')
 const helper = require('./helper')
 const sd_tab = require('./utility/tab/sd')
@@ -50,19 +23,21 @@ const sdapi = require('./sdapi_py_re')
 const outpaint = require('./outpaint')
 const psapi = require('./psapi')
 const app = window.require('photoshop').app
-
+const constants = require('photoshop').constants
 const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
 const dialog_box = require('./dialog_box')
 // const {entrypoints} = require('uxp')
 const html_manip = require('./utility/html_manip')
 // const export_png = require('./export_png')
-const viewer = require('./viewer')
+const viewerJs = require('./viewer')
 const selection = require('./selection')
 const layer_util = require('./utility/layer')
 const sd_options = require('./utility/sdapi/options')
 // const sd_config = require('./utility/sdapi/config')
 const session = require('./utility/session')
+const { getSettings } = require('./utility/session')
+
 const ui = require('./utility/ui')
 const preset_util = require('./utility/presets/preset')
 const script_horde = require('./utility/sd_scripts/horde')
@@ -79,26 +54,97 @@ const thumbnail = require('./thumbnail')
 const note = require('./utility/notification')
 const sampler_data = require('./utility/sampler')
 const settings_tab = require('./utility/tab/settings')
-const control_net = require('./utility/tab/control_net')
 //load tabs
 const history_tab = require('./utility/tab/history_tab')
 const image_search_tab = require('./utility/tab/image_search_tab')
 const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
+const api = require('./utility/api')
 // const ultimate_sd_upscaler = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler')
 // const ultimate_sd_upscaler_script = require('./ultimate_sd_upscaler/dist/ultimate_sd_upscaler.bundle')
-
-// const after_detailer_script = require('./main/dist/after_detailer.bundle')
-// const scripts = require('./main/dist/scripts.bundle')
-// const main = require('./main/dist/main.bundle')
-
 const {
-    after_detailer_script,
     scripts,
     main,
-    ultimate_sd_upscaler,
-} = require('./main/dist/all.bundle')
+    after_detailer_script,
+    control_net,
+    logger,
+    toJS,
+    viewer,
+    preview,
+    session_ts,
+    progress,
+    sd_tab_ts,
+    sam,
+    settings_tab_ts,
+    one_button_prompt,
+    enum_ts,
+} = require('./typescripts/dist/bundle')
 
+const io = require('./utility/io')
+
+function setLogMethod(should_log_to_file = true) {
+    let timer_id
+    if (should_log_to_file) {
+        console.log = (data, ...optional_param) => {
+            try {
+                _log(data, ...optional_param)
+
+                // const error = new Error({ data, ...optional_param });
+                const formattedOutput = logger.formateLog(
+                    data,
+                    ...optional_param
+                )
+                io.IOLog.saveLogToFile({ log: formattedOutput }, 'log.txt')
+            } catch (e) {
+                _warn('error while logging: ')
+                _warn(e)
+            }
+        }
+
+        console.warn = (data, ...optional_param) => {
+            try {
+                _warn(data, ...optional_param)
+                const error = new Error()
+                const stackTrace = error.stack
+                const formattedOutput = logger.formateLog(
+                    data,
+                    ...optional_param
+                )
+                io.IOLog.saveLogToFile(
+                    { warning: formattedOutput, stackTrace },
+                    'log.txt'
+                )
+            } catch (e) {
+                _warn('error while logging: ')
+                _warn(e)
+            }
+        }
+
+        console.error = (data, ...optional_param) => {
+            try {
+                _error(data, ...optional_param)
+                const error = new Error()
+                const stackTrace = error.stack
+                const formattedOutput = logger.formateLog(
+                    data,
+                    ...optional_param
+                )
+                io.IOLog.saveLogToFile(
+                    { error: formattedOutput, stackTrace },
+                    'log.txt'
+                )
+            } catch (e) {
+                _error('error while logging: ')
+                _error(e)
+            }
+        }
+    } else {
+        console.log = _log
+        console.warn = _warn
+        console.error = _error
+    }
+}
+setLogMethod(settings_tab_ts.store.data.should_log_to_file)
 // const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
 
 // const {
@@ -110,6 +156,7 @@ let g_horde_generator = new horde_native.hordeGenerator()
 let g_automatic_status = Enum.AutomaticStatusEnum['Offline']
 let g_models_status = false
 let g_current_batch_index = 0
+let g_is_laso_inapint_mode = true
 //REFACTOR: move to session.js
 async function hasSessionSelectionChanged() {
     try {
@@ -142,7 +189,7 @@ async function calcWidthHeightFromSelection() {
         //change (width and height) and (hrWidth, hrHeight) to match the ratio of selection
         const [width, height, hr_width, hr_height] =
             await selection.selectionToFinalWidthHeight()
-
+        // console.log('width,height: ', width, height)
         html_manip.autoFillInWidth(width)
         html_manip.autoFillInHeight(height)
         html_manip.autoFillInHRWidth(hr_width)
@@ -163,44 +210,17 @@ async function calcWidthHeightFromSelection() {
 const eventHandler = async (event, descriptor) => {
     try {
         console.log(event, descriptor)
+        const new_selection_info = await psapi.getSelectionInfoExe()
+        session_ts.store.updateProperty(
+            'current_selection_info',
+            new_selection_info
+        )
 
-        const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
-        if (isSelectionActive) {
-            const current_selection = isSelectionActive // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.
+        // const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
+        if (new_selection_info) {
+            const current_selection = new_selection_info // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.
 
             await calcWidthHeightFromSelection()
-
-            // console.log(` (${final_width}* ${final_height})/(${current_selection.width} * ${current_selection.height})`)
-            // console.log("detail density: ",(final_width* final_height)/(current_selection.width * current_selection.height))
-
-            // const new_selection = await psapi.getSelectionInfoExe()
-
-            if (
-                await hasSelectionChanged(
-                    current_selection,
-                    g_generation_session.selectionInfo
-                ) //new selection
-            ) {
-                // endSessionUI //red color
-                // if selection has changed : change the color and text generate btn  "Generate" color "red"
-                // g_ui.endSessionUI()
-                // const selected_mode = html_manip.getMode()
-                const selected_mode = getCurrentGenerationModeByValue(g_sd_mode)
-                g_ui.generateModeUI(selected_mode)
-            } else {
-                // it's the same selection and the session is active
-
-                //indicate that the session will continue. only if the session we are in the same mode as the session's mode
-                // startSessionUI// green color
-                const current_mode = html_manip.getMode()
-                if (
-                    g_generation_session.isActive() && // the session is active
-                    g_generation_session.isSameMode(current_mode) //same mode
-                ) {
-                    // g_ui.startSessionUI()
-                    g_ui.generateMoreUI()
-                }
-            }
         }
     } catch (e) {
         console.warn(e)
@@ -220,7 +240,7 @@ function getCurrentGenerationModeByValue(value) {
 }
 
 require('photoshop').action.addNotificationListener(
-    ['set', 'move'],
+    ['set', 'move', 'addTo', 'subtractFrom'],
     eventHandler
 )
 //REFACTOR: move to document.js
@@ -421,10 +441,26 @@ async function checkAutoStatus() {
         if (options) {
             //means both automatic1111 and proxy server are online
             html_manip.setAutomaticStatus('connected', 'disconnected')
+
             g_automatic_status = Enum.AutomaticStatusEnum['RunningWithApi']
+
+            const extension_url = py_re.getExtensionUrl()
+            const full_url = `${extension_url}/heartbeat`
+            const heartbeat = (await api.requestGet(full_url))?.heartbeat
+
+            if (heartbeat) {
+                html_manip.setProxyServerStatus('connected', 'disconnected')
+                session_ts.store.data.auto_photoshop_sd_extension_status = true
+            } else {
+                html_manip.setProxyServerStatus('disconnected', 'connected')
+                g_automatic_status =
+                    Enum.AutomaticStatusEnum['AutoPhotoshopSDExtensionMissing']
+                session_ts.store.data.auto_photoshop_sd_extension_status = false
+            }
             // html_manip.setProxyServerStatus('connected','disconnected')
         } else {
             html_manip.setAutomaticStatus('disconnected', 'connected')
+
             if (await sdapi.isWebuiRunning()) {
                 //running with no api
                 g_automatic_status = Enum.AutomaticStatusEnum['RunningNoApi']
@@ -750,7 +786,7 @@ const backendTypeEnum = {
 }
 
 g_generation_session.mode = generationMode['Txt2Img']
-let g_viewer_manager = new viewer.ViewerManager()
+let g_viewer_manager = new viewerJs.ViewerManager()
 
 //********** End: global variables */
 
@@ -791,6 +827,7 @@ for (let rbModeElement of rbModeElements) {
         try {
             g_sd_mode = evt.target.value
             scripts.script_store.setMode(g_sd_mode)
+            sd_tab_ts.store.updateProperty('mode', g_sd_mode)
             // console.log(`You clicked: ${g_sd_mode}`)
             await displayUpdate()
             await postModeSelection() // do things after selection
@@ -808,6 +845,7 @@ document
         try {
             // g_sd_mode_last = g_sd_mode
             g_sd_mode = 'upscale'
+            sd_tab_ts.store.updateProperty('mode', 'upscale')
             console.log(`You clicked: ${g_sd_mode}`)
             await displayUpdate()
             await postModeSelection() // do things after selection
@@ -822,6 +860,7 @@ document
         try {
             // g_sd_mode = g_sd_mode_last
             g_sd_mode = html_manip.getMode()
+            sd_tab_ts.store.updateProperty('mode', html_manip.getMode())
             console.log(`mode restored to: ${g_sd_mode}`)
             await displayUpdate()
             await postModeSelection() // do things after selection
@@ -858,9 +897,13 @@ async function deleteTempInpaintMaskLayer() {
         'g_inpaint_mask_layer_history_id: ',
         g_inpaint_mask_layer_history_id
     )
-    const historyBrushTools = app.activeDocument.historyStates.filter(
-        (h) => h.id > g_inpaint_mask_layer_history_id && h.name === 'Brush Tool'
-    )
+    const historyBrushTools = app.activeDocument.historyStates
+        .slice(-10)
+        .filter(
+            (h) =>
+                h.id > g_inpaint_mask_layer_history_id &&
+                h.name === 'Brush Tool'
+        )
     console.log(historyBrushTools)
     if (historyBrushTools.length === 0 && g_b_mask_layer_exist) {
         await layer_util.deleteLayers([g_inpaint_mask_layer])
@@ -1257,7 +1300,7 @@ function pastImage2Layer() {
                 ],
                 {
                     synchronousExecution: true,
-                    modalBehavior: 'fail',
+                    modalBehavior: 'execute',
                 }
             )
         },
@@ -1462,7 +1505,7 @@ async function acceptAll() {
             try {
                 if (
                     viewer_image_obj.isActive() &&
-                    viewer_image_obj instanceof viewer.OutputImage
+                    viewer_image_obj instanceof viewerJs.OutputImage
                 ) {
                     //check if the active viewer_image_obj is a type of OutputImage and move it to the top of the output group folder
                     //this is so when we accept all layers the canvas will look the same. otherwise the image could be cover by another generated image
@@ -1580,14 +1623,14 @@ document.getElementById('btnRandomSeed').addEventListener('click', async () => {
 //REFACTOR: move to events.js
 document.getElementById('btnLastSeed').addEventListener('click', async () => {
     try {
-        console.log('click on Last seed')
+        // console.log('click on Last seed')
         let seed = '-1'
 
         if (g_last_seed >= 0) {
             seed = g_last_seed.toString() //make sure the seed is a string
         }
 
-        console.log('seed:', seed)
+        // console.log('seed:', seed)
         document.querySelector('#tiSeed').value = seed
     } catch (e) {
         console.warn(e)
@@ -1654,60 +1697,60 @@ Array.from(document.getElementsByClassName('discardClass')).forEach(
     }
 )
 //REFACTOR: move to events.js
-Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
-    (element) => {
-        element.addEventListener('click', async () => {
-            try {
-                if (
-                    g_generation_session.request_status ===
-                    Enum.RequestStateEnum['Finished']
-                ) {
-                    toggleTwoButtonsByClass(
-                        false,
-                        'btnGenerateClass',
-                        'btnInterruptClass'
-                    )
-                    g_can_request_progress = false
+// Array.from(document.getElementsByClassName('btnInterruptClass')).forEach(
+//     (element) => {
+//         element.addEventListener('click', async () => {
+//             try {
+//                 if (
+//                     g_generation_session.request_status ===
+//                     Enum.RequestStateEnum['Finished']
+//                 ) {
+//                     toggleTwoButtonsByClass(
+//                         false,
+//                         'btnGenerateClass',
+//                         'btnInterruptClass'
+//                     )
+//                     g_can_request_progress = false
 
-                    return null // cann't inturrept a finished generation
-                }
-                g_generation_session.request_status =
-                    Enum.RequestStateEnum['Interrupted']
+//                     return null // cann't inturrept a finished generation
+//                 }
+//                 g_generation_session.request_status =
+//                     Enum.RequestStateEnum['Interrupted']
 
-                g_batch_count_interrupt_status = true // interrupt batch count generations
-                const backend_type = html_manip.getBackendType()
+//                 g_batch_count_interrupt_status = true // interrupt batch count generations
+//                 const backend_type = html_manip.getBackendType()
 
-                if (backend_type === backendTypeEnum['HordeNative']) {
-                    //interrupt the horde
+//                 if (backend_type === backendTypeEnum['HordeNative']) {
+//                     //interrupt the horde
 
-                    await g_horde_generator.interrupt()
-                } else {
-                    //interrupt auto1111
+//                     await g_horde_generator.interrupt()
+//                 } else {
+//                     //interrupt auto1111
 
-                    json = await sdapi.requestInterrupt()
-                }
+//                     json = await sdapi.requestInterrupt()
+//                 }
 
-                toggleTwoButtonsByClass(
-                    false,
-                    'btnGenerateClass',
-                    'btnInterruptClass'
-                )
-                g_can_request_progress = false
+//                 toggleTwoButtonsByClass(
+//                     false,
+//                     'btnGenerateClass',
+//                     'btnInterruptClass'
+//                 )
+//                 g_can_request_progress = false
 
-                // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
-            } catch (e) {
-                // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
-                toggleTwoButtonsByClass(
-                    false,
-                    'btnGenerateClass',
-                    'btnInterruptClass'
-                )
-                g_can_request_progress = false
-                console.warn(e)
-            }
-        })
-    }
-)
+//                 // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+//             } catch (e) {
+//                 // g_can_request_progress = toggleTwoButtons(false,'btnGenerate','btnInterrupt')
+//                 toggleTwoButtonsByClass(
+//                     false,
+//                     'btnGenerateClass',
+//                     'btnInterruptClass'
+//                 )
+//                 g_can_request_progress = false
+//                 console.warn(e)
+//             }
+//         })
+//     }
+// )
 //REFACTOR: move to psapi.js
 //store active layers only if they are not stored.
 async function storeActiveLayers() {
@@ -1835,366 +1878,7 @@ function updateMetadata(new_metadata) {
     }
     return metadatas
 }
-//REFACTOR: move to generation_settings.js
-async function getSettings() {
-    let payload = {}
 
-    try {
-        const extension_type = settings_tab.getExtensionType() // get the extension type
-        const selectionInfo = await psapi.getSelectionInfoExe()
-        payload['selection_info'] = selectionInfo
-        const numberOfBatchSize = parseInt(
-            document.querySelector('#tiNumberOfBatchSize').value
-        )
-        const numberOfSteps = document.querySelector('#tiNumberOfSteps').value
-        const prompt = html_manip.getPrompt()
-        const negative_prompt = html_manip.getNegativePrompt()
-        const hi_res_fix = html_manip.getHiResFixs()
-        // console.log("prompt:",prompt)
-        // console.log("negative_prompt:",negative_prompt)
-        const model_index = document.querySelector('#mModelsMenu').selectedIndex
-        const upscaler = document.querySelector('#hrModelsMenu').value
-        const cfg_scale = document.querySelector('#slCfgScale').value
-        //  const model_index = document.querySelector("#")
-
-        function calculateSeed(init_seed, batch_index, batch_size) {
-            if (init_seed === -1) return -1
-            const seed = init_seed + batch_index * batch_size
-            return seed
-        }
-
-        const init_seed = parseInt(document.querySelector('#tiSeed').value)
-        const seed = calculateSeed(
-            init_seed,
-            g_current_batch_index,
-            numberOfBatchSize
-        )
-
-        // const mask_blur = document.querySelector('#slMaskBlur').value
-        const use_sharp_mask = settings_tab.getUseSharpMask()
-        const mask_blur = html_manip.getMaskBlur()
-        const mask_expansion = document.getElementById('slMaskExpansion').value
-
-        const inpaint_full_res_padding =
-            document.querySelector('#slInpaintPadding').value
-
-        // console.dir(numberOfImages)
-        const bUsePromptShortcut = document.getElementById(
-            'chUsePromptShortcut'
-        ).checked
-        let prompt_shortcut_ui_dict = {}
-        try {
-            let prompt_shortcut_string =
-                document.getElementById('taPromptShortcut').value
-            prompt_shortcut_ui_dict = JSON.parse(prompt_shortcut_string)
-        } catch (e) {
-            console.warn(
-                `warning prompt_shortcut_ui_dict is not valid Json obj: ${e}`
-            )
-            prompt_shortcut_ui_dict = {}
-        }
-
-        // const slider_width = document.getElementById("slWidth").value
-        // gWidth = getWidthFromSlider(slider_width)
-        const original_width = html_manip.getWidth()
-        const original_height = html_manip.getHeight()
-
-        const width = general.nearestMultiple(original_width, 64)
-        const height = general.nearestMultiple(original_height, 64)
-
-        const hWidth = html_manip.getSliderSdValue_Old('hrWidth', 64)
-        const hHeight = html_manip.getSliderSdValue_Old('hrHeight', 64)
-        const hSteps = html_manip.getSliderSdValue_Old('hrNumberOfSteps', 1)
-        //const hScale = html_manip.getSliderSdValue_Old('hrScale',1)
-        console.log('Check')
-
-        const uniqueDocumentId = await getUniqueDocumentId()
-        const h_denoising_strength = html_manip.getSliderSdValue_Old(
-            'hrDenoisingStrength',
-            0.01
-        )
-        console.log('Check2')
-
-        //Note: store the sampler names in json file if auto is offline or auto api is unmounted
-
-        const sampler_name = html_manip.getCheckedSamplerName()
-
-        const mode = html_manip.getMode()
-        const b_restore_faces =
-            document.getElementById('chRestoreFaces').checked
-
-        let denoising_strength = h_denoising_strength
-        if (mode == 'inpaint' || mode == 'outpaint') {
-            var g_use_mask_image = true
-            payload['inpaint_full_res'] =
-                document.getElementById('chInpaintFullRes').checked
-            payload['inpaint_full_res_padding'] = inpaint_full_res_padding * 4
-
-            console.log('g_use_mask_image is ', g_use_mask_image)
-            console.log('g_init_image_mask_name is ', g_init_image_mask_name)
-            payload['init_image_mask_name'] = g_init_image_mask_name
-            payload['inpainting_fill'] = html_manip.getMaskContent()
-            payload['mask_expansion'] = mask_expansion
-            payload['mask'] = g_generation_session.activeBase64MaskImage
-
-            if (use_sharp_mask === false && payload['mask']) {
-                //only if mask is available and sharp_mask is off
-                // use blurry and expanded mask
-                const iterations = payload['mask_expansion']
-                const mask = await py_re.maskExpansionRequest(
-                    payload['mask'],
-                    iterations
-                )
-                if (mask) {
-                    g_generation_session.base64maskExpansionImage = mask
-                    payload['mask'] = mask
-                }
-            }
-        } else if (mode == 'img2img') {
-            var g_use_mask_image = false
-            delete payload['inpaint_full_res'] //  inpaint full res is not available in img2img mode
-            delete payload['inpaint_full_res_padding']
-            delete payload['init_image_mask_name']
-            delete payload['inpainting_fill']
-        }
-
-        if (
-            g_sd_mode == 'img2img' ||
-            g_sd_mode == 'inpaint' ||
-            g_sd_mode == 'outpaint'
-        ) {
-            console.log(`g_use_mask_image:? ${g_use_mask_image}`)
-
-            denoising_strength = html_manip.getDenoisingStrength()
-            payload['denoising_strength'] = denoising_strength
-            payload['init_image_name'] = g_init_image_name
-
-            payload['init_images'] = [
-                g_generation_session.activeBase64InitImage,
-            ]
-            payload['image_cfg_scale'] = sd_tab.getImageCfgScaleSDValue() // we may need to check if model is pix2pix
-
-            if (
-                scripts.script_store.isInstalled() &&
-                scripts.script_store.is_active &&
-                scripts.script_store.selected_script_name !== 'None' &&
-                scripts.script_store.is_selected_script_available
-            ) {
-                payload['script_args'] = scripts.script_store.orderedValues()
-
-                payload['script_name'] =
-                    scripts.script_store.selected_script_name //'Ultimate SD upscale'
-            }
-        } else {
-            delete payload['script_args']
-            delete payload['script_name']
-        }
-
-        // payload['script_args'] = []
-
-        // payload['script_name'] = 'after detailer'
-        function setAlwaysOnScripts() {
-            const data = after_detailer_script.store.toJsFunc().data
-            console.log('setAlwaysOnScripts=> data:', data)
-
-            const alwayson_scripts = {
-                'After Detailer': {
-                    args: [
-                        data.is_enabled,
-                        {
-                            // ad_model: 'face_yolov8n.pt',
-                            ad_model: data.ad_model,
-                            ad_prompt: data.prompt,
-                            ad_negative_prompt: data.negativePrompt,
-                            ad_conf: data.ad_conf,
-                            ad_mask_min_ratio: 0.0,
-                            ad_mask_max_ratio: 1.0,
-                            ad_dilate_erode: 32,
-                            ad_x_offset: 0,
-                            ad_y_offset: 0,
-                            ad_mask_merge_invert: 'None',
-                            ad_mask_blur: 4,
-                            ad_denoising_strength: 0.4,
-                            ad_inpaint_full_res: true,
-                            ad_inpaint_full_res_padding: 0,
-                            ad_use_inpaint_width_height: false,
-                            ad_inpaint_width: 512,
-                            ad_inpaint_height: 512,
-                            ad_use_steps: true,
-                            ad_steps: 28,
-                            ad_use_cfg_scale: false,
-                            ad_cfg_scale: 7.0,
-                            ad_restore_face: false,
-                            ad_controlnet_model: data.controlnet_model,
-                            ad_controlnet_weight: data.controlNetWeight,
-                        },
-                    ],
-                },
-            }
-            if (!data?.is_installed) {
-                delete alwayson_scripts['After Detailer']
-            }
-            return alwayson_scripts
-        }
-
-        const alwyason_scripts = setAlwaysOnScripts()
-        payload['alwayson_scripts'] = {
-            ...(payload['alwayson_scripts'] || {}),
-            ...alwyason_scripts,
-        }
-
-        if (hi_res_fix && width >= 512 && height >= 512) {
-            const hr_scale = sd_tab.getHrScaleSliderSDValue()
-
-            payload['enable_hr'] = hi_res_fix
-            // payload['firstphase_width'] = width
-            // payload['firstphase_height'] = height
-            // payload['hr_resize_x'] = hWidth
-            // payload['hr_resize_y'] = hHeight
-            payload['hr_scale'] = hr_scale // Scale
-            payload['hr_upscaler'] = upscaler // Upscaler
-            payload['hr_second_pass_steps'] = hSteps // Number of Steps
-        } else {
-            //fix hi res bug: if we include firstphase_width or firstphase_height in the payload,
-            // sd api will use them instead of using width and height variables, even when enable_hr is set to "false"
-            delete payload['enable_hr']
-            // delete payload['firstphase_width']
-            // delete payload['firstphase_height']
-        }
-
-        //work with the hord
-
-        // const script_args_json = {
-        //   model: "Anything Diffusion",
-        //   nsfw: false,
-        //   shared_laion: false,
-        //   seed_variation: 1,
-        //   post_processing_1: "None",
-        //   post_processing_2: "None",
-        //   post_processing_3: "None"
-        // }
-        // const script_args = Object.values(script_args_json)
-
-        const backend_type = html_manip.getBackendType()
-        if (backend_type === backendTypeEnum['Auto1111HordeExtension']) {
-            payload['script_name'] = script_horde.script_name
-            payload['script_args'] = script_horde.getScriptArgs()
-        } else if (
-            payload['script_name'] === script_horde.script_name &&
-            backend_type !== backendTypeEnum['Auto1111HordeExtension']
-        ) {
-            delete payload['script_name']
-            delete payload['script_args']
-        }
-
-        if (bUsePromptShortcut) {
-            //replace the prompt with the prompt shortcut equivalent
-            const [new_prompt, new_negative_prompt] =
-                py_re.replacePromptsWithShortcuts(
-                    prompt,
-                    negative_prompt,
-                    prompt_shortcut_ui_dict
-                )
-
-            //used in generation
-            payload['prompt'] = new_prompt
-            payload['negative_prompt'] = new_negative_prompt
-
-            //used to when resote settings from metadata
-            payload['original_prompt'] = prompt
-            payload['original_negative_prompt'] = negative_prompt
-        } else {
-            //use the same prompt as in the prompt textarea
-            payload['prompt'] = prompt
-            payload['negative_prompt'] = negative_prompt
-
-            payload['original_prompt'] = prompt
-            payload['original_negative_prompt'] = negative_prompt
-        }
-
-        payload = {
-            ...payload,
-            // prompt: prompt,
-            // negative_prompt: negative_prompt,
-            steps: numberOfSteps,
-            // n_iter: numberOfImages,
-            sampler_index: sampler_name,
-            width: width,
-            height: height,
-            denoising_strength: denoising_strength,
-            batch_size: numberOfBatchSize,
-            cfg_scale: cfg_scale,
-            seed: seed,
-            mask_blur: mask_blur,
-            use_sharp_mask: use_sharp_mask,
-            use_prompt_shortcut: bUsePromptShortcut,
-            prompt_shortcut_ui_dict: prompt_shortcut_ui_dict,
-            uniqueDocumentId: uniqueDocumentId,
-            mode: mode,
-            restore_faces: b_restore_faces,
-            // script_args: script_args,
-            // script_name:"Run on Stable Horde"
-        }
-    } catch (e) {
-        console.error(e)
-    }
-    return payload
-}
-//REFACTOR: move to generation_settings.js
-async function getExtraSettings() {
-    let payload = {}
-    try {
-        const html_manip = require('./utility/html_manip')
-        const upscaling_resize = html_manip.getUpscaleSize()
-        const gfpgan_visibility = html_manip.getGFPGANVisibility()
-        const codeformer_visibility = html_manip.getCodeFormerVisibility()
-        const codeformer_weight = html_manip.getCodeFormerWeight()
-        const selection_info = await psapi.getSelectionInfoExe()
-        const width = selection_info.width * upscaling_resize
-        const height = selection_info.height * upscaling_resize
-        //resize_mode = 0 means "resize to upscaling_resize"
-        //resize_mode = 1 means "resize to width and height"
-        payload['resize_mode'] = 0
-        payload['show_extras_results'] = 0
-        payload['gfpgan_visibility'] = gfpgan_visibility
-        payload['codeformer_visibility'] = codeformer_visibility
-        payload['codeformer_weight'] = codeformer_weight
-        payload['upscaling_resize'] = upscaling_resize
-        payload['upscaling_resize_w'] = width
-        payload['upscaling_resize_h'] = height
-        payload['upscaling_crop'] = true
-        const upscaler1 = document.querySelector('#hrModelsMenuUpscale1').value
-        payload['upscaler_1'] = upscaler1 === undefined ? 'None' : upscaler1
-        const upscaler2 = document.querySelector('#hrModelsMenuUpscale2').value
-        payload['upscaler_2'] = upscaler2 === undefined ? 'None' : upscaler2
-        const extras_upscaler_2_visibility = html_manip.getUpscaler2Visibility()
-        payload['extras_upscaler_2_visibility'] = extras_upscaler_2_visibility
-        payload['upscale_first'] = false
-        const uniqueDocumentId = await getUniqueDocumentId()
-        payload['uniqueDocumentId'] = uniqueDocumentId
-
-        // const layer = await app.activeDocument.activeLayers[0]
-        const layer = await app.activeDocument.activeLayers[0]
-        const old_name = layer.name
-
-        // image_name = await app.activeDocument.activeLayers[0].name
-
-        //convert layer name to a file name
-        let image_name = psapi.layerNameToFileName(
-            old_name,
-            layer.id,
-            random_session_id
-        )
-        image_name = `${image_name}.png`
-
-        const base64_image = g_generation_session.activeBase64InitImage
-
-        payload['image'] = base64_image
-    } catch (e) {
-        console.error(e)
-    }
-    return payload
-}
 //REFACTOR: move to generation_settings.js
 async function getExtraSettings() {
     let payload = {}
@@ -2327,6 +2011,15 @@ async function hasSelectionChanged(new_selection, old_selection) {
 //REFACTOR: move to generation.js
 async function easyModeGenerate(mode) {
     try {
+        //save laso selection
+        if (g_is_laso_inapint_mode) {
+            await selection.makeMaskChannelExe('mask')
+        }
+    } catch (e) {
+        console.warn(e)
+    }
+
+    try {
         if (
             g_generation_session.request_status !==
             Enum.RequestStateEnum['Finished']
@@ -2455,14 +2148,48 @@ async function easyModeGenerate(mode) {
         }
 
         await psapi.selectLayersExe([active_layer]) //reselect the active layer since the clean up of the session sometime will change which layer is selected
+        let init_image
+        let mask
         if (mode === 'txt2img') {
             //Note: keep it for clearity/ readibility
         } else if (mode === 'img2img' || mode === 'upscale') {
-            await snapAndFillHandler()
+            // await snapAndFillHandler()
+            init_image = await io.getImg2ImgInitImage()
+            g_generation_session.activeBase64InitImage = init_image
         } else if (mode === 'inpaint') {
-            await btnInitInpaintHandler()
+            // await btnInitInpaintHandler()
+
+            if (g_is_laso_inapint_mode) {
+                await selection.channelToSelectionExe('mask')
+                const [init_image_base64, mask_base64] =
+                    await selection.inpaintLassoInitImageAndMask()
+                init_image = init_image_base64
+                mask = mask_base64
+                g_generation_session.activeBase64InitImage = init_image
+                g_generation_session.activeBase64MaskImage = mask
+            } else {
+                //normal inpaint
+                try {
+                    await executeAsModal(async () => {
+                        g_inpaint_mask_layer.opacity = 100
+                    })
+                } catch (e) {
+                    console.warn(e)
+                }
+                const obj = await io.getInpaintInitImageAndMask()
+
+                init_image = obj.init_image
+                g_generation_session.activeBase64InitImage = init_image
+                mask = obj.mask
+                g_generation_session.activeBase64MaskImage = mask
+            }
         } else if (mode === 'outpaint') {
-            await easyModeOutpaint()
+            // await easyModeOutpaint()
+            const obj = await io.getOutpaintInitImageAndMask()
+            init_image = obj.init_image
+            g_generation_session.activeBase64InitImage = init_image
+            mask = obj.mask
+            g_generation_session.activeBase64MaskImage = mask
         }
 
         //safe to close the previous generation_session outputfolder, since closing a folder will unselect any layer in it.
@@ -2473,7 +2200,41 @@ async function easyModeGenerate(mode) {
         const settings =
             mode === 'upscale' ? await getExtraSettings() : await getSettings()
 
+        if (mode === 'img2img') {
+            // const init_image = await io.getImg2ImgInitImage()
+            settings['init_images'] = [init_image]
+        } else if (mode === 'inpaint') {
+            // const { init_image, mask } = await io.getInpaintInitImageAndMask()
+            settings['init_images'] = [init_image]
+            // settings['mask'] = mask
+        } else if (mode === 'outpaint') {
+            settings['init_images'] = [init_image]
+            // settings['mask'] = mask
+        }
         g_generation_session.last_settings = settings
+
+        async function updateViewerStore(store, images) {
+            try {
+                if (typeof images === 'undefined' || !images) {
+                    return null
+                }
+                store.data.images = images
+                const thumbnail_list = []
+                for (const base64 of images) {
+                    const thumbnail = await io.createThumbnail(base64, 300)
+                    thumbnail_list.push(thumbnail)
+                }
+
+                store.data.thumbnails = thumbnail_list
+            } catch (e) {
+                console.warn(e)
+                console.warn('images: ', images)
+            }
+        }
+
+        await updateViewerStore(viewer.init_store, settings?.init_images)
+        await updateViewerStore(viewer.mask_store, [settings?.mask])
+
         // g_generation_session.is_control_net = control_net.getEnableControlNet()
         g_generation_session.is_control_net =
             control_net.isControlNetModeEnable()
@@ -2630,8 +2391,8 @@ async function generate(settings, mode) {
         if (isFirstGeneration) {
             //this is new generation session
 
-            g_generation_session.image_paths_to_layers =
-                await silentImagesToLayersExe(images_info)
+            // g_generation_session.image_paths_to_layers =
+            //     await silentImagesToLayersExe(images_info)
 
             g_generation_session.base64OutputImages = {} //delete all previouse images, Note move this to session end ()
             for (const image_info of images_info) {
@@ -2639,14 +2400,14 @@ async function generate(settings, mode) {
                 const base64_image = image_info['base64']
                 g_generation_session.base64OutputImages[path] = base64_image
                 const [document_name, image_name] = path.split('/')
-                await saveFileInSubFolder(
+                await io.saveFileInSubFolder(
                     base64_image,
                     document_name,
                     image_name
                 ) //save the output image
                 const json_file_name = `${image_name.split('.')[0]}.json`
                 settings['auto_metadata'] = image_info?.auto_metadata
-                await saveJsonFileInSubFolder(
+                await io.saveJsonFileInSubFolder(
                     settings,
                     document_name,
                     json_file_name
@@ -2658,35 +2419,56 @@ async function generate(settings, mode) {
         } else {
             // generation session is active so we will generate more
 
-            let last_images_paths = await silentImagesToLayersExe(images_info)
+            // let last_images_paths = await silentImagesToLayersExe(images_info)
 
             for (const image_info of images_info) {
                 const path = image_info['path']
                 const base64_image = image_info['base64']
                 g_generation_session.base64OutputImages[path] = base64_image
                 const [document_name, image_name] = path.split('/')
-                await saveFileInSubFolder(
+                await io.saveFileInSubFolder(
                     base64_image,
                     document_name,
                     image_name
                 )
                 const json_file_name = `${image_name.split('.')[0]}.json`
                 settings['auto_metadata'] = image_info?.auto_metadata
-                await saveJsonFileInSubFolder(
+                await io.saveJsonFileInSubFolder(
                     settings,
                     document_name,
                     json_file_name
                 ) //save the settings
             }
 
-            g_generation_session.image_paths_to_layers = {
-                ...g_generation_session.image_paths_to_layers,
-                ...last_images_paths,
-            }
+            // g_generation_session.image_paths_to_layers = {
+            //     ...g_generation_session.image_paths_to_layers,
+            //     ...last_images_paths,
+            // }
             g_number_generation_per_session++
         }
         await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
         //update the viewer
+        const base64_list = Object.entries(
+            g_generation_session.base64OutputImages
+        ).map((obj) => obj[1] ?? '')
+
+        const thumbnail_list = []
+        for (const base64 of base64_list) {
+            const thumbnail = await io.createThumbnail(base64, 300)
+            thumbnail_list.push(thumbnail)
+        }
+
+        viewer.store.updateProperty('thumbnails', thumbnail_list)
+        viewer.store.updateProperty('images', base64_list)
+        //load react viewer
+        //*) extract thumbnails
+        //*) extract images
+        //*) on thumbnail click
+        //*) delete previous layer if it exist
+        //*) load image to canvas
+        //*)
+
+        //
         await loadViewerImages()
 
         //esnures that progress bars are set to 0 (as last progress request call might have returned less than 100%)
@@ -2739,9 +2521,8 @@ document.querySelector('#mModelsMenu').addEventListener('change', (evt) => {
     sdapi.requestSwapModel(g_model_title)
 })
 //REFACTOR: move to events.js
-document
-    .getElementById('btnLayerToSelection')
-    .addEventListener('click', async () => {
+document.querySelectorAll('.btnLayerToSelection').forEach((el) => {
+    el.addEventListener('click', async () => {
         try {
             const isSelectionAreaValid =
                 await psapi.checkIfSelectionAreaIsActive()
@@ -2755,6 +2536,8 @@ document
             console.warn(e)
         }
     })
+})
+
 //REFACTOR: move to events.js
 document
     .getElementById('btnSetInitImageViewer')
@@ -2893,6 +2676,7 @@ async function progressRecursive() {
                 Enum.RequestStateEnum['Generating']
         ) {
             const base64_url = general.base64ToBase64Url(json.current_image)
+            preview.store.updateProperty('image', json.current_image)
 
             const progress_image_html = document.getElementById('progressImage')
             const container_width = document.querySelector(
@@ -2942,6 +2726,7 @@ async function progressRecursive() {
             }, 1000)
         }
     } catch (e) {
+        console.warn(e)
         if (
             g_generation_session.isActive() &&
             g_can_request_progress === true
@@ -3172,67 +2957,7 @@ async function getInitImagesDir() {
     }
     return init_folder
 }
-//REFACTOR: move to document.js
-async function saveFileInSubFolder(b64Image, sub_folder_name, file_name) {
-    // const b64Image =
-    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
 
-    const img = _base64ToArrayBuffer(b64Image)
-
-    // const img_name = 'temp_output_image.png'
-    const img_name = file_name
-    const folder = await storage.localFileSystem.getDataFolder()
-    const documentFolderName = sub_folder_name
-    let documentFolder
-    try {
-        documentFolder = await folder.getEntry(documentFolderName)
-    } catch (e) {
-        console.warn(e)
-        //create document folder
-        documentFolder = await folder.createFolder(documentFolderName)
-    }
-
-    console.log('documentFolder.nativePath: ', documentFolder.nativePath)
-    const file = await documentFolder.createFile(img_name, { overwrite: true })
-
-    await file.write(img, { format: storage.formats.binary })
-
-    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
-}
-//REFACTOR: move to document.js
-async function saveJsonFileInSubFolder(json, sub_folder_name, file_name) {
-    // const b64Image =
-    //     'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC'
-
-    // const img_name = 'temp_output_image.png'
-
-    const json_file_name = file_name
-
-    const folder = await storage.localFileSystem.getDataFolder()
-    const documentFolderName = sub_folder_name
-    let documentFolder
-    try {
-        documentFolder = await folder.getEntry(documentFolderName)
-    } catch (e) {
-        console.warn(e)
-        //create document folder
-        documentFolder = await folder.createFolder(documentFolderName)
-    }
-
-    console.log('documentFolder.nativePath: ', documentFolder.nativePath)
-    const file = await documentFolder.createFile(json_file_name, {
-        type: storage.types.file,
-        overwrite: true,
-    })
-
-    const JSONInPrettyFormat = JSON.stringify(json, undefined, 4)
-    await file.write(JSONInPrettyFormat, {
-        format: storage.formats.utf8,
-        append: false,
-    })
-
-    const token = await storage.localFileSystem.createSessionToken(file) // batchPlay requires a token on _path
-}
 //REFACTOR: move to document.js
 async function base64ToFile(b64Image, image_name = 'output_image.png') {
     // const b64Image =
@@ -3796,7 +3521,7 @@ async function loadViewerImages() {
         // container.removeChild(container.firstChild);
         // }
         image_paths = Object.keys(g_generation_session.image_paths_to_layers)
-        console.log('image_paths: ', image_paths)
+        // console.log('image_paths: ', image_paths)
         let i = 0
 
         // const viewer_layers = []
@@ -3874,7 +3599,7 @@ async function loadViewerImages() {
             }
         }
 
-        console.log('image_paths: ', image_paths)
+        // console.log('image_paths: ', image_paths)
         let lastOutputImage
         for (const path of image_paths) {
             // const path = image_path
@@ -3982,27 +3707,27 @@ async function deleteNoneSelected(viewer_objects) {
 // document.getElementById('btnLoadViewer').addEventListener('click', loadViewerImages)
 
 //REFACTOR: move to document.js
-async function moveHistoryImageToLayer(img) {
-    let image_path = img.dataset.path
-    const image_path_escape = image_path.replace(/\o/g, '/o') //escape string "\o" in "\output"
+// async function moveHistoryImageToLayer(img) {
+//     let image_path = img.dataset.path
+//     const image_path_escape = image_path.replace(/\o/g, '/o') //escape string "\o" in "\output"
 
-    // load the image from "data:image/png;base64," base64_str
-    const base64_image = img.src.replace('data:image/png;base64,', '')
-    // await base64ToFile(base64_image)
-    const metadata_json = JSON.parse(img.dataset.metadata_json_string)
-    const to_x = metadata_json['selection_info']?.left
-    const to_y = metadata_json['selection_info']?.top
-    const width = metadata_json['selection_info']?.width
-    const height = metadata_json['selection_info']?.height
-    await io.IO.base64ToLayer(
-        base64_image,
-        'History Image',
-        to_x,
-        to_y,
-        width,
-        height
-    )
-}
+//     // load the image from "data:image/png;base64," base64_str
+//     const base64_image = img.src.replace('data:image/png;base64,', '')
+//     // await base64ToFile(base64_image)
+//     const metadata_json = JSON.parse(img.dataset.metadata_json_string)
+//     const to_x = metadata_json['selection_info']?.left
+//     const to_y = metadata_json['selection_info']?.top
+//     const width = metadata_json['selection_info']?.width
+//     const height = metadata_json['selection_info']?.height
+//     await io.IO.base64ToLayer(
+//         base64_image,
+//         'History Image',
+//         to_x,
+//         to_y,
+//         width,
+//         height
+//     )
+// }
 
 //REFACTOR: move to document.js
 async function loadPromptShortcut() {
@@ -4235,8 +3960,8 @@ async function downloadItExe(link, writeable_entry, image_file_name) {
 //REFACTOR: move to session.js or selection.js
 async function activateSessionSelectionArea() {
     try {
-        if (psapi.isSelectionValid(g_generation_session.selectionInfo)) {
-            await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
+        if (psapi.isSelectionValid(session_ts.store.data.selectionInfo)) {
+            await psapi.reSelectMarqueeExe(session_ts.store.data.selectionInfo)
             await eventHandler()
         }
     } catch (e) {
@@ -4388,281 +4113,12 @@ document
     .addEventListener('click', async () => {
         await horde_native.HordeSettings.saveSettings()
     })
-//REFACTOR: move to psapi.js
-async function getColor(X, Y) {
-    // const background_layer_id = await app.activeDocument.backgroundLayer.id
-
-    const batchPlay = require('photoshop').action.batchPlay
-    try {
-        const result = await batchPlay(
-            [
-                {
-                    _obj: 'colorSampler',
-                    _target: {
-                        _ref: 'document',
-                        _enum: 'ordinal',
-                        _value: 'targetEnum',
-                    },
-                    samplePoint: {
-                        horizontal: X,
-                        vertical: Y,
-                    },
-                },
-            ],
-            {}
-        )
-
-        const red = result[0].colorSampler.red
-        const green = result[0].colorSampler.grain
-        const blue = result[0].colorSampler.blue
-
-        return [red, green, blue]
-    } catch (e) {
-        console.warn(e)
-    }
-}
-//REFACTOR: move to document.js
-async function findDocumentType() {
-    //check if the background layer exsit
-    //if it doesn't return false
-    //if it does:
-    //duplicate the background layer and place it on the top of the document.
-    //sampler 10 random pixles
-    //and check if all the pixels has the same values.
-    //if it doesn't duplicate the background layer and place it above the background layer.
-    // make a white background layer.
-    //return true
-
-    let document_type
-    const background_layer = await app.activeDocument.backgroundLayer
-    const has_background_layer = app.activeDocument.backgroundLayer
-        ? true
-        : false
-    const artboards = Array.from(await app.activeDocument.artboards)
-    if (artboards.length > 0) {
-        document_type = Enum.DocumentTypeEnum['ArtBoard']
-        // } else if (layer_util.Layer.doesLayerExist(background_layer)) {
-    } else if (has_background_layer) {
-        //assume it's solid white background if correctHistory > 1 || layers.length > 5
-        const b_correct_background = await isCorrectBackground() // check the history for correct operation
-        if (b_correct_background) {
-            document_type = Enum.DocumentTypeEnum['SolidBackground']
-        } else {
-            //else
-
-            //background layer does exist
-            //check if it's solid color background or an image background
-            //sampler 10 random pixels
-            let width = app.activeDocument.width
-            let height = app.activeDocument.height
-            let old_rgb
-            let same_color = true
-
-            await executeAsModal(async () => {
-                if (app.activeDocument.layers.length > 1) {
-                    await layer_util.toggleBackgroundLayerExe() // hide all layers except the background layer
-                }
-                for (let i = 0; i < 10; ++i) {
-                    let x = Math.floor(Math.random() * width)
-                    let y = Math.floor(Math.random() * height)
-
-                    const rgb = await getColor(x, y)
-                    if (old_rgb) {
-                        if (
-                            Math.round(old_rgb[0]) === Math.round(rgb[0]) &&
-                            Math.round(old_rgb[1]) === Math.round(rgb[1]) &&
-                            Math.round(old_rgb[2]) === Math.round(rgb[2])
-                        ) {
-                        } else {
-                            same_color = false //it's an image background
-                            break
-                        }
-                    }
-                    old_rgb = rgb
-                }
-                if (app.activeDocument.layers.length > 1) {
-                    await layer_util.toggleBackgroundLayerExe() // undo the toggle operation; display all layers
-                }
-            })
-
-            document_type = same_color
-                ? Enum.DocumentTypeEnum['SolidBackground']
-                : Enum.DocumentTypeEnum['ImageBackground']
-        }
-    } else {
-        //create the background layer since it doesn't exsit
-        document_type = Enum.DocumentTypeEnum['NoBackground']
-    }
-
-    return document_type
-}
-//REFACTOR: move to document.js
-async function correctDocumentType(documentType) {
-    if (documentType === Enum.DocumentTypeEnum['SolidBackground']) {
-        //do nothing
-    } else if (documentType === Enum.DocumentTypeEnum['ImageBackground']) {
-        //duplicate the layer
-        await executeAsModal(async () => {
-            const image_layer =
-                await app.activeDocument.backgroundLayer.duplicate() //
-            image_layer.name = 'Image'
-            await app.activeDocument.backgroundLayer.delete()
-            await layer_util.createBackgroundLayer(255, 255, 255)
-        })
-    } else if (documentType === Enum.DocumentTypeEnum['ArtBoard']) {
-        //duplicate the layer
-        await app.showAlert(
-            "the plugin doesn't work with artboards, create normal document with no artboard to use the plugin"
-        )
-        throw "the plugin doesn't work with artboards, create normal document with no artboard to use the plugin"
-    } else if (documentType === Enum.DocumentTypeEnum['NoBackground']) {
-        await layer_util.createBackgroundLayer(255, 255, 255)
-    }
-}
-
-async function isCorrectBackground() {
-    const historylist = app.activeDocument.historyStates.filter(
-        (h) => h.name === 'Correct Background'
-    )
-    console.log('historylist:', historylist)
-    const is_correct_background = historylist.length > 0 ? true : false
-    return is_correct_background
-}
 
 document
     .getElementById('btnSaveHordeSettings')
     .addEventListener('click', async () => {
         await horde_native.HordeSettings.saveSettings()
     })
-
-async function getColor(X, Y) {
-    // const background_layer_id = await app.activeDocument.backgroundLayer.id
-
-    const batchPlay = require('photoshop').action.batchPlay
-    try {
-        const result = await batchPlay(
-            [
-                {
-                    _obj: 'colorSampler',
-                    _target: {
-                        _ref: 'document',
-                        _enum: 'ordinal',
-                        _value: 'targetEnum',
-                    },
-                    samplePoint: {
-                        horizontal: X,
-                        vertical: Y,
-                    },
-                },
-            ],
-            {}
-        )
-
-        const red = result[0].colorSampler.red
-        const green = result[0].colorSampler.grain
-        const blue = result[0].colorSampler.blue
-
-        return [red, green, blue]
-    } catch (e) {
-        console.warn(e)
-    }
-}
-
-// async function findDocumentType() {
-//     //check if the background layer exsit
-//     //if it doesn't return false
-//     //if it does:
-//     //duplicate the background layer and place it on the top of the document.
-//     //sampler 10 random pixles
-//     //and check if all the pixels has the same values.
-//     //if it doesn't duplicate the background layer and place it above the background layer.
-//     // make a white background layer.
-//     //return true
-
-//     let document_type
-//     const background_layer = await app.activeDocument.backgroundLayer
-//     const artboards = Array.from(await app.activeDocument.artboards)
-//     if (artboards.length > 0) {
-//         document_type = Enum.DocumentTypeEnum['ArtBoard']
-//     } else if (layer_util.Layer.doesLayerExist(background_layer)) {
-//         //assume it's solid white background if correctHistory > 1 || layers.length > 5
-//         const b_correct_background = await isCorrectBackground()
-//         if (b_correct_background) {
-//             document_type = Enum.DocumentTypeEnum['SolidBackground']
-//         } else {
-//             //else
-
-//             //background layer does exist
-//             //check if it's solid color background or an image background
-//             //sampler 10 random pixels
-//             let width = app.activeDocument.width
-//             let height = app.activeDocument.height
-//             let old_rgb
-//             let same_color = true
-//             await executeAsModal(async () => {
-//                 for (let i = 0; i < 10; ++i) {
-//                     let x = Math.floor(Math.random() * width)
-//                     let y = Math.floor(Math.random() * height)
-
-//                     const rgb = await getColor(x, y)
-//                     if (old_rgb) {
-//                         if (
-//                             Math.round(old_rgb[0]) === Math.round(rgb[0]) &&
-//                             Math.round(old_rgb[1]) === Math.round(rgb[1]) &&
-//                             Math.round(old_rgb[2]) === Math.round(rgb[2])
-//                         ) {
-//                         } else {
-//                             same_color = false //it's an image background
-//                             break
-//                         }
-//                     }
-//                     old_rgb = rgb
-//                 }
-//             })
-
-//             document_type = same_color
-//                 ? Enum.DocumentTypeEnum['SolidBackground']
-//                 : Enum.DocumentTypeEnum['ImageBackground']
-//         }
-//     } else {
-//         //create the background layer since it doesn't exsit
-//         document_type = Enum.DocumentTypeEnum['NoBackground']
-//     }
-
-//     return document_type
-// }
-
-async function correctDocumentType(documentType) {
-    if (documentType === Enum.DocumentTypeEnum['SolidBackground']) {
-        //do nothing
-    } else if (documentType === Enum.DocumentTypeEnum['ImageBackground']) {
-        //duplicate the layer
-        await executeAsModal(async () => {
-            const image_layer =
-                await app.activeDocument.backgroundLayer.duplicate() //
-            image_layer.name = 'Image'
-            await app.activeDocument.backgroundLayer.delete()
-            await layer_util.createBackgroundLayer(255, 255, 255)
-        })
-    } else if (documentType === Enum.DocumentTypeEnum['ArtBoard']) {
-        //duplicate the layer
-        await app.showAlert(
-            "the plugin doesn't work with artboards, create normal document with no artboard to use the plugin"
-        )
-        throw "the plugin doesn't work with artboards, create normal document with no artboard to use the plugin"
-    } else if (documentType === Enum.DocumentTypeEnum['NoBackground']) {
-        await layer_util.createBackgroundLayer(255, 255, 255)
-    }
-}
-
-async function isCorrectBackground() {
-    const historylist = app.activeDocument.historyStates.filter(
-        (h) => h.name === 'Correct Background'
-    )
-    console.log('historylist:', historylist)
-    const is_correct_background = historylist.length > 0 ? true : false
-    return is_correct_background
-}
 
 let g_viewer_sub_menu_list = []
 
@@ -4780,6 +4236,20 @@ document.getElementsByClassName('sub-menu-tab-class').forEach((element) => {
 Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
     switchMenu(rb)
 })
+
+document.getElementById('scrollToPrompt').addEventListener('click', () => {
+    document
+        .querySelector('#search_second_panel > div.previewContainer')
+        .scrollIntoView()
+    // document.getElementById('taPrompt').scrollIntoView()
+})
+
+// document.getElementById('scrollToViewer').addEventListener('click', () => {
+
+//     document
+//         .querySelector('#sp-stable-diffusion-ui-tab-page .reactViewerContainer')
+//         .scrollIntoView()
+// })
 
 // class CustomElement extends HTMLElement {
 //     constructor() {

@@ -5,8 +5,10 @@
     "author": "Adobe Inc",
     "license": "Apache-2.0",
     "dependencies": {
+        "@types/photoshop": "^24.5.1",
         "@types/react": "^18.2.6",
         "@types/react-dom": "^18.2.4",
+        "changedpi": "^1.0.4",
         "fastify": "^4.10.2",
         "jimp": "^0.16.2",
         "madge": "^6.0.0",
@@ -14,7 +16,8 @@
         "mobx": "^6.9.0",
         "mobx-react": "^7.6.0",
         "react": "^18.2.0",
-        "react-dom": "^18.2.0"
+        "react-dom": "^18.2.0",
+        "util": "^0.12.5"
     },
     "main": "index.js",
     "directories": {
@@ -25,6 +28,7 @@
         "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
         "@babel/plugin-syntax-class-properties": "^7.12.13",
         "@babel/plugin-transform-react-jsx": "^7.21.5",
+        "@svgr/webpack": "^8.0.1",
         "babel-loader": "^9.1.2",
         "clean-webpack-plugin": "^4.0.0",
         "copy-webpack-plugin": "^11.0.0",
@@ -36,13 +40,15 @@
         "terser-webpack-plugin": "^3.0.8",
         "ts-loader": "^9.4.2",
         "typescript": "^5.0.4",
+        "url-loader": "^4.1.1",
         "webpack": "^5.82.1",
         "webpack-cli": "^5.1.1"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "watch": "npx webpack --config webpack.config.js --watch",
-        "build": "npx webpack --config webpack.config.js"
+        "build": "npx webpack --config webpack.config.js",
+        "format": "npx prettier -w typescripts"
     },
     "repository": {
         "type": "git",

@@ -1,3 +1,9 @@
 server/python_server/output/*
 *.md
 manifest.json
+jimp/**
+server_env/**
+.github\workflows\wiki-sync-action.yml
+**/dist
+.github\workflows\wiki-sync-action.yml
+tsconfig.json

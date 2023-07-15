@@ -6,7 +6,7 @@ import base64
 from PIL import Image, PngImagePlugin
 import asyncio
 import httpx
-
+from typing import List
 
 import os
 import time
@@ -14,6 +14,8 @@ import serverHelper
 import prompt_shortcut
 import metadata_to_json
 import search
+import global_state
+
 sd_url = os.environ.get('SD_URL', 'http://127.0.0.1:7860')
 
 
@@ -90,8 +92,8 @@ def img_2_b64(image):
 
 from typing import Union
 
-from fastapi import FastAPI
-from fastapi import APIRouter, Request
+
+from fastapi import FastAPI,APIRouter, Request,Query, Body
 
 
 
@@ -276,7 +278,7 @@ async def savePng(request:Request):
     except: 
         json = {}
     
-    print("json:",json)
+    # print("json:",json)
     try:
         folder = './init_images'
         image_path = f"{folder}/{json['image_name']}"
@@ -323,13 +325,14 @@ async def maskExpansionHandler(request:Request):
         # keywords = json.get('keywords','cute dogs') 
         base64_mask_image = json['mask']
         mask_expansion = json['mask_expansion']
+        blur = json['blur']
         #convert base64 to img
         
         await img2imgapi.base64ToPng(base64_mask_image,"original_mask.png")#save a copy of the mask for debugging
 
         mask_image = img2imgapi.b64_2_img(base64_mask_image)
         
-        expanded_mask_img = img2imgapi.maskExpansion(mask_image,mask_expansion)
+        expanded_mask_img = img2imgapi.maskExpansion(mask_image,mask_expansion,blur)
         base64_expanded_mask_image = img2imgapi.img_2_b64(expanded_mask_img)
         await img2imgapi.base64ToPng(base64_expanded_mask_image,"expanded_mask.png")#save a copy of the mask of the expanded_mask for debugging
 
@@ -417,8 +420,8 @@ async def loadPromptShortcut(request: Request):
         json = {}
 
     try:
-        print("json: ",json)
-        print("json['prompt_shortcut']: ",json['prompt_shortcut'])
+        # print("json: ",json)
+        # print("json['prompt_shortcut']: ",json['prompt_shortcut'])
         # save the prompt shortcut to the prompt_shortcut.json
         prompt_shortcut_json = json['prompt_shortcut']
         # response.body = {"prompt_shortcut":prompt_shortcut}
@@ -453,7 +456,7 @@ async def openUrl(request:Request):
         json = {}
 
     url = "" 
-    print("json: ",json)
+    # print("json: ",json)
     try:
         url = json['url']
         webbrowser.open(url)  # Go to example.com
@@ -501,6 +504,38 @@ async def list_available_vae():
     except Exception as e:
         print("list_available_vae() error ",repr(e),e)
     return sd_vae_dict
+
+
+@router.post("/controlnet/filter")
+async def filter(keyword:str = Body('All',title="keyword to filter by"),
+        preprocessor_list: List[str]= Body([],title="complete preprocessor list"),
+        model_list: List[str] =Body([],title="complete model list"),):
+
+
+    filtered_preprocessor_list= []
+    filtered_model_list= []
+    default_option= 'none'
+    default_model= 'None'
+
+    print("preprocessor_list:",preprocessor_list)
+    print("model_list:",model_list)
+    try:
+        [filtered_preprocessor_list,filtered_model_list,default_option,default_model] = global_state.filter_selected_helper(keyword,preprocessor_list,model_list)
+    except Exception as e:
+        print("Invalid Keyword: ",e)
+
+    return {
+        "keywords": list(global_state.preprocessor_filters.keys()),
+        "module_list": filtered_preprocessor_list,
+        "model_list": filtered_model_list,
+        "default_option":default_option,
+        "default_model":default_model
+    }
+    
+@router.get('/heartbeat')
+async def heartbeat():    
+    
+    return {'heartbeat':True}
 
 
 app = FastAPI()

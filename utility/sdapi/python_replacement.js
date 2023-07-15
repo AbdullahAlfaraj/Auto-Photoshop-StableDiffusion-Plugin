@@ -11,16 +11,16 @@ const general = require('../general')
 
 function convertMetadataToJson(metadata_str) {
     try {
-        console.log('metadata_str:', metadata_str)
+        // console.log('metadata_str:', metadata_str)
         const last_new_line_index = metadata_str.lastIndexOf('\n')
 
         const prompt = metadata_str.slice(0, last_new_line_index)
         const other_settings = metadata_str.slice(last_new_line_index + 1, -1)
 
-        console.log('prompt:', prompt)
-        console.log('other_settings:', other_settings)
+        // console.log('prompt:', prompt)
+        // console.log('other_settings:', other_settings)
         const sub_settings = other_settings.split(',')
-        console.log('sub_settings: ', sub_settings)
+        // console.log('sub_settings: ', sub_settings)
 
         const settings_json = {}
         settings_json['prompt'] = prompt
@@ -61,9 +61,9 @@ async function getAuto1111Metadata(base64_image) {
         })
 
         let json = await request.json()
-        console.log("json['info']:", json['info'])
+        // console.log("json['info']:", json['info'])
 
-        console.log('getAuto1111Metadata json:', json)
+        // console.log('getAuto1111Metadata json:', json)
 
         return json['info']
     } catch (e) {
@@ -85,10 +85,10 @@ async function convertToStandardResponse(settings, images, uuid) {
             try {
                 const auto_metadata_str = await getAuto1111Metadata(i)
                 auto_metadata_json = convertMetadataToJson(auto_metadata_str)
-                console.warn(
-                    'auto_metadata_json.Seed:',
-                    auto_metadata_json?.Seed
-                )
+                // console.warn(
+                //     'auto_metadata_json.Seed:',
+                //     auto_metadata_json?.Seed
+                // )
             } catch (e) {
                 console.warn(e)
                 auto_metadata_json = {} // set the metadata to empty if there an error while getting the metadata
@@ -161,7 +161,7 @@ async function txt2ImgRequest(payload) {
         })
 
         let r = await request.json()
-        console.log('txt2ImgRequest json:', r)
+        // console.log('txt2ImgRequest json:', r)
 
         const uniqueDocumentId = payload['uniqueDocumentId']
         // dir_fullpath,dirName = serverHelper.getUniqueDocumentDirPathName(uniqueDocumentId)
@@ -262,7 +262,7 @@ async function openUrlRequest(url) {
         console.warn(e)
     }
 }
-async function maskExpansionRequest(original_mask, mask_expansion_value) {
+async function maskExpansionRequest(original_mask, mask_expansion_value, blur) {
     // const endpoint = 'sdapi/v1/img2img'
     // const full_url = `${g_sd_url}/${endpoint}`
 
@@ -270,6 +270,7 @@ async function maskExpansionRequest(original_mask, mask_expansion_value) {
         const payload = {
             mask: original_mask,
             mask_expansion: mask_expansion_value,
+            blur: blur,
         }
 
         const extension_url = getExtensionUrl()
@@ -286,7 +287,7 @@ async function maskExpansionRequest(original_mask, mask_expansion_value) {
 
         let r = await request.json()
 
-        console.log('maskExpansionRequest json:', r)
+        // console.log('maskExpansionRequest json:', r)
         return r['mask']
     } catch (e) {
         console.warn(e)

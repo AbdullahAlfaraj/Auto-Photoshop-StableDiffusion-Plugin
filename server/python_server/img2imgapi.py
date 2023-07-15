@@ -32,7 +32,7 @@ def reserveBorderPixels(img,dilation_img):
     width, height = img.size
     dilation_pixels =  dilation_img.load()
     all_pixels = []
-    depth = 20 # five pixel depth
+    depth = 1 # five pixel depth
     for x in range(width):
         for d in range(depth): 
             dilation_pixels[x,d] =  pixels[x, d]
@@ -44,7 +44,7 @@ def reserveBorderPixels(img,dilation_img):
             dilation_pixels[width-(d+1),y] =  pixels[width-(d+1), y]
     return dilation_img
         
-def maskExpansion(mask_img,mask_expansion):
+def maskExpansion(mask_img,mask_expansion,blur =10):
      #only if image exist then try to open it
     
         
@@ -53,8 +53,8 @@ def maskExpansion(mask_img,mask_expansion):
         # if(payload['use_sharp_mask'] == False):# use blurry mask 
         iteration = mask_expansion
         dilated_img = applyDilation(mask_img,iteration)
-        mask_with_border = reserveBorderPixels(mask_img,dilated_img)
-        mask_with_border = mask_with_border.filter(ImageFilter.GaussianBlur(radius = 10))
+        blurred_image = dilated_img.filter(ImageFilter.GaussianBlur(radius = blur))
+        mask_with_border = reserveBorderPixels(mask_img,blurred_image)
         return mask_with_border
         
 async def base64ToPng(base64_image,image_path):

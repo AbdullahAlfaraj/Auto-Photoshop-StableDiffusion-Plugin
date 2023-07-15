@@ -92,9 +92,9 @@ async function updateClickEventHandler(current_version) {
 }
 
 function viewMaskExpansion() {
-    if (g_generation_session.base64maskExpansionImage) {
+    if (session_ts.store.data.expanded_mask) {
         const mask_src = general.base64ToBase64Url(
-            g_generation_session.base64maskExpansionImage
+            session_ts.store.data.expanded_mask
         )
         html_manip.setInitImageMaskSrc(mask_src)
     } else {
@@ -105,10 +105,8 @@ function viewMaskExpansion() {
 }
 function viewDrawnMask() {
     //this is the generated mask or user drawn mask, but it's not the mask after expansion
-    if (g_generation_session.activeBase64MaskImage) {
-        const mask_src = general.base64ToBase64Url(
-            g_generation_session.activeBase64MaskImage
-        )
+    if (session_ts.store.data.mask) {
+        const mask_src = general.base64ToBase64Url(session_ts.store.data.mask)
         html_manip.setInitImageMaskSrc(mask_src)
     } else {
         console.log('no mask is available')
@@ -273,23 +271,37 @@ document.getElementById('btnUpdate').addEventListener('click', async () => {
 document
     .getElementById('slMaskExpansion')
     .addEventListener('change', async (evt) => {
-        document.getElementById('slMaskExpansion')
-        const original_mask = g_generation_session.activeBase64MaskImage
-        if (original_mask) {
-            //only if mask is available
-            // use blurry and expanded mask
-            const iterations = evt.target.value
-            const modified_mask = await py_re.maskExpansionRequest(
-                original_mask,
-                iterations
-            )
-            if (modified_mask) {
-                g_generation_session.base64maskExpansionImage = modified_mask
-                viewMaskExpansion()
-            }
+        const mask = session_ts.store.data.preprocessed_mask
+        const iterations = parseInt(evt.target.value)
+
+        const mask_blur = html_manip.getMaskBlur()
+        session_ts.store.data.expanded_mask = await session_ts.getExpandedMask(
+            mask,
+            iterations,
+            mask_blur
+        )
+        if (session_ts.store.data.expanded_mask) {
+            viewMaskExpansion()
         }
     })
 
+document
+    .getElementById('slMaskBlur')
+    .addEventListener('change', async (evt) => {
+        const mask = session_ts.store.data.preprocessed_mask
+        const iterations = parseInt(
+            document.getElementById('slMaskExpansion').value
+        )
+        const mask_blur = parseInt(evt.target.value)
+        session_ts.store.data.expanded_mask = await session_ts.getExpandedMask(
+            mask,
+            iterations,
+            mask_blur
+        )
+        if (session_ts.store.data.expanded_mask) {
+            viewMaskExpansion()
+        }
+    })
 document
     .getElementById('btnInterrogate')
     .addEventListener('click', async () => {

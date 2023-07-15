@@ -139,7 +139,7 @@ class hordeGenerator {
         const base64_image = _arrayBufferToBase64(image_buffer) //convert the buffer to base64
         //send the base64 to the server to save the file in the desired directory
         // await sdapi.requestSavePng(base64_image, image_name)
-        await saveFileInSubFolder(base64_image, document_name, image_name)
+        await io.saveFileInSubFolder(base64_image, document_name, image_name)
         return base64_image
     }
 
@@ -156,7 +156,7 @@ class hordeGenerator {
         const base64_image = _arrayBufferToBase64(image_buffer) //convert the buffer to base64
         //send the base64 to the server to save the file in the desired directory
         // await sdapi.requestSavePng(base64_image, image_name)
-        await saveFileInSubFolder(base64_image, document_name, image_name)
+        await io.saveFileInSubFolder(base64_image, document_name, image_name)
         return base64_image
     }
 
@@ -249,7 +249,7 @@ class hordeGenerator {
 
                 g_generation_session.base64OutputImages[path] =
                     image_info['base64']
-                await saveJsonFileInSubFolder(
+                await io.saveJsonFileInSubFolder(
                     this.plugin_settings,
                     document_name,
                     json_file_name

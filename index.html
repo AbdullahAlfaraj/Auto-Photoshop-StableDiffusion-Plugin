@@ -495,7 +495,7 @@
             font-family: Arial, Verdana;
             background-image: url(./icon/search.svg);
             background-color: #777;
-            background-size: 20px;
+            background-size: 30px;
             width: 30px;
             height: 30px;
             background-repeat: no-repeat;
@@ -571,7 +571,7 @@
 
         .resetButton {
             font-family: Arial, Verdana;
-            background-image: url(./icon/reset_settings2.png);
+            background-image: url(./icon/reset_settings.svg);
             background-color: #777;
             background-size: 30px;
             width: 30px;
@@ -588,16 +588,26 @@
             height: 30px;
             background-repeat: no-repeat;
         }
+        .svgButton {
+            font-family: Arial, Verdana;
+
+            background-color: #777;
+            background-size: 30px;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
+        }
+        .selectionAreaButton {
+            background-image: url(./icon/reselect-area.svg);
+        }
         .interrogateButton {
             font-family: Arial, Verdana;
             background-image: url(./icon/writing-icon.svg);
             /* background-color: transparent; */
-            background-size: 25px;
+            background-size: 30px;
             width: 30px;
             height: 30px;
             background-repeat: no-repeat;
-            background-position: center;
-            background-position-x: 4px;
         }
         .svg-buttons-container *:not(:last-child) {
             margin-right: 3px;
@@ -655,7 +665,7 @@
 
         .refreshButton {
             font-family: Arial, Verdana;
-            background-image: url(./icon/reset_settings2.png);
+            background-image: url(./icon/reset_settings.svg);
             background-color: #777;
             background-size: 30px;
             width: 30px;
@@ -698,6 +708,19 @@
         /* .sp-tab.selected sp-label {
             color: white;
         } */
+    </style>
+    <style>
+        .second_panel {
+            flex: 1 1 auto;
+            /* overflow: scroll; */
+            overflow-y: scroll;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            flex-direction: column;
+            height: 100%; /* Set a fixed height for the container */
+        }
     </style>
 
     <body>
@@ -862,15 +885,24 @@
                     </div>
                     <div></div>
                     <div>
-                        <button class="btnSquare" id="btnSetMaskViewer">
+                        <button
+                            class="btnSquare"
+                            id="btnSetMaskViewer"
+                            style="display: none"
+                        >
                             Set Mask
                         </button>
-                        <button class="btnSquare" id="btnSetInitImageViewer">
+                        <button
+                            class="btnSquare"
+                            id="btnSetInitImageViewer"
+                            style="display: none"
+                        >
                             Set Init Image
                         </button>
                         <button
                             class="btnSquare btnGenerateClass"
                             id="btnGenerate"
+                            style="display: none"
                         >
                             Generate txt2img
                         </button>
@@ -881,9 +913,6 @@
                         >
                             Interrupt
                         </button>
-                        <button class="btnSquare" id="btnSelectionArea">
-                            Selection Area
-                        </button>
                         <div
                             style="
                                 display: flex;
@@ -891,10 +920,6 @@
                                 padding-top: 3px;
                             "
                         >
-                            <!-- <button class="btnSquare acceptClass acceptAllImgBtn"  style="display:none;">Accept All</button>
-            <button class="btnSquare discardClass discardAllImgBtn"  style="display:none;">Discard All</button>
-            <button class="btnSquare acceptSelectedClass acceptSelectedImgBtn"  style="display:none;">Accept Selected</button>
-            <button class="btnSquare discardSelectedClass discardSelectedImgBtn"  style="display:none;">Discard Selected</button> -->
                             <button
                                 title="Keep all generated images on the canvas"
                                 class="btnSquare acceptClass acceptAllImgBtn"
@@ -990,308 +1015,7 @@
                 </div>
                 <!-- </div> -->
             </div>
-            <div class="sp-tab-page" id="sp-control_net-tab-page">
-                <!-- control net tab page -->
-                <sp-picker
-                    title="auto fill the ControlNet with smart settings, to speed up your working process."
-                    size="m"
-                    label="ControlNet Preset"
-                >
-                    <sp-menu id="mControlNetPresetMenu" slot="options">
-                        <!-- <sp-menu-item> item </sp-menu-item> -->
-                    </sp-menu>
-                </sp-picker>
-                <div></div>
-                <sp-label
-                    id="controlnetMissingError"
-                    style="color: #ff595e; display: none; white-space: normal"
-                >
-                    The Controlnet Extension is missing from Automatic1111.
-                    Please install it to use it through the plugin.
-                </sp-label>
-                <div
-                    id="control_net_image_container"
-                    class="imgContainer controlNetImaageContainer"
-                >
-                    <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
-                    <!-- 
-                    <div>
-                        <img
-                            id="all_control_net_image"
-                            class="column-item-image"
-                            src="https://source.unsplash.com/random"
-                            width="300px"
-                            height="100px"
-                        />
-                    </div> -->
-                    <div class="imgButton">
-                        <button
-                            class="column-item button-style btnSquare"
-                            id="bSetAllControlImage"
-                        >
-                            Set All CtrlNet Images
-                        </button>
-                    </div>
-                    <sp-checkbox id="chDisableControlNetTab"
-                        >Disable ControlNet Tab</sp-checkbox
-                    >
-                    <!-- <span>
-                        version:<span id="ControlNetVersion">0.0.0</span>
-                    </span> -->
-                </div>
-
-                <div
-                    id="controlnet_settings_template"
-                    data-index="0"
-                    style="display: none"
-                >
-                    <div class="flexContainer">
-                        <sp-label slot="label " class="controlnet_unit_label_"
-                            >Control Net Settings Slot 0</sp-label
-                        >
-                    </div>
-                    <div style="display: flex">
-                        <div
-                            id="control_net_image_container_0"
-                            class="imgContainer controlNetImaageContainer"
-                        >
-                            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
-
-                            <div>
-                                <img
-                                    id="control_net_image_0"
-                                    class="column-item-image control_net_image_"
-                                    src="https://source.unsplash.com/random"
-                                    width="300px"
-                                    height="100px"
-                                />
-                            </div>
-                            <div class="imgButton">
-                                <button
-                                    class="column-item button-style btnSquare bSetControlImage_"
-                                    id="bSetControlImage_0"
-                                >
-                                    Set CtrlNet Img
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                            id="control_net_mask_container_0"
-                            class="imgContainer controlNetImaageContainer"
-                        >
-                            <!-- <button class="column-item button-style" id="btnSnapAndFill">Snap And Fill</button> -->
-
-                            <div>
-                                <img
-                                    id="control_net_mask_0"
-                                    class="column-item-image control_net_mask_"
-                                    src="https://source.unsplash.com/random"
-                                    width="300px"
-                                    height="100px"
-                                />
-                            </div>
-                            <div class="imgButton btnClass">
-                                <button
-                                    class="column-item button-style btnSquare bControlMask_"
-                                    id="bControlMask_0"
-                                >
-                                    Preview Annotator
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <sp-checkbox
-                        id="chEnableControlNet_0"
-                        class="chEnableControlNet_"
-                        >Enable</sp-checkbox
-                    >
-                    <sp-checkbox checked id="chlowVram_0" class="chlowVram_"
-                        >Low VRAM</sp-checkbox
-                    >
-                    <!-- <sp-checkbox id="chGuessMode_0" class="chGuessMode_"
-                        >Guess Mode</sp-checkbox
-                    > -->
-                    <sp-checkbox class="chPixelPerfect_"
-                        >Pixel Perfect</sp-checkbox
-                    >
-                    <div>
-                        <sp-radio-group class="rgControlNetMode_">
-                            <sp-label slot="label">Control Mode:</sp-label>
-                            <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
-                            <sp-radio title="" value="0" checked
-                                >Balanced</sp-radio
-                            >
-                            <sp-radio
-                                title="My Prompt is More Important"
-                                value="1"
-                                >Prompt</sp-radio
-                            ><sp-radio
-                                title="ControlNet is More Important"
-                                value="2"
-                                >ControlNet</sp-radio
-                            >
-                        </sp-radio-group>
-                    </div>
-
-                    <div>
-                        <div>
-                            <sp-slider
-                                show-value="false"
-                                id="slControlNetWeight_0"
-                                class="slControlNetWeight_"
-                                min="0"
-                                max="100"
-                                value="50"
-                                title="2 will keep the composition; 0 will allow composition to change"
-                            >
-                                <sp-label slot="label">Weight:</sp-label>
-                                <sp-label
-                                    slot="label"
-                                    id="lControlNetWeight_0"
-                                    class="lControlNetWeight_"
-                                    >1.0</sp-label
-                                >
-                            </sp-slider>
-                            <sp-slider
-                                show-value="false"
-                                id="slControlNetGuidanceStrengthStart_0"
-                                class="slControlNetGuidanceStrengthStart_"
-                                min="0"
-                                max="100"
-                                value="0"
-                            >
-                                <sp-label slot="label"
-                                    >Guidance strength start:</sp-label
-                                >
-                                <sp-label
-                                    slot="label"
-                                    id="lControlNetGuidanceStrengthStart_0"
-                                    class="lControlNetGuidanceStrengthStart_"
-                                    >0.0</sp-label
-                                >
-                            </sp-slider>
-                            <sp-slider
-                                show-value="false"
-                                id="slControlNetGuidanceStrengthEnd_0"
-                                class="slControlNetGuidanceStrengthEnd_"
-                                min="0"
-                                max="100"
-                                value="100"
-                            >
-                                <sp-label slot="label"
-                                    >Guidance strength end:</sp-label
-                                >
-                                <sp-label
-                                    slot="label"
-                                    id="lControlNetGuidanceStrengthEnd_0"
-                                    class="lControlNetGuidanceStrengthEnd_"
-                                    >1.0</sp-label
-                                >
-                            </sp-slider>
-                            <sp-slider
-                                show-value="true"
-                                id="slControlNetProcessorRes_0"
-                                class="slControlNetProcessorRes_"
-                                style="display: none"
-                                min="64"
-                                max="2048"
-                                value="512"
-                            >
-                                <sp-label
-                                    slot="label"
-                                    class="labelControlNetProcessorRes_"
-                                    >Annotator resolution</sp-label
-                                >
-                                <!-- <sp-label
-                                    slot="label"
-                                    id="lControlNetProcessorRes_0"
-                                    class="lControlNetProcessorRes_"
-                                    >1.0</sp-label
-                                > -->
-                            </sp-slider>
-                            <sp-slider
-                                show-value="false"
-                                class="slControlNetThreshold_A_"
-                                style="display: none"
-                                min="0"
-                                max="100"
-                                value="50"
-                                data-sd_min="64"
-                                data-sd_max="1024"
-                            >
-                                <sp-label
-                                    slot="label"
-                                    class="labelControlNetThreshold_A_"
-                                    >Threshold A:
-                                </sp-label>
-                                <sp-label
-                                    slot="label"
-                                    class="lControlNetThreshold_A_"
-                                    >0.0</sp-label
-                                >
-                            </sp-slider>
-                            <sp-slider
-                                show-value="false"
-                                class="slControlNetThreshold_B_"
-                                style="display: none"
-                                min="0"
-                                max="100"
-                                value="50"
-                                data-sd_min="64"
-                                data-sd_max="1024"
-                            >
-                                <sp-label
-                                    slot="label"
-                                    class="labelControlNetThreshold_B_"
-                                    >Threshold B:
-                                </sp-label>
-                                <sp-label
-                                    slot="label"
-                                    class="lControlNetThreshold_B_"
-                                    >0.0</sp-label
-                                >
-                            </sp-slider>
-                        </div>
-                    </div>
-                    <div id="menu-bar-control_net_0" style="display: flex">
-                        <sp-picker size="m" label="Select Module">
-                            <sp-menu
-                                id="mModulesMenuControlNet_0"
-                                class="mModulesMenuControlNet_"
-                                slot="options"
-                            >
-                                <!-- <sp-menu-item> item </sp-menu-item> -->
-                            </sp-menu>
-                        </sp-picker>
-                        <sp-picker size="m" label="Selection type">
-                            <sp-menu
-                                id="mModelsMenuControlNet_0"
-                                class="mModelsMenuControlNet_"
-                                slot="options"
-                            >
-                                <!-- <sp-menu-item> item </sp-menu-item> -->
-                            </sp-menu>
-                        </sp-picker>
-
-                        <!-- <button class="btnSquare" id="btnRefreshModelsHorde">
-                                        Refresh Models
-                                    </button> -->
-                    </div>
-                    <div></div>
-                    <sp-divider class="line-divider" size="large"></sp-divider>
-                    <sp-divider class="line-divider" size="large"></sp-divider>
-                    <div></div>
-
-                    <div>
-                        <sp-divider
-                            class="line-divider"
-                            size="large"
-                        ></sp-divider>
-                    </div>
-                </div>
-                <div id="controlnet_parent_container"></div>
-            </div>
+            <div class="sp-tab-page" id="sp-control_net-tab-page"></div>
             <div class="sp-tab-page" id="sp-history-tab-page">
                 <div class="subTabOptionsContainer"></div>
 
@@ -1547,7 +1271,8 @@
                         >
                     </sp-slider>
                 </div>
-                <div
+                <div id="extraGenerateButtonsContainer"></div>
+                <!-- <div
                     style="
                         display: inline-flex;
                         justify-content: flex-start;
@@ -1557,6 +1282,7 @@
                     <button
                         class="btnSquare btnGenerateClass"
                         id="btnGenerateUpscale"
+                        style="display: none"
                     >
                         Generate upscale
                     </button>
@@ -1578,7 +1304,6 @@
                         ></button>
                         <button
                             class="btnSquare snapshotButton"
-                            id="btnSnapshotUpscale"
                             style="margin-right: 3px"
                             title="create a snapshot of what you see on the canvas and place on a new layer"
                         ></button>
@@ -1588,7 +1313,7 @@
                             title="reset the ui settings to their default values"
                         ></button>
                     </div>
-                </div>
+                </div> -->
 
                 <div
                     id="progressContainerUpscale"
@@ -1600,7 +1325,9 @@
                     >
                 </div>
                 <div style="padding-bottom: 5px">
-                    <sp-label style="width: 60px; display: inline-block"
+                    <sp-label
+                        class="title"
+                        style="width: 60px; display: inline-block"
                         >Upscaler 1:
                     </sp-label>
                     <sp-picker size="m" label="Upscaler Options">
@@ -1613,7 +1340,9 @@
                         </sp-menu>
                     </sp-picker>
                     <div></div>
-                    <sp-label style="width: 60px; display: inline-block"
+                    <sp-label
+                        class="title"
+                        style="width: 60px; display: inline-block"
                         >Upscaler 2:
                     </sp-label>
                     <sp-picker size="m" label="Upscaler Options">
@@ -1637,6 +1366,7 @@
                         value="0"
                     >
                         <sp-label
+                            class="title"
                             style="width: 110px; display: inline-block"
                             slot="label"
                             >Upscaler 2 visibility:
@@ -1661,6 +1391,7 @@
                         value="0"
                     >
                         <sp-label
+                            class="title"
                             style="width: 110px; display: inline-block"
                             slot="label"
                             >GFPGAN visibility:
@@ -1685,6 +1416,7 @@
                         value="0"
                     >
                         <sp-label
+                            class="title"
                             style="width: 110px; display: inline-block"
                             slot="label"
                             >CodeFormer visibility:
@@ -1709,6 +1441,7 @@
                         value="0"
                     >
                         <sp-label
+                            class="title"
                             style="width: 110px; display: inline-block"
                             slot="label"
                             >CodeFormer weight:
@@ -1853,6 +1586,7 @@
                     </button>
                 </div>
                 <div id="settingsVAEContainer"></div>
+                <div id="reactSettingsContainer"></div>
                 <sp-checkbox id="chUseSharpMask">use sharp mask</sp-checkbox>
                 <sp-checkbox checked id="chUseSmartObject"
                     >Smart Object</sp-checkbox
@@ -1976,12 +1710,6 @@
                 <!-- stable diffusion tab page -->
 
                 <div id="sdBtnContainer">
-                    <!-- <button
-                            class="btnSquare layerToSelection"
-                            id="btnLayerToSelection"
-                            style="margin-right: 3px"
-                            title="Move and reSize the highlighted layer to fit into the Selection Area "
-                        ></button> -->
                     <sp-picker
                         title="use lora in your prompt"
                         size="m"
@@ -2003,7 +1731,8 @@
                         style="
                             margin-top: 1px;
                             margin-bottom: 3px;
-                            display: inline-block;
+                            /* display: inline-block; */
+                            display: none;
                         "
                     >
                         Generate txt2img
@@ -2076,7 +1805,7 @@
                                 class="chLiveProgressImageClass"
                             />
                         </div>
-                        <div
+                        <!-- <div
                             class="svg-buttons-container"
                             style="
                                 display: inline-flex;
@@ -2096,13 +1825,11 @@
                             ></button>
 
                             <button
-                                class="btnSquare layerToSelection"
-                                id="btnLayerToSelection"
+                                class="btnSquare layerToSelection btnLayerToSelection"
                                 title="Move and reSize the highlighted layer to fit into the Selection Area "
                             ></button>
                             <button
                                 class="btnSquare snapshotButton"
-                                id="btnSnapshot"
                                 title="create a snapshot of what you see on the canvas and place on a new layer"
                             ></button>
                             <button
@@ -2115,7 +1842,7 @@
                                 id="btnInterrogate"
                                 title="Interrogate the selected area, convert Image to Prompt"
                             ></button>
-                        </div>
+                        </div> -->
                         <!-- <sp-picker
                             title="use lora in your prompt"
                             size="s"
@@ -2133,6 +1860,7 @@
                             >prompt shortcut</sp-checkbox
                         > -->
                     </div>
+                    <div id="generateButtonsContainer"></div>
                     <div>
                         <!-- icon only svg button -->
                         <sp-action-button
@@ -2403,10 +2131,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                             </div>
                         </sp-action-button>
                     </div>
-                    <img
-                        id="webp_container"
-                        src="https://www.keycdn.com/img/blog/convert-to-webp-the-successor-of-jpeg-lg.webp"
-                    />
+
                     <!-- <custom-element>hello custom element</custom-element> -->
                     <div class="prompts">
                         <!-- <sp-label slot="label">Prompt</sp-label> -->
@@ -2462,6 +2187,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                         >
                         <!-- <sp-tooltip id="tool_tip" open placement="top">use this when you want to fill empty areas of the canvas</sp-tooltip> -->
                     </sp-radio-group>
+                    <div id="reactModesContainer"></div>
 
                     <div id="image_viewer">
                         <div class="imgButton">
@@ -2566,7 +2292,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                     ></sp-textfield>
                                 </div>
                                 <div
-                                    id="batchNumberSdUiTabContainer"
+                                    id="batchCountSdUiTabContainer"
                                     style="
                                         width: 20%;
                                         display: flex;
@@ -2592,7 +2318,8 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                         align-items: flex-start;
                                     "
                                 >
-                                    <sp-label>Steps:</sp-label
+                                    <sp-label id="sdLabelSampleStep"
+                                        >Sampling Steps</sp-label
                                     ><sp-textfield
                                         style="width: 100%"
                                         title="the higher the steps the longer it will take to generate an image"
@@ -2662,7 +2389,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 value="8"
                                 data-old_value="512"
                             >
-                                <sp-label slot="label">Width:</sp-label>
+                                <sp-label slot="label" class="title"
+                                    >Width:</sp-label
+                                >
                                 <sp-label
                                     class="labelNumber"
                                     slot="label"
@@ -2684,7 +2413,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 value="8"
                                 data-old_value="512"
                             >
-                                <sp-label slot="label">Height:</sp-label>
+                                <sp-label slot="label" class="title"
+                                    >Height:</sp-label
+                                >
                                 <sp-label
                                     class="labelNumber"
                                     slot="label"
@@ -2724,7 +2455,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 max="30"
                                 value="7"
                             >
-                                <sp-label slot="label">CFG Scale:</sp-label>
+                                <sp-label slot="label" class="title"
+                                    >CFG Scale:</sp-label
+                                >
                                 <!-- <sp-label slot="label" id="lCfgScale">7</sp-label> -->
                             </sp-slider>
 
@@ -2735,7 +2468,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 max="100"
                                 value="70"
                             >
-                                <sp-label slot="label"
+                                <sp-label slot="label" class="title"
                                     >Denoising Strength:</sp-label
                                 >
                                 <sp-label slot="label" id="lDenoisingStrength"
@@ -2752,7 +2485,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                             value="15"
                             style="display: none"
                         >
-                            <sp-label slot="label">Image CFG Scale:</sp-label>
+                            <sp-label slot="label" class="title"
+                                >Image CFG Scale:</sp-label
+                            >
                             <sp-label slot="label" id="lImageCfgScale"
                                 >1.5</sp-label
                             >
@@ -2763,7 +2498,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                             id="slMaskBlur"
                             min="0"
                             max="64"
-                            value="7"
+                            value="0"
                         >
                             <sp-label slot="label">Mask Blur:</sp-label>
                             <!-- <sp-label slot="label" id="lDenoisingStrength">0.7</sp-label> -->
@@ -2773,7 +2508,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                             id="slMaskExpansion"
                             min="0"
                             max="256"
-                            value="40"
+                            value="0"
                             title="the larger the value the more the mask will expand, '0' means use precise masking, use in combination with the mask blur"
                         >
                             <sp-label slot="label">Mask Expansion:</sp-label>
@@ -2789,7 +2524,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                 value="100"
                                 title="0 will keep the composition; 1 will allow composition to change"
                             >
-                                <sp-label slot="label"
+                                <sp-label slot="label" class="title"
                                     >Inpainting conditioning mask
                                     strength:</sp-label
                                 >
@@ -2803,7 +2538,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
 
                         <div id="slInpainting_fill">
                             <sp-radio-group id="Inpainting_fill_group" class="">
-                                <sp-label slot="label">Mask Content:</sp-label>
+                                <sp-label class="title" slot="label"
+                                    >Mask Content:</sp-label
+                                >
                                 <sp-radio
                                     class="rbMaskContent"
                                     checked
@@ -2836,7 +2573,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                         <div id="HiResDiv" style="display: none">
                             <div style="display: flex">
                                 <div>
-                                    <sp-label>Upscaler: </sp-label>
+                                    <sp-label class="title"
+                                        >Upscaler:
+                                    </sp-label>
                                     <sp-picker
                                         size="m"
                                         label="Upscaler Options"
@@ -2851,7 +2590,8 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                     </sp-picker>
                                 </div>
                                 <div>
-                                    <sp-label>Hi Res Steps:</sp-label
+                                    <sp-label id="HiResStep"
+                                        >Hi Res Steps:</sp-label
                                     ><sp-textfield
                                         id="hrNumberOfSteps"
                                         type="number"
@@ -2872,7 +2612,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                     max="100"
                                     value="50"
                                 >
-                                    <sp-label slot="label"
+                                    <sp-label slot="label" class="title"
                                         >Hi Res Scale:</sp-label
                                     >
                                     <sp-label
@@ -2896,7 +2636,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                     max="100"
                                     value="70"
                                 >
-                                    <sp-label slot="label">
+                                    <sp-label slot="label" class="title">
                                         High Res Denoising Strength:</sp-label
                                     >
                                     <sp-label
@@ -2915,7 +2655,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                                     value="8"
                                     style="display: none"
                                 >
-                                    <sp-label slot="label"
+                                    <sp-label slot="label" class="title"
                                         >Hi Res Output Width:</sp-label
                                     >
                                     <sp-label
@@ -2970,7 +2710,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                     <div>
                         <!-- <sp-checkbox id="chHiResFixs">Hi Res Fix</sp-checkbox> -->
                         <div style="display: flex">
-                            <sp-label>Seed:</sp-label
+                            <sp-label id="sdLabelSeed">Seed:</sp-label
                             ><sp-textfield
                                 id="tiSeed"
                                 placeholder="Seed"
@@ -3057,8 +2797,106 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                     <sp-divider class="line-divider" size="large"></sp-divider>
                     <div style="margin-bottom: 3px"></div>
                     <div id="scriptsContainer"></div>
+
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+
+                    <div class="reactViewerContainer"></div>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <div class="previewContainer"></div>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <div class="samContainer"></div>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <div class="oneButtonPromptContainer"></div>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
+                    <sp-divider class="line-divider" size="large"></sp-divider>
                 </div>
             </div>
         </div>
+
+        <uxp-panel panelid="second_panel">
+            <div id="search_second_panel" class="container second_panel">
+                <div class="previewContainer"></div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <div class="reactViewerContainer"></div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <div id="sp-control_net-tab-page2"></div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+            </div>
+        </uxp-panel>
+
+        <uxp-panel panelid="toolbar">
+            <div
+                id="toolbar_panel"
+                class="_container"
+                style="
+                    margin: 0;
+                    display: flex;
+                    justify-content: flex-start;
+                    /* padding-bottom: 5px; */
+                    flex-direction: column;
+                "
+            >
+                <div
+                    style="
+                        margin: 0;
+                        display: flex;
+                        justify-content: flex-start;
+                        /* padding: 1px; */
+                        flex-direction: column;
+                    "
+                >
+                    <div id="toolbarGenerateButtonsContainer"></div>
+                    <div id="viewerButtonContainer"></div>
+                    <div>
+                        <button
+                            class="btnSquare layerToSelection btnLayerToSelection"
+                            title="Move and reSize the highlighted layer to fit into the Selection Area "
+                            style="margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare snapshotButton"
+                            title="create a snapshot of what you see on the canvas and place on a new layer"
+                            style="margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare resetButton"
+                            id="btnResetSettings"
+                            title="reset the ui settings to their default values"
+                            style="margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare interrogateButton"
+                            id="btnInterrogate"
+                            title="Interrogate the selected area, convert Image to Prompt"
+                            style="margin-right: 3px"
+                        ></button>
+                        <button
+                            class="btnSquare svgButton selectionAreaButton"
+                            id="btnSelectionArea"
+                            style="margin-right: 3px"
+                            title="Reselect the selection area for the current session"
+                        ></button>
+                        <button
+                            id="scrollToPrompt"
+                            class="btnSquare svgButton"
+                            title="Quickly jump to the preview section"
+                        >
+                            P
+                        </button>
+                        <div id="scrollToControlNetUnitContainer"></div>
+                        <!-- <button id="scrollToViewer" class="btnSquare svgButton">
+                            V
+                        </button> -->
+                    </div>
+                </div>
+            </div>
+        </uxp-panel>
     </body>
 </html>

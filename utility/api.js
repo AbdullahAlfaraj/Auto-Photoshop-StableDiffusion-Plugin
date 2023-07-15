@@ -1,3 +1,7 @@
+//deprecated file don't use
+
+console.warn('api.js is deprecated, use typescript/util/ts/api.ts')
+
 async function requestGet(url) {
     let json = null
 
@@ -10,7 +14,7 @@ async function requestGet(url) {
 
         json = await request.json()
 
-        console.log('json: ', json)
+        // console.log('json: ', json)
     } catch (e) {
         console.warn(`issues requesting from ${full_url}`, e)
     }
@@ -36,7 +40,7 @@ async function requestPost(url, payload) {
 
         json = await request.json()
 
-        console.log('json: ', json)
+        // console.log('json: ', json)
     } catch (e) {
         console.warn(`issues requesting from ${full_url}`, e)
     }

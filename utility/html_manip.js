@@ -552,15 +552,6 @@ function setControlImageSrc(image_src, element_index = 0) {
     // )
     control_net_image_element.src = image_src
 }
-function setControlMaskSrc(image_src, element_index = 0) {
-    const control_net_image_element = document.querySelector(
-        `#controlnet_settings_${element_index} .control_net_mask_`
-    )
-    // const control_net_image_element = document.getElementById(
-    //     'control_net_mask' + '_' + element_index
-    // )
-    control_net_image_element.src = image_src
-}
 
 function setProgressImageSrc(image_src) {
     // const progress_image_element = document.getElementById('progressImage')
@@ -1153,7 +1144,6 @@ module.exports = {
     setLinkWidthHeightState,
     isSquareThumbnail,
     setControlImageSrc,
-    setControlMaskSrc,
 
     setHordeApiKey,
     populateMenu,

@@ -36,11 +36,12 @@
   "entrypoints": [
     {
       "type": "panel",
-      "id": "vanilla",
+      "id": "main_panel",
       "label": {
         "default": "Auto-Photoshop-SD",
         "en-US": "Auto-Photoshop-SD",
-        "es-ES": "Auto-Photoshop-SD"
+        "es-ES": "Auto-Photoshop-SD",
+        "zh-CN": "SD插件（明空汉化）"
       },
       "minimumSize": {
         "width": 400,
@@ -56,6 +57,111 @@
       },
       "preferredFloatingSize": {
         "width": 300,
+        "height": 800
+      },
+      "commands": [
+        {
+          "id": "show_alert",
+          "label": {
+            "default": "Show Alert",
+            "en-US": "Show Alert (US)",
+            "es-ES": "Show Alert (ES)"
+          }
+        }
+      ],
+      "icons": [
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icon/panel.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "all"
+          ],
+          "species": [
+            "chrome"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "id": "second_panel",
+      "label": {
+        "default": "Second Auto-Photoshop-SD",
+        "en-US": "Second Auto-Photoshop-SD",
+        "es-ES": "Second Auto-Photoshop-SD",
+        "zh-CN": "SD插件（明空汉化）"
+      },
+      "minimumSize": {
+        "width": 100,
+        "height": 100
+      },
+      "maximumSize": {
+        "width": 1200,
+        "height": 10000
+      },
+      "preferredDockedSize": {
+        "width": 150,
+        "height": 800
+      },
+      "preferredFloatingSize": {
+        "width": 300,
+        "height": 800
+      },
+      "commands": [
+        {
+          "id": "show_alert",
+          "label": {
+            "default": "Show Alert",
+            "en-US": "Show Alert (US)",
+            "es-ES": "Show Alert (ES)"
+          }
+        }
+      ],
+      "icons": [
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icon/panel.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "all"
+          ],
+          "species": [
+            "chrome"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "id": "toolbar",
+      "label": {
+        "default": "toolbar Auto-Photoshop-SD",
+        "en-US": "toolbar Auto-Photoshop-SD",
+        "es-ES": "toolbar Auto-Photoshop-SD"
+      },
+      "minimumSize": {
+        "width": 30,
+        "height": 100
+      },
+      "maximumSize": {
+        "width": 1200,
+        "height": 10000
+      },
+      "preferredDockedSize": {
+        "width": 30,
+        "height": 800
+      },
+      "preferredFloatingSize": {
+        "width": 30,
         "height": 800
       },
       "commands": [

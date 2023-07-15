@@ -1,6 +1,8 @@
 const app = window.require('photoshop').app
 const batchPlay = require('photoshop').action.batchPlay
 const { executeAsModal } = require('photoshop').core
+const constants = require('photoshop').constants
+// console.log(constants.ResampleMethod.BILINEAR)
 // const export_png = require('./export_png')
 
 // const { layerToSelection } = require('./helper')
@@ -643,7 +645,7 @@ async function snapshot_layerExe() {
                 await snapshot_layer_new()
             },
             {
-                commandName: 'Action Commands',
+                commandName: `Canvas Snapshot...`,
             }
         )
     } catch (e) {
@@ -1400,7 +1402,12 @@ async function layerToSelection(selection_info) {
             scale_x_ratio = (selection_info.width / layer_info.width) * 100
             scale_y_ratio = (selection_info.height / layer_info.height) * 100
             console.log('scale_x_y_ratio:', scale_x_ratio, scale_y_ratio)
-            await layer.scale(scale_x_ratio, scale_y_ratio)
+            // await layer.scale(
+            //     scale_x_ratio,
+            //     scale_y_ratio,
+            //     constants.ResampleMethod.BILINEAR
+            // )
+            await layer_util.Layer.resizeImageExe(scale_x_ratio, scale_y_ratio)
         }
 
         async function moveLayerExe(layerToMove, selection_info) {

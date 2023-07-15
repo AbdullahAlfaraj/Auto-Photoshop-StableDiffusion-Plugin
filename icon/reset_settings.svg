@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <style>
+      .c, .d {
+        stroke: #d6d6d6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 4px;
+      }
+
+      .c, .d, .e {
+        fill: none;
+      }
+
+      .d {
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <g id="a" data-name="frame">
+    <rect class="e" width="64" height="64"/>
+  </g>
+  <g id="b" data-name="reset">
+    <path class="d" d="m23.51,17.36c-5.8,3.19-9.73,9.35-9.73,16.44,0,10.35,8.39,18.75,18.75,18.75s18.75-8.39,18.75-18.75-8.39-18.75-18.75-18.75"/>
+    <circle class="c" cx="32.59" cy="34.2" r="4.93"/>
+    <polyline class="d" points="41.36 10.64 31.43 15.06 38.05 21.67"/>
+  </g>
+</svg>
