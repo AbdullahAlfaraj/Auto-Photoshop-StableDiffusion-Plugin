@@ -76,12 +76,12 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <tr>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=The+Dread+Vixen+Alinsa" alt="The Dread Vixen Alinsa"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Bruce+Hunter" alt="Bruce Hunter"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Smith" alt="Smith"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Chris+Canterbury" alt="Chris Canterbury"></td>
 </tr>
 <tr>
 <td>The Dread Vixen Alinsa</td>
 <td>Bruce Hunter</td>
-<td>Smith</td>
+<td>Chris Canterbury</td>
 </tr>
 </table>
 
@@ -95,7 +95,7 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Zenko+" alt="Zenko "></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Juan+Pablo+Mendiola" alt="Juan Pablo Mendiola"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kevin+Schofield" alt="Kevin Schofield"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Chris+Canterbury" alt="Chris Canterbury"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Mvs+Srs" alt="Mvs Srs"></td>
 </tr>
 <tr>
 <td>Amith Thomas</td>
@@ -105,23 +105,25 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <td>Zenko </td>
 <td>Juan Pablo Mendiola</td>
 <td>Kevin Schofield</td>
-<td>Chris Canterbury</td>
+<td>Mvs Srs</td>
 </tr>
 <tr>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Mvs+Srs" alt="Mvs Srs"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Lawrence+L+Tran" alt="Lawrence L Tran"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Felipe+Cortes" alt="Felipe Cortes"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Smith" alt="Smith"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Jake+Skokan" alt="Jake Skokan"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=que0005" alt="que0005"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Xavier+Matia+Bernasconi" alt="Xavier Matia Bernasconi"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Mats+Oldin" alt="Mats Oldin"></td>
 </tr>
 <tr>
-<td>Mvs Srs</td>
 <td>Lawrence L Tran</td>
 <td>Felipe Cortes</td>
+<td>Smith</td>
 <td>Jake Skokan</td>
 <td>que0005</td>
 <td>Xavier Matia Bernasconi</td>
+<td>Mats Oldin</td>
 </tr>
 </table>
 
@@ -154,6 +156,8 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 
 
 
+
+
 <a href="https://www.patreon.com/AbdullahAlfaraj" rel="nofollow"><img src="docs/become_backer.svg" style="max-width: 100%;"></a>
 
 
@@ -170,7 +174,7 @@ use method 3 if you are a Developer/Programmer
 ![install_plugin_1](https://user-images.githubusercontent.com/7842232/217213943-3e2a588d-3ed8-4757-ba69-9846b55a1b36.gif)
 
 
-3) (optional step) Install the Auto-Photoshop-SD Extension from Automatic1111. the extension will allow you to use the smart masking and image search features
+3) (Don't skip) Install the `Auto-Photoshop-SD` Extension from Automatic1111 extension tab. The extension will allow you to use mask expansion and mask blur, which are necessary for achieving good results when outpainting and inpainting.
  - a) Copy Auto-Photoshop plugin url
 ![copy_githup_url_2](https://user-images.githubusercontent.com/7842232/217213998-367873ce-2c09-4c42-a5fa-0044415e3908.gif)
 
@@ -188,7 +192,8 @@ use method 3 if you are a Developer/Programmer
 1) Download the  [.zip](https://github.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/releases/latest) file
 2) Unzip it in a folder with the same name
 3) move the unzipped folder to the Photoshop Plugin folder
-4) (optional step) Install the Auto-Photoshop-SD Extension from Automatic1111. the extension will allow you to use the smart masking and image search features	
+4) (Don't skip) Install the `Auto-Photoshop-SD` Extension from Automatic1111 extension tab. The extension will allow you to use mask expansion and mask blur, which are necessary for achieving good results when outpainting and inpainting.
+ - a) Copy Auto-Photoshop plugin url
 ![image](https://user-images.githubusercontent.com/7842232/223751539-1a3013aa-aa1d-4058-87ae-e8b3fdfc5ec8.png)
 
 
