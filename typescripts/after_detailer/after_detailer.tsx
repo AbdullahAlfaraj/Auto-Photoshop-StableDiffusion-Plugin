@@ -56,7 +56,7 @@ export const store = new AStore({
     controlnet_model: 'None',
     controlnet_models: [],
     controlNetWeight: 1,
-    script_name: 'after detailer',
+    script_name: 'adetailer',
 
     is_installed: false,
     is_enabled: false,
