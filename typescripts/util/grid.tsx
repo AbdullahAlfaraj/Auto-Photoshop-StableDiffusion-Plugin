@@ -11,7 +11,7 @@ export class Grid extends React.Component<{
     callback?: any
     clicked_index?: number
     permanent_indices?: number[]
-    thumbnails_styles?: []
+    thumbnails_styles?: string[]
 }> {
     static defaultProps = {
         width: 100,

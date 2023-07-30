@@ -15,12 +15,12 @@ import { ErrorBoundary } from '../util/errorBoundary'
 
 declare let g_sd_url: string
 export const store = new AStore({
-    prompts: [],
+    prompts: [] as string[],
     number: 3,
     prompt_complexity: 5,
-    subjects: [],
-    artists: [],
-    imagetypes: [],
+    subjects: [] as string[],
+    artists: [] as string[],
+    imagetypes: [] as string[],
     subject: 'all',
     artist: 'all',
     imagetype: 'all',

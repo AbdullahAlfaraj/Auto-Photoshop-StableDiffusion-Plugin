@@ -57,7 +57,26 @@ function findClickType(event: any) {
     return click_type
 }
 
-export const store = new AStore({
+interface AStoreData {
+    images: string[]
+    thumbnails: string[]
+    metadata: any[] // metadata for each image
+    width: number
+    height: number
+
+    prev_layer: any
+    clicked_index: number | undefined
+
+    permanent_indices: number[]
+
+    prev_index: number
+    is_stored: boolean[]
+    layers: any[]
+    class_name: ClassNameEnum[]
+    can_click: boolean
+    auto_mask: boolean
+}
+export const store = new AStore<AStoreData>({
     images: [],
     thumbnails: [],
     metadata: [], // metadata for each image
@@ -65,12 +84,12 @@ export const store = new AStore({
     height: 50,
 
     prev_layer: null,
-    clicked_index: null,
+    clicked_index: undefined,
 
     permanent_indices: [],
 
     prev_index: -1,
-    output_image_obj_list: [],
+
     is_stored: [],
     layers: [],
     class_name: [],
@@ -151,10 +170,14 @@ export const mask_store = new AStore({
     can_click: true,
 })
 
-export async function updateViewerStoreImageAndThumbnail(
-    store: AStore,
+interface AStoreDataWithImagesAndThumbnails {
     images: string[]
-) {
+    thumbnails: string[]
+}
+
+export async function updateViewerStoreImageAndThumbnail<
+    T extends AStoreDataWithImagesAndThumbnails
+>(store: AStore<T>, images: string[]) {
     try {
         if (typeof images === 'undefined' || !images) {
             return null

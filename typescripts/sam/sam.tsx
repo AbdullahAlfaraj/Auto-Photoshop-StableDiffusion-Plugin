@@ -19,6 +19,7 @@ import { app } from 'photoshop'
 import { ErrorBoundary } from '../util/errorBoundary'
 import Locale from '../locale/locale'
 import { settings_tab_ts } from '../entry'
+import { SelectionInfoType } from '../util/ts/enum'
 declare let g_sd_url: string
 
 export async function getSamMap(base64: string, prompt: string) {
@@ -48,7 +49,7 @@ export async function getSamMap(base64: string, prompt: string) {
 }
 export const store = new AStore({
     thumbnails: [],
-    selection_info_list: [],
+    selection_info_list: [] as SelectionInfoType[],
     prompt: '',
     width: 85,
     height: 85,

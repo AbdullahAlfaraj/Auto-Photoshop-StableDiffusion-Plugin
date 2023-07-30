@@ -10,7 +10,8 @@ import Locale from '../locale/locale'
 
 declare let g_ui_settings_object: any
 export const store = new AStore({
-    images: [],
+    images: [], //full resloution images
+    thumbnails: [], //small resolution images useful to preview inside html
     refresh: false,
     width: 50,
     height: 50,

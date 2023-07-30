@@ -54,7 +54,7 @@ export const store = new AStore({
     prompt: '',
     negativePrompt: '',
     controlnet_model: 'None',
-    controlnet_models: [],
+    controlnet_models: [] as string[],
     controlNetWeight: 1,
     script_name: 'adetailer',
 

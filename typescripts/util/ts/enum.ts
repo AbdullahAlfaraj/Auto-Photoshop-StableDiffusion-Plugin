@@ -13,3 +13,12 @@ export enum MaskModeEnum {
     Borders = 'border',
     Corners = 'corner',
 }
+
+export interface SelectionInfoType {
+    left: number
+    right: number
+    top: number
+    bottom: number
+    width: number
+    height: number
+}
