@@ -78,6 +78,7 @@ const {
     settings_tab_ts,
     one_button_prompt,
     enum_ts,
+    multiPrompts,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
@@ -1822,48 +1823,7 @@ async function restoreActiveSelection() {
         console.warn(e)
     }
 }
-//REFACTOR: move to events.js
-document.querySelector('#taPrompt').addEventListener('focus', async () => {
-    // if (!g_generation_session.isLoadingActive) {
-    //     console.log('taPrompt focus')
-    //     // console.log('we are in prompt textarea')
-    //     // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
-    //     await storeActiveLayers()
-    //     await storeActiveSelection()
-    //     // await psapi.unselectActiveLayersExe()
-    // }
-})
-//REFACTOR: move to events.js
-document.querySelector('#taPrompt').addEventListener('blur', async () => {
-    // console.log('taPrompt blur')
-    // // console.log('we are out of prompt textarea')
-    // // await psapi.unselectActiveLayersExe()
-    // // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
-    // await restoreActiveLayers()
-    // await restoreActiveSelection()
-})
-//REFACTOR: move to events.js
-document
-    .querySelector('#taNegativePrompt')
-    .addEventListener('focus', async () => {
-        // if (!g_generation_session.isLoadingActive) {
-        //     console.log('taNegativePrompt focus')
-        //     // console.log('we are in prompt textarea')
-        //     await storeActiveLayers()
-        //     await storeActiveSelection()
-        //     // await psapi.unselectActiveLayersExe()
-        // }
-    })
-//REFACTOR: move to events.js
-document
-    .querySelector('#taNegativePrompt')
-    .addEventListener('blur', async () => {
-        // console.log('taNegativePrompt blur')
-        // // console.log('we are out of prompt textarea')
-        // // await psapi.unselectActiveLayersExe()
-        // await restoreActiveLayers()
-        // await restoreActiveSelection()
-    })
+
 //REFACTOR: unused, remove?
 function updateMetadata(new_metadata) {
     const metadatas = []

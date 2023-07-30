@@ -12,6 +12,7 @@ import {
     SpSliderWithLabel,
 } from '../util/elements'
 import { ErrorBoundary } from '../util/errorBoundary'
+import { setPrompt } from '../multiTextarea'
 
 declare let g_sd_url: string
 export const store = new AStore({
@@ -236,8 +237,9 @@ class OneButtonPrompt extends React.Component {
                                 style={{ textAlign: 'right' }}
                                 onClick={() => {
                                     //@ts-ignore
-                                    document.querySelector('#taPrompt').value =
-                                        prompt
+                                    setPrompt({
+                                        positive: prompt,
+                                    })
                                 }}
                             >
                                 use
