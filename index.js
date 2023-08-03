@@ -55,7 +55,7 @@ const note = require('./utility/notification')
 const sampler_data = require('./utility/sampler')
 const settings_tab = require('./utility/tab/settings')
 //load tabs
-const history_tab = require('./utility/tab/history_tab')
+
 const image_search_tab = require('./utility/tab/image_search_tab')
 const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
@@ -4093,11 +4093,7 @@ const submenu = {
         Label: 'Prompts Library',
         'data-tab-name': 'sp-prompts-library-tab',
     },
-    history: {
-        value: 'history',
-        Label: 'History',
-        'data-tab-name': 'sp-history-tab',
-    },
+
     lexica: {
         value: 'lexica',
         Label: 'Lexica',
