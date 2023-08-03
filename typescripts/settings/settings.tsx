@@ -48,7 +48,7 @@ export const store = new AStore<AStoreData>({
     should_log_to_file:
         JSON.parse(storage.localStorage.getItem('should_log_to_file')) || false,
     delete_log_file_timer_id: undefined,
-    b_borders_or_corners: MaskModeEnum.Borders,
+    b_borders_or_corners: MaskModeEnum.Transparent,
 })
 
 function onShouldLogToFileChange(event: any) {
@@ -156,10 +156,10 @@ export class Settings extends React.Component<{}> {
                         {Locale('Mask Layer Mode:')}
                     </sp-label>
                     {[
-                        // {
-                        //     label: 'fully transparent',
-                        //     value: MaskModeEnum.Transparent,
-                        // },
+                        {
+                            label: 'fully transparent',
+                            value: MaskModeEnum.Transparent,
+                        },
                         { label: 'keep borders', value: MaskModeEnum.Borders },
                         { label: 'keep corners', value: MaskModeEnum.Corners },
                     ].map((mode: any, index: number) => {
