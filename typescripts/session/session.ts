@@ -53,7 +53,10 @@ interface AStoreData {
     controlnet_input_image: string // the controlnet the image that will controlnet load
 
     //plugin related state:
-    auto_photoshop_sd_extension_status: true
+    auto_photoshop_sd_extension_status: boolean
+
+    doc_uuid: string
+    current_session_id: number
 }
 
 export const store = new AStore<AStoreData>({
@@ -79,6 +82,8 @@ export const store = new AStore<AStoreData>({
 
     //plugin related state:
     auto_photoshop_sd_extension_status: true,
+    doc_uuid: '',
+    current_session_id: 0,
 })
 
 reaction(
@@ -219,6 +224,18 @@ export class Session {
     constructor() {}
     static async initializeSession(mode: GenerationModeEnum): Promise<any> {
         try {
+            //TODO: refactor incrementSessionID() to io.ts
+            async function incrementSessionID() {
+                const uuid = await io.getUniqueDocumentId()
+                const last_session_id = await io.IOJson.loadSessionIDFromFile(
+                    uuid
+                )
+                const current_session_id = last_session_id + 1
+                await io.IOJson.saveSessionID(current_session_id, uuid)
+                return current_session_id
+            }
+            store.data.current_session_id = await incrementSessionID()
+
             store.data.mode = mode
 
             if (modeToClassMap.hasOwnProperty(store.data.mode)) {
@@ -282,7 +299,7 @@ export class Session {
         const ui_settings = await modeToClassMap[store.data.mode].getSettings(
             session_data
         )
-
+        ui_settings['session_id'] = store.data.current_session_id
         store.data.ui_settings = ui_settings
         return ui_settings
     }

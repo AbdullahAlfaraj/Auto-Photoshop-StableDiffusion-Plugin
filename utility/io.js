@@ -825,6 +825,31 @@ class IOJson {
         )
         return settings_json
     }
+    static async loadSessionIDFromFile(uuid) {
+        try {
+            // const uuid = await getUniqueDocumentId()
+            const doc_entry = await getDocFolder(uuid)
+            const json_data = await this.loadJsonFromFile(
+                doc_entry,
+                'session_id.json'
+            )
+            return json_data?.session_id ?? 0
+        } catch (e) {
+            console.error(e)
+        }
+    }
+    static async saveSessionID(session_id, uuid) {
+        const doc_entry = await getDocFolder(uuid)
+
+        await executeAsModal(async () => {
+            await this.saveJsonToFile(
+                { session_id: session_id },
+                doc_entry,
+                'session_id.json'
+            )
+        })
+    }
+
     static async saveHordeSettingsToFile(settings_json) {
         const settings_file_name = 'horde_settings.json'
         await this.saveSettingsToFile(settings_json, settings_file_name)
