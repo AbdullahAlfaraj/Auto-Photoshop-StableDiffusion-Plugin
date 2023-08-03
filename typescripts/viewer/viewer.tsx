@@ -19,7 +19,11 @@ import { io, layer_util, psapi, selection } from '../util/oldSystem'
 import Collapsible from '../after_detailer/after_detailer'
 import { progress, session_ts, settings_tab_ts } from '../entry'
 import { reaction } from 'mobx'
-import { GenerationModeEnum, MaskModeEnum } from '../util/ts/enum'
+import {
+    GenerationModeEnum,
+    MaskModeEnum,
+    SelectionInfoType,
+} from '../util/ts/enum'
 import { base64ToLassoSelection } from '../../selection'
 import { action, app, core } from 'photoshop'
 import Locale from '../locale/locale'
@@ -57,7 +61,26 @@ function findClickType(event: any) {
     return click_type
 }
 
-export const store = new AStore({
+interface AStoreData {
+    images: string[]
+    thumbnails: string[]
+    metadata: any[] // metadata for each image
+    width: number
+    height: number
+
+    prev_layer: any
+    clicked_index: number | undefined
+
+    permanent_indices: number[]
+
+    prev_index: number
+    is_stored: boolean[]
+    layers: any[]
+    class_name: ClassNameEnum[]
+    can_click: boolean
+    auto_mask: boolean
+}
+export const store = new AStore<AStoreData>({
     images: [],
     thumbnails: [],
     metadata: [], // metadata for each image
@@ -65,12 +88,12 @@ export const store = new AStore({
     height: 50,
 
     prev_layer: null,
-    clicked_index: null,
+    clicked_index: undefined,
 
     permanent_indices: [],
 
     prev_index: -1,
-    output_image_obj_list: [],
+
     is_stored: [],
     layers: [],
     class_name: [],
@@ -151,10 +174,14 @@ export const mask_store = new AStore({
     can_click: true,
 })
 
-export async function updateViewerStoreImageAndThumbnail(
-    store: AStore,
+interface AStoreDataWithImagesAndThumbnails {
     images: string[]
-) {
+    thumbnails: string[]
+}
+
+export async function updateViewerStoreImageAndThumbnail<
+    T extends AStoreDataWithImagesAndThumbnails
+>(store: AStore<T>, images: string[]) {
     try {
         if (typeof images === 'undefined' || !images) {
             return null
@@ -172,7 +199,6 @@ export async function updateViewerStoreImageAndThumbnail(
         console.warn('images: ', images)
     }
 }
-
 const add_new = async (base64: string, mask?: string) => {
     //change the color of thumbnail border
     //add image to the canvas
@@ -230,14 +256,16 @@ const add_new = async (base64: string, mask?: string) => {
     }
     return layer
 }
-const add = async (base64: string, mask?: string) => {
+const add = async (
+    base64: string,
+    mask?: string,
+    selectionInfo?: SelectionInfoType, // TODO: don't make this optional
+    mode?: GenerationModeEnum //TODO: don't make mode optional
+) => {
     try {
         //change the color of thumbnail border
         //add image to the canvas
-        const layer = await moveImageToLayer_old(
-            base64,
-            session_ts.store.data.selectionInfo
-        )
+        const layer = await moveImageToLayer_old(base64, selectionInfo)
 
         // create channel if the generated mode support masking
         if (
@@ -245,7 +273,7 @@ const add = async (base64: string, mask?: string) => {
                 GenerationModeEnum.Inpaint,
                 GenerationModeEnum.LassoInpaint,
                 GenerationModeEnum.Outpaint,
-            ].includes(session_ts.store.data.mode) &&
+            ].includes(mode!) &&
             store.data.auto_mask
         ) {
             // const base64_monochrome_mask = await io.convertGrayscaleToMonochrome(
@@ -258,7 +286,7 @@ const add = async (base64: string, mask?: string) => {
                 mask
             )
             const channel_mask = mask_monochrome
-            const selectionInfo = session_ts.store.data.selectionInfo
+            // const selectionInfo = selectionInfo
             // await selection.base64ToChannel(channel_mask, selectionInfo, 'mask')
 
             await applyMaskFromBlackAndWhiteImage(
@@ -274,7 +302,12 @@ const add = async (base64: string, mask?: string) => {
         console.error(e)
     }
 }
-const addWithHistory = async (base64: string, mask?: string) => {
+export const addWithHistory = async (
+    base64: string,
+    mask?: string,
+    selectionInfo?: SelectionInfoType,
+    mode?: GenerationModeEnum
+) => {
     let layer
     await executeAsModal(
         async (context: any) => {
@@ -333,7 +366,9 @@ const addAll = async () => {
         }
         await addWithHistory(
             store.data.images[i],
-            mask_store.data?.output_images_masks?.[i] ?? void 0
+            mask_store.data?.output_images_masks?.[i] ?? void 0,
+            session_ts.store.data.selectionInfo,
+            session_ts.store.data.mode
         )
     }
 
@@ -388,7 +423,9 @@ export const handleOutputImageThumbnailClick = async (
 
             const layer = await addWithHistory(
                 image,
-                mask_store.data?.output_images_masks?.[index] ?? void 0
+                mask_store.data?.output_images_masks?.[index] ?? void 0,
+                session_ts.store.data.selectionInfo,
+                session_ts.store.data.mode
             )
             await remove(store.data.layers[index])
             console.log('layer:', layer)
@@ -421,7 +458,9 @@ export const handleOutputImageThumbnailClick = async (
 
                 const layer = await addWithHistory(
                     image,
-                    mask_store.data?.output_images_masks?.[index] ?? void 0
+                    mask_store.data?.output_images_masks?.[index] ?? void 0,
+                    session_ts.store.data.selectionInfo,
+                    session_ts.store.data.mode
                 )
                 await remove(store.data.layers[index])
                 store.data.layers[index] = layer

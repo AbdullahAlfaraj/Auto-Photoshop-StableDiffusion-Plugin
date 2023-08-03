@@ -40,10 +40,10 @@ async function updateProgressImage(progress_base64: string) {
                     const layer = await io.IO.base64ToLayer(
                         progress_base64,
                         'temp_progress_image.png',
-                        selection_info.left,
-                        selection_info.top,
-                        selection_info.width,
-                        selection_info.height
+                        selection_info?.left,
+                        selection_info?.top,
+                        selection_info?.width,
+                        selection_info?.height
                     )
                     store.data.progress_layer = layer // sotre the new progress layer// TODO: make sure you delete the progress layer when the geneeration request end
                 }
@@ -75,7 +75,7 @@ reaction(
         ).checked
         if (
             b_update_progress_layer &&
-            parseInt(session_ts.store.data.ui_settings?.batch_size) === 1 &&
+            session_ts.store.data.ui_settings.batch_size === 1 &&
             store.data.can_update_progress_layer &&
             store.data.can_update // progress is still active
         ) {

@@ -437,7 +437,7 @@ async function getSettings(session_data) {
             // console.log('setAlwaysOnScripts=> data:', data)
 
             const alwayson_scripts = {
-                'After Detailer': {
+                adetailer: {
                     args: [
                         data.is_enabled,
                         {
@@ -471,7 +471,7 @@ async function getSettings(session_data) {
                 },
             }
             if (!data?.is_installed) {
-                delete alwayson_scripts['After Detailer']
+                delete alwayson_scripts['adetailer']
             }
             return alwayson_scripts
         }

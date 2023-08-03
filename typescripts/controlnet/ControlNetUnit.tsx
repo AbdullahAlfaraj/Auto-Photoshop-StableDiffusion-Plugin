@@ -636,7 +636,7 @@ export default class ControlNetUnit extends React.Component<
                             </sp-label>
                             {controlnetModes.map(
                                 (mode: ControlnetMode, index: number) => {
-                                    console.log('mode:', mode, ' index:', index)
+                                    // console.log('mode:', mode, ' index:', index)
                                     return (
                                         <sp-radio
                                             key={`mode-${index}`}

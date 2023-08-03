@@ -8,6 +8,7 @@ import Locale from '../locale/locale'
 import globalStore from '../globalstore'
 import { io } from '../util/oldSystem'
 import { reaction } from 'mobx'
+//@ts-ignore
 import { storage } from 'uxp'
 import { ErrorBoundary } from '../util/errorBoundary'
 import { MaskModeEnum } from '../util/ts/enum'
@@ -36,11 +37,17 @@ const interpolationMethods: InterpolationMethod = {
     },
 }
 
-export const store = new AStore({
+interface AStoreData {
+    scale_interpolation_method: typeof interpolationMethods.bilinear
+    should_log_to_file: boolean
+    delete_log_file_timer_id: ReturnType<typeof setInterval> | undefined
+    b_borders_or_corners: MaskModeEnum
+}
+export const store = new AStore<AStoreData>({
     scale_interpolation_method: interpolationMethods.bilinear,
     should_log_to_file:
         JSON.parse(storage.localStorage.getItem('should_log_to_file')) || false,
-    delete_log_file_timer_id: null,
+    delete_log_file_timer_id: undefined,
     b_borders_or_corners: MaskModeEnum.Borders,
 })
 
@@ -54,9 +61,12 @@ function onShouldLogToFileChange(event: any) {
         } else {
             //don't log and clear delete file timer
             try {
-                store.data.delete_log_file_timer_id = clearInterval(
-                    store.data.delete_log_file_timer_id
+                clearInterval(
+                    store.data.delete_log_file_timer_id as ReturnType<
+                        typeof setInterval
+                    >
                 )
+                store.data.delete_log_file_timer_id = undefined
             } catch (e) {
                 console.warn(e)
             }
@@ -153,7 +163,7 @@ export class Settings extends React.Component<{}> {
                         { label: 'keep borders', value: MaskModeEnum.Borders },
                         { label: 'keep corners', value: MaskModeEnum.Corners },
                     ].map((mode: any, index: number) => {
-                        console.log('mode:', mode.label, ' index:', index)
+                        // console.log('mode:', mode.label, ' index:', index)
                         return (
                             <sp-radio
                                 key={`mode-${index}`}

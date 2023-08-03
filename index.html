@@ -742,9 +742,7 @@
                 <div class="sp-tab" id="sp-control_net-tab">
                     <sp-label>ControlNet</sp-label>
                 </div>
-                <div class="sp-tab" id="sp-history-tab" style="display: none">
-                    <sp-label>History</sp-label>
-                </div>
+
                 <div class="sp-tab" id="sp-lexica-tab" style="display: none">
                     <sp-label>Lexica</sp-label>
                 </div>
@@ -843,14 +841,7 @@
                             data-tab-name="sp-viewer-tab"
                             >Viewer</sp-radio
                         >
-                        <sp-radio
-                            title=""
-                            class="rbSubTab"
-                            id="rbHistoryTab"
-                            value="history"
-                            data-tab-name="sp-history-tab"
-                            >History</sp-radio
-                        >
+
                         <sp-radio
                             title=""
                             class="rbSubTab"
@@ -1016,38 +1007,7 @@
                 <!-- </div> -->
             </div>
             <div class="sp-tab-page" id="sp-control_net-tab-page"></div>
-            <div class="sp-tab-page" id="sp-history-tab-page">
-                <div class="subTabOptionsContainer"></div>
 
-                <div class="flexContainer">
-                    <sp-label slot="label"
-                        >history of all the images you generated</sp-label
-                    >
-                    <div id="historySeedLabelContainer">
-                        <sp-label slot="label">Seed:</sp-label
-                        ><sp-label slot="label" id="historySeedLabel"
-                            >00000000000</sp-label
-                        >
-                    </div>
-                </div>
-                <div></div>
-                <div>
-                    <button class="btnSquare" id="btnLoadHistory">
-                        Load Previous Generations
-                    </button>
-                    <button class="btnSquare" id="btnClearHistoryCache">
-                        Clear Results
-                    </button>
-                </div>
-                <div class="viewer-container" id="divHistoryImagesContainer">
-                    <img
-                        class="history-image"
-                        id="history_image_test"
-                        data-metadata_json_string='{"a":1}'
-                        src="https://source.unsplash.com/random"
-                    />
-                </div>
-            </div>
             <div class="sp-tab-page" id="sp-lexica-tab-page">
                 <div class="subTabOptionsContainer"></div>
                 <!-- <sp-textarea id="lexicaPrompt"> </sp-textarea> -->
@@ -2132,29 +2092,7 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                         </sp-action-button>
                     </div>
 
-                    <!-- <custom-element>hello custom element</custom-element> -->
-                    <div class="prompts">
-                        <!-- <sp-label slot="label">Prompt</sp-label> -->
-                        <div class="">
-                            <sp-textarea
-                                id="taPrompt"
-                                placeholder="Prompt"
-                                value="cute cat, {painterly_style_1}"
-                            ></sp-textarea>
-                            <!-- <textarea id="taPrompt" placeholder="Prompt" value="cute cat"></textarea> -->
-                        </div>
-
-                        <div class="">
-                            <sp-textarea
-                                id="taNegativePrompt"
-                                placeholder="Negative Prompt"
-                                id="taNegativePrompt"
-                                value="{ugly}"
-                                multiline
-                                grows
-                            ></sp-textarea>
-                        </div>
-                    </div>
+                    <div class="multiPromptsContainer"></div>
 
                     <sp-radio-group>
                         <!-- <sp-label slot="label">Select a Mode:</sp-label> -->
@@ -2826,6 +2764,9 @@ l32 44 -47 62 c-67 90 -253 281 -358 368 -248 208 -538 351 -802 397 -90 16
                 <sp-divider class="line-divider" size="large"></sp-divider>
                 <sp-divider class="line-divider" size="large"></sp-divider>
                 <div id="sp-control_net-tab-page2"></div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <div id="historyImagesContainer"></div>
                 <sp-divider class="line-divider" size="large"></sp-divider>
                 <sp-divider class="line-divider" size="large"></sp-divider>
             </div>

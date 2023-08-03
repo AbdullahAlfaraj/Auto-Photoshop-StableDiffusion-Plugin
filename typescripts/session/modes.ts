@@ -168,17 +168,17 @@ export class Txt2ImgMode extends Mode {
                 throw 'you need to select a valid ControlNet Module'
             }
 
-            if (
-                (!control_net_settings['controlnet_units'][index]['model'] &&
-                    !getModuleDetail()[
-                        control_net_settings['controlnet_units'][index][
-                            'module'
-                        ]
-                    ].model_free) ||
-                control_net_settings['controlnet_units'][index][
-                    'model'
-                ].toLowerCase() === 'none'
-            ) {
+            const is_model_free: boolean =
+                getModuleDetail()[
+                    control_net_settings['controlnet_units'][index]['module']
+                ].model_free
+
+            const has_model =
+                control_net_settings['controlnet_units'][index]['model']
+            const is_model_none: boolean =
+                has_model && has_model.toLowerCase() === 'none'
+
+            if (!is_model_free && (!has_model || is_model_none)) {
                 //@ts-ignore
                 app.showAlert('you need to select a valid ControlNet Model')
                 throw 'you need to select a valid ControlNet Model'
@@ -310,17 +310,17 @@ export class Img2ImgMode extends Mode {
                 app.showAlert('you need to select a valid ControlNet Module')
                 throw 'you need to select a valid ControlNet Module'
             }
-            if (
-                (!control_net_settings['controlnet_units'][index]['model'] &&
-                    !getModuleDetail()[
-                        control_net_settings['controlnet_units'][index][
-                            'module'
-                        ]
-                    ].model_free) ||
-                control_net_settings['controlnet_units'][index][
-                    'model'
-                ].toLowerCase() === 'none'
-            ) {
+            const is_model_free: boolean =
+                getModuleDetail()[
+                    control_net_settings['controlnet_units'][index]['module']
+                ].model_free
+
+            const has_model =
+                control_net_settings['controlnet_units'][index]['model']
+            const is_model_none: boolean =
+                has_model && has_model.toLowerCase() === 'none'
+
+            if (!is_model_free && (!has_model || is_model_none)) {
                 //@ts-ignore
                 app.showAlert('you need to select a valid ControlNet Model')
                 throw 'you need to select a valid ControlNet Model'

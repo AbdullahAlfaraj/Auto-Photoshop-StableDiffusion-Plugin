@@ -1,12 +1,14 @@
 ////// Start Prompt//////////
 
 function getPrompt() {
-    const prompt = document.getElementById('taPrompt').value
+    // const prompt = document.getElementById('taPrompt').value
+    const prompt = multiPrompts.getPrompt().positive
     return prompt
 }
 
 function autoFillInPrompt(prompt_value) {
-    document.getElementById('taPrompt').value = prompt_value
+    // document.getElementById('taPrompt').value = prompt_value
+    multiPrompts.setPrompt({ positive: prompt_value })
 }
 
 ////// End Prompt//////////
@@ -14,12 +16,16 @@ function autoFillInPrompt(prompt_value) {
 ////// Start Negative Prompt//////////
 
 function getNegativePrompt() {
-    const negative_prompt = document.getElementById('taNegativePrompt').value
+    // const negative_prompt = document.getElementById('taNegativePrompt').value
+
+    const negative_prompt = multiPrompts.getPrompt().negative
+
     return negative_prompt
 }
 
 function autoFillInNegativePrompt(negative_prompt_value) {
-    document.getElementById('taNegativePrompt').value = negative_prompt_value
+    // document.getElementById('taNegativePrompt').value = negative_prompt_value
+    multiPrompts.setPrompt({ negative: negative_prompt_value })
 }
 
 ////// End Negative Prompt//////////

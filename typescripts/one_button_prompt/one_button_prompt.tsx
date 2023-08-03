@@ -12,15 +12,16 @@ import {
     SpSliderWithLabel,
 } from '../util/elements'
 import { ErrorBoundary } from '../util/errorBoundary'
+import { setPrompt } from '../multiTextarea'
 
 declare let g_sd_url: string
 export const store = new AStore({
-    prompts: [],
+    prompts: [] as string[],
     number: 3,
     prompt_complexity: 5,
-    subjects: [],
-    artists: [],
-    imagetypes: [],
+    subjects: [] as string[],
+    artists: [] as string[],
+    imagetypes: [] as string[],
     subject: 'all',
     artist: 'all',
     imagetype: 'all',
@@ -236,8 +237,9 @@ class OneButtonPrompt extends React.Component {
                                 style={{ textAlign: 'right' }}
                                 onClick={() => {
                                     //@ts-ignore
-                                    document.querySelector('#taPrompt').value =
-                                        prompt
+                                    setPrompt({
+                                        positive: prompt,
+                                    })
                                 }}
                             >
                                 use

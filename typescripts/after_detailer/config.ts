@@ -5,9 +5,10 @@ export const model_list = [
     'face_yolov8s.pt',
     'mediapipe_face_full',
     'mediapipe_face_short',
+    'mediapipe_face_mesh',
+    'mediapipe_face_mesh_eyes_only',
     'hand_yolov8n.pt',
     'person_yolov8n-seg.pt',
-
     'person_yolov8s-seg.pt',
     'None',
 ]

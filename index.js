@@ -55,7 +55,7 @@ const note = require('./utility/notification')
 const sampler_data = require('./utility/sampler')
 const settings_tab = require('./utility/tab/settings')
 //load tabs
-const history_tab = require('./utility/tab/history_tab')
+
 const image_search_tab = require('./utility/tab/image_search_tab')
 const lexica_tab = require('./utility/tab/lexica_tab')
 const share_tab = require('./utility/tab/share_tab')
@@ -78,6 +78,7 @@ const {
     settings_tab_ts,
     one_button_prompt,
     enum_ts,
+    multiPrompts,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
@@ -1822,48 +1823,7 @@ async function restoreActiveSelection() {
         console.warn(e)
     }
 }
-//REFACTOR: move to events.js
-document.querySelector('#taPrompt').addEventListener('focus', async () => {
-    // if (!g_generation_session.isLoadingActive) {
-    //     console.log('taPrompt focus')
-    //     // console.log('we are in prompt textarea')
-    //     // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
-    //     await storeActiveLayers()
-    //     await storeActiveSelection()
-    //     // await psapi.unselectActiveLayersExe()
-    // }
-})
-//REFACTOR: move to events.js
-document.querySelector('#taPrompt').addEventListener('blur', async () => {
-    // console.log('taPrompt blur')
-    // // console.log('we are out of prompt textarea')
-    // // await psapi.unselectActiveLayersExe()
-    // // console.log("g_is_active_layers_stored: ",g_is_active_layers_stored)
-    // await restoreActiveLayers()
-    // await restoreActiveSelection()
-})
-//REFACTOR: move to events.js
-document
-    .querySelector('#taNegativePrompt')
-    .addEventListener('focus', async () => {
-        // if (!g_generation_session.isLoadingActive) {
-        //     console.log('taNegativePrompt focus')
-        //     // console.log('we are in prompt textarea')
-        //     await storeActiveLayers()
-        //     await storeActiveSelection()
-        //     // await psapi.unselectActiveLayersExe()
-        // }
-    })
-//REFACTOR: move to events.js
-document
-    .querySelector('#taNegativePrompt')
-    .addEventListener('blur', async () => {
-        // console.log('taNegativePrompt blur')
-        // // console.log('we are out of prompt textarea')
-        // // await psapi.unselectActiveLayersExe()
-        // await restoreActiveLayers()
-        // await restoreActiveSelection()
-    })
+
 //REFACTOR: unused, remove?
 function updateMetadata(new_metadata) {
     const metadatas = []
@@ -4133,11 +4093,7 @@ const submenu = {
         Label: 'Prompts Library',
         'data-tab-name': 'sp-prompts-library-tab',
     },
-    history: {
-        value: 'history',
-        Label: 'History',
-        'data-tab-name': 'sp-history-tab',
-    },
+
     lexica: {
         value: 'lexica',
         Label: 'Lexica',
