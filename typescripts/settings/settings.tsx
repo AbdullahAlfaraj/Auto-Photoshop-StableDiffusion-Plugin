@@ -8,6 +8,7 @@ import Locale from '../locale/locale'
 import globalStore from '../globalstore'
 import { io } from '../util/oldSystem'
 import { reaction } from 'mobx'
+//@ts-ignore
 import { storage } from 'uxp'
 import { ErrorBoundary } from '../util/errorBoundary'
 import { MaskModeEnum } from '../util/ts/enum'
@@ -162,7 +163,7 @@ export class Settings extends React.Component<{}> {
                         { label: 'keep borders', value: MaskModeEnum.Borders },
                         { label: 'keep corners', value: MaskModeEnum.Corners },
                     ].map((mode: any, index: number) => {
-                        console.log('mode:', mode.label, ' index:', index)
+                        // console.log('mode:', mode.label, ' index:', index)
                         return (
                             <sp-radio
                                 key={`mode-${index}`}
