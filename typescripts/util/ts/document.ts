@@ -229,6 +229,11 @@ export async function base64ToFileAndGetLayer(
     const selection_info = await psapi.getSelectionInfoExe()
 
     let imported_layer
+    let willScaleSize = Math.min(
+        1,
+        app.activeDocument.width / jimp_image.bitmap.width,
+        app.activeDocument.height / jimp_image.bitmap.height
+    )
 
     await executeAsModal(
         () =>
@@ -246,7 +251,7 @@ export async function base64ToFileAndGetLayer(
                             _obj: 'rectangle',
                             bottom: {
                                 _unit: 'pixelsUnit',
-                                _value: jimp_image.bitmap.height,
+                                _value: jimp_image.bitmap.height * willScaleSize,
                             },
                             left: {
                                 _unit: 'pixelsUnit',
@@ -254,7 +259,7 @@ export async function base64ToFileAndGetLayer(
                             },
                             right: {
                                 _unit: 'pixelsUnit',
-                                _value: jimp_image.bitmap.width,
+                                _value: jimp_image.bitmap.width * willScaleSize,
                             },
                             top: {
                                 _unit: 'pixelsUnit',
@@ -269,6 +274,7 @@ export async function base64ToFileAndGetLayer(
             commandName: 'select import area',
         }
     )
+    
     await executeAsModal(
         async () => {
             const result = await batchPlay(
@@ -282,12 +288,19 @@ export async function base64ToFileAndGetLayer(
                         },
                         freeTransformCenterState: {
                             _enum: 'quadCenterState',
-                            _value: 'QCSAverage',
+                            _value: "QCSCorner0"
+                        },
+                        offset: {
+                            _obj: "offset",
+                            horizontal: { _unit: "pixelsUnit", _value: 0.0 },
+                            vertical: { _unit: "pixelsUnit", _value: 0.0 }
                         },
                         _isCommand: true,
                         _options: {
                             dialogOptions: 'dontDisplay',
                         },
+                        width: { "_unit": "percentUnit", "_value": 1 / willScaleSize * 100 },
+                        height: { "_unit": "percentUnit", "_value": 1 / willScaleSize * 100 }
                     },
                 ],
                 {}

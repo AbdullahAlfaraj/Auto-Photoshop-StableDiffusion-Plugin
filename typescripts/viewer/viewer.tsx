@@ -177,7 +177,7 @@ const add_new = async (base64: string, mask?: string) => {
     //change the color of thumbnail border
     //add image to the canvas
     await psapi.unselectActiveLayersExe()
-    const layer = await moveImageToLayer_old(
+    const layer = await moveImageToLayer(
         base64,
         session_ts.store.data.selectionInfo
     )
@@ -288,7 +288,7 @@ const addWithHistory = async (base64: string, mask?: string) => {
                 console.warn(e)
             }
 
-            layer = await add(base64, mask)
+            layer = await add_new(base64, mask)
 
             try {
                 await context.hostControl.resumeHistory(history_id)
@@ -593,7 +593,7 @@ const Viewer = observer(() => {
                         {
                             ComponentType: MoveToCanvasSvg,
                             callback: async (index: number) => {
-                                await moveImageToLayer_old(
+                                await moveImageToLayer(
                                     mask_store.data.images[index],
                                     session_ts.store.data.selectionInfo,
                                     'mask'

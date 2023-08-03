@@ -20,7 +20,7 @@ export async function applyMaskFromBlackAndWhiteImage(
                 black_and_white_base64,
                 b_borders_or_corners
             )
-        mask_layer = await moveImageToLayer_old(
+        mask_layer = await moveImageToLayer(
             transparent_mask_base64,
             selectionInfo
         )
@@ -110,7 +110,7 @@ export async function selectionFromBlackAndWhiteImage(
                 black_and_white_base64,
                 b_borders_or_corners
             )
-        mask_layer = await moveImageToLayer_old(
+        mask_layer = await moveImageToLayer(
             transparent_mask_base64,
             selectionInfo
         )
