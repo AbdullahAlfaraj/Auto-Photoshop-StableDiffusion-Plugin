@@ -131,6 +131,19 @@ class ControlNetTab extends React.Component<{
         this.updatePresetMenuEvent()
     }
 
+    unitBackgroundColor(is_enabled: boolean, is_tab_enabled: boolean) {
+        let color
+        if (is_enabled && is_tab_enabled) {
+            color = '#ff595e'
+        } else if (is_enabled) {
+            color = '#2c4639'
+        } else {
+            color = void 0
+        }
+
+        return color
+    }
+
     render() {
         return (
             <div>
@@ -223,9 +236,12 @@ class ControlNetTab extends React.Component<{
                                         labelStyle={{ fontSize: '12px' }}
                                         containerStyle={{
                                             alignItems: 'center',
-                                            backgroundColor: storeData.enabled
-                                                ? '#2c4639'
-                                                : void 0,
+                                            backgroundColor:
+                                                this.unitBackgroundColor(
+                                                    storeData.enabled,
+                                                    this.props.appState
+                                                        .disableControlNetTab
+                                                ),
                                         }}
                                         checkboxCallback={(checked) => {
                                             storeData.enabled = checked
