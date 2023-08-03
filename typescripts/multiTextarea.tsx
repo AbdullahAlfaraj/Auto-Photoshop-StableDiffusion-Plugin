@@ -34,8 +34,10 @@ export function setPrompt({
     negative?: string
 }) {
     const index: number = store.data.current_index
-    if (positive) store.data.positivePrompts[index] = positive
-    if (negative) store.data.negativePrompts[index] = negative
+    if (positive !== void 0 && positive !== null)
+        store.data.positivePrompts[index] = positive
+    if (negative !== void 0 && negative !== null)
+        store.data.negativePrompts[index] = negative
 }
 @observer
 export class MultiTextArea extends React.Component {
@@ -111,7 +113,7 @@ export class MultiTextArea extends React.Component {
                             store.data.current_index
                         )
                     }}
-                    placeholder={`prompt ${store.data.current_index}`}
+                    placeholder={`prompt ${store.data.current_index + 1}`}
                     value={store.data.positivePrompts[store.data.current_index]}
                 ></sp-textarea>
                 <sp-textarea
@@ -122,7 +124,9 @@ export class MultiTextArea extends React.Component {
                             store.data.current_index
                         )
                     }}
-                    placeholder={`negative prompt ${store.data.current_index}`}
+                    placeholder={`negative prompt ${
+                        store.data.current_index + 1
+                    }`}
                     value={store.data.negativePrompts[store.data.current_index]}
                 ></sp-textarea>
             </div>
