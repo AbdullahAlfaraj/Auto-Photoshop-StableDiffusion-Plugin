@@ -139,7 +139,7 @@ export class AfterDetailerComponent extends React.Component<{
                     <button
                         className="btnSquare refreshButton"
                         id="btnResetSettings"
-                        title="Refresh the After Detailer Extension"
+                        title="Refresh the ADetailer Extension"
                         onClick={this.handleRefresh}
                     ></button>
                 </div>
@@ -168,6 +168,7 @@ export class AfterDetailerComponent extends React.Component<{
                     )}
                     onChange={(id: any, value: any) => {
                         console.log('onChange value: ', value)
+
                         store.updateProperty('ad_model', value.item)
                     }}
                 ></SpMenu>
@@ -337,7 +338,7 @@ root.render(
     <React.StrictMode>
         <ErrorBoundary>
             <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Collapsible label={'After Detailer'}>
+                <Collapsible label={'ADetailer'}>
                     <AfterDetailerComponent />
                 </Collapsible>
             </div>

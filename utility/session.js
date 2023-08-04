@@ -431,21 +431,22 @@ async function getSettings(session_data) {
 
         // payload['script_args'] = []
 
-        // payload['script_name'] = 'after detailer'
         function setAlwaysOnScripts() {
             const data = after_detailer_script.store.toJsFunc().data
             // console.log('setAlwaysOnScripts=> data:', data)
-
+            let ad_controlnet_module = null
+            if (data.controlnet_model?.includes('inpaint')) {
+                ad_controlnet_module = 'inpaint_global_harmonious'
+            }
             const alwayson_scripts = {
-                adetailer: {
+                ADetailer: {
                     args: [
                         data.is_enabled,
                         {
-                            // ad_model: 'face_yolov8n.pt',
                             ad_model: data.ad_model,
                             ad_prompt: data.prompt,
                             ad_negative_prompt: data.negativePrompt,
-                            ad_conf: data.ad_conf,
+                            ad_confidence: data.ad_conf,
                             ad_mask_min_ratio: 0.0,
                             ad_mask_max_ratio: 1.0,
                             ad_dilate_erode: 32,
@@ -454,8 +455,8 @@ async function getSettings(session_data) {
                             ad_mask_merge_invert: 'None',
                             ad_mask_blur: 4,
                             ad_denoising_strength: 0.4,
-                            ad_inpaint_full_res: true,
-                            ad_inpaint_full_res_padding: 0,
+                            ad_inpaint_only_masked: true,
+                            ad_inpaint_only_masked_padding: 0,
                             ad_use_inpaint_width_height: false,
                             ad_inpaint_width: 512,
                             ad_inpaint_height: 512,
@@ -463,15 +464,24 @@ async function getSettings(session_data) {
                             ad_steps: 28,
                             ad_use_cfg_scale: false,
                             ad_cfg_scale: 7.0,
+                            ad_use_sampler: false,
+                            ad_sampler: sampler_name, //use the current sd sampler
+                            ad_use_noise_multiplier: false,
+                            ad_noise_multiplier: 1.0,
                             ad_restore_face: false,
+
                             ad_controlnet_model: data.controlnet_model,
+                            // ad_controlnet_module: data.controlnet_module,
+                            ad_controlnet_module: ad_controlnet_module,
                             ad_controlnet_weight: data.controlNetWeight,
+                            ad_controlnet_guidance_start: 0.0,
+                            ad_controlnet_guidance_end: 1.0,
                         },
                     ],
                 },
             }
             if (!data?.is_installed) {
-                delete alwayson_scripts['adetailer']
+                delete alwayson_scripts['ADetailer']
             }
             return alwayson_scripts
         }
