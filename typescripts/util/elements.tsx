@@ -482,7 +482,7 @@ export const ScriptInstallComponent = observer(
                 <button
                     className="btnSquare refreshButton"
                     id="btnResetSettings"
-                    title="Refresh the After Detailer Extension"
+                    title="Refresh the ADetailer Extension"
                     onClick={onRefreshHandler}
                 ></button>
             </div>

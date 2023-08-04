@@ -56,7 +56,7 @@ export const store = new AStore({
     controlnet_model: 'None',
     controlnet_models: [],
     controlNetWeight: 1,
-    script_name: 'after detailer',
+    script_name: 'adetailer',
 
     is_installed: false,
     is_enabled: false,
@@ -139,7 +139,7 @@ export class AfterDetailerComponent extends React.Component<{
                     <button
                         className="btnSquare refreshButton"
                         id="btnResetSettings"
-                        title="Refresh the After Detailer Extension"
+                        title="Refresh the ADetailer Extension"
                         onClick={this.handleRefresh}
                     ></button>
                 </div>
@@ -168,6 +168,7 @@ export class AfterDetailerComponent extends React.Component<{
                     )}
                     onChange={(id: any, value: any) => {
                         console.log('onChange value: ', value)
+
                         store.updateProperty('ad_model', value.item)
                     }}
                 ></SpMenu>
