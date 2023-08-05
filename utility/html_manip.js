@@ -585,18 +585,6 @@ function setInitImageMaskSrc(image_src) {
 
 ////// Start Generate Buttons //////////
 
-function getGenerateButtonsElements() {
-    generate_buttons = [...document.getElementsByClassName('btnGenerateClass')]
-    return generate_buttons
-}
-function setGenerateButtonsColor(addClassName, removeClassName) {
-    const buttons = getGenerateButtonsElements()
-    buttons.forEach((button) => {
-        button.classList.add(addClassName)
-        button.classList.remove(removeClassName)
-    })
-}
-
 ////// End Generate Buttons //////////
 
 ////// Start Servers Status //////////
@@ -1105,7 +1093,7 @@ module.exports = {
     getMode,
     setInitImageSrc,
     setInitImageMaskSrc,
-    setGenerateButtonsColor,
+
     setAutomaticStatus,
     setProxyServerStatus,
     defaultSettings,

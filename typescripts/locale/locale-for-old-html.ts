@@ -24,13 +24,13 @@ const elemSelectorForLocale = {
     '#rbLexica': 'Lexica',
     '#viewerSubTab .flexContainer sp-label':
         'View your generated images on the canvas',
-    '#btnSetMaskViewer': 'Set Mask',
-    '#btnSetInitImageViewer': 'Set Init Image',
+    // '#btnSetMaskViewer': 'Set Mask',
+    // '#btnSetInitImageViewer': 'Set Init Image',
     '#btnInterruptViewer': 'Interrupt',
     // '#btnSelectionArea': 'Selection Area',
 
     // extra tab
-    '#slThumbnailSize sp-label': 'Thumbnail Size',
+    // '#slThumbnailSize sp-label': 'Thumbnail Size',
     '#chSquareThumbnail': 'Square 1:1',
     '#btnGenerateUpscale': 'Generate upscale',
     '#btnInterruptUpscale': 'Interrupt',

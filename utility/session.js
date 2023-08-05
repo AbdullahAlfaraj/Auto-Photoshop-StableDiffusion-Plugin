@@ -2,7 +2,7 @@ const { cleanLayers } = require('../psapi')
 const psapi = require('../psapi')
 const io = require('./io')
 const Enum = require('../enum')
-const { ViewerManager } = require('../viewer')
+
 const { base64ToBase64Url } = require('./general')
 const html_manip = require('./html_manip')
 const layer_util = require('./layer')
@@ -59,95 +59,7 @@ class GenerationSession {
     name() {
         return `session - ${this.id}`
     }
-    async startSession() {
-        this.id += 1 //increment the session id for each session we start
-        this.activate()
-        this.isFirstGeneration = true // only before the first generation is requested should this be true
 
-        console.log('current session id: ', this.id)
-        try {
-            const session_name = this.name()
-            const activeLayers = await app.activeDocument.activeLayers
-            await psapi.unselectActiveLayersExe() // unselect all layer so the create group is place at the top of the document
-            this.prevOutputGroup = this.outputGroup
-            const outputGroup = await psapi.createEmptyGroup(session_name)
-            await executeAsModal(async () => {
-                outputGroup.allLocked = true //lock the session folder so that it can't move
-            })
-            this.outputGroup = outputGroup
-            await psapi.selectLayersExe(activeLayers)
-        } catch (e) {
-            console.warn(e)
-        }
-    }
-
-    async endSession(garbage_collection_state) {
-        try {
-            if (!this.isActive()) {
-                //return if the session is not active
-                return null
-            }
-            this.state = SessionState['Inactive'] // end the session by deactivate it
-
-            this.deactivate()
-
-            if (garbage_collection_state === GarbageCollectionState['Accept']) {
-                await acceptAll()
-            } else if (
-                garbage_collection_state === GarbageCollectionState['Discard']
-            ) {
-                //this should be discardAll()
-
-                await discardAll()
-            } else if (
-                garbage_collection_state ===
-                GarbageCollectionState['DiscardSelected']
-            ) {
-                //this should be discardAllExcept(selectedLayers)
-                await discardSelected() //this will discard what is not been highlighted
-            } else if (
-                garbage_collection_state ===
-                GarbageCollectionState['AcceptSelected']
-            ) {
-                //this should be discardAllExcept(selectedLayers)
-                await discard() //this will discard what is not been highlighted
-            }
-
-            //delete the old selection area
-            // g_generation_session.selectionInfo = {}
-
-            this.isFirstGeneration = true // only before the first generation is requested should this be true
-            // const is_visible = await this.outputGroup.visible
-            g_viewer_manager.last_selected_viewer_obj = null // TODO: move this in viewerManager endSession()
-            g_viewer_manager.onSessionEnd()
-            await layer_util.collapseFolderExe([this.outputGroup], false) // close the folder group
-            await executeAsModal(async () => {
-                this.outputGroup.allLocked = false //unlock the session folder on session end
-            })
-            // this.outputGroup.visible = is_visible
-
-            if (
-                this.mode === generationMode['Inpaint'] &&
-                g_sd_mode === generationMode['Inpaint']
-            ) {
-                //create "Mask -- Paint White to Mask -- temporary" layer if current session was inpiant and the selected session is inpaint
-                // the current inpaint session ended on inpaint
-                g_b_mask_layer_exist = false
-                await layer_util.deleteLayers([g_inpaint_mask_layer])
-                await createTempInpaintMaskLayer()
-            }
-            //delete controlNet image, Note: don't delete control net, let the user disable controlNet if doesn't want to use it
-            // this.controlNetImage = null
-            // html_manip.setControlImageSrc('https://source.unsplash.com/random')
-        } catch (e) {
-            console.warn(e)
-        }
-    }
-    // initializeInitImage(group, snapshot, solid_background, path) {
-    //     this.initGroup = group
-    //     this.init_solid_background = solid_background
-    //     this.InitSnapshot = snapshot
-    // }
     deleteInitImageLayers() {}
     async closePreviousOutputGroup() {
         try {
