@@ -199,14 +199,16 @@ export async function updateViewerStoreImageAndThumbnail<
         console.warn('images: ', images)
     }
 }
-const add_new = async (base64: string, mask?: string) => {
+const add_new = async (
+    base64: string,
+    mask?: string,
+    selectionInfo?: SelectionInfoType,
+    mode?: GenerationModeEnum
+) => {
     //change the color of thumbnail border
     //add image to the canvas
     await psapi.unselectActiveLayersExe()
-    const layer = await moveImageToLayer(
-        base64,
-        session_ts.store.data.selectionInfo
-    )
+    const layer = await moveImageToLayer(base64, selectionInfo)
 
     // create channel if the generated mode support masking
     if (
@@ -214,15 +216,12 @@ const add_new = async (base64: string, mask?: string) => {
             GenerationModeEnum.Inpaint,
             GenerationModeEnum.LassoInpaint,
             GenerationModeEnum.Outpaint,
-        ].includes(session_ts.store.data.mode) &&
+        ].includes(mode!) &&
         store.data.auto_mask &&
         mask
     ) {
         const channel_mask_monochrome =
-            await convertGrayscaleToWhiteAndTransparent(
-                // session_ts.store.data.expanded_mask
-                mask
-            )
+            await convertGrayscaleToWhiteAndTransparent(mask)
         if (
             settings_tab_ts.store.data.b_borders_or_corners ===
             MaskModeEnum.Transparent
@@ -230,7 +229,7 @@ const add_new = async (base64: string, mask?: string) => {
             //will use colorRange() which may or may not break
             const mask_layer = await moveImageToLayer(
                 channel_mask_monochrome.base64,
-                session_ts.store.data.selectionInfo
+                selectionInfo
             )
 
             if (!mask_layer) {
@@ -249,7 +248,7 @@ const add_new = async (base64: string, mask?: string) => {
             await applyMaskFromBlackAndWhiteImage(
                 channel_mask_monochrome.base64,
                 layer.id,
-                session_ts.store.data.selectionInfo,
+                selectionInfo,
                 settings_tab_ts.store.data.b_borders_or_corners
             )
         }
@@ -321,7 +320,7 @@ export const addWithHistory = async (
                 console.warn(e)
             }
 
-            layer = await add_new(base64, mask)
+            layer = await add_new(base64, mask, selectionInfo, mode)
 
             try {
                 await context.hostControl.resumeHistory(history_id)
