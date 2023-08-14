@@ -1,5 +1,5 @@
 {
-    "Auto-Photoshop-SD": "SD插件（明空汉化）",
+    "Auto-Photoshop-SD": "SDplugin",
     "'A' for Automatic1111 server (webui-user.bat), Green is connected. Red Means there is a problem with your Automatic1111. Run 'webui-user.bat' and hit 'Refresh' button ": "A代表SD服务器(webui-user.bat)，绿色已连接。红色表示SD服务器有问题。运行“webui-user.bat”并点击刷新按钮",
     "'P' for proxy server (start_server.bat), Green is connected. Red means you need to run 'start_server.bat' or hit Refresh button": "P为代理服务器(start_server.bat)，绿色已连接。红色表示您需要运行'start_server.bat'或点击刷新按钮",
     "Stable Diffusion": "稳定扩散",
