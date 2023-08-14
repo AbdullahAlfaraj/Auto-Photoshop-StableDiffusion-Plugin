@@ -2,12 +2,10 @@
   "id": "auto.photoshop.stable.diffusion.plugin",
   "name": "Auto Photoshop Stable Diffusion Plugin",
   "version": "1.1.0",
-  "host": [
-    {
-      "app": "PS",
-      "minVersion": "24.0.0"
-    }
-  ],
+  "host": {
+    "app": "PS",
+    "minVersion": "24.0.0"
+  },
   "main": "index.html",
   "manifestVersion": 5,
   "requiredPermissions": {
@@ -41,7 +39,7 @@
         "default": "Auto-Photoshop-SD",
         "en-US": "Auto-Photoshop-SD",
         "es-ES": "Auto-Photoshop-SD",
-        "zh-CN": "SD插件（明空汉化）"
+        "zh-CN": "SDplugin"
       },
       "minimumSize": {
         "width": 400,
@@ -94,7 +92,7 @@
         "default": "Second Auto-Photoshop-SD",
         "en-US": "Second Auto-Photoshop-SD",
         "es-ES": "Second Auto-Photoshop-SD",
-        "zh-CN": "SD插件（明空汉化）"
+        "zh-CN": "SDplugin"
       },
       "minimumSize": {
         "width": 100,
