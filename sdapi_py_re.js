@@ -1,6 +1,6 @@
 const { getDummyBase64, getDummyBase64_2 } = require('./utility/dummy')
 const { base64ToBase64Url } = require('./utility/general')
-const { getExtensionType } = require('./utility/html_manip')
+
 const py_re = require('./utility/sdapi/python_replacement')
 const Enum = require('./enum')
 const { control_net } = require('./typescripts/dist/bundle')
@@ -72,60 +72,6 @@ async function requestProgress() {
     return null
 }
 
-async function requestGetModels() {
-    console.log('requestGetModels: ')
-    let json = []
-    const full_url = `${g_sd_url}/sdapi/v1/sd-models`
-    try {
-        let request = await fetch(full_url)
-        json = await request.json()
-        console.log('models json:')
-        console.dir(json)
-    } catch (e) {
-        console.warn(`issues requesting from ${full_url}`, e)
-    }
-    return json
-}
-
-async function requestGetSamplers() {
-    let json = null
-    try {
-        console.log('requestGetSamplers: ')
-
-        const full_url = `${g_sd_url}/sdapi/v1/samplers`
-        let request = await fetch(full_url)
-        json = await request.json()
-        // console.log('samplers json:', json)
-    } catch (e) {
-        console.warn(e)
-    }
-    return json
-}
-
-async function requestSwapModel(model_title) {
-    console.log('requestSwapModel: ')
-
-    const full_url = `${g_sd_url}/sdapi/v1/options`
-    payload = {
-        sd_model_checkpoint: model_title,
-    }
-    let request = await fetch(full_url, {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    })
-
-    let json = await request.json()
-
-    console.log('models json:')
-    console.dir(json)
-
-    return json
-}
-
 async function requestInterrupt() {
     const full_url = `${g_sd_url}/sdapi/v1/interrupt`
     try {
@@ -149,13 +95,6 @@ async function requestInterrupt() {
     } catch (e) {
         console.warn(e)
     }
-}
-
-async function getVersionRequest() {
-    console.log('requestGetSamplers: ')
-    const current_version = g_version
-
-    return current_version
 }
 
 async function changeSdUrl(new_sd_url) {
@@ -228,24 +167,6 @@ async function savePromptShortcut(prompt_shortcut) {
     }
 
     return json['prompt_shortcut']
-}
-async function setInpaintMaskWeight(value) {
-    const full_url = `${g_sd_url}/sdapi/v1/options`
-    try {
-        const payload = {
-            inpainting_mask_weight: value,
-        }
-        await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        })
-    } catch (e) {
-        console.warn(e)
-    }
 }
 
 async function requestGetConfig() {
@@ -437,21 +358,6 @@ async function requestExtraSingleImage(payload) {
         console.warn(e)
         return {}
     }
-}
-
-async function requestGetUpscalers() {
-    console.log('requestGetUpscalers: ')
-    let json = []
-    const full_url = `${g_sd_url}/sdapi/v1/upscalers`
-    try {
-        let request = await fetch(full_url)
-        json = await request.json()
-        console.log('upscalers json:')
-        console.dir(json)
-    } catch (e) {
-        console.warn(`issues requesting from ${full_url}`, e)
-    }
-    return json
 }
 
 //REFACTOR: reuse the same code for (requestControlNetTxt2Img,requestControlNetImg2Img)
@@ -649,26 +555,20 @@ async function isWebuiRunning() {
     }
     return true
 }
-async function requestLoraModels() {
-    const full_url = `${g_sd_url}/sdapi/v1/loras`
-    const lora_models = (await api.requestGet(full_url)) ?? []
-    return lora_models
-}
+
 module.exports = {
     requestTxt2Img,
     requestImg2Img,
 
     requestProgress,
-    requestGetModels,
-    requestSwapModel,
+
     requestInterrupt,
-    requestGetSamplers,
-    getVersionRequest,
+
     changeSdUrl,
     loadPromptShortcut,
     savePromptShortcut,
     loadHistory,
-    setInpaintMaskWeight,
+
     requestGetConfig,
     requestGetOptions,
     imageSearch,
@@ -677,9 +577,8 @@ module.exports = {
     // requestHordeCheck,
     // requestHordeStatus,
     requestExtraSingleImage,
-    requestGetUpscalers,
+
     requestControlNetTxt2Img,
     requestControlNetImg2Img,
     isWebuiRunning,
-    requestLoraModels,
 }

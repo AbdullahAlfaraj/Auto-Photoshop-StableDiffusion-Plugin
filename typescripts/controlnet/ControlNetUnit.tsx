@@ -808,7 +808,7 @@ export default class ControlNetUnit extends React.Component<
                             )}
                         </div>
                     </div>
-                    <div>
+                    <div style={{ width: '50%', display: 'flex' }}>
                         <SpMenu
                             onChange={this.onFilterChange.bind(this)}
                             items={this.props.appState.filterKeywords}
@@ -816,34 +816,38 @@ export default class ControlNetUnit extends React.Component<
                             selected_index={this.props.appState.filterKeywords.indexOf(
                                 storeData.filter_keyword || 'All'
                             )}
-                            style={{ width: '50%', display: 'flex' }}
+                            // style={{ width: '50%', display: 'flex' }}
                         />
                     </div>
                     <div
                         id={`menu-bar-control_net_${this.props.index}`}
                         style={{ display: 'flex' }}
                     >
-                        <SpMenu
-                            onChange={this.onPreprocsesorChange.bind(this)}
-                            id={`mModulesMenuControlNet_${this.props.index}`}
-                            items={storeData.module_list || ['none']}
-                            label_item={Locale('Select Module')}
-                            selected_index={storeData.module_list?.indexOf(
-                                storeData.module
-                            )}
-                            style={{ width: '100%', display: 'flex' }}
-                        />
-                        {!pd.model_free && (
+                        <div style={{ width: '50%', display: 'flex' }}>
                             <SpMenu
-                                onChange={this.onModelChange.bind(this)}
-                                id={`mModelsMenuControlNet_${this.props.index}`}
-                                items={storeData.model_list || []}
+                                onChange={this.onPreprocsesorChange.bind(this)}
+                                id={`mModulesMenuControlNet_${this.props.index}`}
+                                items={storeData.module_list || ['none']}
                                 label_item={Locale('Select Module')}
-                                selected_index={storeData.model_list?.indexOf(
-                                    storeData.model
+                                selected_index={storeData.module_list?.indexOf(
+                                    storeData.module
                                 )}
-                                style={{ width: '100%', display: 'flex' }}
+                                style={{ width: '100%' }}
                             />
+                        </div>
+                        {!pd.model_free && (
+                            <div style={{ width: '50%', display: 'flex' }}>
+                                <SpMenu
+                                    onChange={this.onModelChange.bind(this)}
+                                    id={`mModelsMenuControlNet_${this.props.index}`}
+                                    items={storeData.model_list || []}
+                                    label_item={Locale('Select Module')}
+                                    selected_index={storeData.model_list?.indexOf(
+                                        storeData.model
+                                    )}
+                                    style={{ width: '100%' }}
+                                />
+                            </div>
                         )}
                     </div>
                 </div>

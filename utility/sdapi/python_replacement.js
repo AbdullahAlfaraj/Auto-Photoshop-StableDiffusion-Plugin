@@ -222,7 +222,7 @@ async function txt2ImgRequest(payload) {
     // const request_path = '/sdapi/v1/txt2img'
 }
 function getExtensionUrl() {
-    const extension_type = settings_tab.getExtensionType()
+    const extension_type = settings_tab_ts.store.data.extension_type
     let extension_url
 
     if (extension_type === 'auto1111_extension') {
@@ -305,31 +305,6 @@ async function img2ImgRequest(sd_url, payload) {
         payload['prompt'] = new_prompt
         payload['negative_prompt'] = new_negative_prompt
     }
-    // init_img_dir = "./init_images"
-    // init_img_name = payload['init_image_name']
-    // init_img = Image.open(f"{init_img_dir}/{init_img_name}")
-    // init_img_str = img_2_b64(init_img)
-    // payload['init_images'] = [init_img_str]
-
-    // init_img_mask_name = payload.get('init_image_mask_name',"")
-
-    // #only if image exist then try to open it
-
-    // if(len(init_img_mask_name) > 0):
-    // init_img_mask = Image.open(f"{init_img_dir}/{init_img_mask_name}")
-
-    // if (payload['use_sharp_mask'] === false && payload['mask']) {
-    //     //only if mask is available and sharp_mask is off
-    //     // use blurry and expanded mask
-    //     const iterations = payload['mask_expansion']
-    //     const mask = await maskExpansionRequest(payload['mask'], iterations)
-    //     if (mask) {
-    //         payload['mask'] = mask
-    //     }
-    // }
-
-    // print(type(init_img_str))
-    // #request the images to be generated
 
     const endpoint = 'sdapi/v1/img2img'
 

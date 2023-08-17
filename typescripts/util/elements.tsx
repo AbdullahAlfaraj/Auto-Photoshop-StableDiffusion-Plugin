@@ -200,6 +200,7 @@ export class SpMenu extends React.Component<{
     label_item?: string
     onChange?: any
     selected_index?: number
+    size?: string
 }> {
     state = {
         selectedItem: this.props.items ? this.props.items[0] : undefined,
@@ -232,49 +233,48 @@ export class SpMenu extends React.Component<{
 
     render() {
         return (
-            <div style={this.props.style}>
-                <sp-picker
-                    title={this.props.title}
-                    size="m"
-                    // style={{ width: '199px', marginRight: '5px' }}
-                >
-                    <sp-menu id={this.props.id} slot="options">
-                        {this.props.label_item && (
-                            <sp-menu-item
-                                disabled="disabled"
-                                key={-1}
-                                data-index={-1}
-                                selected
-                            >
-                                {this.props.label_item}
-                            </sp-menu-item>
-                        )}
-                        {this.props.items?.map((item, index: number) => (
-                            <sp-menu-item
-                                key={item}
-                                data-index={index}
-                                selected={
-                                    this.props.selected_index !== undefined &&
-                                    this.props.selected_index !== null &&
-                                    this.props.selected_index === index
-                                        ? 'selected'
-                                        : undefined
-                                }
-                                disabled={
-                                    this.props.disabled?.[index]
-                                        ? 'disabled'
-                                        : undefined
-                                }
-                                onClick={() => {
-                                    this.handleItemClick(item, index)
-                                }}
-                            >
-                                {item}
-                            </sp-menu-item>
-                        ))}
-                    </sp-menu>
-                </sp-picker>
-            </div>
+            <sp-picker
+                title={this.props.title}
+                size={this.props.size || 'm'}
+                style={this.props.style}
+                // style={{ width: '199px', marginRight: '5px' }}
+            >
+                <sp-menu id={this.props.id} slot="options">
+                    {this.props.label_item && (
+                        <sp-menu-item
+                            disabled="disabled"
+                            key={-1}
+                            data-index={-1}
+                            selected
+                        >
+                            {this.props.label_item}
+                        </sp-menu-item>
+                    )}
+                    {this.props.items?.map((item, index: number) => (
+                        <sp-menu-item
+                            key={item}
+                            data-index={index}
+                            selected={
+                                this.props.selected_index !== undefined &&
+                                this.props.selected_index !== null &&
+                                this.props.selected_index === index
+                                    ? 'selected'
+                                    : undefined
+                            }
+                            disabled={
+                                this.props.disabled?.[index]
+                                    ? 'disabled'
+                                    : undefined
+                            }
+                            onClick={() => {
+                                this.handleItemClick(item, index)
+                            }}
+                        >
+                            {item}
+                        </sp-menu-item>
+                    ))}
+                </sp-menu>
+            </sp-picker>
         )
     }
 }
@@ -389,6 +389,17 @@ export class SpSlider extends PhotoshopElem {
                 ref={(elem: Element) => (this.elem = elem)}
                 {...attr}
             ></sp-slider>
+        )
+    }
+}
+export class SpTextfield extends PhotoshopElem {
+    render() {
+        const [attr] = this.splitProps(this.props)
+        return (
+            <sp-textfield
+                ref={(elem: Element) => (this.elem = elem)}
+                {...attr}
+            ></sp-textfield>
         )
     }
 }

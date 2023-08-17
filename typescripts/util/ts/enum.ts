@@ -8,6 +8,13 @@ export enum GenerationModeEnum {
     LassoOutpaint = 'lasso_outpaint',
 }
 
+export enum ScriptMode {
+    Txt2Img = 'txt2img',
+    Img2Img = 'img2img',
+    Inpaint = 'inpaint',
+    Outpaint = 'outpaint',
+}
+
 export enum MaskModeEnum {
     Transparent = 'transparent',
     Borders = 'border',
@@ -21,4 +28,9 @@ export interface SelectionInfoType {
     bottom: number
     width: number
     height: number
+}
+
+export enum PresetTypeEnum {
+    SDPreset = 'sd_preset',
+    ControlNetPreset = 'controlnet_preset',
 }

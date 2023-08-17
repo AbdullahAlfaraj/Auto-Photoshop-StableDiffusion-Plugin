@@ -1,10 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import Collapsible from '../after_detailer/after_detailer'
+import { Collapsible } from '../util/collapsible'
 import { observer } from 'mobx-react'
 import { AStore } from '../main/astore'
-import { progress } from '../entry'
+// import { progress } from '../entry'
+import * as progress from '../session/progress'
+
 import './style/preview.css'
 import { reaction } from 'mobx'
 import Locale from '../locale/locale'

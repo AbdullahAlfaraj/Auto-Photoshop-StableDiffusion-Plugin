@@ -1,6 +1,7 @@
 import { app, core, action } from 'photoshop'
 import { layer_util, psapi } from '../oldSystem'
-import { settings_tab_ts } from '../../entry'
+// import { settings_tab_ts } from '../../entry'
+import * as settings_tab_ts from '../../settings/settings'
 const executeAsModal = core.executeAsModal
 const { batchPlay } = action
 

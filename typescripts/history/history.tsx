@@ -8,10 +8,11 @@ import { MoveToCanvasSvg, PenSvg } from '../util/elements'
 import { ErrorBoundary } from '../util/errorBoundary'
 import Locale from '../locale/locale'
 import { addWithHistory } from '../viewer/viewer'
-import Collapsible from '../after_detailer/after_detailer'
+import { Collapsible } from '../util/collapsible'
 //@ts-ignore
 import { storage } from 'uxp'
 import { _arrayBufferToBase64 } from '../util/ts/io'
+import { sd_tab_store } from '../stores'
 declare let g_ui_settings_object: any
 export const store = new AStore({
     images: [] as string[], //full resloution images
@@ -134,7 +135,7 @@ async function moveHistoryImageToLayer(
         //     width,
         //     height
         // )
-        debugger
+
         const layer = await addWithHistory(
             base64_image,
             metadata?.expanded_mask ?? void 0,
@@ -146,12 +147,12 @@ async function moveHistoryImageToLayer(
     }
 }
 
+function historyMetadataToPreset(metadata: any) {}
 function getHistoryMetadata(metadata_json: any) {
     //auto fill the ui with metadata
     // const metadata_json = JSON.parse(img.dataset.metadata_json_string)
 
     console.log('metadata_json: ', metadata_json)
-    // document.querySelector('#tiSeed').value = metadata_json.Seed
 
     //extract auto_metadata into the preset metadata
     function convertAutoMetadataToPreset(metadata_json: any) {
@@ -220,7 +221,7 @@ function segmentCombinedArray(combinedArray: CombinedElement[]) {
     const segmentedArray: CombinedElement[][] = []
     let currentSessionId = combinedArray[0].metadata_json.session_id
     let currentSegment: CombinedElement[] = []
-    debugger
+
     for (const element of combinedArray) {
         if (element.metadata_json.session_id === currentSessionId) {
             currentSegment.push(element)

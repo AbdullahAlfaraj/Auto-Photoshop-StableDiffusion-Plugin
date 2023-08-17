@@ -3,7 +3,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { AStore } from './main/astore'
 import { ErrorBoundary } from './util/errorBoundary'
-import Collapsible from './after_detailer/after_detailer'
+import { Collapsible } from './util/collapsible'
 
 interface AStoreData {
     positivePrompts: string[]
@@ -14,8 +14,8 @@ interface AStoreData {
 const defaultPositivePrompt = 'cute cat, {painterly_style_1}'
 const defaultNegativePrompt = '{ugly}'
 export const store = new AStore({
-    positivePrompts: Array(4).fill(defaultPositivePrompt),
-    negativePrompts: Array(4).fill(defaultNegativePrompt),
+    positivePrompts: [defaultPositivePrompt, ...Array(3).fill('')],
+    negativePrompts: [defaultNegativePrompt, ...Array(3).fill('')],
 
     current_index: 0,
 })
@@ -134,20 +134,20 @@ export class MultiTextArea extends React.Component {
     }
 }
 
-const containers = document.querySelectorAll('.multiPromptsContainer')!
+// const containers = document.querySelectorAll('.multiPromptsContainer')!
 
-containers.forEach((container) => {
-    const root = ReactDOM.createRoot(container)
+// containers.forEach((container) => {
+//     const root = ReactDOM.createRoot(container)
 
-    root.render(
-        <React.StrictMode>
-            <ErrorBoundary>
-                <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                    <Collapsible defaultIsOpen={true} label={'Prompts'}>
-                        <MultiTextArea />
-                    </Collapsible>
-                </div>
-            </ErrorBoundary>
-        </React.StrictMode>
-    )
-})
+//     root.render(
+//         <React.StrictMode>
+//             <ErrorBoundary>
+//                 <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+//                     <Collapsible defaultIsOpen={true} label={'Prompts'}>
+//                         <MultiTextArea />
+//                     </Collapsible>
+//                 </div>
+//             </ErrorBoundary>
+//         </React.StrictMode>
+//     )
+// })

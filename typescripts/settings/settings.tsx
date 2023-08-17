@@ -11,7 +11,9 @@ import { reaction } from 'mobx'
 //@ts-ignore
 import { storage } from 'uxp'
 import { ErrorBoundary } from '../util/errorBoundary'
-import { MaskModeEnum } from '../util/ts/enum'
+import { MaskModeEnum, ScriptMode } from '../util/ts/enum'
+import { store as progress_store } from '../session/progress'
+
 // import { Jimp } from '../util/oldSystem'
 declare const Jimp: any // make sure you import jimp before importing settings.tsx
 
@@ -37,11 +39,44 @@ const interpolationMethods: InterpolationMethod = {
     },
 }
 
+enum ExtensionTypeEnum {
+    ProxyServer = 'proxy_server',
+    Auto1111Extension = 'auto1111_extension',
+    None = 'none',
+}
+const config = {
+    [ExtensionTypeEnum.ProxyServer]: {
+        title: "use the proxy server, need to run 'start_server.bat' ",
+        value: ExtensionTypeEnum.ProxyServer,
+        label: 'Proxy Server',
+    },
+    [ExtensionTypeEnum.Auto1111Extension]: {
+        title: 'use Automatic1111 Photoshop SD Extension, need to install the extension in Auto1111',
+        value: ExtensionTypeEnum.Auto1111Extension,
+        label: 'Auto1111 Extension',
+    },
+    [ExtensionTypeEnum.None]: {
+        title: 'Use the Plugin Only No Additional Component',
+        value: ExtensionTypeEnum.None,
+        label: 'None',
+    },
+}
+
+function extensionTypeName(extension_type: ExtensionTypeEnum) {
+    return extension_type
+        .split('_')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+}
 interface AStoreData {
     scale_interpolation_method: typeof interpolationMethods.bilinear
     should_log_to_file: boolean
     delete_log_file_timer_id: ReturnType<typeof setInterval> | undefined
     b_borders_or_corners: MaskModeEnum
+    use_image_cfg_scale_slider: boolean
+    extension_type: ExtensionTypeEnum
+    use_sharp_mask: boolean
+    use_prompt_shortcut: boolean
 }
 export const store = new AStore<AStoreData>({
     scale_interpolation_method: interpolationMethods.bilinear,
@@ -49,6 +84,10 @@ export const store = new AStore<AStoreData>({
         JSON.parse(storage.localStorage.getItem('should_log_to_file')) || false,
     delete_log_file_timer_id: undefined,
     b_borders_or_corners: MaskModeEnum.Transparent,
+    use_image_cfg_scale_slider: false,
+    extension_type: ExtensionTypeEnum.Auto1111Extension,
+    use_sharp_mask: false,
+    use_prompt_shortcut: true,
 })
 
 function onShouldLogToFileChange(event: any) {
@@ -180,6 +219,71 @@ export class Settings extends React.Component<{}> {
                         )
                     })}
                 </sp-radio-group>
+                <SpCheckBox
+                    style={{
+                        marginRight: '10px',
+                    }}
+                    onChange={(evt: any) => {
+                        progress_store.data.live_progress_image =
+                            evt.target.checked
+                    }}
+                    checked={progress_store.data.live_progress_image}
+                >
+                    {
+                        //@ts-ignore
+                        Locale('Live Progress Image')
+                    }
+                </SpCheckBox>
+                <div>
+                    <sp-checkbox
+                        id="chUseImageCfgScaleSlider"
+                        title="image cfg slider for pix2pix mode"
+                        value={store.data.use_image_cfg_scale_slider}
+                        onClick={(evt: any) => {
+                            store.data.use_image_cfg_scale_slider =
+                                evt.target.checked
+                        }}
+                        style={{ display: 'inline-flex' }}
+                    >
+                        Image Cfg Scale Slider
+                    </sp-checkbox>
+                </div>
+                <div>
+                    <sp-checkbox
+                        id="chUseSharpMask"
+                        checked={store.data.use_sharp_mask}
+                        onClick={(evt: any) => {
+                            store.data.use_sharp_mask = evt.target.checked
+                        }}
+                    >
+                        use sharp mask
+                    </sp-checkbox>
+                </div>
+                <div>
+                    <sp-radio-group selected={store.data.extension_type}>
+                        <sp-label slot="label">Select Extension:</sp-label>
+                        {[
+                            ExtensionTypeEnum.ProxyServer,
+                            ExtensionTypeEnum.Auto1111Extension,
+                            ExtensionTypeEnum.None,
+                        ].map((extension_type, index: number) => {
+                            return (
+                                <sp-radio
+                                    key={index}
+                                    title={config[extension_type].title}
+                                    class="rbExtensionType"
+                                    value={config[extension_type].value}
+                                    onClick={(evt: any) => {
+                                        store.data.extension_type =
+                                            evt.target.value
+                                    }}
+                                >
+                                    {config[extension_type].label}
+                                </sp-radio>
+                            )
+                        })}
+                    </sp-radio-group>
+                </div>
             </div>
         )
     }
@@ -194,3 +298,5 @@ root.render(
         </ErrorBoundary>
     </React.StrictMode>
 )
+
+progress_store.data.live_progress_image
