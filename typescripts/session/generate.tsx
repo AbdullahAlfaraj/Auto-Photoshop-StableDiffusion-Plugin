@@ -186,9 +186,8 @@ const handleGenerate = async () => {
         if (!(await canStartSession())) {
             return void 0
         }
-        var { output_images, response_json } = await Session.generate(
-            sd_tab_store.data.mode
-        )
+        var { output_images, response_json, ui_settings } =
+            await Session.generate(sd_tab_store.data.mode)
 
         if (session_store.data.is_interrupted) {
             return void 0
@@ -211,9 +210,7 @@ const handleGenerate = async () => {
         ) {
             viewer_mask_store.updateProperty(
                 'output_images_masks',
-                Array(output_images.length).fill(
-                    session_store.data.expanded_mask
-                )
+                Array(output_images.length).fill(ui_settings['mask'])
             )
         }
         console.log('session_store.toJsFunc(): ', session_store.toJsFunc())
@@ -226,7 +223,8 @@ const handleGenerate = async () => {
 
 const handleGenerateMore = async () => {
     try {
-        var { output_images, response_json } = await Session.generateMore()
+        var { output_images, response_json, ui_settings } =
+            await Session.generateMore()
 
         if (session_store.data.is_interrupted) {
             return void 0
@@ -254,12 +252,19 @@ const handleGenerateMore = async () => {
                 GenerationModeEnum.Outpaint,
             ].includes(session_store.data.mode)
         ) {
-            viewer_mask_store.updatePropertyArray(
-                'output_images_masks',
-                Array(output_images.length).fill(
-                    session_store.data.expanded_mask
-                )
+            const new_masks: string[] = Array(output_images.length).fill(
+                ui_settings['mask']
             )
+            viewer_mask_store.data.output_images_masks = [
+                ...viewer_mask_store.data.output_images_masks,
+                ...new_masks,
+            ]
+            // viewer_mask_store.updatePropertyArray(
+            //     'output_images_masks',
+            //     Array(output_images.length).fill(
+            //         session_store.data.expanded_mask
+            //     )
+            // )
         }
         // viewer.store.updateProperty('images', output_images)
         // console.log(

@@ -78,7 +78,7 @@ export const init_store = new AStore({
 export const mask_store = new AStore({
     images: [],
     thumbnails: [],
-    output_images_masks: [],
+    output_images_masks: [] as string[],
 
     width: 50,
     height: 50,

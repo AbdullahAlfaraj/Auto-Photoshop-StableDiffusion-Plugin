@@ -265,6 +265,7 @@ export class Session {
     static async generate(mode: GenerationModeEnum): Promise<{
         output_images: any
         response_json: any
+        ui_settings: any
     }> {
         if (!store.data.can_generate) {
             // return null
@@ -291,7 +292,7 @@ export class Session {
 
             const { selectionInfo, init_image, mask } =
                 await this.initializeSession(mode)
-            const ui_settings = await this.getSettings({
+            var ui_settings = await this.getSettings({
                 selectionInfo,
                 init_image,
                 mask,
@@ -315,6 +316,7 @@ export class Session {
                 )
 
                 ui_settings['mask'] = store.data.expanded_mask
+                store.data.ui_settings = ui_settings
             }
             var { output_images, response_json } = await modeToClassMap[
                 mode
@@ -326,12 +328,13 @@ export class Session {
             await this.endProgress()
         }
 
-        return { output_images, response_json }
+        return { output_images, response_json, ui_settings }
     }
 
     static async generateMore(): Promise<{
         output_images: any
         response_json: any
+        ui_settings: any
     }> {
         if (!store.data.can_generate) {
             throw Error(
@@ -348,7 +351,7 @@ export class Session {
                 mask: store.data.preprocessed_mask,
                 selectionInfo: store.data.selectionInfo,
             }
-            const ui_settings = await this.getSettings(session_data)
+            var ui_settings = await this.getSettings(session_data)
             if (
                 [
                     GenerationModeEnum.Inpaint,
@@ -365,6 +368,7 @@ export class Session {
                 )
 
                 ui_settings['mask'] = store.data.expanded_mask
+                store.data.ui_settings = ui_settings
             }
             var { output_images, response_json } = await modeToClassMap[
                 store.data.mode
@@ -375,7 +379,7 @@ export class Session {
             store.data.can_generate = true
             await this.endProgress()
         }
-        return { output_images, response_json }
+        return { output_images, response_json, ui_settings }
     }
     static async interrupt(): Promise<any> {
         try {

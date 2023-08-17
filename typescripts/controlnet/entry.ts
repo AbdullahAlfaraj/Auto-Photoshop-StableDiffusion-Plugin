@@ -161,15 +161,6 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
     }
     function getControlNetMask(index: number) {
         try {
-            // const b_sync_input_image =
-            //     store.controlNetUnitData[index].auto_image
-            // let mask = store.controlNetUnitData[index].mask // the user created mask
-            // if (b_sync_input_image && session_store.data.expanded_mask) {
-            //     //use the mask from inpaint and outpaint mode
-            //     mask = '' // this will tell controlnet to use SD mask
-            //     store.controlNetUnitData[index].mask = ''
-            // }
-
             if (
                 [
                     GenerationModeEnum.Txt2Img,
