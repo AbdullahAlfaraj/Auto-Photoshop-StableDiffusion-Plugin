@@ -283,11 +283,7 @@ async function getSettings(session_data) {
             // viewer.store.mask = payload['mask'] // make sure
         }
 
-        if (
-            g_sd_mode == 'img2img' ||
-            g_sd_mode == 'inpaint' ||
-            g_sd_mode == 'outpaint'
-        ) {
+        if (mode == 'img2img' || mode == 'inpaint' || mode == 'outpaint') {
             denoising_strength = sd_tab_store.data.denoising_strength
             payload['denoising_strength'] = denoising_strength
 

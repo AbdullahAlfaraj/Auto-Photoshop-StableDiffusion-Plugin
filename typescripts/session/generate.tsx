@@ -174,7 +174,7 @@ const resetBatch = () => {
     g_current_batch_index = -1
     session_store.data.is_interrupted = false
 }
-// declare let g_sd_mode: any
+
 const handleGenerate = async () => {
     //save user input for later
     //1) save selection as channel

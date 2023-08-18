@@ -416,16 +416,11 @@ export function getLoraModelPrompt(lora_model_name: string) {
     return `<lora:${lora_model_name}:1>`
 }
 
-//add click event on radio button mode, so that when a button is clicked it change g_sd_mode globally
-//REFACTOR: move to events.js
-declare let g_sd_mode: string
 export async function onModeChange(new_mode: ScriptMode) {
     try {
-        g_sd_mode = new_mode
         script_store.setMode(new_mode)
         store.data.rb_mode = new_mode
         store.data.mode = store.data.rb_mode as unknown as GenerationModeEnum
-        // console.log(`You clicked: ${g_sd_mode}`)
 
         //@ts-ignore
         await postModeSelection() // do things after selection

@@ -34,8 +34,8 @@ export const DefaultPresetControlNetUnitData = {
     // input_image: '',
     // mask: '',
     // detect_map: '',
-    module: '',
-    model: '',
+    module: 'none',
+    model: 'None',
     filter_keyword: 'All',
     weight: 1.0,
 

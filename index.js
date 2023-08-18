@@ -318,17 +318,6 @@ Array.from(document.querySelectorAll('.sp-tab')).forEach((theTab) => {
         }
     }
 })
-//REFACTOR: move to events.js
-document.getElementById('sp-viewer-tab').addEventListener('click', async () => {
-    if (
-        g_generation_session.isActive() &&
-        g_generation_session.mode === 'upscale'
-    ) {
-        g_sd_mode = 'upscale'
-    } else {
-        g_sd_mode = sd_tab_store.data.rb_mode
-    }
-})
 
 // entrypoints.setup({
 
@@ -494,10 +483,7 @@ gCurrentImagePath = ''
 //REFACTOR: move to generationSettings.js, Note: numberOfImages deprecated global variable
 // let numberOfImages = document.querySelector('#tiNumberOfImages').value
 //REFACTOR: move to generationSettings.js
-let g_sd_mode = 'txt2img'
-// let g_sd_mode_last = g_sd_mode
-//REFACTOR: move to generationSettings.js
-let g_sd_mode_last = g_sd_mode
+
 //REFACTOR: move to generationSettings.js
 let g_sd_sampler = 'Euler a'
 //REFACTOR: move to generationSettings.js
@@ -574,16 +560,11 @@ g_generation_session.mode = generationMode['Txt2Img']
 
 //********** End: global variables */
 
-//swaps g_sd_mode when clicking on extras tab and swaps it back to previous value when clicking on main tab
-//REFACTOR: move to events.js
 document
     .getElementById('sp-extras-tab')
     .addEventListener('click', async (evt) => {
         try {
-            // g_sd_mode_last = g_sd_mode
-            g_sd_mode = 'upscale'
             sd_tab_store.updateProperty('mode', 'upscale')
-            console.log(`You clicked: ${g_sd_mode}`)
 
             await postModeSelection() // do things after selection
         } catch (e) {
@@ -595,10 +576,7 @@ document
     .getElementById('sp-stable-diffusion-ui-tab')
     .addEventListener('click', async (evt) => {
         try {
-            // g_sd_mode = g_sd_mode_last
-            g_sd_mode = sd_tab_store.data.rb_mode
             sd_tab_store.updateProperty('mode', sd_tab_store.data.rb_mode)
-            console.log(`mode restored to: ${g_sd_mode}`)
 
             await postModeSelection() // do things after selection
         } catch (e) {
@@ -651,7 +629,7 @@ async function deleteTempInpaintMaskLayer() {
 //REFACTOR: move to ui.js
 async function postModeSelection() {
     try {
-        if (g_sd_mode === generationMode['Inpaint']) {
+        if (sd_tab_store.data.rb_mode === generationMode['Inpaint']) {
             //check if the we already have created a mask layer
             await createTempInpaintMaskLayer()
         } else {
@@ -671,7 +649,7 @@ document.addEventListener('mouseenter', async (event) => {
         // changing the mode will trigger it's own procedure, so doing it here again is redundant
         if (
             g_generation_session.isActive() &&
-            g_generation_session.mode === g_sd_mode
+            g_generation_session.mode === sd_tab_store.data.rb_mode
         ) {
             //if the generation session is active and the selected mode is still the same as the generation mode
 

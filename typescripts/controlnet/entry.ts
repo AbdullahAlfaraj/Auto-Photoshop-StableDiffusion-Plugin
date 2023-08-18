@@ -16,7 +16,7 @@ declare let g_sd_url: string
 
 async function requestControlNetPreprocessors() {
     const control_net_json = await api.requestGet(
-        `${g_sd_url}/controlnet/module_list?alias_name=1`
+        `${g_sd_url}/controlnet/module_list?alias_names=true`
     )
 
     return control_net_json
