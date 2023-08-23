@@ -25,6 +25,9 @@ import { setUnitData } from '../controlnet/entry'
 import { controlNetUnitData } from '../controlnet/store'
 import { presetToStore } from '../util/ts/io'
 import { refreshExtraUpscalers } from '../extra_page/extra_page'
+
+import { readdirSync, readFileSync } from 'fs'
+
 declare let g_models: any[]
 declare let g_automatic_status: any
 declare let g_sd_options_obj: any
@@ -175,6 +178,7 @@ export const helper_store = new AStore({
     hr_upscaler_list: [] as string[],
     previous_width: 512,
     previous_height: 512,
+    native_presets: {},
 })
 export async function refreshModels() {
     let b_result = false
@@ -328,6 +332,21 @@ export async function initSamplers() {
     return bStatus
 }
 
+export function loadNativePreset() {
+    const json_container: { [key: string]: any } = {}
+    const dir = 'plugin:/presets' // specify the directory containing the .json files
+
+    readdirSync(dir).forEach((file) => {
+        if (file.endsWith('.json')) {
+            const fileContent = readFileSync(`${dir}/${file}`, 'utf8')
+            const fileNameWithoutExtension = file.slice(0, -5)
+            json_container[fileNameWithoutExtension] = JSON.parse(fileContent)
+        }
+    })
+
+    console.log(json_container)
+    return json_container
+}
 export async function refreshUI() {
     try {
         const b_proxy_server_status = await updateVersionUI()
@@ -375,6 +394,8 @@ export async function refreshUI() {
         g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
         await control_net.initializeControlNetTab(g_controlnet_max_models)
         await main.populateVAE()
+
+        helper_store.data.native_presets = loadNativePreset()
     } catch (e) {
         console.warn(e)
     }

@@ -574,13 +574,15 @@ class SDTab extends React.Component<{}> {
                                 <SpMenu
                                     size="s"
                                     title="Custom Presets"
-                                    items={Object.keys(
-                                        preset_store.data.custom_presets
-                                    )}
+                                    items={Object.keys({
+                                        ...helper_store.data.native_presets,
+                                        ...preset_store.data.custom_presets,
+                                    })}
                                     label_item="Select a Custom Preset"
-                                    selected_index={Object.keys(
-                                        preset_store.data.custom_presets
-                                    ).indexOf(
+                                    selected_index={Object.keys({
+                                        ...helper_store.data.native_presets,
+                                        ...preset_store.data.custom_presets,
+                                    }).indexOf(
                                         preset_store.data
                                             .selected_sd_preset_name
                                     )}
@@ -588,10 +590,10 @@ class SDTab extends React.Component<{}> {
                                         console.log('value:', value)
                                         preset_store.data.selected_sd_preset_name =
                                             value.item
-                                        preset_store.data.selected_sd_preset =
-                                            preset_store.data.custom_presets[
-                                                value.item
-                                            ]
+                                        preset_store.data.selected_sd_preset = {
+                                            ...helper_store.data.native_presets,
+                                            ...preset_store.data.custom_presets,
+                                        }[value.item]
                                         console.log(
                                             'preset_store.data.selected_sd_preset:',
                                             preset_store.data.selected_sd_preset
