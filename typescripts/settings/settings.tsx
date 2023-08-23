@@ -155,7 +155,10 @@ export class Settings extends React.Component<{}> {
                         )
                     }}
                 ></SpMenu>
-                <sp-label>select language</sp-label>
+
+                <div style={{ width: '100%' }}>
+                    <sp-label>select language</sp-label>
+                </div>
                 <SpMenu
                     title="select language"
                     items={['en_US', 'zh_CN']}
@@ -171,18 +174,20 @@ export class Settings extends React.Component<{}> {
                         )
                     }}
                 ></SpMenu>
-                <SpCheckBox
-                    style={{
-                        marginRight: '10px',
-                    }}
-                    onChange={onShouldLogToFileChange}
-                    checked={store.data.should_log_to_file}
-                >
-                    {
-                        //@ts-ignore
-                        Locale('Log Errors To File')
-                    }
-                </SpCheckBox>
+                <div style={{}}>
+                    <SpCheckBox
+                        style={{
+                            marginRight: '10px',
+                        }}
+                        onChange={onShouldLogToFileChange}
+                        checked={store.data.should_log_to_file}
+                    >
+                        {
+                            //@ts-ignore
+                            Locale('Log Errors To File')
+                        }
+                    </SpCheckBox>
+                </div>
 
                 <sp-radio-group
                     style={{ display: 'flex' }}
