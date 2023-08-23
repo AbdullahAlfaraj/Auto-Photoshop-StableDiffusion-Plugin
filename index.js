@@ -88,6 +88,7 @@ const {
     extra_page,
     selection_ts,
     stores,
+    comfyui,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
