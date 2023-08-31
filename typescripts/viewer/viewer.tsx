@@ -400,170 +400,187 @@ const Viewer = observer(() => {
     }
     return (
         <div>
-            <SpSliderWithLabel
-                out_min={50}
-                out_max={300}
-                in_min={1}
-                in_max={10}
-                // min={85}
-                // max={300}
+            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+                <Collapsible defaultIsOpen={true} label={Locale('Viewer')}>
+                    <SpSliderWithLabel
+                        out_min={50}
+                        out_max={300}
+                        in_min={1}
+                        in_max={10}
+                        // min={85}
+                        // max={300}
 
-                onSliderChange={(new_value: number) =>
-                    // event: React.ChangeEvent<HTMLInputElement>
-                    {
-                        try {
-                            console.log('change event triggered!')
-                            // const new_value = event.target.value
-                            // const base_width = 100
-                            // const scale_ratio = new_value / base_width
+                        onSliderChange={(new_value: number) =>
+                            // event: React.ChangeEvent<HTMLInputElement>
+                            {
+                                try {
+                                    console.log('change event triggered!')
+                                    // const new_value = event.target.value
+                                    // const base_width = 100
+                                    // const scale_ratio = new_value / base_width
 
-                            // store.updateProperty('height', scale_ratio)
-                            store.updateProperty('width', new_value)
-                            init_store.updateProperty('width', new_value)
-                        } catch (e) {
-                            console.warn(e)
+                                    // store.updateProperty('height', scale_ratio)
+                                    store.updateProperty('width', new_value)
+                                    init_store.updateProperty(
+                                        'width',
+                                        new_value
+                                    )
+                                } catch (e) {
+                                    console.warn(e)
+                                }
+                            }
                         }
-                    }
-                }
-                show-value={false}
-                steps={1}
-                output_value={store.data.width}
-                label="Thumbnail Size"
-            ></SpSliderWithLabel>
+                        show-value={false}
+                        steps={1}
+                        output_value={store.data.width}
+                        label="Thumbnail Size"
+                    ></SpSliderWithLabel>
 
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'space-evenly',
-                    paddingTop: '3px',
-                }}
-            >
-                <button
-                    title={Locale('Keep all generated images on the canvas')}
-                    className="btnSquare acceptClass acceptAllImgBtn"
-                    style={button_style}
-                    onClick={addAll}
-                ></button>
-                <button
-                    title={Locale(
-                        'Delete all generated images from the canvas'
-                    )}
-                    className="btnSquare discardClass discardAllImgBtn"
-                    style={button_style}
-                    onClick={discardAll}
-                ></button>
-                <button
-                    title={Locale('Keep only the highlighted images')}
-                    className="btnSquare acceptSelectedClass acceptSelectedImgBtn"
-                    style={button_style}
-                    onClick={onlySelected}
-                ></button>
-            </div>
-            <div>
-                <SpCheckBox
-                    style={{
-                        display: [
-                            GenerationModeEnum.Inpaint,
-                            GenerationModeEnum.LassoInpaint,
-                            GenerationModeEnum.Outpaint,
-                        ].includes(session_store.data.mode)
-                            ? void 0
-                            : 'none',
-                        marginRight: '10px',
-                    }}
-                    onChange={(event: any) => {
-                        store.data.auto_mask = event.target.checked
-                    }}
-                    checked={store.data.auto_mask}
-                >
-                    {
-                        //@ts-ignore
-                        Locale('Apply Auto Masking')
-                    }
-                </SpCheckBox>
-                <SpSlider
-                    show-value="false"
-                    min={0}
-                    max={300}
-                    value={mask_store.data.expand_by}
-                    onInput={(evt: any) => {
-                        mask_store.data.expand_by = evt.target.value
-                    }}
-                    title="expand the Photoshop masking by x pixels"
-                >
-                    <sp-label slot="label">{Locale('Expand by')}</sp-label>
-                    <sp-label slot="label">
-                        {mask_store.data.expand_by}
-                    </sp-label>
-                </SpSlider>
-            </div>
-            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Grid
-                    // images={init_store.data.images}
-                    thumbnails={init_store.data.thumbnails}
-                    thumbnails_styles={init_store.data.class_name}
-                    callback={(index: number, event: any) => {
-                        console.log(index)
-                    }}
-                    width={init_store.data.width}
-                    height={init_store.data.height}
-                    // clicked_index={init_store.data.clicked_index}
-                    // permanent_indices={init_store.data.permanent_indices}
-                ></Grid>
-            </div>
-            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Grid
-                    // images={mask_store.data.images}
-                    thumbnails={mask_store.data.thumbnails}
-                    thumbnails_styles={mask_store.data.class_name}
-                    callback={(index: number, event: any) => {
-                        console.log(index)
-                    }}
-                    width={mask_store.data.width}
-                    height={mask_store.data.height}
-                    // clicked_index={init_store.data.clicked_index}
-                    // permanent_indices={init_store.data.permanent_indices}
-                    action_buttons={[
-                        {
-                            ComponentType: MoveToCanvasSvg,
-                            callback: async (index: number) => {
-                                await moveImageToLayer(
-                                    mask_store.data.images[index],
-                                    session_store.data.selectionInfo,
-                                    'mask'
-                                )
-                            },
-                        },
-                    ]}
-                ></Grid>
-            </div>
-            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Grid
-                    // images={store.data.images}
-                    thumbnails={store.data.thumbnails}
-                    thumbnails_styles={store.data.class_name}
-                    callback={handleOutputImageThumbnailClick}
-                    width={store.data.width}
-                    height={store.data.height}
-                    clicked_index={store.data.clicked_index}
-                    permanent_indices={store.data.permanent_indices}
-                    // action_buttons={[
-                    //     {
-                    //         ComponentType: MoveToCanvasSvg,
-                    //         callback: (index: number) => {
-                    //             console.log(
-                    //                 'viewer callback:',
-                    //                 store.data.images[index],
-                    //                 g_generation_session.selectionInfo
-                    //             )
-                    //             moveImageToLayer(
-                    //                 store.data.images[index],
-                    //                 g_generation_session.selectionInfo
-                    //             )
-                    //         },
-                    //     },
-                    // ]}
-                ></Grid>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-evenly',
+                            paddingTop: '3px',
+                        }}
+                    >
+                        <button
+                            title={Locale(
+                                'Keep all generated images on the canvas'
+                            )}
+                            className="btnSquare acceptClass acceptAllImgBtn"
+                            style={button_style}
+                            onClick={addAll}
+                        ></button>
+                        <button
+                            title={Locale(
+                                'Delete all generated images from the canvas'
+                            )}
+                            className="btnSquare discardClass discardAllImgBtn"
+                            style={button_style}
+                            onClick={discardAll}
+                        ></button>
+                        <button
+                            title={Locale('Keep only the highlighted images')}
+                            className="btnSquare acceptSelectedClass acceptSelectedImgBtn"
+                            style={button_style}
+                            onClick={onlySelected}
+                        ></button>
+                    </div>
+                    <div>
+                        <SpCheckBox
+                            style={{
+                                display: [
+                                    GenerationModeEnum.Inpaint,
+                                    GenerationModeEnum.LassoInpaint,
+                                    GenerationModeEnum.Outpaint,
+                                ].includes(session_store.data.mode)
+                                    ? void 0
+                                    : 'none',
+                                marginRight: '10px',
+                            }}
+                            onChange={(event: any) => {
+                                store.data.auto_mask = event.target.checked
+                            }}
+                            checked={store.data.auto_mask}
+                        >
+                            {
+                                //@ts-ignore
+                                Locale('Apply Auto Masking')
+                            }
+                        </SpCheckBox>
+                        <SpSlider
+                            show-value="false"
+                            min={0}
+                            max={300}
+                            value={mask_store.data.expand_by}
+                            onInput={(evt: any) => {
+                                mask_store.data.expand_by = evt.target.value
+                            }}
+                            title="expand the Photoshop masking by x pixels"
+                        >
+                            <sp-label slot="label">
+                                {Locale('Expand by')}
+                            </sp-label>
+                            <sp-label slot="label">
+                                {mask_store.data.expand_by}
+                            </sp-label>
+                        </SpSlider>
+                    </div>
+                    <div
+                        style={{ border: '2px solid #6d6c6c', padding: '3px' }}
+                    >
+                        <Grid
+                            // images={init_store.data.images}
+                            thumbnails={init_store.data.thumbnails}
+                            thumbnails_styles={init_store.data.class_name}
+                            callback={(index: number, event: any) => {
+                                console.log(index)
+                            }}
+                            width={init_store.data.width}
+                            height={init_store.data.height}
+                            // clicked_index={init_store.data.clicked_index}
+                            // permanent_indices={init_store.data.permanent_indices}
+                        ></Grid>
+                    </div>
+                    <div
+                        style={{ border: '2px solid #6d6c6c', padding: '3px' }}
+                    >
+                        <Grid
+                            // images={mask_store.data.images}
+                            thumbnails={mask_store.data.thumbnails}
+                            thumbnails_styles={mask_store.data.class_name}
+                            callback={(index: number, event: any) => {
+                                console.log(index)
+                            }}
+                            width={mask_store.data.width}
+                            height={mask_store.data.height}
+                            // clicked_index={init_store.data.clicked_index}
+                            // permanent_indices={init_store.data.permanent_indices}
+                            action_buttons={[
+                                {
+                                    ComponentType: MoveToCanvasSvg,
+                                    callback: async (index: number) => {
+                                        await moveImageToLayer(
+                                            mask_store.data.images[index],
+                                            session_store.data.selectionInfo,
+                                            'mask'
+                                        )
+                                    },
+                                },
+                            ]}
+                        ></Grid>
+                    </div>
+                    <div
+                        style={{ border: '2px solid #6d6c6c', padding: '3px' }}
+                    >
+                        <Grid
+                            // images={store.data.images}
+                            thumbnails={store.data.thumbnails}
+                            thumbnails_styles={store.data.class_name}
+                            callback={handleOutputImageThumbnailClick}
+                            width={store.data.width}
+                            height={store.data.height}
+                            clicked_index={store.data.clicked_index}
+                            permanent_indices={store.data.permanent_indices}
+                            // action_buttons={[
+                            //     {
+                            //         ComponentType: MoveToCanvasSvg,
+                            //         callback: (index: number) => {
+                            //             console.log(
+                            //                 'viewer callback:',
+                            //                 store.data.images[index],
+                            //                 g_generation_session.selectionInfo
+                            //             )
+                            //             moveImageToLayer(
+                            //                 store.data.images[index],
+                            //                 g_generation_session.selectionInfo
+                            //             )
+                            //         },
+                            //     },
+                            // ]}
+                        ></Grid>
+                    </div>
+                </Collapsible>
             </div>
         </div>
     )
@@ -616,11 +633,12 @@ containers.forEach((container) => {
     root.render(
         <React.StrictMode>
             <ErrorBoundary>
-                <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+                {/* <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
                     <Collapsible defaultIsOpen={true} label={Locale('Viewer')}>
                         <Viewer></Viewer>
                     </Collapsible>
-                </div>
+                </div> */}
+                <Viewer></Viewer>
             </ErrorBoundary>
         </React.StrictMode>
     )
