@@ -372,36 +372,45 @@ class History extends React.Component<{}> {
 
     render(): React.ReactNode {
         return (
-            <div style={{ width: '100%' }}>
-                {/* {store.data.refresh} */}
-                <sp-slider
-                    min={85}
-                    max={300}
-                    onInput={(event: React.ChangeEvent<HTMLInputElement>) => {
-                        const new_value = event.target.value
-                        store.updateProperty('height', new_value)
-                        store.updateProperty('width', new_value)
-                    }}
-                    show-value="true"
-                    value={100}
-                >
-                    <sp-label slot="label">Image Size:</sp-label>
-                </sp-slider>
-                <div>
-                    <button className="btnSquare" id="btnLoadHistory">
-                        Load Previous Generations
-                    </button>
-                    <button className="btnSquare" id="btnClearHistoryCache">
-                        Clear Results
-                    </button>
-                </div>
-                {store.data.metadata_jsons.length > 0
-                    ? this.createGrids(
-                          store.data.thumbnails,
-                          store.data.images,
-                          store.data.metadata_jsons
-                      )
-                    : void 0}
+            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+                <Collapsible defaultIsOpen={true} label={Locale('History')}>
+                    <div style={{ width: '100%' }}>
+                        {/* {store.data.refresh} */}
+                        <sp-slider
+                            min={85}
+                            max={300}
+                            onInput={(
+                                event: React.ChangeEvent<HTMLInputElement>
+                            ) => {
+                                const new_value = event.target.value
+                                store.updateProperty('height', new_value)
+                                store.updateProperty('width', new_value)
+                            }}
+                            show-value="true"
+                            value={100}
+                        >
+                            <sp-label slot="label">Image Size:</sp-label>
+                        </sp-slider>
+                        <div>
+                            <button className="btnSquare" id="btnLoadHistory">
+                                Load Previous Generations
+                            </button>
+                            <button
+                                className="btnSquare"
+                                id="btnClearHistoryCache"
+                            >
+                                Clear Results
+                            </button>
+                        </div>
+                        {store.data.metadata_jsons.length > 0
+                            ? this.createGrids(
+                                  store.data.thumbnails,
+                                  store.data.images,
+                                  store.data.metadata_jsons
+                              )
+                            : void 0}
+                    </div>
+                </Collapsible>
             </div>
         )
     }
@@ -413,11 +422,7 @@ const gridRoot = ReactDOM.createRoot(gridContainerNode)
 gridRoot.render(
     <React.StrictMode>
         <ErrorBoundary>
-            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Collapsible defaultIsOpen={true} label={Locale('History')}>
-                    <History></History>
-                </Collapsible>
-            </div>
+            <History></History>
         </ErrorBoundary>
     </React.StrictMode>
 )
