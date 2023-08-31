@@ -283,6 +283,7 @@ class OneButtonPrompt extends React.Component {
                     <ScriptInstallComponent
                         onRefreshHandler={async (event: any) => {
                             console.log(`Refresh ${store.data.script_name}`)
+                            await requestConfig()
                             await this.initScript()
                         }}
                     ></ScriptInstallComponent>
