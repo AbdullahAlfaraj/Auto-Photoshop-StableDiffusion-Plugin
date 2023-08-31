@@ -8,7 +8,7 @@ const _log = console.log
 const _warn = console.warn
 const _error = console.error
 let g_timer_value = 300 // temporary global variable for testing the timer pause function
-let g_version = 'v1.3.0'
+let g_version = 'v1.3.1'
 let g_sd_url = 'http://127.0.0.1:7860'
 let g_online_data_url =
     'https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/master/utility/online_data.json'
@@ -155,7 +155,6 @@ function setLogMethod(should_log_to_file = true) {
     }
 }
 setLogMethod(settings_tab_ts.store.data.should_log_to_file)
-// const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
 
 // const {
 //     script_args,
