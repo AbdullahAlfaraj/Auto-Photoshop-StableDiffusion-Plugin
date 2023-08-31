@@ -1,4 +1,5 @@
 import { observable, reaction } from 'mobx'
+import { SelectionInfoType } from '../util/ts/enum'
 type ResizeMode = 'Just Resize' | 'Crop and Resize' | 'Resize and Fill'
 export const controlnetModes = [
     'Balanced',
@@ -80,6 +81,7 @@ export interface controlNetUnitData {
     control_mode: ControlnetMode
     pixel_perfect: boolean
     auto_image: boolean // sync CtrlNet image with sd input image
+    selection_info: SelectionInfoType
 }
 interface ControlNetMobxStore {
     disableControlNetTab: boolean

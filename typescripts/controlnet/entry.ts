@@ -134,6 +134,8 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
 
                 input_image = session_store.data.controlnet_input_image ?? ''
                 store.controlNetUnitData[index].input_image = input_image
+                store.controlNetUnitData[index].selection_info =
+                    plugin_settings.selection_info
             }
             if (
                 b_sync_input_image &&
@@ -147,6 +149,8 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
                 // img2img mode
                 input_image = session_store.data.init_image
                 store.controlNetUnitData[index].input_image = input_image
+                store.controlNetUnitData[index].selection_info =
+                    plugin_settings.selection_info
             } else if (
                 b_sync_input_image &&
                 store.controlNetUnitData[index].enabled
