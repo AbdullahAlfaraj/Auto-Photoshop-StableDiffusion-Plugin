@@ -18,6 +18,7 @@ import { Grid } from '../util/grid'
 import { io } from '../util/oldSystem'
 import { app } from 'photoshop'
 import { reaction } from 'mobx'
+import { storage } from 'uxp'
 export let hi_res_prompt_temp = hi_res_prompt
 console.log('hi_res_prompt: ', hi_res_prompt)
 
@@ -117,6 +118,19 @@ function logError(result: Result) {
     }
     return has_error
 }
+
+export async function workflowEntries() {
+    const workflow_folder = await storage.localFileSystem.getFolder()
+
+    let entries = await workflow_folder.getEntries()
+    const workflow_entries = entries.filter(
+        (e: any) => e.isFile && e.name.toLowerCase().includes('.png') // must be a file and has the of the type .png
+    )
+
+    console.log('workflow_entries: ', workflow_entries)
+
+    return workflow_entries
+}
 export async function postPrompt(prompt: any) {
     try {
         const url = 'http://127.0.0.1:8188/prompt'
@@ -171,7 +185,6 @@ export async function generateImage(prompt: any) {
 
         const base64_imgs = []
         for (const image of images) {
-            debugger
             const img = await loadImage(
                 image.filename,
                 image.subfolder,
@@ -375,7 +388,7 @@ export function parseUIFromNode(node: ComfyUINode, node_id: string) {
 
             const valid_node_input = Object.fromEntries(entires)
             store.data.comfyui_valid_nodes[node_id] = valid_node_input
-
+            store.data.uuids[node_id] = window.crypto.randomUUID()
             return valid_node_input
         }
     } catch (e) {
@@ -403,11 +416,17 @@ interface ComfyUIConfig {
 }
 export const store = new AStore({
     comfyui_valid_nodes: {} as any, // comfyui nodes like structure that contain all info necessary to create plugin ui elements
+    uuids: {} as any,
 
     comfyui_output_images: [] as string[], //store the output images from generation
     comfyui_output_thumbnail_images: [] as string[], // store thumbnail size images
     comfyui_config: {} as ComfyUIConfig, // all config data like samplers, checkpoints ...etc
     workflow_path: '', // the path of an image that contains prompt information
+    workflow_dir_path: '', // the path of the directory that contains all workflow files
+    // workflows_paths: [] as string[],
+    // workflows_names: [] as string[],
+    workflows: {} as any,
+    selected_workflow: '', // the selected workflow from the workflow menu
     current_prompt: {} as any, // current prompt extracted from the workflow
     thumbnail_image_size: 100,
     load_image_nodes: {} as any, //our custom loadImageBase64 nodes, we need to substitute comfyui LoadImage nodes with before generating a prompt
@@ -527,7 +546,6 @@ function createImageBase64(input: ValidInput) {
     return element
 }
 function nodeInputToHtmlElement(input: ValidInput) {
-    debugger
     let element
     if (
         [InputTypeEnum.NumberField, InputTypeEnum.TextField].includes(
@@ -544,6 +562,41 @@ function nodeInputToHtmlElement(input: ValidInput) {
     }
     return element
 }
+
+export async function loadWorkflow(workflow_path: string) {
+    store.data.current_prompt = (await getWorkflowApi(workflow_path))?.prompt
+
+    const current_prompt: any = store.toJsFunc().data.current_prompt
+    const loadImageNodes = Object.keys(current_prompt)
+        .filter((key: any) => current_prompt[key].class_type === 'LoadImage')
+        .reduce(
+            (acc, key) => ({
+                ...acc,
+                [key]: current_prompt[key],
+            }),
+            {}
+        )
+
+    Object.keys(loadImageNodes).forEach((node_id: any) => {
+        store.data.current_prompt[node_id] = {
+            inputs: {
+                image_base64: '',
+            },
+            class_type: 'LoadImageBase64',
+        }
+    })
+
+    const node_obj = Object.entries(store.data.current_prompt)
+    //clear both node structure and base64 images store values
+    store.data.comfyui_valid_nodes = {}
+    store.data.uuids = {}
+    // store.data.load_image_base64_strings = {}
+    node_obj.forEach(([node_id, node]: [string, any]) => {
+        console.log(node_id, node)
+        const valid_input = parseUIFromNode(node, node_id)
+    })
+}
+
 @observer
 class ComfyNodeComponent extends React.Component<{}> {
     async componentDidMount(): Promise<void> {
@@ -554,6 +607,53 @@ class ComfyNodeComponent extends React.Component<{}> {
         return (
             <div>
                 <div>
+                    <sp-label></sp-label>
+                    <SpTextfield
+                        style={{ width: '100%' }}
+                        title="Workflows directory"
+                        type={'text'}
+                        placeholder=""
+                        value={store.data.workflow_dir_path}
+                        onChange={(evt: any) => {
+                            store.data.workflow_dir_path = evt.target.value
+                        }}
+                    ></SpTextfield>
+                    <button
+                        onClick={async () => {
+                            const entries = await workflowEntries()
+
+                            store.data.workflows = {}
+                            for (const entry of entries) {
+                                store.data.workflows[entry.name] =
+                                    entry.nativePath
+                            }
+                        }}
+                    >
+                        load workflows
+                    </button>
+                    <div>
+                        <sp-label
+                            class="title"
+                            style={{ width: '60px', display: 'inline-block' }}
+                        >
+                            {'select workflow:'}
+                        </sp-label>
+                        <SpMenu
+                            size="m"
+                            title="workflows"
+                            items={Object.keys(store.data.workflows)}
+                            label_item="Select a workflow"
+                            selected_index={Object.values(
+                                store.data.workflows
+                            ).indexOf(store.data.selected_workflow)}
+                            onChange={async (id: any, value: any) => {
+                                store.data.selected_workflow = value.item
+                                await loadWorkflow(
+                                    store.data.workflows[value.item]
+                                )
+                            }}
+                        ></SpMenu>
+                    </div>
                     <sp-label>workflow path:</sp-label>
                     <SpTextfield
                         style={{ width: '100%' }}
@@ -570,56 +670,7 @@ class ComfyNodeComponent extends React.Component<{}> {
                             className="btnSquare"
                             style={{ marginRight: '3px' }}
                             onClick={async () => {
-                                store.data.current_prompt = (
-                                    await getWorkflowApi(
-                                        store.data.workflow_path
-                                    )
-                                )?.prompt
-
-                                const current_prompt: any =
-                                    store.toJsFunc().data.current_prompt
-                                const loadImageNodes = Object.keys(
-                                    current_prompt
-                                )
-                                    .filter(
-                                        (key: any) =>
-                                            current_prompt[key].class_type ===
-                                            'LoadImage'
-                                    )
-                                    .reduce(
-                                        (acc, key) => ({
-                                            ...acc,
-                                            [key]: current_prompt[key],
-                                        }),
-                                        {}
-                                    )
-
-                                Object.keys(loadImageNodes).forEach(
-                                    (node_id: any) => {
-                                        store.data.current_prompt[node_id] = {
-                                            inputs: {
-                                                image_base64: '',
-                                            },
-                                            class_type: 'LoadImageBase64',
-                                        }
-                                    }
-                                )
-
-                                const node_obj = Object.entries(
-                                    store.data.current_prompt
-                                )
-                                //clear both node structure and base64 images store values
-                                store.data.comfyui_valid_nodes = {}
-                                // store.data.load_image_base64_strings = {}
-                                node_obj.forEach(
-                                    ([node_id, node]: [string, any]) => {
-                                        console.log(node_id, node)
-                                        const valid_input = parseUIFromNode(
-                                            node,
-                                            node_id
-                                        )
-                                    }
-                                )
+                                await loadWorkflow(store.data.workflow_path)
                             }}
                         >
                             Load Workflow
@@ -639,10 +690,10 @@ class ComfyNodeComponent extends React.Component<{}> {
                     </div>
                 </div>
                 {Object.keys(store.data.comfyui_valid_nodes).map(
-                    (node_id: string, index) => {
+                    (node_id: string, index_i) => {
                         return (
                             <div
-                                key={index}
+                                key={`${store.data.uuids[node_id]}`}
                                 style={{
                                     border: '2px solid #6d6c6c',
                                     padding: '3px',
@@ -650,9 +701,11 @@ class ComfyNodeComponent extends React.Component<{}> {
                             >
                                 {Object.keys(
                                     store.data.comfyui_valid_nodes[node_id]
-                                ).map((input_id: string, index: number) => {
+                                ).map((input_id: string, index_j: number) => {
                                     return (
-                                        <div key={index}>
+                                        <div
+                                            key={`${node_id}_${index_i}_${index_j}`}
+                                        >
                                             {nodeInputToHtmlElement(
                                                 store.data.comfyui_valid_nodes[
                                                     node_id
