@@ -17,7 +17,7 @@ import hi_res_prompt from './prompt.json'
 import { Grid } from '../util/grid'
 import { io } from '../util/oldSystem'
 import { app } from 'photoshop'
-import { reaction } from 'mobx'
+import { reaction, toJS } from 'mobx'
 import { storage } from 'uxp'
 export let hi_res_prompt_temp = hi_res_prompt
 console.log('hi_res_prompt: ', hi_res_prompt)
@@ -120,16 +120,20 @@ function logError(result: Result) {
 }
 
 export async function workflowEntries() {
-    const workflow_folder = await storage.localFileSystem.getFolder()
+    try {
+        const workflow_folder = await storage.localFileSystem.getFolder()
 
-    let entries = await workflow_folder.getEntries()
-    const workflow_entries = entries.filter(
-        (e: any) => e.isFile && e.name.toLowerCase().includes('.png') // must be a file and has the of the type .png
-    )
+        let entries = await workflow_folder.getEntries()
+        const workflow_entries = entries.filter(
+            (e: any) => e.isFile && e.name.toLowerCase().includes('.png') // must be a file and has the of the type .png
+        )
 
-    console.log('workflow_entries: ', workflow_entries)
+        console.log('workflow_entries: ', workflow_entries)
 
-    return workflow_entries
+        return workflow_entries
+    } catch (e) {
+        console.error(e)
+    }
 }
 export async function postPrompt(prompt: any) {
     try {
@@ -346,6 +350,16 @@ const ValidNodes: any = {
             image_base64: 'ImageBase64',
         },
     },
+    LoraLoader: {
+        inputs: {
+            lora_name: 'Menu',
+            strength_model: 'NumberField',
+            strength_clip: 'NumberField',
+        },
+        list_id: {
+            lora_name: 'loras',
+        },
+    },
 }
 
 interface ComfyUINode {
@@ -453,6 +467,7 @@ export function storeToPrompt(store: any, basePrompt: any) {
     return modified_prompt
 }
 function createMenu(input: ValidInput) {
+    console.log('input: ', toJS(input))
     return (
         <>
             <sp-label
@@ -463,9 +478,9 @@ function createMenu(input: ValidInput) {
             </sp-label>
             <SpMenu
                 size="m"
-                title="Upscaler 1"
+                title="input.label"
                 items={store.data.comfyui_config[input.list_id]}
-                label_item="Select an Upscaler Model"
+                label_item={`Select ${input.label}`}
                 selected_index={store.data.comfyui_config[
                     input.list_id
                 ]!.indexOf(input.value)}
@@ -564,43 +579,55 @@ function nodeInputToHtmlElement(input: ValidInput) {
 }
 
 export async function loadWorkflow(workflow_path: string) {
-    store.data.current_prompt = (await getWorkflowApi(workflow_path))?.prompt
+    try {
+        store.data.current_prompt = (
+            await getWorkflowApi(workflow_path)
+        )?.prompt
 
-    const current_prompt: any = store.toJsFunc().data.current_prompt
-    const loadImageNodes = Object.keys(current_prompt)
-        .filter((key: any) => current_prompt[key].class_type === 'LoadImage')
-        .reduce(
-            (acc, key) => ({
-                ...acc,
-                [key]: current_prompt[key],
-            }),
-            {}
-        )
+        const current_prompt: any = store.toJsFunc().data.current_prompt
+        const loadImageNodes = Object.keys(current_prompt)
+            .filter(
+                (key: any) => current_prompt[key].class_type === 'LoadImage'
+            )
+            .reduce(
+                (acc, key) => ({
+                    ...acc,
+                    [key]: current_prompt[key],
+                }),
+                {}
+            )
 
-    Object.keys(loadImageNodes).forEach((node_id: any) => {
-        store.data.current_prompt[node_id] = {
-            inputs: {
-                image_base64: '',
-            },
-            class_type: 'LoadImageBase64',
-        }
-    })
+        Object.keys(loadImageNodes).forEach((node_id: any) => {
+            store.data.current_prompt[node_id] = {
+                inputs: {
+                    image_base64: '',
+                },
+                class_type: 'LoadImageBase64',
+            }
+        })
 
-    const node_obj = Object.entries(store.data.current_prompt)
-    //clear both node structure and base64 images store values
-    store.data.comfyui_valid_nodes = {}
-    store.data.uuids = {}
-    // store.data.load_image_base64_strings = {}
-    node_obj.forEach(([node_id, node]: [string, any]) => {
-        console.log(node_id, node)
-        const valid_input = parseUIFromNode(node, node_id)
-    })
+        const node_obj = Object.entries(store.data.current_prompt)
+        //clear both node structure and base64 images store values
+        store.data.comfyui_valid_nodes = {}
+        store.data.uuids = {}
+        // store.data.load_image_base64_strings = {}
+        node_obj.forEach(([node_id, node]: [string, any]) => {
+            console.log(node_id, node)
+            const valid_input = parseUIFromNode(node, node_id)
+        })
+    } catch (e) {
+        console.error(e)
+    }
 }
 
 @observer
 class ComfyNodeComponent extends React.Component<{}> {
     async componentDidMount(): Promise<void> {
-        await getConfig()
+        try {
+            await getConfig()
+        } catch (e) {
+            console.error(e)
+        }
     }
 
     render(): React.ReactNode {
@@ -620,12 +647,16 @@ class ComfyNodeComponent extends React.Component<{}> {
                     ></SpTextfield>
                     <button
                         onClick={async () => {
-                            const entries = await workflowEntries()
+                            try {
+                                const entries = await workflowEntries()
 
-                            store.data.workflows = {}
-                            for (const entry of entries) {
-                                store.data.workflows[entry.name] =
-                                    entry.nativePath
+                                store.data.workflows = {}
+                                for (const entry of entries) {
+                                    store.data.workflows[entry.name] =
+                                        entry.nativePath
+                                }
+                            } catch (e) {
+                                console.error(e)
                             }
                         }}
                     >
@@ -678,11 +709,15 @@ class ComfyNodeComponent extends React.Component<{}> {
                         <button
                             className="btnSquare"
                             onClick={async () => {
-                                const new_prompt = storeToPrompt(
-                                    store.toJsFunc(),
-                                    store.toJsFunc().data.current_prompt
-                                )
-                                await generateImage(new_prompt)
+                                try {
+                                    const new_prompt = storeToPrompt(
+                                        store.toJsFunc(),
+                                        store.toJsFunc().data.current_prompt
+                                    )
+                                    await generateImage(new_prompt)
+                                } catch (e) {
+                                    console.error(e)
+                                }
                             }}
                         >
                             Generate
