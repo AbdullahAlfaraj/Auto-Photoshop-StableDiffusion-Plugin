@@ -807,7 +807,7 @@ class SDTab extends React.Component<{}> {
                             id="slMaskBlur"
                             min="0"
                             max="64"
-                            value="0"
+                            value={store.data.mask_blur}
                             style={{
                                 display: [
                                     ScriptMode.Inpaint,
@@ -845,7 +845,7 @@ class SDTab extends React.Component<{}> {
                             id="slMaskExpansion"
                             min="0"
                             max="256"
-                            value="0"
+                            value={store.data.mask_expansion}
                             title="the larger the value the more the mask will expand, '0' means use precise masking, use in combination with the mask blur"
                             style={{
                                 display: [
