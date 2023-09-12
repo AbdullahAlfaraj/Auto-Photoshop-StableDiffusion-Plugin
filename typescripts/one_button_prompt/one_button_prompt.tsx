@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import Collapsible from '../after_detailer/after_detailer'
+import { Collapsible } from '../util/collapsible'
 import { observer } from 'mobx-react'
 import { AStore } from '../main/astore'
 
@@ -12,15 +12,16 @@ import {
     SpSliderWithLabel,
 } from '../util/elements'
 import { ErrorBoundary } from '../util/errorBoundary'
+import { setPrompt } from '../multiTextarea'
 
 declare let g_sd_url: string
 export const store = new AStore({
-    prompts: [],
+    prompts: [] as string[],
     number: 3,
     prompt_complexity: 5,
-    subjects: [],
-    artists: [],
-    imagetypes: [],
+    subjects: [] as string[],
+    artists: [] as string[],
+    imagetypes: [] as string[],
     subject: 'all',
     artist: 'all',
     imagetype: 'all',
@@ -153,45 +154,57 @@ class OneButtonPrompt extends React.Component {
                             store.data.prompt_complexity = output_value
                         }}
                     />
-                    <sp-label>Subject:</sp-label>
-                    <SpMenu
-                        title="subjects"
-                        items={store.data.subjects}
-                        label_item="Select a Subject"
-                        selected_index={store.data.subjects.indexOf(
-                            store.data.subject
-                        )}
-                        onChange={(id: any, value: any) => {
-                            // console.log('onChange value: ', value)
-                            store.updateProperty('subject', value.item)
-                        }}
-                    ></SpMenu>
-                    <sp-label>Artist:</sp-label>
-                    <SpMenu
-                        title="artists"
-                        items={store.data.artists}
-                        label_item="Select an Artist"
-                        selected_index={store.data.artists.indexOf(
-                            store.data.artist
-                        )}
-                        onChange={(id: any, value: any) => {
-                            // console.log('onChange value: ', value)
-                            store.updateProperty('artist', value.item)
-                        }}
-                    ></SpMenu>
-                    <sp-label>Image Type:</sp-label>
-                    <SpMenu
-                        title="image types"
-                        items={store.data.imagetypes}
-                        label_item="Select an Image Type"
-                        selected_index={store.data.imagetypes.indexOf(
-                            store.data.imagetype
-                        )}
-                        onChange={(id: any, value: any) => {
-                            // console.log('onChange value: ', value)
-                            store.updateProperty('imagetype', value.item)
-                        }}
-                    ></SpMenu>
+                    <div>
+                        <SpMenu
+                            title="subjects"
+                            items={store.data.subjects}
+                            label_item="Select a Subject"
+                            selected_index={store.data.subjects.indexOf(
+                                store.data.subject
+                            )}
+                            onChange={(id: any, value: any) => {
+                                // console.log('onChange value: ', value)
+                                store.updateProperty('subject', value.item)
+                            }}
+                        ></SpMenu>
+                        <sp-label style={{ marginLeft: '3px' }}>
+                            Subject
+                        </sp-label>
+                    </div>
+                    <div>
+                        <SpMenu
+                            title="artists"
+                            items={store.data.artists}
+                            label_item="Select an Artist"
+                            selected_index={store.data.artists.indexOf(
+                                store.data.artist
+                            )}
+                            onChange={(id: any, value: any) => {
+                                // console.log('onChange value: ', value)
+                                store.updateProperty('artist', value.item)
+                            }}
+                        ></SpMenu>
+                        <sp-label style={{ marginLeft: '3px' }}>
+                            Artist
+                        </sp-label>
+                    </div>
+                    <div>
+                        <SpMenu
+                            title="image types"
+                            items={store.data.imagetypes}
+                            label_item="Select an Image Type"
+                            selected_index={store.data.imagetypes.indexOf(
+                                store.data.imagetype
+                            )}
+                            onChange={(id: any, value: any) => {
+                                // console.log('onChange value: ', value)
+                                store.updateProperty('imagetype', value.item)
+                            }}
+                        ></SpMenu>
+                        <sp-label style={{ marginLeft: '3px' }}>
+                            Image Type
+                        </sp-label>
+                    </div>
                     <div
                         style={{
                             display: 'flex',
@@ -236,8 +249,9 @@ class OneButtonPrompt extends React.Component {
                                 style={{ textAlign: 'right' }}
                                 onClick={() => {
                                     //@ts-ignore
-                                    document.querySelector('#taPrompt').value =
-                                        prompt
+                                    setPrompt({
+                                        positive: prompt,
+                                    })
                                 }}
                             >
                                 use
@@ -269,6 +283,7 @@ class OneButtonPrompt extends React.Component {
                     <ScriptInstallComponent
                         onRefreshHandler={async (event: any) => {
                             console.log(`Refresh ${store.data.script_name}`)
+                            await requestConfig()
                             await this.initScript()
                         }}
                     ></ScriptInstallComponent>

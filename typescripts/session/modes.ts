@@ -1,4 +1,8 @@
-import { control_net, scripts, session_ts } from '../entry'
+// import { control_net, scripts, session_ts } from '../entry'
+// import * as session_ts from '../session/session'
+import * as scripts from '../ultimate_sd_upscaler/scripts'
+import * as control_net from '../controlnet/entry'
+import { store as session_store } from '../session/session_store'
 
 import {
     html_manip,
@@ -16,13 +20,15 @@ import {
     getModuleDetail,
     mapPluginSettingsToControlNet,
 } from '../controlnet/entry'
+
+import { store as extra_page_store } from '../extra_page/extra_page'
 const executeAsModal = core.executeAsModal
 
 declare let g_inpaint_mask_layer: any
 declare let g_sd_url: any
 declare let g_controlnet_max_models: any
 declare let g_generation_session: any
-declare let g_last_seed: any
+
 interface SessionData {
     init_image?: string
     mask?: string
@@ -48,7 +54,7 @@ async function saveOutputImagesToDrive(images_info: any, settings: any) {
         ) //save the settings
         index += 1
     }
-    g_last_seed =
+    session_store.data.last_seed =
         images_info?.length > 0 ? images_info[0]?.auto_metadata?.Seed : '-1'
     return base64OutputImages
 }
@@ -168,17 +174,17 @@ export class Txt2ImgMode extends Mode {
                 throw 'you need to select a valid ControlNet Module'
             }
 
-            if (
-                (!control_net_settings['controlnet_units'][index]['model'] &&
-                    !getModuleDetail()[
-                        control_net_settings['controlnet_units'][index][
-                            'module'
-                        ]
-                    ].model_free) ||
-                control_net_settings['controlnet_units'][index][
-                    'model'
-                ].toLowerCase() === 'none'
-            ) {
+            const is_model_free: boolean =
+                getModuleDetail()[
+                    control_net_settings['controlnet_units'][index]['module']
+                ].model_free
+
+            const has_model =
+                control_net_settings['controlnet_units'][index]['model']
+            const is_model_none: boolean =
+                has_model && has_model.toLowerCase() === 'none'
+
+            if (!is_model_free && (!has_model || is_model_none)) {
                 //@ts-ignore
                 app.showAlert('you need to select a valid ControlNet Model')
                 throw 'you need to select a valid ControlNet Model'
@@ -200,7 +206,7 @@ export class Txt2ImgMode extends Mode {
         //update the mask in controlNet tab
         const numOfImages = json['images'].length
         let numberOfAnnotations =
-            numOfImages - session_ts.store.data.ui_settings.batch_size
+            numOfImages - session_store.data.ui_settings.batch_size
         if (numberOfAnnotations < 0) numberOfAnnotations = 0
 
         const base64_mask = json['images'].slice(
@@ -243,13 +249,13 @@ export class Txt2ImgMode extends Mode {
 
             if (b_enable_control_net) {
                 //use control net
-                if (session_ts.store.data.generation_number === 1) {
-                    session_ts.store.data.controlnet_input_image =
+                if (session_store.data.generation_number === 1) {
+                    session_store.data.controlnet_input_image =
                         await io.getImg2ImgInitImage()
                 }
                 // console.log(
-                //     'session_ts.store.data.controlnet_input_image: ',
-                //     session_ts.store.data.controlnet_input_image
+                //     'session_store.data.controlnet_input_image: ',
+                //     session_store.data.controlnet_input_image
                 // )
 
                 response_json = await this.requestControlNetTxt2Img(settings)
@@ -310,17 +316,17 @@ export class Img2ImgMode extends Mode {
                 app.showAlert('you need to select a valid ControlNet Module')
                 throw 'you need to select a valid ControlNet Module'
             }
-            if (
-                (!control_net_settings['controlnet_units'][index]['model'] &&
-                    !getModuleDetail()[
-                        control_net_settings['controlnet_units'][index][
-                            'module'
-                        ]
-                    ].model_free) ||
-                control_net_settings['controlnet_units'][index][
-                    'model'
-                ].toLowerCase() === 'none'
-            ) {
+            const is_model_free: boolean =
+                getModuleDetail()[
+                    control_net_settings['controlnet_units'][index]['module']
+                ].model_free
+
+            const has_model =
+                control_net_settings['controlnet_units'][index]['model']
+            const is_model_none: boolean =
+                has_model && has_model.toLowerCase() === 'none'
+
+            if (!is_model_free && (!has_model || is_model_none)) {
                 //@ts-ignore
                 app.showAlert('you need to select a valid ControlNet Model')
                 throw 'you need to select a valid ControlNet Model'
@@ -343,7 +349,7 @@ export class Img2ImgMode extends Mode {
         //update the mask in controlNet tab
         const numOfImages = json['images'].length
         let numberOfAnnotations =
-            numOfImages - session_ts.store.data.ui_settings.batch_size
+            numOfImages - session_store.data.ui_settings.batch_size
         if (numberOfAnnotations < 0) numberOfAnnotations = 0
 
         // To fix a bug: when Ultimate SD Upscale is active and running, the detection maps won’t be retrieved.
@@ -535,39 +541,35 @@ export class UpscaleMode extends Img2ImgMode {
 
         let payload: any = {}
         try {
-            const upscaling_resize = html_manip.getUpscaleSize()
-            const gfpgan_visibility = html_manip.getGFPGANVisibility()
-            const codeformer_visibility = html_manip.getCodeFormerVisibility()
-            const codeformer_weight = html_manip.getCodeFormerWeight()
-            // const selection_info = await psapi.getSelectionInfoExe()
             const selection_info = session_data.selectionInfo
+            const upscaling_resize = extra_page_store.data.upscaling_resize
             const width = selection_info.width * upscaling_resize
             const height = selection_info.height * upscaling_resize
+
             //resize_mode = 0 means "resize to upscaling_resize"
             //resize_mode = 1 means "resize to width and height"
-            payload['resize_mode'] = 0
-            payload['show_extras_results'] = 0
-            payload['gfpgan_visibility'] = gfpgan_visibility
-            payload['codeformer_visibility'] = codeformer_visibility
-            payload['codeformer_weight'] = codeformer_weight
+            payload['resize_mode'] = extra_page_store.data.resize_mode
+            payload['show_extras_results'] =
+                extra_page_store.data.show_extras_results
+            payload['gfpgan_visibility'] =
+                extra_page_store.data.gfpgan_visibility
+            payload['codeformer_visibility'] =
+                extra_page_store.data.codeformer_visibility
+            payload['codeformer_weight'] =
+                extra_page_store.data.codeformer_weight
             payload['upscaling_resize'] = upscaling_resize
             payload['upscaling_resize_w'] = width
             payload['upscaling_resize_h'] = height
-            payload['upscaling_crop'] = true
-            const upscaler1 =
-                //@ts-ignore
-                document.querySelector('#hrModelsMenuUpscale1').value
+            payload['upscaling_crop'] = extra_page_store.data.upscaling_crop
 
-            payload['upscaler_1'] = upscaler1 === undefined ? 'None' : upscaler1
-            const upscaler2 =
-                //@ts-ignore
-                document.querySelector('#hrModelsMenuUpscale2').value
-            payload['upscaler_2'] = upscaler2 === undefined ? 'None' : upscaler2
-            const extras_upscaler_2_visibility =
-                html_manip.getUpscaler2Visibility()
+            const upscaler1 = extra_page_store.data.upscaler_1
+            const upscaler2 = extra_page_store.data.upscaler_2
+            payload['upscaler_1'] = upscaler1 ? upscaler1 : 'None'
+            payload['upscaler_2'] = upscaler2 ? upscaler2 : 'None'
+
             payload['extras_upscaler_2_visibility'] =
-                extras_upscaler_2_visibility
-            payload['upscale_first'] = false
+                extra_page_store.data.extras_upscaler_2_visibility
+            payload['upscale_first'] = extra_page_store.data.upscale_first
 
             payload['image'] = session_data.init_image
         } catch (e) {
@@ -575,6 +577,7 @@ export class UpscaleMode extends Img2ImgMode {
         }
         return payload
     }
+
     static async generate(settings: any): Promise<{
         output_images: any
         response_json: any

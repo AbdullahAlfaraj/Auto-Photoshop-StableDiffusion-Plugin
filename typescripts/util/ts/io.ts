@@ -3,7 +3,21 @@ import { Jimp, io, psapi } from '../oldSystem'
 import { base64ToFileAndGetLayer } from './document'
 import { transformCurrentLayerTo } from './layer'
 import { Layer } from 'photoshop/dom/Layer'
+import { lstatSync, readFileSync, writeFileSync } from 'fs'
+import { AStore } from '../../main/astore'
 const executeAsModal = core.executeAsModal
+type KeyValuePair = { [key: string]: any }
+
+//REFACTOR: move to psapi.js
+export function _arrayBufferToBase64(buffer: any) {
+    var binary = ''
+    var bytes = new Uint8Array(buffer)
+    var len = bytes.byteLength
+    for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i])
+    }
+    return window.btoa(binary)
+}
 
 export async function moveImageToLayer_old(
     base64_image: string,
@@ -127,4 +141,32 @@ async function getBase64FromJimp(jimp_image: Jimp) {
     const dataURL = await jimp_image.getBase64Async(Jimp.MIME_PNG)
     const base64 = dataURL.replace(/^data:image\/png;base64,/, '')
     return base64
+}
+
+export function readPreset(path: string) {
+    try {
+        const content = readFileSync(path, 'utf-8')
+        JSON.parse(content)
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+export function writePreset(path: string, preset: KeyValuePair) {
+    try {
+        writeFileSync(path, JSON.stringify(preset))
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+export function storeToPreset(store: any) {
+    return store.toJsFunc().data
+}
+
+export function presetToStore(preset: KeyValuePair, store: any) {
+    store.data = {
+        ...store.data,
+        ...preset,
+    }
 }

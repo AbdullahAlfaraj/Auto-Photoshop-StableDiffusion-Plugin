@@ -10,23 +10,19 @@ import {
     SpMenu,
     SpSliderWithLabel,
 } from '../util/elements'
+import { Collapsible } from '../util/collapsible'
 // import * as sdapi from '../../sdapi_py_re'
 import { api } from '../util/oldSystem'
 import { AStore } from '../main/astore'
 import { ui_config, model_list } from './config'
 const { requestGet } = api
 import { requestControlNetModelList } from '../controlnet/entry'
+import { ErrorBoundary } from '../util/errorBoundary'
+import { ScriptMode } from '../util/ts/enum'
 
 import './style/after_detailer.css'
 
 declare let g_sd_url: string
-
-export enum ScriptMode {
-    Txt2Img = 'txt2img',
-    Img2Img = 'img2img',
-    Inpaint = 'inpaint',
-    Outpaint = 'outpaint',
-}
 
 export let script_mode = [
     ScriptMode.Img2Img,
@@ -54,9 +50,9 @@ export const store = new AStore({
     prompt: '',
     negativePrompt: '',
     controlnet_model: 'None',
-    controlnet_models: [],
+    controlnet_models: [] as string[],
     controlNetWeight: 1,
-    script_name: 'after detailer',
+    script_name: 'adetailer',
 
     is_installed: false,
     is_enabled: false,
@@ -139,7 +135,7 @@ export class AfterDetailerComponent extends React.Component<{
                     <button
                         className="btnSquare refreshButton"
                         id="btnResetSettings"
-                        title="Refresh the After Detailer Extension"
+                        title="Refresh the ADetailer Extension"
                         onClick={this.handleRefresh}
                     ></button>
                 </div>
@@ -168,6 +164,7 @@ export class AfterDetailerComponent extends React.Component<{
                     )}
                     onChange={(id: any, value: any) => {
                         console.log('onChange value: ', value)
+
                         store.updateProperty('ad_model', value.item)
                     }}
                 ></SpMenu>
@@ -262,82 +259,11 @@ export class AfterDetailerComponent extends React.Component<{
 const domNode = document.getElementById('alwaysOnScriptsContainer')!
 const root = ReactDOM.createRoot(domNode)
 
-import { useState, ReactNode } from 'react'
-import Locale from '../locale/locale'
-import { ErrorBoundary } from '../util/errorBoundary'
-
-interface CollapsibleProps {
-    label: string
-    labelStyle?: React.CSSProperties
-    containerStyle?: React.CSSProperties
-    defaultIsOpen?: boolean
-    checked?: boolean
-    checkboxCallback?: (checked: boolean) => void
-    children: ReactNode
-}
-
-function Collapsible({
-    label,
-    labelStyle,
-    containerStyle,
-    defaultIsOpen = false,
-    checkboxCallback,
-    checked,
-    children,
-}: CollapsibleProps) {
-    const [isOpen, setIsOpen] = useState(defaultIsOpen)
-
-    const handleToggle = () => {
-        setIsOpen(!isOpen)
-    }
-
-    return (
-        /*useObserver(()=>*/ <div>
-            <div
-                className="collapsible"
-                style={containerStyle}
-                onClick={handleToggle}
-            >
-                <span className="truncate" style={labelStyle}>
-                    {label}
-                </span>
-
-                <span
-                    style={{ float: 'right', display: 'flex' }}
-                    className="triangle"
-                >
-                    {checkboxCallback && checked !== void 0 ? (
-                        <input
-                            type="checkbox"
-                            className="minimal-checkbox"
-                            onClick={(event) => {
-                                event.stopPropagation()
-                            }}
-                            onChange={(event: any) => {
-                                checkboxCallback(event.target.checked)
-                            }}
-                            checked={checked}
-                        />
-                    ) : (
-                        void 0
-                    )}
-
-                    <span>{isOpen ? '∨' : '<'}</span>
-                </span>
-            </div>
-            {/* {isOpen && <div>{children}</div>} */}
-            <div style={{ display: isOpen ? 'block' : 'none' }}>{children}</div>
-        </div>
-    )
-}
-
-export default Collapsible
-
 root.render(
     <React.StrictMode>
         <ErrorBoundary>
             <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Collapsible label={'After Detailer'}>
+                <Collapsible label={'ADetailer'}>
                     <AfterDetailerComponent />
                 </Collapsible>
             </div>

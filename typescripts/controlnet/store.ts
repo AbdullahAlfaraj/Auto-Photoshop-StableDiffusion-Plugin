@@ -1,5 +1,12 @@
 import { observable, reaction } from 'mobx'
-
+import { SelectionInfoType } from '../util/ts/enum'
+type ResizeMode = 'Just Resize' | 'Crop and Resize' | 'Resize and Fill'
+export const controlnetModes = [
+    'Balanced',
+    'My prompt is more important',
+    'ControlNet is more important',
+] as const
+export type ControlnetMode = (typeof controlnetModes)[number]
 export const DefaultControlNetUnitData = {
     enabled: false,
     input_image: '',
@@ -8,7 +15,7 @@ export const DefaultControlNetUnitData = {
     module: '',
     model: '',
     weight: 1.0,
-    resize_mode: 'Scale to Fit (Inner Fit)',
+    resize_mode: 'Crop and Resize' as ResizeMode,
     lowvram: true,
     processor_res: 512,
     threshold_a: 0,
@@ -18,17 +25,37 @@ export const DefaultControlNetUnitData = {
     guidance_end: 1,
     guessmode: false,
 
-    control_mode: 'Balanced',
+    control_mode: 'Balanced' as ControlnetMode,
     pixel_perfect: true,
     auto_image: true,
 }
 
-export const controlnetModes = [
-    'Balanced',
-    'My prompt is more important',
-    'ControlNet is more important',
-] as const
-export type ControlnetMode = (typeof controlnetModes)[number]
+export const DefaultPresetControlNetUnitData = {
+    enabled: false,
+    // input_image: '',
+    // mask: '',
+    // detect_map: '',
+    module: 'none',
+    model: 'None',
+    filter_keyword: 'All',
+    weight: 1.0,
+
+    resize_mode: 'Crop and Resize' as ResizeMode,
+
+    lowvram: true,
+
+    processor_res: 512,
+    threshold_a: 0,
+    threshold_b: 0,
+
+    guidance_start: 0,
+    guidance_end: 1,
+    guessmode: false,
+
+    control_mode: 'Balanced' as ControlnetMode,
+    pixel_perfect: true,
+    auto_image: true,
+}
 
 export interface controlNetUnitData {
     enabled: boolean
@@ -41,7 +68,7 @@ export interface controlNetUnitData {
     model: string
     filter_keyword: string
     weight: number
-    resize_mode: 'Just Resize' | 'Crop and Resize' | 'Resize and Fill'
+    resize_mode: ResizeMode
     lowvram: boolean
     processor_res: number
     threshold_a: number
@@ -54,6 +81,7 @@ export interface controlNetUnitData {
     control_mode: ControlnetMode
     pixel_perfect: boolean
     auto_image: boolean // sync CtrlNet image with sd input image
+    selection_info: SelectionInfoType
 }
 interface ControlNetMobxStore {
     disableControlNetTab: boolean

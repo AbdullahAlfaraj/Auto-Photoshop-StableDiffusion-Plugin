@@ -51,41 +51,6 @@ function scaleToClosestKeepRatio(
 function mapRange(x, in_min, in_max, out_min, out_max) {
     return ((x - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min
 }
-function scaleToRatio(
-    new_value_1,
-    old_value_1,
-    new_value_2, //get ignored
-    old_value_2,
-    max_value,
-    min_value
-) {
-    const ratio = new_value_1 / old_value_1 // 1000/500 = 2
-    let final_new_value_2 = old_value_2 * ratio // 500 * 2 = 1000
-    let final_new_value_1 = new_value_1
-    if (final_new_value_2 > max_value) {
-        ;[_, final_new_value_1] = scaleToRatio(
-            max_value,
-            old_value_2,
-            new_value_1, //get ignored
-            old_value_1,
-            max_value,
-            min_value
-        )
-        final_new_value_2 = max_value
-    } else if (final_new_value_2 < min_value) {
-        ;[_, final_new_value_1] = scaleToRatio(
-            min_value,
-            old_value_2,
-            new_value_1, //get ignored
-            old_value_1,
-            max_value,
-            min_value
-        )
-        final_new_value_2 = min_value
-    }
-
-    return [final_new_value_1, final_new_value_2]
-}
 
 function compareVersions(version_1, version_2) {
     //remove the first character v
@@ -137,7 +102,7 @@ function sudoTimer(progress_text = 'Loading ControlNet...') {
     return timerId
 }
 function countNewLines(string) {
-    const count = (string.match(/\n/g) || []).length
+    const count = (string.match(/[\n\r]/g) || []).length
     // console.log(count)
     return count
 }
@@ -150,7 +115,7 @@ module.exports = {
     base64UrlToBase64,
     timer,
     scaleToClosestKeepRatio,
-    scaleToRatio,
+
     mapRange,
     compareVersions,
     requestOnlineData,

@@ -1,9 +1,9 @@
 import { moveImageToLayer, moveImageToLayer_old } from './io'
-import { io, layer_util } from '../oldSystem'
-import { session_ts } from '../../entry'
+import { io, layer_util, psapi } from '../oldSystem'
 
 import { action, core } from 'photoshop'
 import { MaskModeEnum } from './enum'
+import { session_store } from '../../stores'
 const executeAsModal = core.executeAsModal
 const batchPlay = action.batchPlay
 
@@ -11,7 +11,8 @@ export async function applyMaskFromBlackAndWhiteImage(
     black_and_white_base64: string,
     layer_id: any,
     selectionInfo: any,
-    b_borders_or_corners: MaskModeEnum = MaskModeEnum.Transparent
+    b_borders_or_corners: MaskModeEnum = MaskModeEnum.Transparent,
+    expand_by = 10
 ) {
     let mask_layer
     try {
@@ -20,7 +21,7 @@ export async function applyMaskFromBlackAndWhiteImage(
                 black_and_white_base64,
                 b_borders_or_corners
             )
-        mask_layer = await moveImageToLayer_old(
+        mask_layer = await moveImageToLayer(
             transparent_mask_base64,
             selectionInfo
         )
@@ -50,7 +51,7 @@ export async function applyMaskFromBlackAndWhiteImage(
                 _obj: 'expand',
                 by: {
                     _unit: 'pixelsUnit',
-                    _value: 10,
+                    _value: expand_by,
                 },
                 selectionModifyEffectAtCanvasBounds: true,
                 _isCommand: true,
@@ -110,7 +111,7 @@ export async function selectionFromBlackAndWhiteImage(
                 black_and_white_base64,
                 b_borders_or_corners
             )
-        mask_layer = await moveImageToLayer_old(
+        mask_layer = await moveImageToLayer(
             transparent_mask_base64,
             selectionInfo
         )
@@ -154,5 +155,17 @@ export async function selectionFromBlackAndWhiteImage(
         console.error(e)
     } finally {
         await layer_util.deleteLayers([mask_layer])
+    }
+}
+
+export async function activateSessionSelectionArea() {
+    try {
+        if (psapi.isSelectionValid(session_store.data.selectionInfo)) {
+            await psapi.reSelectMarqueeExe(session_store.data.selectionInfo)
+            //@ts-ignore
+            await eventHandler()
+        }
+    } catch (e) {
+        console.warn(e)
     }
 }

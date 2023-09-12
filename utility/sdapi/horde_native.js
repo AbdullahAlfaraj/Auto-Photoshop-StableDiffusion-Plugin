@@ -312,9 +312,7 @@ class hordeGenerator {
             console.warn(e)
         }
     }
-    async postGeneration() {
-        toggleTwoButtonsByClass(false, 'btnGenerateClass', 'btnInterruptClass')
-    }
+
     async processHordeResult() {
         //*) get the result from the horde server
         //*) save them locally to output directory

@@ -9,6 +9,7 @@ import { ErrorBoundary } from '../util/errorBoundary'
 
 export const store = new AStore({
     images: [],
+    thumbnails: [],
     refresh: false,
     width: 50,
     height: 50,

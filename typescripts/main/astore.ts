@@ -1,30 +1,25 @@
 import { makeAutoObservable, reaction, toJS } from 'mobx'
 export { toJS } from 'mobx'
 // import { Provider, inject, observer } from 'mobx-react'
-export class AStore {
-    data: any
+interface AStoreData {
+    [key: string]: any
+}
+export class AStore<T extends AStoreData> {
+    data: T
 
-    constructor(data: any) {
+    constructor(data: T) {
         this.data = data
 
         makeAutoObservable(this)
     }
-    // setIsActive(b_value: boolean) {
-    //     this.is_active = b_value
-    // }
-    // setTestValue(new_value: number) {
-    //     this.test_value = new_value
-    //     console.log('setTestValue: new_value ', new_value)
-    //     console.log('setTestValue: this.test_value: ', this.test_value)
-    // }
 
-    updateProperty(key: keyof any, value: any) {
-        ;(this.data as any)[key] = value
+    updateProperty(key: keyof T, value: any) {
+        this.data[key] = value
     }
-    updatePropertyArray(key: keyof any, value: any) {
+    updatePropertyArray(key: keyof T, value: any) {
         this.data[key] = this.data[key].concat(value)
     }
-    updatePropertyArrayRemove(key: keyof any, valueToRemove: any) {
+    updatePropertyArrayRemove(key: keyof T, valueToRemove: any) {
         this.data[key] = this.data[key].filter(
             (item: any) => item !== valueToRemove
         )

@@ -3,7 +3,7 @@ import React from 'react'
 import ControlNetTab from './ControlNetTab'
 import store from './store'
 import { versionCompare } from './util'
-import Collapsible from '../after_detailer/after_detailer'
+import { Collapsible } from '../util/collapsible'
 import Locale from '../locale/locale'
 import { ErrorBoundary } from '../util/errorBoundary'
 
@@ -48,51 +48,9 @@ if (elem2) {
 }
 function scrollToEnabledControlNetUnit() {}
 
-const button = document.getElementById('scrollToControlNetUnitContainer')!
-const button_root = ReactDOM.createRoot(button)
-let controlnet_unit_index = 0
-button_root.render(
-    <ErrorBoundary>
-        <button
-            className="btnSquare svgButton"
-            onClick={() => {
-                try {
-                    const units = document.querySelectorAll(
-                        '#controlNetTabParentContainer .collapsible'
-                    )
-                    const units_data = store.controlNetUnitData.map(
-                        (data, index) => ({
-                            enabled: data.enabled,
-                            index,
-                        })
-                    )
+// const button = document.getElementById('scrollToControlNetUnitContainer')!
+// const button_root = ReactDOM.createRoot(button)
 
-                    // Find the next enabled unit
-                    let counter = 0
-                    while (
-                        !units_data[controlnet_unit_index % units.length]
-                            .enabled &&
-                        counter < units.length
-                    ) {
-                        controlnet_unit_index += 1
-                        counter += 1
-                    }
+// button_root.render(<ErrorBoundary></ErrorBoundary>)
 
-                    if (counter < units.length) {
-                        controlnet_unit_index =
-                            controlnet_unit_index % units.length
-                        units[controlnet_unit_index].scrollIntoView()
-                        controlnet_unit_index += 1
-                    }
-                } catch (e) {
-                    console.warn(e)
-                }
-            }}
-            title="Quickly jump to the active ControlNet Unit"
-        >
-            C
-        </button>
-    </ErrorBoundary>
-)
-
-export { store, versionCompare }
+export { versionCompare }

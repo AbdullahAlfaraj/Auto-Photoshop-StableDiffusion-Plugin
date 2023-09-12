@@ -1,128 +1,25 @@
 ////// Start Prompt//////////
 
-function getPrompt() {
-    const prompt = document.getElementById('taPrompt').value
-    return prompt
-}
-
 function autoFillInPrompt(prompt_value) {
-    document.getElementById('taPrompt').value = prompt_value
+    // document.getElementById('taPrompt').value = prompt_value
+    multiPrompts.setPrompt({ positive: prompt_value })
 }
 
 ////// End Prompt//////////
 
 ////// Start Negative Prompt//////////
 
-function getNegativePrompt() {
-    const negative_prompt = document.getElementById('taNegativePrompt').value
-    return negative_prompt
-}
-
 function autoFillInNegativePrompt(negative_prompt_value) {
-    document.getElementById('taNegativePrompt').value = negative_prompt_value
+    // document.getElementById('taNegativePrompt').value = negative_prompt_value
+    multiPrompts.setPrompt({ negative: negative_prompt_value })
 }
 
 ////// End Negative Prompt//////////
 
 ////// Start Width//////////
 
-document.getElementById('slWidth').addEventListener('input', (evt) => {
-    const width = evt.target.value * 64
-
-    document.getElementById('lWidth').textContent = parseInt(width)
-    // widthSliderOnChangeEventHandler(evt)
-    updateResDifferenceLabel()
-})
-
-document.getElementById('slHeight').addEventListener('input', (evt) => {
-    const height = evt.target.value * 64
-
-    document.getElementById('lHeight').textContent = parseInt(height)
-    // heightSliderOnChangeEventHandler(evt)
-    updateResDifferenceLabel()
-})
-
-function widthSliderOnChangeEventHandler(evt) {
-    let new_width = evt.target.value * 64
-    const b_link = getLinkWidthHeightState()
-    let final_width = new_width
-    let final_height
-    if (b_link) {
-        const current_height = html_manip.getHeight()
-        ;[final_width, final_height] = general.scaleToRatio(
-            new_width,
-            g_old_slider_width,
-            _,
-            current_height,
-            parseInt(evt.target.max * 64),
-            parseInt(evt.target.min * 64)
-        )
-
-        evt.target.value = parseInt(final_width / 64)
-        html_manip.autoFillInHeight(final_height)
-    }
-
-    g_old_slider_width = final_width // update the old value, so we can use it later
-    document.getElementById('lWidth').textContent = parseInt(final_width)
-}
-document.getElementById('slWidth').addEventListener('change', (evt) => {
-    widthSliderOnChangeEventHandler(evt)
-})
-// document.getElementById('slWidth').addEventListener('change', (evt) => {
-//     let new_width = evt.target.value * 64
-//     const b_link = getLinkWidthHeightState()
-//     let final_width = new_width
-//     let final_height
-//     if (b_link) {
-//         const current_height = html_manip.getHeight()
-//         ;[final_width, final_height] = general.scaleToRatio(
-//             new_width,
-//             g_old_slider_width,
-//             _,
-//             current_height,
-//             parseInt(evt.target.max * 64),
-//             parseInt(evt.target.min * 64)
-//         )
-
-//         evt.target.value = parseInt(final_width / 64)
-//         html_manip.autoFillInHeight(final_height)
-//     }
-
-//     g_old_slider_width = final_width // update the old value, so we can use it later
-//     document.getElementById('lWidth').textContent = parseInt(final_width)
-// })
-
-function heightSliderOnChangeEventHandler(evt) {
-    let new_height = evt.target.value * 64
-
-    let final_width
-    let final_height = new_height
-    const b_link = getLinkWidthHeightState()
-    if (b_link) {
-        const current_width = html_manip.getWidth()
-        ;[final_height, final_width] = general.scaleToRatio(
-            new_height,
-            g_old_slider_height,
-            _,
-            current_width,
-            parseInt(evt.target.max * 64),
-            parseInt(evt.target.min * 64)
-        )
-
-        evt.target.value = parseInt(final_height / 64)
-        html_manip.autoFillInWidth(final_width)
-    }
-    g_old_slider_height = final_height // update the old value, so we can use it later
-    document.getElementById('lHeight').textContent = parseInt(final_height)
-}
-document.getElementById('slHeight').addEventListener('change', (evt) => {
-    heightSliderOnChangeEventHandler(evt)
-})
-
 function getWidth() {
-    slider_width = document.getElementById('slWidth').value
-    const width = slider_width * 64
-    return width
+    return sd_tab_store.data.width
 }
 
 function getHrWidth() {
@@ -136,147 +33,37 @@ function getHrHeight() {
     const width = slider_width * 64
     return width
 }
-function autoFillInWidth(width_value) {
-    const width_slider = document.getElementById('slHeight')
+async function autoFillInWidth(width_value) {
+    sd_tab_store.data.width = width_value
+    sd_tab_util.helper_store.data.previous_width = width_value
 
-    // g_old_slider_width = width_slider.value * 64 //store the old value
-    g_old_slider_width = width_value
-
-    document.getElementById('slWidth').value = `${width_value / 64}`
-    //update the label
-    document.getElementById('lWidth').innerHTML = `${parseInt(width_value)}`
-    updateResDifferenceLabel()
+    sd_tab_store.data.ratio =
+        await selection.Selection.getImageToSelectionDifference()
 }
 ////// End Width//////////
 
 ////// Start Height//////////
 
 function getHeight() {
-    slider_value = document.getElementById('slHeight').value
-    const height = slider_value * 64
-    return height
+    // slider_value = document.getElementById('slHeight').value
+    // const height = slider_value * 64
+    return sd_tab_store.data.height
 }
 
-function autoFillInHeight(height_value) {
-    const height_slider = document.getElementById('slHeight')
-    // g_old_slider_height = height_slider.value * 64
-    g_old_slider_height = height_value //store the current value as old value. counterintuitive!. only use old value when the user directly manipulate the slider
-
-    height_slider.value = `${height_value / 64}`
+async function autoFillInHeight(height_value) {
+    sd_tab_util.helper_store.data.previous_height = height_value
+    sd_tab_store.data.height = height_value
     //update the label
-    document.getElementById('lHeight').innerHTML = `${parseInt(height_value)}`
-    updateResDifferenceLabel()
+    sd_tab_store.data.ratio =
+        await selection.Selection.getImageToSelectionDifference()
 }
 
 function autoFillInHRHeight(height_value) {
-    document.getElementById('hrHeight').value = `${height_value / 64}`
-    //update the label
-    document.getElementById('hHeight').innerHTML = `${height_value}`
+    sd_tab_store.data.hr_resize_y = height_value
 }
 
-function autoFillInHRWidth(height_value) {
-    document.getElementById('hrWidth').value = `${height_value / 64}`
-    //update the label
-    document.getElementById('hWidth').innerHTML = `${height_value}`
-}
-
-////// End Height//////////
-
-////// Start Denoising Strength//////////
-document
-    .querySelector('#slDenoisingStrength')
-    .addEventListener('input', (evt) => {
-        const label_value = evt.target.value / 100
-        // console.log("label_value: ", label_value)
-        document.getElementById(
-            'lDenoisingStrength'
-        ).innerHTML = `${label_value}`
-    })
-
-//get the value that is relevant to stable diffusion
-function getDenoisingStrength() {
-    const slider_value = document.getElementById('slDenoisingStrength').value
-    const denoising_strength_value = slider_value / 100.0
-    return denoising_strength_value
-}
-
-// display the value the user need to see in all elements related to denoising strength attribute
-function autoFillInDenoisingStrength(denoising_strength_value) {
-    //sd denoising strength value range from [0,1] slider range from [0, 100]
-    //update the slider
-    document.getElementById('slDenoisingStrength').value = `${
-        denoising_strength_value * 100
-    }`
-    //update the label
-    document.getElementById(
-        'lDenoisingStrength'
-    ).innerHTML = `${denoising_strength_value}`
-}
-
-////// End Denoising Strength//////////
-
-////// Start Hi Res Fix//////////
-
-document.getElementById('chInpaintFullRes').addEventListener('click', (ev) => {
-    const inpaint_padding_slider = document.getElementById('slInpaintPadding')
-
-    if (ev.target.checked) {
-        inpaint_padding_slider.style.display = 'block'
-    } else {
-        inpaint_padding_slider.style.display = 'none'
-    }
-})
-document.getElementById('chHiResFixs').addEventListener('click', (ev) => {
-    const container = document.getElementById('hi-res-sliders-container')
-
-    if (ev.target.checked) {
-        container.style.display = 'flex'
-    } else {
-        container.style.display = 'none'
-    }
-})
-//get the value that is relevant to stable diffusion
-function getHiResFixs() {
-    const isChecked = document.getElementById('chHiResFixs').checked
-    return isChecked
-}
-
-function setHiResFixs(isChecked) {
-    document.getElementById('chHiResFixs').checked = isChecked
-}
-
-function sliderAddEventListener(
-    slider_id,
-    label_id,
-    multiplier,
-    fractionDigits = 2
-) {
-    document.getElementById(slider_id).addEventListener('input', (evt) => {
-        const sd_value = evt.target.value * multiplier // convert slider value to SD ready value
-        document.getElementById(label_id).textContent =
-            Number(sd_value).toFixed(fractionDigits)
-    })
-}
-function sliderAddEventListener_new(
-    slider_id,
-    label_id,
-    slider_start,
-    slider_end,
-    sd_start,
-    sd_end
-) {
-    document.getElementById(slider_id).addEventListener('input', (evt) => {
-        const sd_value = general.mapRange(
-            evt.target.value,
-            slider_start,
-            slider_end,
-            sd_start,
-            sd_end
-        ) // convert slider value to SD ready value
-
-        document.getElementById(label_id).textContent =
-            Number(sd_value).toFixed(2)
-    })
+function autoFillInHRWidth(width_value) {
+    sd_tab_store.data.hr_resize_x = width_value
 }
 
 //get the stable diffusion ready value from the slider with  "slider_id"
@@ -377,13 +164,6 @@ function setSliderSdValueByElements(
     label_element.innerHTML = sd_value.toString()
 }
 
-//hrWidth is from [1 to 32] * 64 => [64 to 2048]
-sliderAddEventListener('hrWidth', 'hWidth', 64)
-sliderAddEventListener('hrHeight', 'hHeight', 64)
-
-//convert hrDenoisingStrength  from  [1, 100] * 0.01 => [0.01 to 1]
-sliderAddEventListener('hrDenoisingStrength', 'hDenoisingStrength', 0.01)
-
 function autoFillInHiResFixs(firstphase_width, firstphase_height) {
     //update the firstphase width slider and label
     autoFillInSliderUi(firstphase_width, 'hrWidth', 'hWidth', 1.0 / 64)
@@ -434,23 +214,6 @@ function getSamplerElementByName(sampler_name) {
     } catch (e) {
         console.warn(`Sampler '${sampler_name}' not found ${e}`)
     }
-}
-
-function getCheckedSamplerName() {
-    //we assume that the samplers exist and loaded in html
-    //return the name of the first checked sampler
-    try {
-        return [...document.getElementsByClassName('rbSampler')].filter(
-            (elm) => elm.checked == true
-        )[0].value
-    } catch (e) {
-        console.warn(e)
-    }
-}
-function getMode() {
-    return [...document.getElementsByClassName('rbMode')].filter(
-        (e) => e.checked == true
-    )[0].value
 }
 
 function getBackendType() {
@@ -519,18 +282,6 @@ function selectModelUi(model_hash) {
     model_element.selected = true
 }
 
-function autoFillInModel(model_hash) {
-    try {
-        // unCheckAllSamplers()
-        model_element = getModelElementByHash(model_hash)
-        selectModelUi(model_hash)
-        // model_element.
-        const model_title = model_element.dataset.model_title
-        return model_title
-    } catch (e) {
-        console.warn(e)
-    }
-}
 ////// End Models//////////
 
 ////// Start Init Image && Init Image Mask//////////
@@ -579,18 +330,6 @@ function setInitImageMaskSrc(image_src) {
 
 ////// Start Generate Buttons //////////
 
-function getGenerateButtonsElements() {
-    generate_buttons = [...document.getElementsByClassName('btnGenerateClass')]
-    return generate_buttons
-}
-function setGenerateButtonsColor(addClassName, removeClassName) {
-    const buttons = getGenerateButtonsElements()
-    buttons.forEach((button) => {
-        button.classList.add(addClassName)
-        button.classList.remove(removeClassName)
-    })
-}
-
 ////// End Generate Buttons //////////
 
 ////// Start Servers Status //////////
@@ -607,104 +346,7 @@ function setProxyServerStatus(newStatusClass, oldStatusClass) {
 }
 ////// End Servers Status //////////
 
-////// Start Extras //////////
-
-sliderAddEventListener('slUpscaleSize', 'lUpscaleSize', 0.1, 1)
-
-function getUpscaleSize() {
-    slider_width = document.getElementById('slUpscaleSize').value
-    const size = slider_width / 10
-    return size
-}
-
-sliderAddEventListener('slUpscaler2Visibility', 'lUpscaler2Visibility', 0.1, 1)
-
-function getUpscaler2Visibility() {
-    slider_width = document.getElementById('slUpscaler2Visibility').value
-    const size = slider_width / 10
-    return size
-}
-
-sliderAddEventListener('slGFPGANVisibility', 'lGFPGANVisibility', 0.1, 1)
-
-function getGFPGANVisibility() {
-    slider_width = document.getElementById('slGFPGANVisibility').value
-    const size = slider_width / 10
-    return size
-}
-
-sliderAddEventListener(
-    'slCodeFormerVisibility',
-    'lCodeFormerVisibility',
-    0.1,
-    1
-)
-
-function getCodeFormerVisibility() {
-    slider_width = document.getElementById('slCodeFormerVisibility').value
-    const size = slider_width / 10
-    return size
-}
-
-sliderAddEventListener('slCodeFormerWeight', 'lCodeFormerWeight', 0.1, 1)
-
-function getCodeFormerWeight() {
-    slider_width = document.getElementById('slCodeFormerWeight').value
-    const size = slider_width / 10
-    return size
-}
-
-////// End Extras //////////
-
 ////// Start Reset Settings Button //////////
-
-const defaultSettings = {
-    model: null,
-    prompt_shortcut: null,
-    positive_prompt: '',
-    negative_prompt: '',
-    selection_mode: null,
-    batch_number: 1,
-    steps: 20,
-    width: 512,
-    height: 512,
-    firstphase_width: 512,
-    firstphase_height: 512,
-    cfg: 7,
-    denoising_strength: 0.7,
-    hi_res_denoising_strength: 0.7,
-    mask_blur: 8,
-    inpaint_at_full_res: false,
-    hi_res_fix: false,
-    inpaint_padding: 0,
-    seed: -1,
-    samplers: null,
-    mask_content: null,
-}
-
-const snapshot_btns = Array.from(
-    document.getElementsByClassName('snapshotButton')
-)
-snapshot_btns.forEach((element) =>
-    element.addEventListener('click', async () => {
-        try {
-            await psapi.snapshot_layerExe()
-        } catch (e) {
-            console.warn(e)
-        }
-    })
-)
-
-const reset_btns = Array.from(document.getElementsByClassName('resetButton'))
-reset_btns.forEach((element) =>
-    element.addEventListener('click', async () => {
-        try {
-            autoFillDefaultSettings(defaultSettings)
-        } catch (e) {
-            console.warn(e)
-        }
-    })
-)
 
 function getBatchNumber() {
     // return document.getElementById('tiNumberOfImages').value
@@ -715,67 +357,45 @@ function autoFillInBatchNumber(batch_number) {
     document.getElementById('tiNumberOfBatchSize').value = String(batch_number)
 }
 
-function getSteps() {
-    return document.getElementById('tiNumberOfSteps').value
-}
-function autoFillInSteps(steps) {
-    document.getElementById('tiNumberOfSteps').value = String(steps)
-}
-function autoFillDefaultSettings(default_settings) {
-    autoFillSettings(default_settings)
-}
-
 function setCFG(cfg_value) {
-    document.getElementById('slCfgScale').value = cfg_value
+    sd_tab_store.data.cfg = cfg_value
 }
 function getCFG() {
-    return document.getElementById('slCfgScale').value
+    return sd_tab_store.data.cfg
 }
 
 function autoFillSettings(settings) {
     try {
         //reset all UI settings except model selection and sampler selection
-        autoFillInPrompt(settings['positive_prompt'])
-        autoFillInNegativePrompt(settings['negative_prompt'])
+
+        multiPrompts.setPrompt({ positive: settings['positive_prompt'] })
+        multiPrompts.setPrompt({ negative: settings['negative_prompt'] })
         autoFillInBatchNumber(settings['batch_number'])
-        autoFillInSteps(settings['steps'])
+        sd_tab_store.data.steps = settings['steps']
         autoFillInWidth(settings['width'])
         autoFillInHeight(settings['height'])
         autoFillInHiResFixs(
             settings['firstphase_width'],
             settings['firstphase_height']
         )
-        document.getElementById('slCfgScale').value = settings['cfg']
-        autoFillInDenoisingStrength(settings['denoising_strength'])
+        sd_tab_store.data.cfg = settings['cfg']
+        sd_tab_store.data.denoising_strength = settings['denoising_strength']
         autoFillInSliderUi(
             settings['hi_res_denoising_strength'],
             'hrDenoisingStrength',
             'hDenoisingStrength',
             100
         )
-        document.getElementById('slMaskBlur').value = settings['mask_blur']
-        document.getElementById('chInpaintFullRes').checked =
-            settings['inpaint_at_full_res']
-        setHiResFixs(settings['hi_res_fix'])
-        document.getElementById('tiSeed').value = String(settings['seed'])
+        sd_tab_store.data.mask_blur = settings['mask_blur']
+        sd_tab_store.data.inpaint_full_res = settings['inpaint_at_full_res']
+        sd_tab_store.data.enable_hr = settings['hi_res_fix']
+        sd_tab_store.data.seed = String(settings['seed'])
     } catch (e) {
         console.warn(e)
     }
 }
 ////// End Reset Settings Button //////////
 
-function getMaskBlur() {
-    const isDisabled = document
-        .getElementById('slMaskBlur')
-        .hasAttribute('disabled')
-    let mask_blur = 0
-    if (isDisabled) {
-        mask_blur = 0
-    } else {
-        mask_blur = document.getElementById('slMaskBlur').value
-    }
-    return mask_blur
-}
 function setMaskBlur(mask_blur) {
     document.getElementById('slMaskBlur').value = mask_blur
 }
@@ -795,12 +415,6 @@ function setPromptShortcut(prompt_shortcut) {
     document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
 }
 
-////start selection mode/////
-function getSelectionMode() {
-    return [...document.getElementsByClassName('rbSelectionMode')].filter(
-        (e) => e.checked == true
-    )[0].value
-}
 function getMaskContent() {
     return [...document.getElementsByClassName('rbMaskContent')].filter(
         (e) => e.checked == true
@@ -857,22 +471,6 @@ function addHistoryButtonsHtml(img_html) {
 
     return container
 }
-function getSeed() {
-    const seed = document.getElementById('tiSeed').value
-    return seed
-}
-function setSeed(new_seed) {
-    document.getElementById('tiSeed').value = new_seed
-}
-
-function getMaskExpansion() {
-    const mask_expansion = document.getElementById('slMaskExpansion').value
-    return mask_expansion
-}
-
-function setMaskExpansion(mask_expansion) {
-    document.getElementById('slMaskExpansion').value = mask_expansion
-}
 
 function updateProgressBarsHtml(new_value, progress_text = 'Progress...') {
     document.querySelectorAll('.pProgressBars').forEach((bar_elm) => {
@@ -894,14 +492,7 @@ function updateProgressBarsHtml(new_value, progress_text = 'Progress...') {
     // document.querySelector('#pProgressBar').value
 }
 ///end selection mode////
-function getLinkWidthHeightState() {
-    const state_str = document.getElementById('linkWidthHeight').dataset.b_link // sometime it's true and other time it's "true"
-    const b_state = state_str.toString() === 'true' ? true : false
-    return b_state
-}
-function setLinkWidthHeightState(state) {
-    document.getElementById('linkWidthHeight').dataset.b_link = state
-}
+
 function isSquareThumbnail() {
     return document.getElementById('chSquareThumbnail').checked
 }
@@ -1077,12 +668,10 @@ function getUseSilentMode() {
 }
 
 module.exports = {
-    getPrompt,
     autoFillInPrompt,
-    getNegativePrompt,
+
     autoFillInNegativePrompt,
-    getDenoisingStrength,
-    autoFillInDenoisingStrength,
+
     getWidth,
     autoFillInWidth,
     getHeight,
@@ -1090,22 +679,19 @@ module.exports = {
     getSliderSdValue,
     setSliderSdValue,
     autoFillInHiResFixs,
-    getHiResFixs,
-    setHiResFixs,
+
     autoFillInSliderUi,
-    getCheckedSamplerName,
+
     autoFillInSampler,
-    autoFillInModel,
-    getMode,
+
     setInitImageSrc,
     setInitImageMaskSrc,
-    setGenerateButtonsColor,
+
     setAutomaticStatus,
     setProxyServerStatus,
-    defaultSettings,
-    autoFillDefaultSettings,
+
     autoFillSettings,
-    getMaskBlur,
+
     setMaskBlur,
 
     autoFillInHRHeight,
@@ -1113,10 +699,9 @@ module.exports = {
     getPromptShortcut,
     setPromptShortcut,
     getModelHashByTitle,
-    getSelectionMode,
+
     autoFillInInpaintMaskWeight,
-    autoFillInSteps,
-    getSteps,
+
     getBatchNumber,
     autoFillInBatchNumber,
     getHrWidth,
@@ -1127,21 +712,11 @@ module.exports = {
     setMaskContent,
     addHistoryButtonsHtml,
 
-    getSeed,
-    setSeed,
-    getMaskExpansion,
-    setMaskExpansion,
-    getUpscaleSize,
-    getUpscaler2Visibility,
-    getCodeFormerVisibility,
-    getGFPGANVisibility,
-    getCodeFormerWeight,
     updateProgressBarsHtml,
     getBackendType,
     getHordeApiKey,
     setProgressImageSrc,
-    getLinkWidthHeightState,
-    setLinkWidthHeightState,
+
     isSquareThumbnail,
     setControlImageSrc,
 
@@ -1156,7 +731,7 @@ module.exports = {
     getSliderSdValue_Old,
     getSelectedRadioButtonElement,
     getInitImageMaskElement,
-    sliderAddEventListener_new,
+
     getSliderSdValueByElement,
     setSliderSdValueByElements,
     populateMenuByElement,

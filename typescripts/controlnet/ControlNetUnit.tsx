@@ -189,9 +189,10 @@ export default class ControlNetUnit extends React.Component<
             const base64_image =
                 await g_generation_session.setControlNetImageHelper()
 
-            this.props.appState.controlNetUnitData[
-                this.props.index
-            ].input_image = base64_image
+            const storeData =
+                this.props.appState.controlNetUnitData[this.props.index]
+            storeData.input_image = base64_image
+            storeData.selection_info = selectionInfo
         } else {
             await note.Notification.inactiveSelectionArea()
         }
@@ -199,9 +200,8 @@ export default class ControlNetUnit extends React.Component<
     async onMaskButtonClick() {
         const storeData =
             this.props.appState.controlNetUnitData[this.props.index]
-        if (g_generation_session.control_net_selection_info && storeData.mask) {
-            const selection_info =
-                g_generation_session.control_net_selection_info
+        if (storeData.selection_info && storeData.mask) {
+            const selection_info = storeData.selection_info
             const layer = await io.IO.base64ToLayer(
                 storeData.mask,
                 'ControlNet Mask.png',
@@ -304,15 +304,13 @@ export default class ControlNetUnit extends React.Component<
         this.props.appState.controlNetUnitData[this.props.index].mask = ''
     }
     async toCanvas() {
-        if (
-            g_generation_session.control_net_preview_selection_info &&
-            this.props.appState.controlNetUnitData[this.props.index].detect_map
-        ) {
-            const selection_info =
-                g_generation_session.control_net_preview_selection_info
+        const storeData =
+            this.props.appState.controlNetUnitData[this.props.index]
+        if (storeData.selection_info && storeData.detect_map) {
+            const selection_info = storeData.selection_info
+
             const layer = await io.IO.base64ToLayer(
-                this.props.appState.controlNetUnitData[this.props.index]
-                    .detect_map,
+                storeData.detect_map,
                 'ControlNet Detection Map.png',
                 selection_info.left,
                 selection_info.top,
@@ -325,21 +323,6 @@ export default class ControlNetUnit extends React.Component<
         }
     }
     async toControlNetInitImage() {
-        const preview_result_base64 =
-            g_generation_session.controlNetMask[this.props.index]
-        g_generation_session.controlNetImage[this.props.index] =
-            preview_result_base64
-        g_generation_session.control_net_selection_info =
-            g_generation_session.control_net_preview_selection_info
-
-        const rgb_detect_map_url =
-            await io.convertBlackAndWhiteImageToRGBChannels3(
-                preview_result_base64
-            )
-
-        // g_generation_session.controlNetMask[index] = rgb_detect_map
-
-        // html_manip.setControlImageSrc(rgb_detect_map_url, this.props.index)
         const storeData =
             this.props.appState.controlNetUnitData[this.props.index]
 
@@ -354,8 +337,7 @@ export default class ControlNetUnit extends React.Component<
             const width = html_manip.getWidth()
             const height = html_manip.getHeight()
             const selectionInfo = await psapi.getSelectionInfoExe()
-            g_generation_session.control_net_preview_selection_info =
-                selectionInfo
+            storeData.selection_info = selectionInfo
             const base64 =
                 await io.IO.getSelectionFromCanvasAsBase64Interface_New(
                     width,
@@ -636,7 +618,7 @@ export default class ControlNetUnit extends React.Component<
                             </sp-label>
                             {controlnetModes.map(
                                 (mode: ControlnetMode, index: number) => {
-                                    console.log('mode:', mode, ' index:', index)
+                                    // console.log('mode:', mode, ' index:', index)
                                     return (
                                         <sp-radio
                                             key={`mode-${index}`}
@@ -808,7 +790,7 @@ export default class ControlNetUnit extends React.Component<
                             )}
                         </div>
                     </div>
-                    <div>
+                    <div style={{ width: '50%', display: 'flex' }}>
                         <SpMenu
                             onChange={this.onFilterChange.bind(this)}
                             items={this.props.appState.filterKeywords}
@@ -816,34 +798,38 @@ export default class ControlNetUnit extends React.Component<
                             selected_index={this.props.appState.filterKeywords.indexOf(
                                 storeData.filter_keyword || 'All'
                             )}
-                            style={{ width: '50%', display: 'flex' }}
+                            // style={{ width: '50%', display: 'flex' }}
                         />
                     </div>
                     <div
                         id={`menu-bar-control_net_${this.props.index}`}
                         style={{ display: 'flex' }}
                     >
-                        <SpMenu
-                            onChange={this.onPreprocsesorChange.bind(this)}
-                            id={`mModulesMenuControlNet_${this.props.index}`}
-                            items={storeData.module_list || ['none']}
-                            label_item={Locale('Select Module')}
-                            selected_index={storeData.module_list?.indexOf(
-                                storeData.module
-                            )}
-                            style={{ width: '100%', display: 'flex' }}
-                        />
-                        {!pd.model_free && (
+                        <div style={{ width: '50%', display: 'flex' }}>
                             <SpMenu
-                                onChange={this.onModelChange.bind(this)}
-                                id={`mModelsMenuControlNet_${this.props.index}`}
-                                items={storeData.model_list || []}
+                                onChange={this.onPreprocsesorChange.bind(this)}
+                                id={`mModulesMenuControlNet_${this.props.index}`}
+                                items={storeData.module_list || ['none']}
                                 label_item={Locale('Select Module')}
-                                selected_index={storeData.model_list?.indexOf(
-                                    storeData.model
+                                selected_index={storeData.module_list?.indexOf(
+                                    storeData.module
                                 )}
-                                style={{ width: '100%', display: 'flex' }}
+                                style={{ width: '100%' }}
                             />
+                        </div>
+                        {!pd.model_free && (
+                            <div style={{ width: '50%', display: 'flex' }}>
+                                <SpMenu
+                                    onChange={this.onModelChange.bind(this)}
+                                    id={`mModelsMenuControlNet_${this.props.index}`}
+                                    items={storeData.model_list || []}
+                                    label_item={Locale('Select Module')}
+                                    selected_index={storeData.model_list?.indexOf(
+                                        storeData.model
+                                    )}
+                                    style={{ width: '100%' }}
+                                />
+                            </div>
                         )}
                     </div>
                 </div>

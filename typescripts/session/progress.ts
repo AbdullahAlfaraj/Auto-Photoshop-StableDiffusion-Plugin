@@ -2,7 +2,9 @@ import { reaction } from 'mobx'
 import { AStore } from '../main/astore'
 import { io, layer_util } from '../util/oldSystem'
 import Locale from '../locale/locale'
-import { session_ts } from '../entry'
+import { store as session_store } from '../session/session_store'
+// import { session_ts } from '../entry'
+// import * as session_ts from '../session/session'
 import { app, core } from 'photoshop'
 
 const executeAsModal = core.executeAsModal
@@ -16,6 +18,7 @@ export const store = new AStore({
     progress_label: Locale('Progress..'),
     can_update: true,
     can_update_progress_layer: true,
+    live_progress_image: true,
 })
 declare let g_sd_url: string
 
@@ -31,7 +34,7 @@ async function updateProgressImage(progress_base64: string) {
                 await Progress.deleteProgressLayer() // delete the old progress layer
 
                 //update the progress image
-                const selection_info = await session_ts.store.data.selectionInfo
+                const selection_info = await session_store.data.selectionInfo
 
                 const b_exsit = layer_util.Layer.doesLayerExist(
                     store.data.progress_layer
@@ -40,10 +43,10 @@ async function updateProgressImage(progress_base64: string) {
                     const layer = await io.IO.base64ToLayer(
                         progress_base64,
                         'temp_progress_image.png',
-                        selection_info.left,
-                        selection_info.top,
-                        selection_info.width,
-                        selection_info.height
+                        selection_info?.left,
+                        selection_info?.top,
+                        selection_info?.width,
+                        selection_info?.height
                     )
                     store.data.progress_layer = layer // sotre the new progress layer// TODO: make sure you delete the progress layer when the geneeration request end
                 }
@@ -70,12 +73,12 @@ reaction(
             const { width, height } = await io.getImageSize(progress_image)
             store.data.progress_image_height = height
         }
-        const b_update_progress_layer: Boolean = (
-            document.querySelector('.chLiveProgressImageClass') as any
-        ).checked
+        const b_update_progress_layer = store.data.live_progress_image
+        store.data.live_progress_image = b_update_progress_layer
+
         if (
             b_update_progress_layer &&
-            parseInt(session_ts.store.data.ui_settings?.batch_size) === 1 &&
+            session_store.data.ui_settings.batch_size === 1 &&
             store.data.can_update_progress_layer &&
             store.data.can_update // progress is still active
         ) {

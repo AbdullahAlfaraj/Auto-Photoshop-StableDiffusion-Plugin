@@ -1,0 +1,4 @@
+/* styles.css */
+#_tool_bar_container button:not(:last-child) {
+    margin-bottom: 3px;
+}

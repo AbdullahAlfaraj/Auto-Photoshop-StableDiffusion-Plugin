@@ -1,0 +1,43 @@
+{
+    "sd_tab_preset": {
+        "selected_model": "v1-5-pruned-emaonly.ckpt [cc6cb27103]",
+        "is_lasso_mode": false,
+        "mode": "txt2img",
+        "rb_mode": "txt2img",
+        "batch_size": 1,
+        "batch_count": 1,
+        "steps": 20,
+        "width": 512,
+        "height": 512,
+        "ratio": 1,
+        "cfg": 7,
+        "b_width_height_link": true,
+        "denoising_strength": 0.7,
+        "hr_denoising_strength": 0.7,
+        "inpaint_full_res": false,
+        "enable_hr": false,
+        "sampler_name": "Euler a",
+        "image_cfg_scale": 1.5,
+        "seed": "-1",
+        "mask_blur": 0,
+        "mask_expansion": 0,
+        "inpaint_full_res_padding": 0,
+        "hr_scale": 2,
+        "hr_resize_x": 512,
+        "hr_resize_y": 512,
+        "hr_second_pass_steps": 0,
+        "restore_faces": false,
+        "inpainting_fill": 0,
+        "hr_upscaler": "",
+        "selection_mode": "ratio"
+    },
+    "controlnet_tab_preset": [
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+    ]
+}

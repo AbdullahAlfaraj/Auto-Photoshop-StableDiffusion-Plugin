@@ -1,8 +1,14 @@
 import { setControlImageSrc } from '../../utility/html_manip'
-import { session_ts } from '../entry'
+// import { session_ts } from '../entry'
+// import * as session_ts from '../session/session'
+import { store as session_store } from '../session/session_store'
 import { Enum, api, python_replacement } from '../util/oldSystem'
 import { GenerationModeEnum } from '../util/ts/enum'
-import { store, versionCompare } from './main'
+import store, {
+    DefaultControlNetUnitData,
+    DefaultPresetControlNetUnitData,
+    controlNetUnitData,
+} from './store'
 
 const { getExtensionUrl } = python_replacement
 declare const g_sd_config_obj: any
@@ -10,7 +16,7 @@ declare let g_sd_url: string
 
 async function requestControlNetPreprocessors() {
     const control_net_json = await api.requestGet(
-        `${g_sd_url}/controlnet/module_list?alias_name=1`
+        `${g_sd_url}/controlnet/module_list?alias_names=true`
     )
 
     return control_net_json
@@ -122,14 +128,14 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
             let input_image = store.controlNetUnitData[index].input_image
             if (
                 b_sync_input_image &&
-                [GenerationModeEnum.Txt2Img].includes(
-                    session_ts.store.data.mode
-                )
+                [GenerationModeEnum.Txt2Img].includes(session_store.data.mode)
             ) {
                 //conditions: 1) txt2img mode 2)auto image on  3)first generation of session
 
-                input_image = session_ts.store.data.controlnet_input_image ?? ''
+                input_image = session_store.data.controlnet_input_image ?? ''
                 store.controlNetUnitData[index].input_image = input_image
+                store.controlNetUnitData[index].selection_info =
+                    plugin_settings.selection_info
             }
             if (
                 b_sync_input_image &&
@@ -138,11 +144,13 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
                     GenerationModeEnum.Inpaint,
                     GenerationModeEnum.Outpaint,
                     GenerationModeEnum.LassoInpaint,
-                ].includes(session_ts.store.data.mode)
+                ].includes(session_store.data.mode)
             ) {
                 // img2img mode
-                input_image = session_ts.store.data.init_image
+                input_image = session_store.data.init_image
                 store.controlNetUnitData[index].input_image = input_image
+                store.controlNetUnitData[index].selection_info =
+                    plugin_settings.selection_info
             } else if (
                 b_sync_input_image &&
                 store.controlNetUnitData[index].enabled
@@ -157,20 +165,11 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
     }
     function getControlNetMask(index: number) {
         try {
-            // const b_sync_input_image =
-            //     store.controlNetUnitData[index].auto_image
-            // let mask = store.controlNetUnitData[index].mask // the user created mask
-            // if (b_sync_input_image && session_ts.store.data.expanded_mask) {
-            //     //use the mask from inpaint and outpaint mode
-            //     mask = '' // this will tell controlnet to use SD mask
-            //     store.controlNetUnitData[index].mask = ''
-            // }
-
             if (
                 [
                     GenerationModeEnum.Txt2Img,
                     GenerationModeEnum.Img2Img,
-                ].includes(session_ts.store.data.mode)
+                ].includes(session_store.data.mode)
             ) {
                 //maskless mode
             } else {
@@ -190,7 +189,7 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
             module: store.controlNetUnitData[index].module,
             model: store.controlNetUnitData[index].model,
             weight: store.controlNetUnitData[index].weight,
-            resize_mode: 'Scale to Fit (Inner Fit)',
+            resize_mode: 'Crop and Resize',
             lowvram: store.controlNetUnitData[index].lowvram,
             processor_res: store.controlNetUnitData[index].processor_res || 512,
             threshold_a: store.controlNetUnitData[index].threshold_a,
@@ -233,6 +232,24 @@ function getControlNetMaxModelsNumber() {
 }
 function getUnitsData() {
     return store.controlNetUnitData
+}
+
+export function setUnitData(unitData: controlNetUnitData, index: number) {
+    try {
+        store.controlNetUnitData[index] = {
+            ...store.controlNetUnitData[index],
+            ...unitData,
+        }
+
+        if (!unitData?.enabled) {
+            store.controlNetUnitData[index] = {
+                ...store.controlNetUnitData[index],
+                ...DefaultPresetControlNetUnitData,
+            }
+        }
+    } catch (e) {
+        console.error(e)
+    }
 }
 function setControlDetectMapSrc(base64: string, index: number) {
     // store.controlNetUnitData[index].mask = base64

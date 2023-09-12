@@ -767,25 +767,16 @@ class Selection {
     static reselectArea(selection_info) {}
     static isSameSelection(selection_info_1, selection_info_2) {}
     static async getImageToSelectionDifference() {
-        const selectionInfo = await psapi.getSelectionInfoExe()
+        // const selectionInfo = await psapi.getSelectionInfoExe()
+        // const width = html_manip.getWidth()
+        // const height = html_manip.getHeight()
 
-        const width = html_manip.getWidth()
-        const height = html_manip.getHeight()
-        const scale_info_str = `${parseInt(width)}x${parseInt(
-            height
-        )} => ${parseInt(selectionInfo.width)}x${parseInt(
-            selectionInfo.height
-        )} `
+        const selectionInfo = session_store.data.current_selection_info
+        const width = sd_tab_store.data.width
+        const height = sd_tab_store.data.height
         let ratio =
             (width * height) / (selectionInfo.width * selectionInfo.height)
 
-        // const arrow = percentage >= 1 ? '↑' : '↓'
-        // percentage = percentage >= 1 ? percentage : 1 / percentage
-
-        // const percentage_str = `${arrow}X${percentage.toFixed(2)}`
-
-        // console.log('scale_info_str: ', scale_info_str)
-        // console.log('percentage_str: ', percentage_str)
         return ratio
     }
     static {}
@@ -1018,7 +1009,8 @@ async function black_white_layer_to_mask(mask_id, target_layer_id, mask_name) {
 async function black_white_layer_to_mask_multi_batchplay(
     mask_id,
     target_layer_id,
-    mask_name
+    mask_name,
+    expand_by = 10
 ) {
     let result
     let psAction = require('photoshop').action
@@ -1063,7 +1055,7 @@ async function black_white_layer_to_mask_multi_batchplay(
             _obj: 'expand',
             by: {
                 _unit: 'pixelsUnit',
-                _value: 10,
+                _value: expand_by,
             },
             selectionModifyEffectAtCanvasBounds: true,
             _isCommand: true,

@@ -222,7 +222,7 @@ async function txt2ImgRequest(payload) {
     // const request_path = '/sdapi/v1/txt2img'
 }
 function getExtensionUrl() {
-    const extension_type = settings_tab.getExtensionType()
+    const extension_type = settings_tab_ts.store.data.extension_type
     let extension_url
 
     if (extension_type === 'auto1111_extension') {
@@ -305,31 +305,6 @@ async function img2ImgRequest(sd_url, payload) {
         payload['prompt'] = new_prompt
         payload['negative_prompt'] = new_negative_prompt
     }
-    // init_img_dir = "./init_images"
-    // init_img_name = payload['init_image_name']
-    // init_img = Image.open(f"{init_img_dir}/{init_img_name}")
-    // init_img_str = img_2_b64(init_img)
-    // payload['init_images'] = [init_img_str]
-
-    // init_img_mask_name = payload.get('init_image_mask_name',"")
-
-    // #only if image exist then try to open it
-
-    // if(len(init_img_mask_name) > 0):
-    // init_img_mask = Image.open(f"{init_img_dir}/{init_img_mask_name}")
-
-    // if (payload['use_sharp_mask'] === false && payload['mask']) {
-    //     //only if mask is available and sharp_mask is off
-    //     // use blurry and expanded mask
-    //     const iterations = payload['mask_expansion']
-    //     const mask = await maskExpansionRequest(payload['mask'], iterations)
-    //     if (mask) {
-    //         payload['mask'] = mask
-    //     }
-    // }
-
-    // print(type(init_img_str))
-    // #request the images to be generated
 
     const endpoint = 'sdapi/v1/img2img'
 
@@ -393,96 +368,6 @@ async function img2ImgRequest(sd_url, payload) {
         dir_name: dir_name,
         images_info: images_info,
         metadata: metadata,
-    }
-}
-
-async function getOutputImagesEntries(doc_entry) {
-    let entries = await doc_entry.getEntries()
-    const output_images_entries = entries.filter(
-        (e) => e.isFile && e.name.toLowerCase().includes('.png') // must be a file and has the of the type .png
-    )
-    console.log('output_images_entries: ', output_images_entries)
-    // .forEach((e) => console.log(e.name))
-    return output_images_entries
-}
-
-async function getMetaDataForOutputEntry(doc_entry, output_entry) {
-    const json_file_name = `${output_entry.name.split('.')[0]}.json`
-
-    try {
-        const json_entry = await doc_entry.getEntry(json_file_name)
-        if (json_entry) {
-            // await json_entry.read()
-
-            const json = JSON.parse(
-                await json_entry.read({
-                    format: storage.formats.utf8,
-                })
-            )
-            return json
-        }
-    } catch (e) {
-        console.warn(e)
-    }
-    return {}
-}
-async function loadHistory(payload) {
-    //  {'image_paths','metadata_setting'}
-    const history = {}
-
-    // const uniqueDocumentId = payload['uniqueDocumentId']
-    // const uniqueDocumentId = await getUniqueDocumentId()
-
-    const uuid = await getUniqueDocumentId()
-    const doc_entry = await getDocFolder(uuid)
-    const output_images_entries = await getOutputImagesEntries(doc_entry)
-    history['image_paths'] = []
-    history['metadata_jsons'] = []
-    history['base64_images'] = []
-    for (const output_entry of output_images_entries) {
-        history['image_paths'].push(output_entry.name)
-        const metadata_json = await getMetaDataForOutputEntry(
-            doc_entry,
-            output_entry
-        )
-        history['metadata_jsons'].push(metadata_json)
-
-        const arrayBuffer = await output_entry.read({ format: formats.binary })
-        const base64_image = _arrayBufferToBase64(arrayBuffer) //convert the buffer to base64
-
-        // const base64 =
-        history['base64_images'].push(base64_image)
-    }
-
-    //     image_paths = glob.glob(f'./output/{uniqueDocumentId}/*.png')
-    //     settings_paths = glob.glob(f'./output/{uniqueDocumentId}/*.json')#note: why is we are not using settings_paths?
-    //     print("loadHistory: image_paths:", image_paths)
-
-    //     history['image_paths'] = image_paths
-    //     history['metadata_jsons'] = []
-    //     history['base64_images'] = []
-    //     for image_path in image_paths:
-    //         print("image_path: ", image_path)
-    //         metadata_dict = metadata_to_json.createMetadataJsonFileIfNotExist(image_path)
-    //         history['metadata_jsons'].append(metadata_dict)
-
-    //         img = Image.open(image_path)
-    //         base64_image = img_2_b64(img)
-    //         history['base64_images'].append(base64_image)
-
-    // except:
-
-    //     print(f'{request}')
-
-    // #reverse the order so that newer generated images path will be shown first
-
-    // history['image_paths'].reverse()
-    // history['metadata_jsons'].reverse()
-    // history['base64_images'].reverse()
-    return {
-        image_paths: history['image_paths'],
-        metadata_jsons: history['metadata_jsons'],
-        base64_images: history['base64_images'],
     }
 }
 
@@ -582,7 +467,6 @@ async function extraSingleImageRequest(sd_url, payload) {
 module.exports = {
     txt2ImgRequest,
     img2ImgRequest,
-    loadHistory,
     maskExpansionRequest,
     getExtensionUrl,
     savePromptShortcut,

@@ -6,7 +6,7 @@ class Notification {
     static async webuiIsOffline() {
         const r1 = await dialog_box.prompt(
             'Automatic1111 is Offline',
-            "make sure Automatic1111 is running in the background, or select the 'native horde' option from the horde tab",
+            'make sure Automatic1111 is running in the background',
             ['Cancel', 'OK']
         )
 
@@ -93,7 +93,7 @@ class Notification {
             psapi.selectMarqueeRectangularToolExe()
             return false // should this be false?! what does true and false means in this context?! Yes: it should be false since boolean value represent wither we have an active selection area or not
         } else if (r1 === button_label) {
-            await activateSessionSelectionArea()
+            await selection_ts.activateSessionSelectionArea()
             return true
         }
         return false
