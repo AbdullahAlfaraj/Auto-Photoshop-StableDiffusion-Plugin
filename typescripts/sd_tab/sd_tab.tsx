@@ -284,6 +284,18 @@ class SDTab extends React.Component<{}> {
                             })
                         }}
                     ></SpMenu>
+                    <SpMenu
+                        title="use textual inversion in your prompt"
+                        style={{ ...styles.spMenu }}
+                        items={helper_store.data.embeddings}
+                        label_item="Select Textual Inversion"
+                        onChange={(id: any, value: any) => {
+                            const prompt = multiPrompts.getPrompt().positive
+                            multiPrompts.setPrompt({
+                                positive: `${prompt} ${value.item}`,
+                            })
+                        }}
+                    ></SpMenu>
 
                     <sp-checkbox
                         title="use {keyword} form the prompts library"

@@ -174,6 +174,7 @@ export const helper_store = new AStore({
     b_show_sampler: false, //false when off, true when on,
     models: [] as any[],
     loras: [] as any[],
+    embeddings: [] as any[],
     sampler_list: [] as any[],
     hr_upscaler_list: [] as string[],
     previous_width: 512,
@@ -366,6 +367,7 @@ export async function refreshUI() {
 
         await refreshModels()
         helper_store.data.loras = await requestLoraModels()
+        helper_store.data.embeddings = await requestEmbeddings()
         await refreshExtraUpscalers()
 
         await setInpaintMaskWeight(1.0) //set the inpaint conditional mask to 1 when the on plugin start
@@ -431,6 +433,18 @@ export async function requestLoraModels() {
     const full_url = `${g_sd_url}/sdapi/v1/loras`
     const lora_models = (await requestGet(full_url)) ?? []
     return lora_models
+}
+
+export async function requestEmbeddings() {
+    try {
+        const full_url = `${g_sd_url}/sdapi/v1/embeddings`
+        let results = (await requestGet(full_url)) || {}
+        let embeddings = Object.keys(results?.loaded || {})
+        return embeddings
+    } catch (e) {
+        console.error(e)
+        return []
+    }
 }
 
 export function getLoraModelPrompt(lora_model_name: string) {

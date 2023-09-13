@@ -499,7 +499,7 @@ const Viewer = observer(() => {
                             title="expand the Photoshop masking by x pixels"
                         >
                             <sp-label slot="label">
-                                {Locale('Expand by')}
+                                {Locale('Expand by')}{' '}
                             </sp-label>
                             <sp-label slot="label">
                                 {mask_store.data.expand_by}
