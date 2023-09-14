@@ -43,11 +43,13 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <td><a href="https://ronnykhalil.com/"><img src="https://images.weserv.nl/?url=https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/206b56c911f67ede3ca3a934d0bce8c1d68a2113/docs/profile_image/A934E4F0-7778-47E9-A395-531BFF2E61F1_1_105_c.jpeg&h=80&w=80&fit=cover&mask=circle&maxage=7d" alt="Ronny Khalil"></a></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=zachary" alt="zachary"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Razvan+Matei" alt="Razvan Matei"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=MasterAI" alt="MasterAI"></td>
 </tr>
 <tr>
 <td><a href="https://ronnykhalil.com/">Ronny Khalil</a></td>
 <td>zachary</td>
 <td>Razvan Matei</td>
+<td>MasterAI</td>
 </tr>
 </table>
 
@@ -56,32 +58,56 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <tr>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Alex+" alt="Alex "></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Olivier+Lefebvre" alt="Olivier Lefebvre"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu" alt="Arthur Liu"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Florin-Alexandru+Ilinescu" alt="Florin-Alexandru Ilinescu"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Zenko+" alt="Zenko "></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Juan+Pablo+Mendiola" alt="Juan Pablo Mendiola"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Robin+Edwards" alt="Robin Edwards"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Frederic+Dreuilhe" alt="Frederic Dreuilhe"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Danny+Sahagun" alt="Danny Sahagun"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=darius+coal" alt="darius coal"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kerwin" alt="Kerwin"></td>
 </tr>
 <tr>
 <td>Alex </td>
 <td>Olivier Lefebvre</td>
+<td>Arthur Liu</td>
 <td>Florin-Alexandru Ilinescu</td>
+<td>Zenko </td>
+<td>Juan Pablo Mendiola</td>
 <td>Robin Edwards</td>
 <td>Frederic Dreuilhe</td>
-<td>Danny Sahagun</td>
-<td>darius coal</td>
-<td>Kerwin</td>
 </tr>
 <tr>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Danny+Sahagun" alt="Danny Sahagun"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=darius+coal" alt="darius coal"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kerwin" alt="Kerwin"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=The+Dread+Vixen+Alinsa" alt="The Dread Vixen Alinsa"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Bruce+Hunter" alt="Bruce Hunter"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Chris+Canterbury" alt="Chris Canterbury"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Lawrence+L+Tran" alt="Lawrence L Tran"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Jake+Skokan" alt="Jake Skokan"></td>
 </tr>
 <tr>
+<td>Danny Sahagun</td>
+<td>darius coal</td>
+<td>Kerwin</td>
 <td>The Dread Vixen Alinsa</td>
 <td>Bruce Hunter</td>
 <td>Chris Canterbury</td>
+<td>Lawrence L Tran</td>
+<td>Jake Skokan</td>
+</tr>
+<tr>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=que0005" alt="que0005"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Xavier+Matia+Bernasconi" alt="Xavier Matia Bernasconi"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Mats+Oldin" alt="Mats Oldin"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Rodrigo+Terra" alt="Rodrigo Terra"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Nicolas+Meunier" alt="Nicolas Meunier"></td>
+</tr>
+<tr>
+<td>que0005</td>
+<td>Xavier Matia Bernasconi</td>
+<td>Mats Oldin</td>
+<td>Rodrigo Terra</td>
+<td>Nicolas Meunier</td>
 </tr>
 </table>
 
@@ -91,39 +117,19 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Amith+Thomas" alt="Amith Thomas"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=xiao+yuan" alt="xiao yuan"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ezra+Blake" alt="Ezra Blake"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Arthur+Liu" alt="Arthur Liu"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Zenko+" alt="Zenko "></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Juan+Pablo+Mendiola" alt="Juan Pablo Mendiola"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Kevin+Schofield" alt="Kevin Schofield"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Mvs+Srs" alt="Mvs Srs"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Felipe+Cortes" alt="Felipe Cortes"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Smith" alt="Smith"></td>
 </tr>
 <tr>
 <td>Amith Thomas</td>
 <td>xiao yuan</td>
 <td>Ezra Blake</td>
-<td>Arthur Liu</td>
-<td>Zenko </td>
-<td>Juan Pablo Mendiola</td>
 <td>Kevin Schofield</td>
 <td>Mvs Srs</td>
-</tr>
-<tr>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Lawrence+L+Tran" alt="Lawrence L Tran"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Felipe+Cortes" alt="Felipe Cortes"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Smith" alt="Smith"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Jake+Skokan" alt="Jake Skokan"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=que0005" alt="que0005"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Xavier+Matia+Bernasconi" alt="Xavier Matia Bernasconi"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Mats+Oldin" alt="Mats Oldin"></td>
-</tr>
-<tr>
-<td>Lawrence L Tran</td>
 <td>Felipe Cortes</td>
 <td>Smith</td>
-<td>Jake Skokan</td>
-<td>que0005</td>
-<td>Xavier Matia Bernasconi</td>
-<td>Mats Oldin</td>
 </tr>
 </table>
 
@@ -132,14 +138,18 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <tr>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sebastian+Karbowniczek" alt="Sebastian Karbowniczek"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Petter+Lundh" alt="Petter Lundh"></td>
-<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Aftyr+byrn" alt="Aftyr byrn"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=AWWalker" alt="AWWalker"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=cdmusic" alt="cdmusic"></td>
 </tr>
 <tr>
 <td>Sebastian Karbowniczek</td>
 <td>Petter Lundh</td>
-<td>Aftyr byrn</td>
+<td>AWWalker</td>
+<td>cdmusic</td>
 </tr>
 </table>
+
+
 
 
 
