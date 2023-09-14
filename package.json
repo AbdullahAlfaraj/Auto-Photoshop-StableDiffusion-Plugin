@@ -5,10 +5,8 @@
     "author": "Adobe Inc",
     "license": "Apache-2.0",
     "dependencies": {
-        "@types/photoshop": "^24.5.1",
-        "@types/react": "^18.2.6",
-        "@types/react-dom": "^18.2.4",
         "changedpi": "^1.0.4",
+        "diffusion-chain": "^1.0.4",
         "fastify": "^4.10.2",
         "jimp": "^0.16.2",
         "madge": "^6.0.0",
@@ -24,12 +22,17 @@
         "test": "test"
     },
     "devDependencies": {
+        "@types/mkdirp": "^2.0.0", 
+        "@types/photoshop": "^24.5.1",
+        "@types/react": "^18.2.6",
+        "@types/react-dom": "^18.2.4",
         "@babel/core": "^7.21.8",
         "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
         "@babel/plugin-syntax-class-properties": "^7.12.13",
         "@babel/plugin-transform-react-jsx": "^7.21.5",
         "@svgr/webpack": "^8.0.1",
         "babel-loader": "^9.1.2",
+        "chalk": "^5.3.0",
         "clean-webpack-plugin": "^4.0.0",
         "commander": "^11.0.0",
         "copy-webpack-plugin": "^11.0.0",
@@ -45,7 +48,6 @@
         "url-loader": "^4.1.1",
         "webpack": "^5.82.1",
         "webpack-cli": "^5.1.1",
-        "chalk": "^5.3.0",
         "yazl": "^2.5.1"
     },
     "scripts": {
