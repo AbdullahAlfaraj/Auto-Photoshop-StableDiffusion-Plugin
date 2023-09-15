@@ -570,7 +570,7 @@ class ComfyNodeComponent extends React.Component<{}> {
         return (
             <div>
                 <div>
-                    <sp-label></sp-label>
+                    {/* <sp-label></sp-label>
                     <SpTextfield
                         style={{ width: '100%' }}
                         title="Workflows directory"
@@ -580,8 +580,10 @@ class ComfyNodeComponent extends React.Component<{}> {
                         onChange={(evt: any) => {
                             store.data.workflow_dir_path = evt.target.value
                         }}
-                    ></SpTextfield>
+                    ></SpTextfield> */}
                     <button
+                        className="btnSquare"
+                        style={{ marginTop: '3px' }}
                         onClick={async () => {
                             try {
                                 const entries = await workflowEntries()
@@ -598,13 +600,14 @@ class ComfyNodeComponent extends React.Component<{}> {
                     >
                         load workflows
                     </button>
+
                     <div>
-                        <sp-label
+                        {/* <sp-label
                             class="title"
                             style={{ width: '60px', display: 'inline-block' }}
                         >
                             {'select workflow:'}
-                        </sp-label>
+                        </sp-label> */}
                         <SpMenu
                             size="m"
                             title="workflows"
@@ -619,7 +622,15 @@ class ComfyNodeComponent extends React.Component<{}> {
                                     store.data.workflows[value.item]
                                 )
                             }}
-                        ></SpMenu>
+                        ></SpMenu>{' '}
+                        <button
+                            className="btnSquare refreshButton"
+                            id="btnResetSettings"
+                            title="Refresh the ADetailer Extension"
+                            onClick={async () => {
+                                await getConfig()
+                            }}
+                        ></button>
                     </div>
                     <sp-label>workflow path:</sp-label>
                     <SpTextfield
