@@ -21,6 +21,7 @@ const layer_util = req('./utility/layer')
 const session = req('./utility/session')
 const dialog_box = req('./dialog_box')
 const sampler_data = req('./utility/sampler')
+const settings = req('./utility/tab/settings')
 
 const thumbnail = req('./thumbnail')
 interface _Jimp extends Jimp {}
@@ -44,5 +45,6 @@ export {
     dialog_box,
     sampler_data,
     thumbnail,
+    settings,
     _Jimp as Jimp,
 }

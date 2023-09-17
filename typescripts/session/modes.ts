@@ -2,7 +2,7 @@
 // import * as session_ts from '../session/session'
 import * as scripts from '../ultimate_sd_upscaler/scripts'
 import { store as session_store } from '../session/session_store'
-import { ControlNetSession, GenerateSession, SDServer } from 'diffusion-chain';
+import { ControlNetSession, GenerateSession, A1111Server, ComfyServer } from 'diffusion-chain';
 import { control_net } from '../entry'
 
 import {
@@ -112,7 +112,7 @@ class Mode {
 }
 
 export class Txt2ImgMode extends Mode {
-    static server: SDServer
+    static server: A1111Server | ComfyServer
     // constructor() {
     // }
 
@@ -127,7 +127,7 @@ export class Txt2ImgMode extends Mode {
     static async generate(
         settings: any
     ): Promise<{ output_images: any; response_json: any }> {
-        if (!this.server || this.server.baseUrl != g_sd_url) this.server = new SDServer(g_sd_url);
+        if (!this.server || this.server.getBaseUrl() != g_sd_url) this.server = new A1111Server(g_sd_url);
 
         const generateSession = new GenerateSession();
         generateSession.modelCheckpoint = '';
@@ -188,7 +188,7 @@ export class Txt2ImgMode extends Mode {
 }
 
 export class Img2ImgMode extends Mode {
-    static server: SDServer
+    static server: A1111Server
     constructor() {
         super()
     }
@@ -203,7 +203,7 @@ export class Img2ImgMode extends Mode {
     static async generate(
         settings: any
     ): Promise<{ output_images: any; response_json: any }> {
-        if (!this.server || this.server.baseUrl != g_sd_url) this.server = new SDServer(g_sd_url);
+        if (!this.server || this.server.getBaseUrl() != g_sd_url) this.server = new A1111Server(g_sd_url);
 
         const generateSession = new GenerateSession();
         if (settings.mask) {

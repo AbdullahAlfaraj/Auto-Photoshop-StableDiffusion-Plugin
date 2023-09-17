@@ -392,6 +392,7 @@ function getCommentedString() {
 
 //REFACTOR: move to the notfication.js
 async function displayNotification(automatic_status) {
+    console.trace('displayNotification')
     if (automatic_status === Enum.AutomaticStatusEnum['RunningWithApi']) {
         //do nothing
     } else if (

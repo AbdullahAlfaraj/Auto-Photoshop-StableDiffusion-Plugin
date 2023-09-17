@@ -26,10 +26,12 @@ import {
     updateViewerStoreImageAndThumbnail,
 } from '../viewer/viewer_util'
 import { sd_tab_store } from '../stores'
+import { ComfyServer, GenerateSession, A1111Server } from 'diffusion-chain'
 
 declare let g_inpaint_mask_layer: any
 declare const g_image_not_found_url: string
 declare let g_current_batch_index: number
+declare let g_sd_url: any
 
 reaction(
     () => {
@@ -166,6 +168,10 @@ export async function getExpandedMask(
 }
 
 export class Session {
+    private static sdOrComfyServer: A1111Server | ComfyServer;
+    private static generateSession: GenerateSession;
+
+
     constructor() {}
     static async initializeSession(mode: GenerationModeEnum): Promise<any> {
         try {
@@ -235,6 +241,7 @@ export class Session {
                     mask: store.data.preprocessed_mask,
                 }
             }
+            if (!this.generateSession) this.generateSession = new GenerateSession();
         } catch (e) {
             console.warn(e)
         }
@@ -267,6 +274,10 @@ export class Session {
         response_json: any
         ui_settings: any
     }> {
+        if (!this.sdOrComfyServer || this.sdOrComfyServer.getBaseUrl() != g_sd_url) {
+            this.sdOrComfyServer = new A1111Server(g_sd_url);
+        }
+
         if (!store.data.can_generate) {
             // return null
             throw Error(
