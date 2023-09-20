@@ -77,6 +77,7 @@ interface AStoreData {
     extension_type: ExtensionTypeEnum
     use_sharp_mask: boolean
     use_prompt_shortcut: boolean
+    bTurnOffServerStatusAlert: boolean
 }
 export const store = new AStore<AStoreData>({
     scale_interpolation_method: interpolationMethods.bilinear,
@@ -88,6 +89,9 @@ export const store = new AStore<AStoreData>({
     extension_type: ExtensionTypeEnum.Auto1111Extension,
     use_sharp_mask: false,
     use_prompt_shortcut: true,
+    bTurnOffServerStatusAlert:
+        JSON.parse(storage.localStorage.getItem('bTurnOffServerStatusAlert')) ||
+        false,
 })
 
 function onShouldLogToFileChange(event: any) {
@@ -289,6 +293,26 @@ export class Settings extends React.Component<{}> {
                         })}
                     </sp-radio-group>
                 </div>
+                <div>
+                    <sp-checkbox
+                        id="chTurnOffServerStatusAlert"
+                        checked={
+                            store.data.bTurnOffServerStatusAlert
+                                ? true
+                                : undefined
+                        }
+                        onClick={(evt: any) => {
+                            store.data.bTurnOffServerStatusAlert =
+                                evt.target.checked
+                            storage.localStorage.setItem(
+                                'bTurnOffServerStatusAlert',
+                                evt.target.checked
+                            )
+                        }}
+                    >
+                        Turn Off Server Status Alert
+                    </sp-checkbox>
+                </div>
             </div>
         )
     }
@@ -305,3 +329,7 @@ root.render(
 )
 
 progress_store.data.live_progress_image
+
+export default {
+    store: store,
+}

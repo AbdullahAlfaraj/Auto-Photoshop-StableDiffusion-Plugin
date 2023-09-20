@@ -21,6 +21,7 @@ import {
     setInpaintMaskWeight,
 } from '../util/ts/sdapi'
 import { store as session_store } from '../session/session_store'
+import settings_tab_ts from '../settings/settings'
 import { setUnitData } from '../controlnet/entry'
 import { controlNetUnitData } from '../controlnet/store'
 import { presetToStore } from '../util/ts/io'
@@ -359,10 +360,11 @@ export async function refreshUI() {
         }
 
         //@ts-ignore
-        g_automatic_status = await checkAutoStatus()
-        //@ts-ignore
-        await displayNotification(g_automatic_status)
-
+        g_automatic_status = await checkAutoStatus() // check the webui status regardless if alert are turned on or off
+        if (!settings_tab_ts.store.data.bTurnOffServerStatusAlert) {
+            //@ts-ignore
+            await displayNotification(g_automatic_status) // only show alert if the alert are turn on
+        }
         const bSamplersStatus = await initSamplers()
 
         await refreshModels()
