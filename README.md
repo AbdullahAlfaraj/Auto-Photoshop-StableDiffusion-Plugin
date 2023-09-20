@@ -1,4 +1,4 @@
-
+hiii this is subbu
 
 # Auto-Photoshop-StableDiffusion-Plugin
 [![Become a Patron!](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/AbdullahAlfaraj)
@@ -301,5 +301,5 @@ we provide two options to use the auto-photoshp plugin without GPU.
 This is an awesome free crowdsourced distributed cluster of Stable Diffusion workers. If you like this service, consider joining the horde yourself!
 the horde is enabled completely by the generosity of volunteers so make sure you don't overwhelm the service and help join the cause if you can.
 read more on their [GitHub page](https://github.com/db0/AI-Horde)
-## Colab:
+## Cola
 we link to this [Colab](https://colab.research.google.com/drive/1nbcx_WOneRmYv9idBO33pN5CbxXrqZHu?usp=sharing#scrollTo=Y4ebYsPqTrGb) directly inside plugin find it in the settings tab. you only need to run it. no need to change any of the settings. copy the gradio.live url the colab will generate and paste it into ```sd url``` field in the settings tab.
