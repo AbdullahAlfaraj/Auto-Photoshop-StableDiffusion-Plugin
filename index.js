@@ -1506,18 +1506,12 @@ document
 
 //REFACTOR: move to document.js
 async function loadPromptShortcut() {
-    try {
-        let prompt_shortcut = await sdapi.loadPromptShortcut()
-        if (!prompt_shortcut || prompt_shortcut === {}) {
-            prompt_shortcut = promptShortcutExample()
-        }
-
-        // var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
-        // document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
+    let prompt_shortcut = await sdapi.loadPromptShortcut() // always return json object or empty object {}
+    if (!Object.keys(prompt_shortcut).length) {
+        //load the default prompt shortcut if we have an empty prompt shortcut object (on failure to load from file)
+        prompt_shortcut = promptShortcutExample()
         html_manip.setPromptShortcut(prompt_shortcut) // fill the prompt shortcut textarea
-        await refreshPromptMenu() //refresh the prompt menue
-    } catch (e) {
-        console.warn(`loadPromptShortcut warning: ${e}`)
+        await refreshPromptMenu() //refresh the prompt menu
     }
 }
 //REFACTOR: move to ui.js

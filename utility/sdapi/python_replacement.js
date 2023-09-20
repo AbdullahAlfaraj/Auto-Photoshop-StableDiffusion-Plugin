@@ -414,6 +414,7 @@ async function loadPromptShortcut(file_name) {
         }
     } catch (e) {
         console.warn(e)
+        return {}
     }
 }
 
