@@ -63,9 +63,9 @@ const gridRoot = ReactDOM.createRoot(gridContainerNode)
 
 let images: string[] = []
 gridRoot.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <ImageSearch></ImageSearch>
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <ImageSearch></ImageSearch>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

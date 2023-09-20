@@ -420,9 +420,9 @@ const gridContainerNode = document.getElementById('historyImagesContainer')!
 const gridRoot = ReactDOM.createRoot(gridContainerNode)
 
 gridRoot.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <History></History>
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <History></History>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

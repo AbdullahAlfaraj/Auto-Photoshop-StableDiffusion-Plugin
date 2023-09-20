@@ -164,11 +164,11 @@ const domNode = document.getElementById('scriptsContainer')!
 const root = ReactDOM.createRoot(domNode)
 
 root.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <ScriptComponent></ScriptComponent>
-            </div>
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+            <ScriptComponent></ScriptComponent>
+        </div>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

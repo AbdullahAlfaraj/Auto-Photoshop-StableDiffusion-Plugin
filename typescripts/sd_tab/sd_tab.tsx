@@ -108,11 +108,11 @@ const Modes = observer(() => {
 // const root = ReactDOM.createRoot(container)
 
 // root.render(
-//     <React.StrictMode>
+//     //<React.StrictMode>
 //         <ErrorBoundary>
 //             <Modes />
 //         </ErrorBoundary>
-//     </React.StrictMode>
+//     //</React.StrictMode>
 // )
 @observer
 class SDTab extends React.Component<{}> {
@@ -1226,6 +1226,7 @@ class SDTab extends React.Component<{}> {
                             </sp-label>
                         </SpSlider>
                     </div>
+
                     <div>
                         <div style={{ display: 'flex' }}>
                             <sp-label id="sdLabelSeed">Seed:</sp-label>
@@ -1317,9 +1318,9 @@ class SDTab extends React.Component<{}> {
 const sdTabContainer = document.getElementById('sdTabContainer')!
 const sdTabRoot = ReactDOM.createRoot(sdTabContainer)
 sdTabRoot.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            {/* <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        {/* <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
                 <Collapsible
                     defaultIsOpen={true}
                     label={Locale('Stable Diffusion Tab')}
@@ -1327,7 +1328,7 @@ sdTabRoot.render(
                     <SDTab></SDTab>
                 </Collapsible>
             </div> */}
-            <SDTab></SDTab>
-        </ErrorBoundary>
-    </React.StrictMode>
+        <SDTab></SDTab>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

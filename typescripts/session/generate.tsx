@@ -342,9 +342,9 @@ const toolBarButtonsContainer = document.getElementById(
 )!
 const toolBarButtonsContainerRoot = ReactDOM.createRoot(toolBarButtonsContainer)
 toolBarButtonsContainerRoot.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <ToolbarGenerateButtons></ToolbarGenerateButtons>
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <ToolbarGenerateButtons></ToolbarGenerateButtons>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

@@ -85,10 +85,10 @@ containers.forEach((container) => {
     const root = ReactDOM.createRoot(container)
 
     root.render(
-        <React.StrictMode>
-            <ErrorBoundary>
-                <PreviewerContainer />
-            </ErrorBoundary>
-        </React.StrictMode>
+        //<React.StrictMode>
+        <ErrorBoundary>
+            <PreviewerContainer />
+        </ErrorBoundary>
+        //</React.StrictMode>
     )
 })

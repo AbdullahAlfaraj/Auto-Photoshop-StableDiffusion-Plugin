@@ -321,11 +321,11 @@ const containerNode = document.getElementById('reactSettingsContainer')!
 const root = ReactDOM.createRoot(containerNode)
 
 root.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <Settings></Settings>
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <Settings></Settings>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )
 
 progress_store.data.live_progress_image

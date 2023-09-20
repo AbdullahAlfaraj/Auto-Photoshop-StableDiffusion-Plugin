@@ -212,9 +212,9 @@ const container = document.getElementById('toolBarContainer')!
 const root = ReactDOM.createRoot(container)
 
 root.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <ToolBar></ToolBar>
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <ToolBar></ToolBar>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

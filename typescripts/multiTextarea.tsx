@@ -140,7 +140,7 @@ export class MultiTextArea extends React.Component {
 //     const root = ReactDOM.createRoot(container)
 
 //     root.render(
-//         <React.StrictMode>
+//         //<React.StrictMode>
 //             <ErrorBoundary>
 //                 <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
 //                     <Collapsible defaultIsOpen={true} label={'Prompts'}>
@@ -148,6 +148,6 @@ export class MultiTextArea extends React.Component {
 //                     </Collapsible>
 //                 </div>
 //             </ErrorBoundary>
-//         </React.StrictMode>
+//         //</React.StrictMode>
 //     )
 // })
