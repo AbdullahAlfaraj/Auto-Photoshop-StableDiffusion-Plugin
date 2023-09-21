@@ -101,7 +101,12 @@ const add_new = async (
     //change the color of thumbnail border
     //add image to the canvas
     await psapi.unselectActiveLayersExe()
-    const layer = await moveImageToLayer(base64, selectionInfo)
+    const layer = await moveImageToLayer(
+        base64,
+        selectionInfo,
+        'output_image.png',
+        settings_tab_ts.store.data.use_smart_object
+    )
 
     // create channel if the generated mode support masking
     if (

@@ -5,6 +5,9 @@ import { transformCurrentLayerTo } from './layer'
 import { Layer } from 'photoshop/dom/Layer'
 import { lstatSync, readFileSync, writeFileSync } from 'fs'
 import { AStore } from '../../main/astore'
+import { constants } from 'photoshop'
+const { RasterizeType } = constants
+
 const executeAsModal = core.executeAsModal
 type KeyValuePair = { [key: string]: any }
 
@@ -47,7 +50,8 @@ export async function moveImageToLayer_old(
 export async function moveImageToLayer(
     base64_image: string,
     selection_info: any,
-    layer_name: string = 'output_image.png'
+    layer_name: string = 'output_image.png',
+    as_smart_object: boolean = true
 ): Promise<Layer> {
     if (!base64_image) throw new Error('moveImageToLayer: image is empty')
     let layer: Layer | null
@@ -78,6 +82,15 @@ export async function moveImageToLayer(
             }
         )
         await psapi.setVisibleExe(layer, true)
+
+        if (as_smart_object === false) {
+            await executeAsModal(
+                async () => {
+                    if (layer) await layer.rasterize(RasterizeType.ENTIRELAYER) //rastrize the layer
+                },
+                { commandName: 'rasterized the layer' }
+            )
+        }
     } catch (e) {
         console.warn(e)
         layer = null

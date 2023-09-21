@@ -80,6 +80,7 @@ interface AStoreData {
     use_prompt_shortcut: boolean
     bTurnOffServerStatusAlert: boolean
     CLIP_stop_at_last_layers: number
+    use_smart_object: boolean
 }
 export const store = new AStore<AStoreData>({
     scale_interpolation_method: interpolationMethods.bilinear,
@@ -95,6 +96,7 @@ export const store = new AStore<AStoreData>({
         JSON.parse(storage.localStorage.getItem('bTurnOffServerStatusAlert')) ||
         false,
     CLIP_stop_at_last_layers: 1,
+    use_smart_object: true, // true to keep layer as smart objects, false to rasterize them
 })
 
 function onShouldLogToFileChange(event: any) {
@@ -375,6 +377,19 @@ export class Settings extends React.Component<{}> {
                             {store.data.CLIP_stop_at_last_layers}
                         </sp-label>
                     </SpSlider>
+                </div>
+                <div>
+                    <sp-checkbox
+                        checked={store.data.use_smart_object ? true : undefined}
+                        id="chUseSmartObject"
+                        onClick={(evt: any) => {
+                            store.data.use_smart_object = evt.target.checked
+                                ? true
+                                : false
+                        }}
+                    >
+                        Smart Object
+                    </sp-checkbox>
                 </div>
             </div>
         )
