@@ -1136,30 +1136,6 @@ async function convertToSmartObjectExe() {
     await require('photoshop').core.executeAsModal(convertToSmartObjectAction)
 }
 
-async function ImagesToLayersExe(images_paths) {
-    g_generation_session.isLoadingActive = true
-
-    await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
-    image_path_to_layer = {}
-    console.log('ImagesToLayersExe: images_paths: ', images_paths)
-    for (image_path of images_paths) {
-        gCurrentImagePath = image_path
-        console.log(gCurrentImagePath)
-        await openImageExe() //local image to new document
-        await convertToSmartObjectExe() //convert the current image to smart object
-        if (g_b_use_smart_object === false) {
-            await executeAsModal(async () => {
-                await app.activeDocument.activeLayers[0].rasterize() //rastrize the active layer
-            })
-        }
-        await stackLayers() // move the smart object to the original/old document
-        await psapi.layerToSelection(g_generation_session.selectionInfo) //transform the new smart object layer to fit selection area
-        layer = await app.activeDocument.activeLayers[0]
-        image_path_to_layer[image_path] = layer
-        // await reselect(selectionInfo)
-    }
-    return image_path_to_layer
-}
 //REFACTOR: unused, remove?
 async function silentImagesToLayersExe_old(images_info) {
     try {
