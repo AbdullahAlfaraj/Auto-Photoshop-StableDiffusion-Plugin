@@ -176,7 +176,7 @@ async function requestGetConfig() {
     try {
         let request = await fetch(full_url)
         json = await request.json()
-        console.log('models json:')
+
         console.dir(json)
     } catch (e) {
         console.warn(`issues requesting from ${full_url}`, e)
@@ -194,7 +194,6 @@ async function requestGetOptions() {
         }
 
         json = await request.json()
-        console.log('models json:')
         console.dir(json)
     } catch (e) {
         console.warn(`issues requesting from ${full_url}`, e)
