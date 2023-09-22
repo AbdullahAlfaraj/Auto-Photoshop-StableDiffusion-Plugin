@@ -570,9 +570,15 @@ class SDTab extends React.Component<{}> {
                                                 }
                                                 value={selection_mode.value}
                                                 title={selection_mode.title}
-                                                onClick={(evt: any) => {
+                                                onClick={async (evt: any) => {
                                                     store.data.selection_mode =
                                                         selection_mode.value
+                                                    try {
+                                                        //@ts-ignore
+                                                        await calcWidthHeightFromSelection()
+                                                    } catch (e) {
+                                                        console.warn(e)
+                                                    }
                                                 }}
                                             >
                                                 {selection_mode.name}
@@ -647,6 +653,12 @@ class SDTab extends React.Component<{}> {
                                                     helper_store.data.base_size =
                                                         base_size
 
+                                                    try {
+                                                        //@ts-ignore
+                                                        await calcWidthHeightFromSelection()
+                                                    } catch (e) {
+                                                        console.warn(e)
+                                                    }
                                                 }}
                                             >
                                                 {base_size}
