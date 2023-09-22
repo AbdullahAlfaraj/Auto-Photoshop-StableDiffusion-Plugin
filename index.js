@@ -198,8 +198,9 @@ async function calcWidthHeightFromSelection() {
     const selection_mode = sd_tab_store.data.selection_mode
     if (selection_mode === 'ratio') {
         //change (width and height) and (hrWidth, hrHeight) to match the ratio of selection
+        const base_size = sd_tab_util.helper_store.data.base_size
         const [width, height, hr_width, hr_height] =
-            await selection.selectionToFinalWidthHeight()
+            await selection.selectionToFinalWidthHeight(base_size, base_size)
         // console.log('width,height: ', width, height)
         html_manip.autoFillInWidth(width)
         html_manip.autoFillInHeight(height)

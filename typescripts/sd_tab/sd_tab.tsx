@@ -627,6 +627,35 @@ class SDTab extends React.Component<{}> {
                                 </sp-picker> */}
                             </div>
                         </div>
+                        <div>
+                            <sp-radio-group id="baseSizeGroup" class="">
+                                {[512, 768, 1024].map(
+                                    (base_size: number, index) => {
+                                        return (
+                                            <sp-radio
+                                                key={index}
+                                                class="rbBaseSize"
+                                                checked={
+                                                    helper_store.data
+                                                        .base_size === base_size
+                                                        ? true
+                                                        : void 0
+                                                }
+                                                value={base_size}
+                                                title={base_size}
+                                                onClick={async (evt: any) => {
+                                                    helper_store.data.base_size =
+                                                        base_size
+
+                                                }}
+                                            >
+                                                {base_size}
+                                            </sp-radio>
+                                        )
+                                    }
+                                )}
+                            </sp-radio-group>
+                        </div>
                         <div
                             style={{
                                 display: 'flex',

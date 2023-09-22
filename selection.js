@@ -31,15 +31,15 @@ function finalWidthHeight(
     return [finalWidth, finalHeight]
 }
 
-async function selectionToFinalWidthHeight() {
+async function selectionToFinalWidthHeight(minWidth = 512, minHeight = 512) {
     // const { getSelectionInfoExe } = require('./psapi')
     try {
         const selectionInfo = await psapi.getSelectionInfoExe()
         const [finalWidth, finalHeight] = finalWidthHeight(
             selectionInfo.width,
             selectionInfo.height,
-            512,
-            512
+            minWidth,
+            minHeight
         )
 
         return [

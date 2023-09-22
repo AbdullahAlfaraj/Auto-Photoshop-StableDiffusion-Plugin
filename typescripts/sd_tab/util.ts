@@ -181,6 +181,7 @@ export const helper_store = new AStore({
     previous_width: 512,
     previous_height: 512,
     native_presets: {},
+    base_size: 512 as number,
 })
 export async function refreshModels() {
     let b_result = false
