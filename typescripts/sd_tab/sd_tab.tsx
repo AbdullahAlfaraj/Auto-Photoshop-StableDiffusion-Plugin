@@ -634,7 +634,16 @@ class SDTab extends React.Component<{}> {
                             </div>
                         </div>
                         <div>
-                            <sp-radio-group id="baseSizeGroup" class="">
+                            <sp-radio-group
+                                id="baseSizeGroup"
+                                class=""
+                                style={{
+                                    display:
+                                        store.data.selection_mode !== 'ratio'
+                                            ? 'hidden'
+                                            : undefined,
+                                }}
+                            >
                                 {[512, 768, 1024].map(
                                     (base_size: number, index) => {
                                         return (
