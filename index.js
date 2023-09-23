@@ -1487,9 +1487,9 @@ async function loadPromptShortcut() {
     if (!Object.keys(prompt_shortcut).length) {
         //load the default prompt shortcut if we have an empty prompt shortcut object (on failure to load from file)
         prompt_shortcut = promptShortcutExample()
-        html_manip.setPromptShortcut(prompt_shortcut) // fill the prompt shortcut textarea
-        await refreshPromptMenu() //refresh the prompt menu
     }
+    html_manip.setPromptShortcut(prompt_shortcut) // fill the prompt shortcut textarea
+    await refreshPromptMenu() //refresh the prompt menu
 }
 //REFACTOR: move to ui.js
 async function refreshPromptMenu() {
