@@ -182,6 +182,7 @@ export const helper_store = new AStore({
     previous_height: 512,
     native_presets: {},
     base_size: 512 as number,
+    lasso_offset: 10 as number,
 })
 export async function refreshModels() {
     let b_result = false
@@ -682,4 +683,9 @@ export function loadPresetSettings(preset: any) {
         )
         // io_ts.presetToStore(preset?.controlnet_tab_preset, store)
     }
+}
+
+export default {
+    store: store,
+    helper_store: helper_store,
 }

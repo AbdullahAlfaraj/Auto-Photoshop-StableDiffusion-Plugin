@@ -193,21 +193,24 @@ async function hasSessionSelectionChanged() {
     }
 }
 
-async function calcWidthHeightFromSelection() {
+async function calcWidthHeightFromSelection(selectionInfo) {
     //set the width and height, hrWidth, and hrHeight using selection info and selection mode
     const selection_mode = sd_tab_store.data.selection_mode
     if (selection_mode === 'ratio') {
         //change (width and height) and (hrWidth, hrHeight) to match the ratio of selection
         const base_size = sd_tab_util.helper_store.data.base_size
         const [width, height, hr_width, hr_height] =
-            await selection.selectionToFinalWidthHeight(base_size, base_size)
+            await selection.selectionToFinalWidthHeight(
+                selectionInfo,
+                base_size,
+                base_size
+            )
         // console.log('width,height: ', width, height)
         html_manip.autoFillInWidth(width)
         html_manip.autoFillInHeight(height)
         html_manip.autoFillInHRWidth(hr_width)
         html_manip.autoFillInHRHeight(hr_height)
     } else if (selection_mode === 'precise') {
-        const selectionInfo = await psapi.getSelectionInfoExe()
         const [width, height, hr_width, hr_height] = [
             selectionInfo.width,
             selectionInfo.height,
@@ -230,9 +233,7 @@ const eventHandler = async (event, descriptor) => {
 
         // const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
         if (new_selection_info) {
-            const current_selection = new_selection_info // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.
-
-            await calcWidthHeightFromSelection()
+            await calcWidthHeightFromSelection(new_selection_info)
         }
     } catch (e) {
         console.warn(e)
@@ -668,7 +669,7 @@ document.addEventListener('mouseenter', async (event) => {
             ) {
                 // if there is an active selection and if the selection has changed
 
-                await calcWidthHeightFromSelection()
+                await calcWidthHeightFromSelection(new_selection)
             } else {
                 // sessionStartHtml(true)//generate more, green color
                 //if you didn't move the selection.

@@ -3,6 +3,7 @@
 import * as scripts from '../ultimate_sd_upscaler/scripts'
 import * as control_net from '../controlnet/entry'
 import { store as session_store } from '../session/session_store'
+import sd_tab_util from '../sd_tab/util'
 
 import {
     html_manip,
@@ -492,7 +493,8 @@ export class LassoInpaintMode extends Img2ImgMode {
             console.warn(e)
         }
         const [init_image, mask] = await selection.inpaintLassoInitImageAndMask(
-            'mask'
+            'mask',
+            sd_tab_util.helper_store.data.lasso_offset
         )
 
         const selectionInfo = await psapi.getSelectionInfoExe()

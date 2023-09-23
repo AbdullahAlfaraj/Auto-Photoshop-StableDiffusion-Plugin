@@ -86,14 +86,43 @@ const Modes = observer(() => {
             ].includes(store.data.mode)
         ) {
             return (
-                <SpCheckBox
-                    // style={{ marginRight: '10px' }}
-                    onChange={handleLassoModeChange}
-                    checked={store.data.is_lasso_mode}
-                    // id={`chEnableControlNet_${this.props.index}`}
-                >
-                    Lasso Mode
-                </SpCheckBox>
+                <>
+                    <div>
+                        <SpCheckBox
+                            // style={{ marginRight: '10px' }}
+                            onChange={handleLassoModeChange}
+                            checked={store.data.is_lasso_mode}
+                            // id={`chEnableControlNet_${this.props.index}`}
+                        >
+                            Lasso Mode
+                        </SpCheckBox>
+
+                        <SpSlider
+                            show-value="false"
+                            id="lasso_offset"
+                            min="0"
+                            max="100"
+                            value={helper_store.data.lasso_offset}
+                            onInput={(evt: any) => {
+                                helper_store.data.lasso_offset = Number(
+                                    evt.target.value
+                                )
+                            }}
+                            style={{
+                                display: store.data.is_lasso_mode
+                                    ? void 0
+                                    : 'none',
+                            }}
+                        >
+                            <sp-label slot="label" class="title">
+                                Lasso Offset:
+                            </sp-label>
+                            <sp-label slot="label">
+                                {helper_store.data.lasso_offset}
+                            </sp-label>
+                        </SpSlider>
+                    </div>
+                </>
 
                 // <sp-checkbox checked={store.data.is_lasso_mode ? true : void 0}>
                 //     lasso mode
@@ -574,8 +603,13 @@ class SDTab extends React.Component<{}> {
                                                     store.data.selection_mode =
                                                         selection_mode.value
                                                     try {
+                                                        const selectionInfo =
+                                                            //@ts-ignore
+                                                            await psapi.getSelectionInfoExe()
                                                         //@ts-ignore
-                                                        await calcWidthHeightFromSelection()
+                                                        await calcWidthHeightFromSelection(
+                                                            selectionInfo
+                                                        )
                                                     } catch (e) {
                                                         console.warn(e)
                                                     }
@@ -663,8 +697,13 @@ class SDTab extends React.Component<{}> {
                                                         base_size
 
                                                     try {
+                                                        const selectionInfo =
+                                                            //@ts-ignore
+                                                            await psapi.getSelectionInfoExe()
                                                         //@ts-ignore
-                                                        await calcWidthHeightFromSelection()
+                                                        await calcWidthHeightFromSelection(
+                                                            selectionInfo
+                                                        )
                                                     } catch (e) {
                                                         console.warn(e)
                                                     }
