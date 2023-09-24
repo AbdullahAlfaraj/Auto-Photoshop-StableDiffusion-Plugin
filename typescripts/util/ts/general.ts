@@ -1,3 +1,5 @@
+import { io } from '../oldSystem'
+
 export function autoResize(textarea: any, text_content: string, delay = 300) {
     try {
         let g_style_timeout: any
@@ -42,4 +44,8 @@ export function autoResize(textarea: any, text_content: string, delay = 300) {
             e
         )
     }
+}
+
+export async function urlToCanvas(url: string, image_name = 'image.png') {
+    await io.IO.urlToLayer(url, image_name)
 }

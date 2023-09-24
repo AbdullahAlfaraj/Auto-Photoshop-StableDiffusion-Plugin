@@ -57,7 +57,7 @@ const settings_tab = require('./utility/tab/settings')
 //load tabs
 
 const image_search_tab = require('./utility/tab/image_search_tab')
-const lexica_tab = require('./utility/tab/lexica_tab')
+
 // const share_tab = require('./utility/tab/share_tab')
 const api = require('./utility/api')
 
@@ -90,6 +90,7 @@ const {
     extra_page,
     selection_ts,
     stores,
+    lexica,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
@@ -1678,11 +1679,6 @@ const submenu = {
         'data-tab-name': 'sp-prompts-library-tab',
     },
 
-    lexica: {
-        value: 'lexica',
-        Label: 'Lexica',
-        'data-tab-name': 'sp-lexica-tab',
-    },
     image_search: {
         value: 'image_search',
         Label: 'Image Search',

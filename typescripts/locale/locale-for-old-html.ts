@@ -8,7 +8,7 @@ const elemSelectorForLocale = {
     '#sp-viewer-tab sp-label': 'Viewer',
     '#sp-control_net-tab sp-label': 'ControlNet',
     // '#sp-history-tab sp-label': 'History',
-    '#sp-lexica-tab sp-label': 'Lexica',
+    // '#sp-lexica-tab sp-label': 'Lexica',
     '#sp-image_search-tab sp-label': 'Image Search',
     '#sp-prompts-library-tab sp-label': 'Prompts library',
     '#sp-horde-tab sp-label': 'Horde',
