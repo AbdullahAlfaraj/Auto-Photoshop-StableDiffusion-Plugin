@@ -7,6 +7,7 @@ import { observer } from 'mobx-react'
 export { ReactComponent as MoveToCanvasSvg } from '../../icon/move_to_canvas.svg'
 export { ReactComponent as PenSvg } from '../../icon/pen.svg'
 export { ReactComponent as PreviewSvg } from '../../icon/preview.svg'
+export { ReactComponent as ImageSearchSvg } from '../../icon/search_button.svg'
 
 declare global {
     namespace JSX {
