@@ -254,7 +254,7 @@ export async function updateClickEventHandler(current_version: string) {
             online_data.new_version
         )
 
-        let header_message = "You're Plugin is up to date."
+        let header_message = "Your Plugin is up to date."
         let long_message = ''
         if (b_need_update) {
             header_message = `New Version is Available (${online_data.new_version})`
