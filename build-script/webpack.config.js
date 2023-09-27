@@ -4,10 +4,10 @@ const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = {
     entry: {
-        bundle: './typescripts/entry.ts',
+        bundle: path.resolve(__dirname, '../typescripts/entry.ts'),
     },
     output: {
-        path: path.resolve(__dirname, './typescripts/dist'),
+        path: path.resolve(__dirname, '../typescripts/dist'),
         filename: '[name].js',
         libraryTarget: 'commonjs2',
     },
@@ -35,7 +35,7 @@ module.exports = {
                 loader: 'ts-loader',
                 exclude: /node_modules/,
                 options: {
-                    configFile: 'tsconfig.json',
+                    configFile: path.resolve(__dirname, '../typescripts/tsconfig.json'),
                 },
             },
             {

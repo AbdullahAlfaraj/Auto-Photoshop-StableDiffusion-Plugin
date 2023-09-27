@@ -185,6 +185,44 @@
             font-size: 15px;
             margin: 0;
         }
+        .sdServerRect .serverTypeLabel{
+            text-align: center;
+            color: white;
+            margin: 0 3px;
+            padding: 5px 5px;
+        }
+        .labelA1111 {
+            background-color: #fb9700;
+        }
+        .labelComfy {
+            background-color: #6db579;
+        }
+        .labelUnknown { 
+            background-color: #ff595e;
+        }
+        .labelButton { 
+            background-color: #777;
+            color: white;
+            cursor: pointer;
+        }
+        .labelButton:hover { 
+            background-color: #333;
+        }
+        .sdServerRect {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        
+        .sdServerRect .sdServerUrlText {
+            flex: 1;
+            position: relative;
+        }
+        .sdServerRect .sdServerUrlText sp-textfield {
+            width: 100%;
+            padding-right: 5px;
+        }
+
         #btnRefreshModels:hover {
             background-color: #333;
         }
@@ -1105,28 +1143,8 @@
             </div>
 
             <div class="sp-tab-page" id="sp-settings-tab-page">
-                <div>
-                    <sp-label>SD Url:</sp-label
-                    ><sp-textfield
-                        id="tiSdUrl"
-                        type="text"
-                        placeholder="http://127.0.0.1:7860"
-                        value=""
-                        style="width: 160px"
-                    ></sp-textfield
-                    ><button
-                        class="btnSquare"
-                        id="btnSdUrl"
-                        style="margin-left: 5px"
-                    >
-                        Submit
-                    </button>
-                    <button class="btnSquare" id="btnSaveSettingsTabs">
-                        Save
-                    </button>
-                </div>
-                <div id="settingsVAEContainer"></div>
                 <div id="reactSettingsContainer"></div>
+                <div id="settingsVAEContainer"></div>
 
                 <div>
                     <sp-checkbox checked id="chUseSmartObject"

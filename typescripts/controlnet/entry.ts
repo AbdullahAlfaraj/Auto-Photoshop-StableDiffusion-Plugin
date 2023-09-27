@@ -118,6 +118,9 @@ function getEnableControlNet(index: number) {
         )
     else return store.controlNetUnitData[index || 0].enabled
 }
+function getControlNetDatas() {
+    return store.controlNetUnitData;
+}
 function mapPluginSettingsToControlNet(plugin_settings: any) {
     const ps = plugin_settings // for shortness
     let controlnet_units: any[] = []
@@ -291,5 +294,6 @@ export {
     setControlInputImageSrc,
     isControlNetModeEnable,
     getModuleDetail,
+    getControlNetDatas,
     store,
 }

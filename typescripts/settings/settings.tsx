@@ -3,19 +3,21 @@ import ReactDOM from 'react-dom/client'
 import { observer } from 'mobx-react'
 import { AStore } from '../main/astore'
 
-import { SpCheckBox, SpMenu } from '../util/elements'
+import { SpCheckBox, SpLabel, SpMenu, SpTextfield } from '../util/elements'
 import Locale from '../locale/locale'
 import globalStore from '../globalstore'
-import { io } from '../util/oldSystem'
+import { io, settings } from '../util/oldSystem'
 import { reaction } from 'mobx'
 //@ts-ignore
 import { storage } from 'uxp'
 import { ErrorBoundary } from '../util/errorBoundary'
 import { MaskModeEnum, ScriptMode } from '../util/ts/enum'
 import { store as progress_store } from '../session/progress'
+import { checkServerType } from 'diffusion-chain'
 
 // import { Jimp } from '../util/oldSystem'
 declare const Jimp: any // make sure you import jimp before importing settings.tsx
+declare let g_sd_url: string;
 
 type InterpolationMethod = {
     [key: string]: {
@@ -127,13 +129,91 @@ function setDeleteLogTimer() {
 }
 
 @observer
-export class Settings extends React.Component<{}> {
-    componentDidMount(): void {}
+export class Settings extends React.Component<{}, { TempServerUrl: string, urlLabelHovering: boolean }> {
+    state = {
+        TempServerUrl: '',
+        urlLabelHovering: false
+    }
+
+    componentDidMount(): void {
+        this.setState({
+            TempServerUrl: globalStore.ServerUrl
+        });
+
+        reaction(() => {
+            return globalStore.ServerUrl
+        }, (gsurl: string) => {
+            this.setState({
+                TempServerUrl: gsurl
+            })
+        })
+    }
+
+    async changeSdUrl(url: string) {
+        let sd_url = url.trim()
+
+        if (sd_url.length > 0) {
+            //check if the last character of the url has "/" or '\' and remove it
+
+            let last_index = sd_url.length - 1
+
+            if (sd_url[last_index] === '/' || sd_url[last_index] === '\\') {
+                sd_url = sd_url.slice(0, -1)
+            }
+
+            //submit the change
+            checkServerType(url).then(type => {
+                g_sd_url = url
+                globalStore.ServerUrl = url;
+                globalStore.ServerType = type;
+                this.setState({
+                    TempServerUrl: url
+                })
+
+                settings.saveSettings(url);
+            })
+        }
+    }
+
+    getServerTypeLabel() {
+        if (this.state.TempServerUrl != globalStore.ServerUrl) return 'Save URL'
+        if (this.state.urlLabelHovering) return 'Clear';
+        if (globalStore.ServerType == 'A1111') return "A1111 WebUI"
+        if (globalStore.ServerType == 'Comfy') return "ComfyUI"
+        return globalStore.ServerType
+    }
+
+    onLabelClick() {
+        if (this.state.TempServerUrl != globalStore.ServerUrl && this.state.TempServerUrl) return this.changeSdUrl(this.state.TempServerUrl);
+        else this.setState({TempServerUrl: ''})
+    }
 
     render() {
         return (
             <div style={{ width: '100%' }}>
+                <sp-label>Server Setting:</sp-label>
+                <div className="sdServerRect"
+                    onMouseOver={() => { this.setState({'urlLabelHovering': true}) }}
+                    onMouseOut={() => { this.setState({'urlLabelHovering': false}) }}
+                >
+                    <div className="sdServerUrlText">
+                        <SpTextfield
+                            type="text"
+                            placeholder="put your a1111/comfy server url here"
+                            value={this.state.TempServerUrl}
+                            onInput={(e: any) => { this.setState({ TempServerUrl: e.target.value }) }}
+                        >
+                        </SpTextfield>
+                    </div>
+                    <SpLabel
+                        onClick={this.onLabelClick.bind(this)}
+                        class={"serverTypeLabel label" + (this.state.TempServerUrl == globalStore.ServerUrl && !this.state.urlLabelHovering ? globalStore.ServerType : 'Button')}>
+                        {this.getServerTypeLabel()}
+                    </SpLabel>
+                </div>
+                <sp-divider style={{ marginBottom: 5 }}></sp-divider>
                 <SpMenu
+                    style={{display: globalStore.ServerType == 'A1111' ? 'flex': 'none'}}
                     title="select an interploation method for resizing images"
                     items={Object.keys(interpolationMethods)}
                     label_item="Select Interpolation Method"
@@ -141,10 +221,10 @@ export class Settings extends React.Component<{}> {
                         (key) => {
                             return (
                                 interpolationMethods[key].photoshop ===
-                                    store.data.scale_interpolation_method
-                                        .photoshop &&
+                                store.data.scale_interpolation_method
+                                    .photoshop &&
                                 interpolationMethods[key].jimp ===
-                                    store.data.scale_interpolation_method.jimp
+                                store.data.scale_interpolation_method.jimp
                             )
                         }
                     )}
@@ -174,7 +254,11 @@ export class Settings extends React.Component<{}> {
                         )
                     }}
                 ></SpMenu>
-                <div style={{}}>
+                <div 
+                    style={{
+                        display: globalStore.ServerType == 'A1111' ? 'flex': 'none'
+                    }}
+                >
                     <SpCheckBox
                         style={{
                             marginRight: '10px',
@@ -190,7 +274,9 @@ export class Settings extends React.Component<{}> {
                 </div>
 
                 <sp-radio-group
-                    style={{ display: 'flex' }}
+                    style={{
+                        display: globalStore.ServerType == 'A1111' ? 'flex': 'none'
+                    }}
                     selected={store.data.b_borders_or_corners}
                     onClick={(event: any) => {
                         store.data.b_borders_or_corners = event.target.value
@@ -213,7 +299,7 @@ export class Settings extends React.Component<{}> {
                                 key={`mode-${index}`}
                                 checked={
                                     store.data.b_borders_or_corners ===
-                                    mode.value
+                                        mode.value
                                         ? true
                                         : void 0
                                 }
@@ -227,6 +313,7 @@ export class Settings extends React.Component<{}> {
                 <SpCheckBox
                     style={{
                         marginRight: '10px',
+                        display: globalStore.ServerType == 'A1111' ? 'flex': 'none'
                     }}
                     onChange={(evt: any) => {
                         progress_store.data.live_progress_image =
@@ -239,7 +326,11 @@ export class Settings extends React.Component<{}> {
                         Locale('Live Progress Image')
                     }
                 </SpCheckBox>
-                <div>
+                <div
+                    style={{
+                        display: globalStore.ServerType == 'A1111' ? 'flex': 'none'
+                    }}
+                >
                     <sp-checkbox
                         id="chUseImageCfgScaleSlider"
                         title="image cfg slider for pix2pix mode"
@@ -253,7 +344,11 @@ export class Settings extends React.Component<{}> {
                         Image Cfg Scale Slider
                     </sp-checkbox>
                 </div>
-                <div>
+                <div
+                    style={{
+                        display: globalStore.ServerType == 'A1111' ? 'flex': 'none'
+                    }}
+                >
                     <sp-checkbox
                         id="chUseSharpMask"
                         checked={store.data.use_sharp_mask}
@@ -264,7 +359,11 @@ export class Settings extends React.Component<{}> {
                         use sharp mask
                     </sp-checkbox>
                 </div>
-                <div>
+                <div
+                    style={{
+                        display: globalStore.ServerType == 'A1111' ? 'flex': 'none'
+                    }}
+                >
                     <sp-radio-group selected={store.data.extension_type}>
                         <sp-label slot="label">Select Extension:</sp-label>
                         {[

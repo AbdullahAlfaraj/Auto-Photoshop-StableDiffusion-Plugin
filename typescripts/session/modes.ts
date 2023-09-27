@@ -1,8 +1,9 @@
 // import { control_net, scripts, session_ts } from '../entry'
 // import * as session_ts from '../session/session'
 import * as scripts from '../ultimate_sd_upscaler/scripts'
-import * as control_net from '../controlnet/entry'
 import { store as session_store } from '../session/session_store'
+import { ControlNetSession, GenerateSession, A1111Server, ComfyServer } from 'diffusion-chain';
+import { control_net } from '../entry'
 
 import {
     html_manip,
@@ -29,6 +30,7 @@ declare let g_sd_url: any
 declare let g_controlnet_max_models: any
 declare let g_generation_session: any
 
+declare let g_last_seed: any
 interface SessionData {
     init_image?: string
     mask?: string
@@ -110,6 +112,7 @@ class Mode {
 }
 
 export class Txt2ImgMode extends Mode {
+    static server: A1111Server | ComfyServer
     // constructor() {
     // }
 
@@ -120,160 +123,60 @@ export class Txt2ImgMode extends Mode {
         const mask = ''
         return { selectionInfo, init_image, mask }
     }
-
-    //return settings that would be used by the restApi
-    // static async getSettings() {
-    //     const ui_settings = await session.getSettings()
-
-    //     return ui_settings
-    // }
-
-    //@ts-ignore
-    static async requestTxt2Img(payload) {
-        try {
-            console.log('requestTxt2Img(): about to send a fetch request')
-
-            let json = await python_replacement.txt2ImgRequest(payload)
-            console.log('requestTxt2Img json:', json)
-
-            return json
-        } catch (e) {
-            console.warn(e)
-            return {}
-        }
-    }
-
-    //REFACTOR: reuse the same code for (requestControlNetTxt2Img,requestControlNetImg2Img)
-    static async requestControlNetTxt2Img(plugin_settings: any) {
-        console.log('requestControlNetTxt2Img: ')
-
-        const full_url = `${g_sd_url}/sdapi/v1/txt2img`
-
-        const control_net_settings =
-            mapPluginSettingsToControlNet(plugin_settings)
-        let control_networks = []
-        // let active_control_networks = 0
-        for (let index = 0; index < g_controlnet_max_models; index++) {
-            if (!getEnableControlNet(index)) {
-                control_networks[index] = false
-                continue
-            }
-            control_networks[index] = true
-
-            if (
-                !control_net_settings['controlnet_units'][index]['input_image']
-            ) {
-                //@ts-ignore
-                app.showAlert('you need to add a valid ControlNet input image')
-                throw 'you need to add a valid ControlNet input image'
-            }
-
-            if (!control_net_settings['controlnet_units'][index]['module']) {
-                //@ts-ignore
-                app.showAlert('you need to select a valid ControlNet Module')
-                throw 'you need to select a valid ControlNet Module'
-            }
-
-            const is_model_free: boolean =
-                getModuleDetail()[
-                    control_net_settings['controlnet_units'][index]['module']
-                ].model_free
-
-            const has_model =
-                control_net_settings['controlnet_units'][index]['model']
-            const is_model_none: boolean =
-                has_model && has_model.toLowerCase() === 'none'
-
-            if (!is_model_free && (!has_model || is_model_none)) {
-                //@ts-ignore
-                app.showAlert('you need to select a valid ControlNet Model')
-                throw 'you need to select a valid ControlNet Model'
-            }
-        }
-
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(control_net_settings),
-        })
-
-        let json = await request.json()
-        console.log('json:', json)
-
-        //update the mask in controlNet tab
-        const numOfImages = json['images'].length
-        let numberOfAnnotations =
-            numOfImages - session_store.data.ui_settings.batch_size
-        if (numberOfAnnotations < 0) numberOfAnnotations = 0
-
-        const base64_mask = json['images'].slice(
-            numOfImages - numberOfAnnotations
-        )
-
-        let mask_index = 0
-
-        for (let index = 0; index < control_networks.length; index++) {
-            if (
-                control_networks[index] == false ||
-                mask_index >= numberOfAnnotations
-            )
-                continue
-            control_net.setControlDetectMapSrc(base64_mask[mask_index], index)
-            g_generation_session.controlNetMask[index] = base64_mask[mask_index]
-            mask_index++
-        }
-        // g_generation_session.controlNetMask = base64_mask
-
-        const standard_response =
-            await python_replacement.convertToStandardResponse(
-                control_net_settings,
-                json['images'].slice(0, numOfImages - numberOfAnnotations),
-                plugin_settings['uniqueDocumentId']
-            )
-        console.log('standard_response:', standard_response)
-
-        return standard_response
-    }
-    //REFACTOR: move to generation.js
+    
     static async generate(
         settings: any
     ): Promise<{ output_images: any; response_json: any }> {
-        let response_json
-        let output_images
-        try {
-            // const b_enable_control_net = control_net.getEnableControlNet()
-            const b_enable_control_net = control_net.isControlNetModeEnable()
+        if (!this.server || this.server.getBaseUrl() != g_sd_url) this.server = new A1111Server(g_sd_url);
 
-            if (b_enable_control_net) {
-                //use control net
-                if (session_store.data.generation_number === 1) {
-                    session_store.data.controlnet_input_image =
-                        await io.getImg2ImgInitImage()
-                }
-                // console.log(
-                //     'session_store.data.controlnet_input_image: ',
-                //     session_store.data.controlnet_input_image
-                // )
+        const generateSession = new GenerateSession();
+        generateSession.modelCheckpoint = '';
+        generateSession.batchSize = settings.batch_size;
+        generateSession.denoisingStrength = settings.denoising_strength;
+        generateSession.cfgScale = settings.cfg_scale
+        generateSession.height = settings.height;
+        generateSession.width = settings.width;
+        generateSession.samplerIndex = settings.sampler_index;
+        generateSession.seed = settings.seed;
+        generateSession.prompt = settings.prompt;
+        generateSession.negativePrompt = settings.negativePrompt;
+        generateSession.steps = settings.steps;
 
-                response_json = await this.requestControlNetTxt2Img(settings)
-            } else {
-                response_json = await this.requestTxt2Img(settings)
-            }
+        if (control_net.isControlNetModeEnable()) {
+            const datas = control_net.getControlNetDatas();
+            datas.forEach(data => {
+                const cnSession = new ControlNetSession();
+                cnSession.enabled = data.enabled;
+                cnSession.controlMode = data.control_mode as any;
+                cnSession.guidanceEnd = data.guidance_end;
+                cnSession.guidanceStart = data.guidance_start;
+                cnSession.lowVRam = data.lowvram;
+                cnSession.maskBase64 = data.mask;
+                cnSession.model = data.model;
+                cnSession.module = data.module;
+                cnSession.annotatorBase64 = data.module ? '' : data.input_image
+                cnSession.originImageBase64 = data.module ? data.input_image : '';
+                cnSession.pixelPerfect = data.pixel_perfect;
+                cnSession.processRes = data.processor_res;
+                cnSession.thresholdA = data.threshold_a;
+                cnSession.thresholdB = data.threshold_b;
+                cnSession.weight = data.weight
 
-            output_images = await this.processOutput(
-                response_json.images_info,
-                settings
-            )
-        } catch (e) {
-            console.warn(e)
-            console.warn('output_images: ', output_images)
-            console.warn('response_json: ', response_json)
+                generateSession.controlNets.push(cnSession)
+            })
         }
-        return { output_images, response_json }
+
+        try {
+            return {
+                output_images: await this.server.generate(generateSession, {}),
+                response_json: {}
+            }
+        } catch(e) {
+            console.error(e);
+            throw e; 
+        }
     }
+
     //take the output from restapi and formate it to a standard formate the plugin ui understand
     static async processOutput(images_info: any, settings: any): Promise<any> {
         const base64OutputImages = await saveOutputImagesToDrive(
@@ -285,158 +188,73 @@ export class Txt2ImgMode extends Mode {
 }
 
 export class Img2ImgMode extends Mode {
+    static server: A1111Server
     constructor() {
         super()
     }
-
-    //REFACTOR: reuse the same code for (requestControlNetTxt2Img,requestControlNetImg2Img)
-    static async requestControlNetImg2Img(plugin_settings: any) {
-        const full_url = `${g_sd_url}/sdapi/v1/img2img`
-        const control_net_settings =
-            mapPluginSettingsToControlNet(plugin_settings)
-
-        // let control_networks = 0
-        let control_networks = []
-        for (let index = 0; index < g_controlnet_max_models; index++) {
-            if (!getEnableControlNet(index)) {
-                control_networks[index] = false
-                continue
-            }
-            control_networks[index] = true
-            if (
-                !control_net_settings['controlnet_units'][index]['input_image']
-            ) {
-                //@ts-ignore
-                app.showAlert('you need to add a valid ControlNet input image')
-                throw 'you need to add a valid ControlNet input image'
-            }
-
-            if (!control_net_settings['controlnet_units'][index]['module']) {
-                //@ts-ignore
-                app.showAlert('you need to select a valid ControlNet Module')
-                throw 'you need to select a valid ControlNet Module'
-            }
-            const is_model_free: boolean =
-                getModuleDetail()[
-                    control_net_settings['controlnet_units'][index]['module']
-                ].model_free
-
-            const has_model =
-                control_net_settings['controlnet_units'][index]['model']
-            const is_model_none: boolean =
-                has_model && has_model.toLowerCase() === 'none'
-
-            if (!is_model_free && (!has_model || is_model_none)) {
-                //@ts-ignore
-                app.showAlert('you need to select a valid ControlNet Model')
-                throw 'you need to select a valid ControlNet Model'
-            }
-        }
-
-        let request = await fetch(full_url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(control_net_settings),
-            // body: JSON.stringify(payload),
-        })
-
-        let json = await request.json()
-        console.log('json:', json)
-
-        //update the mask in controlNet tab
-        const numOfImages = json['images'].length
-        let numberOfAnnotations =
-            numOfImages - session_store.data.ui_settings.batch_size
-        if (numberOfAnnotations < 0) numberOfAnnotations = 0
-
-        // To fix a bug: when Ultimate SD Upscale is active and running, the detection maps won’t be retrieved.
-        // So set its value to 0 to avoid the result images being loaded in the annotation map interface.
-        if (
-            scripts.script_store.isInstalled() &&
-            scripts.script_store.is_active &&
-            scripts.script_store.selected_script_name !== 'None' &&
-            scripts.script_store.is_selected_script_available
-        ) {
-            numberOfAnnotations = 0
-        }
-        const base64_mask = json['images'].slice(
-            numOfImages - numberOfAnnotations
-        )
-
-        let mask_index = 0
-        for (let index = 0; index < control_networks.length; index++) {
-            if (
-                control_networks[index] == false ||
-                mask_index >= numberOfAnnotations
-            )
-                continue
-            control_net.setControlDetectMapSrc(base64_mask[mask_index], index)
-            g_generation_session.controlNetMask[index] = base64_mask[mask_index]
-            mask_index++
-        }
-
-        const standard_response =
-            await python_replacement.convertToStandardResponse(
-                control_net_settings,
-                json['images'].slice(0, numOfImages - numberOfAnnotations),
-                plugin_settings['uniqueDocumentId']
-            )
-        console.log('standard_response:', standard_response)
-
-        return standard_response
-    }
-
-    static async requestImg2Img(payload: any) {
-        console.log('requestImg2Img(): about to send a fetch request')
-        try {
-            let json = await python_replacement.img2ImgRequest(
-                g_sd_url,
-                payload
-            )
-            console.log('requestImg2Img json:')
-            console.dir(json)
-
-            return json
-        } catch (e) {
-            console.warn(e)
-            return {}
-        }
-    }
+    
     static async initializeSession(): Promise<SessionData> {
         const selectionInfo = await psapi.getSelectionInfoExe()
         const init_image = await io.getImg2ImgInitImage()
         const mask = ''
         return { selectionInfo, init_image, mask }
     }
+
     static async generate(
         settings: any
     ): Promise<{ output_images: any; response_json: any }> {
-        let response_json
-        let output_images
-        try {
-            //checks on index 0 as if not enabled ignores the rest
-            const b_enable_control_net = control_net.isControlNetModeEnable()
+        if (!this.server || this.server.getBaseUrl() != g_sd_url) this.server = new A1111Server(g_sd_url);
 
-            if (b_enable_control_net) {
-                //use control net
-                response_json = await this.requestControlNetImg2Img(settings)
-            } else {
-                response_json = await this.requestImg2Img(settings)
-            }
-            output_images = await this.processOutput(
-                response_json.images_info,
-                settings
-            )
-        } catch (e) {
-            console.warn(e)
-            console.warn('output_images: ', output_images)
-            console.warn('response_json: ', response_json)
+        const generateSession = new GenerateSession();
+        if (settings.mask) {
+            generateSession.maskBase64 = settings.mask
+        }
+        generateSession.initImagesBase64 = settings.init_images;
+        generateSession.modelCheckpoint = '';
+        generateSession.batchSize = settings.batch_size;
+        generateSession.denoisingStrength = settings.denoising_strength;
+        generateSession.cfgScale = settings.cfg_scale
+        generateSession.height = settings.height;
+        generateSession.width = settings.width;
+        generateSession.samplerIndex = settings.sampler_index; 
+        generateSession.seed = settings.seed;
+        generateSession.prompt = settings.prompt;
+        generateSession.negativePrompt = settings.negativePrompt;
+        generateSession.steps = settings.steps;
+
+        if (control_net.isControlNetModeEnable()) {
+            const datas = control_net.getControlNetDatas();
+            datas.forEach(data => {
+                const cnSession = new ControlNetSession();
+                cnSession.enabled = data.enabled;
+                cnSession.controlMode = data.control_mode as any;
+                cnSession.guidanceEnd = data.guidance_end;
+                cnSession.guidanceStart = data.guidance_start;
+                cnSession.lowVRam = data.lowvram;
+                cnSession.maskBase64 = data.mask;
+                cnSession.model = data.model;
+                cnSession.module = data.module;
+                cnSession.annotatorBase64 = data.module ? '' : data.input_image
+                cnSession.originImageBase64 = data.module ? data.input_image : '';
+                cnSession.pixelPerfect = data.pixel_perfect;
+                cnSession.processRes = data.processor_res;
+                cnSession.thresholdA = data.threshold_a;
+                cnSession.thresholdB = data.threshold_b;
+                cnSession.weight = data.weight
+
+                generateSession.controlNets.push(cnSession)
+            })
         }
 
-        return { output_images, response_json }
+        try {
+            return {
+                output_images: await this.server.generate(generateSession, {}),
+                response_json: {}
+            }
+        } catch(e) {
+            console.error(e);
+            throw e; 
+        }
     }
 }
 

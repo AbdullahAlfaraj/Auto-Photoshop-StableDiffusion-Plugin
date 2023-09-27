@@ -44,6 +44,7 @@ import { getExpandedMask } from '../session/session'
 import { mapRange } from '../controlnet/util'
 
 import { store as preset_store } from '../preset/shared_ui_preset'
+import globalStore from '../globalstore'
 
 declare let g_version: string
 
@@ -90,7 +91,7 @@ const Modes = observer(() => {
                     // style={{ marginRight: '10px' }}
                     onChange={handleLassoModeChange}
                     checked={store.data.is_lasso_mode}
-                    // id={`chEnableControlNet_${this.props.index}`}
+                // id={`chEnableControlNet_${this.props.index}`}
                 >
                     Lasso Mode
                 </SpCheckBox>
@@ -116,8 +117,11 @@ const Modes = observer(() => {
 // )
 @observer
 class SDTab extends React.Component<{}> {
-    async componentDidMount() {
+    inited: boolean = false
+    async init() {
         try {
+            if (this.inited) return;
+            this.inited = true;
             await refreshUI()
             await refreshModels()
             await initPlugin()
@@ -192,6 +196,17 @@ class SDTab extends React.Component<{}> {
         } catch (e) {
             console.warn(e)
         }
+    }
+
+    async componentDidMount() {
+        if (globalStore.ServerType != 'Unknown') this.init();
+
+        reaction(() => {
+            return globalStore.ServerType
+        }, () => {
+            this.init();
+        })
+
     }
     render() {
         const styles = {
@@ -564,7 +579,7 @@ class SDTab extends React.Component<{}> {
                                                 checked={
                                                     store.data
                                                         .selection_mode ===
-                                                    selection_mode.value
+                                                        selection_mode.value
                                                         ? true
                                                         : void 0
                                                 }
@@ -791,8 +806,8 @@ class SDTab extends React.Component<{}> {
                                         ScriptMode.Img2Img,
                                         ScriptMode.Inpaint,
                                     ].includes(store.data.rb_mode) &&
-                                    settings_tab_ts.store.data
-                                        .use_image_cfg_scale_slider
+                                        settings_tab_ts.store.data
+                                            .use_image_cfg_scale_slider
                                         ? void 0
                                         : 'none',
                             }}
@@ -941,7 +956,7 @@ class SDTab extends React.Component<{}> {
                                                 checked={
                                                     store.data
                                                         .inpainting_fill ===
-                                                    mask_content.value
+                                                        mask_content.value
                                                         ? true
                                                         : void 0
                                                 }
@@ -1205,7 +1220,7 @@ class SDTab extends React.Component<{}> {
                                         ScriptMode.Inpaint,
                                         ScriptMode.Outpaint,
                                     ].includes(store.data.rb_mode) &&
-                                    store.data.inpaint_full_res
+                                        store.data.inpaint_full_res
                                         ? void 0
                                         : 'none',
                             }}
@@ -1290,7 +1305,7 @@ class SDTab extends React.Component<{}> {
                                             class="rbSampler"
                                             checked={
                                                 sampler.name ===
-                                                store.data.sampler_name
+                                                    store.data.sampler_name
                                                     ? true
                                                     : void 0
                                             }
