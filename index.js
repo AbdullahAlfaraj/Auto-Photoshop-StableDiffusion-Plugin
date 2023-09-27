@@ -91,6 +91,7 @@ const {
     selection_ts,
     stores,
     lexica,
+    api_ts,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
