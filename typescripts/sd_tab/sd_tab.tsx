@@ -34,7 +34,7 @@ import {
     loadPresetSettings,
 } from './util'
 import { general } from '../util/oldSystem'
-import { requestSwapModel } from '../util/ts/sdapi'
+import { requestSwapModel, setInpaintMaskWeight } from '../util/ts/sdapi'
 import { GenerateButtons } from '../session/generate'
 import { MultiTextArea } from '../multiTextarea'
 import { store as progress_store } from '../session/progress'
@@ -178,46 +178,6 @@ class SDTab extends React.Component<{}> {
             //     0,
             //     3
             // )
-
-            // //REFACTOR: move to events.js
-
-            // //REFACTOR: move to events.js
-
-            // adding a listner here for the inpaint_mask_strengh to be able to use api calls, allowing to dynamicly change the value
-            // a set button could be added to the ui to reduce the number of api calls in case of a slow connection
-            // //REFACTOR: move to events.js
-            // document
-            //     .querySelector('#slInpaintingMaskWeight')
-            //     .addEventListener('input', async (evt) => {
-            //         const label_value = evt.target.value / 100
-            //         document.getElementById(
-            //             'lInpaintingMaskWeight'
-            //         ).innerHTML = `${label_value}`
-            //         // await sdapi.setInpaintMaskWeight(label_value)
-            //     })
-            // //REFACTOR: move to events.js
-            // document
-            //     .querySelector('#slInpaintingMaskWeight')
-            //     .addEventListener('change', async (evt) => {
-            //         try {
-            //             const label_value = evt.target.value / 100
-            //             document.getElementById(
-            //                 'lInpaintingMaskWeight'
-            //             ).innerHTML = `${label_value}`
-            //             await sdapi.setInpaintMaskWeight(label_value)
-
-            //             // //get the inpaint mask weight from the webui sd
-            //             // await g_sd_options_obj.getOptions()
-            //             // const inpainting_mask_weight =
-            //             //     await g_sd_options_obj.getInpaintingMaskWeight()
-
-            //             // console.log('inpainting_mask_weight: ', inpainting_mask_weight)
-            //             // html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
-            //         } catch (e) {
-            //             console.warn(e)
-            //         }
-            //     })
-            //REFACTOR: move to events.js
         } catch (e) {
             console.warn(e)
         }
@@ -977,12 +937,12 @@ class SDTab extends React.Component<{}> {
                         </SpSlider>
 
                         <div style={{ display: 'flex' }}>
-                            <sp-slider
+                            <SpSlider
                                 show-value="false"
                                 id="slInpaintingMaskWeight"
                                 min="0"
                                 max="100"
-                                value="100"
+                                value={store.data.inpainting_mask_weight * 100}
                                 title="0 will keep the composition; 1 will allow composition to change"
                                 style={{
                                     display: [
@@ -993,6 +953,22 @@ class SDTab extends React.Component<{}> {
                                         ? void 0
                                         : 'none',
                                 }}
+                                onInput={async (evt: any) => {
+                                    store.data.inpainting_mask_weight =
+                                        evt.target.value / 100
+                                }}
+                                onChange={async (evt: any) => {
+                                    try {
+                                        store.data.inpainting_mask_weight =
+                                            evt.target.value / 100
+
+                                        await setInpaintMaskWeight(
+                                            store.data.inpainting_mask_weight
+                                        )
+                                    } catch (e) {
+                                        console.warn(e)
+                                    }
+                                }}
                             >
                                 <sp-label slot="label" class="title">
                                     Inpainting conditioning mask strength:
@@ -1001,9 +977,9 @@ class SDTab extends React.Component<{}> {
                                     slot="label"
                                     id="lInpaintingMaskWeight"
                                 >
-                                    1
+                                    {store.data.inpainting_mask_weight}
                                 </sp-label>
-                            </sp-slider>
+                            </SpSlider>
                         </div>
 
                         <div
