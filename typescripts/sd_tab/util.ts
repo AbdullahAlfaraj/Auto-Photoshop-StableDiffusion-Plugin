@@ -135,6 +135,7 @@ export const store = new AStore({
 
     selection_mode: selection_mode_config[0].value,
     inpainting_mask_weight: 1,
+    tiling: false,
 })
 export const default_preset = {
     sd_tab_preset: {

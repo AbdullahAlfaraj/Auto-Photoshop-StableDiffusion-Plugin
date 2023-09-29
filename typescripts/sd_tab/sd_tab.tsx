@@ -1072,6 +1072,16 @@ class SDTab extends React.Component<{}> {
                             >
                                 Hi Res Fix
                             </SpCheckBox>
+                            <SpCheckBox
+                                class="checkbox"
+                                id=""
+                                checked={store.data.tiling}
+                                onClick={(evt: any) => {
+                                    store.data.tiling = evt.target.checked
+                                }}
+                            >
+                                tiling
+                            </SpCheckBox>
                         </div>
                         <div
                             id="HiResDiv"
