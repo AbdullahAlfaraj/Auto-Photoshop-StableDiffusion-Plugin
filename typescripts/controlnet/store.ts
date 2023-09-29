@@ -137,4 +137,22 @@ reaction(
     }
 )
 
+reaction(
+    () => {
+        return ControlNetStore.controlNetUnitData.map(
+            (data) => data.filter_keyword
+        )
+    },
+    (filter_keyword_, index) => {
+        ControlNetStore.controlNetUnitData.forEach((data, index) => {
+            if (filter_keyword_[index] === 'none') {
+                data.module_list = ControlNetStore.supportedPreprocessors
+                data.model_list = ['None'].concat(
+                    ControlNetStore.supportedModels
+                )
+            }
+        })
+    }
+)
+
 export default ControlNetStore

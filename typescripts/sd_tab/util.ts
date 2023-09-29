@@ -676,6 +676,8 @@ export function loadPresetSettings(preset: any) {
         preset?.controlnet_tab_preset.forEach(
             (unit: controlNetUnitData, index: number) => {
                 try {
+                    unit.filter_keyword = 'none' // value of 'none' will display all models and modules
+
                     setUnitData(unit, index)
                 } catch (e) {
                     console.log('error at unit index: ', index)
