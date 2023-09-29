@@ -318,6 +318,12 @@ export class Settings extends React.Component<{}> {
                                     title={config[extension_type].title}
                                     class="rbExtensionType"
                                     value={config[extension_type].value}
+                                    checked={
+                                        store.data.extension_type ===
+                                        config[extension_type].value
+                                            ? true
+                                            : void 0
+                                    }
                                     onClick={(evt: any) => {
                                         store.data.extension_type =
                                             evt.target.value
