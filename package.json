@@ -46,7 +46,7 @@
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "watch": "npx webpack --config webpack.config.js --watch",
+        "watch": "npx webpack --config webpack.config.js --watch --devtool eval-source-map",
         "build": "npx webpack --config webpack.config.js",
         "format": "npx prettier -w typescripts"
     },
