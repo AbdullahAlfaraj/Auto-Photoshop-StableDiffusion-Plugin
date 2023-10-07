@@ -1,13 +1,11 @@
 {
   "id": "auto.photoshop.stable.diffusion.plugin",
   "name": "Auto Photoshop Stable Diffusion Plugin",
-  "version": "1.1.0",
-  "host": [
-    {
-      "app": "PS",
-      "minVersion": "24.0.0"
-    }
-  ],
+  "version": "1.3.1",
+  "host": {
+    "app": "PS",
+    "minVersion": "24.0.0"
+  },
   "main": "index.html",
   "manifestVersion": 5,
   "requiredPermissions": {
