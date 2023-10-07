@@ -31,7 +31,7 @@
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
-    "typeRoots": ["./*/@types","./*/types","./types", "./node_modules/@types"],                                  /* Specify multiple folders that act like './node_modules/@types'. */
+    "typeRoots": ["./@types","./types", "../node_modules/@types"],                                  /* Specify multiple folders that act like './node_modules/@types'. */
     // "types": [],                                      /* Specify type package names to be included without being referenced in a source file. */
     
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
@@ -56,7 +56,7 @@
     "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
     // "inlineSourceMap": true,                          /* Include sourcemap files inside the emitted JavaScript. */
     // "outFile": "./",                                  /* Specify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output. */
-    "outDir": "./typescripts/dist",                                   /* Specify an output folder for all emitted files. */
+    "outDir": "../typescripts/dist",                                   /* Specify an output folder for all emitted files. */
     // "removeComments": true,                           /* Disable emitting comments. */
     // "noEmit": true,                                   /* Disable emitting files from a compilation. */
     // "importHelpers": true,                            /* Allow importing helper functions from tslib once per project, instead of including them per-file. */
@@ -107,6 +107,6 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
-  "exclude": ["./jimp"],
+  "exclude": ["../jimp"],
   // "include": ["./typescripts/@types/custom.d.ts"]
 }
