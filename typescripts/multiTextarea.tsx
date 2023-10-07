@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client'
 import { AStore } from './main/astore'
 import { ErrorBoundary } from './util/errorBoundary'
 import { Collapsible } from './util/collapsible'
+import { autoResize } from './util/ts/general'
 
 interface AStoreData {
     positivePrompts: string[]
@@ -92,7 +93,31 @@ export class MultiTextArea extends React.Component {
                                 <sp-radio
                                     key={index}
                                     onClick={() => {
-                                        this.switchTextArea(index)
+                                        try {
+                                            this.switchTextArea(index)
+
+                                            autoResize(
+                                                document.getElementById(
+                                                    'taPrompt'
+                                                ),
+                                                store.data.positivePrompts[
+                                                    store.data.current_index
+                                                ],
+                                                10
+                                            )
+
+                                            autoResize(
+                                                document.getElementById(
+                                                    'taNegativePrompt'
+                                                ),
+                                                store.data.negativePrompts[
+                                                    store.data.current_index
+                                                ],
+                                                10
+                                            )
+                                        } catch (e) {
+                                            console.warn(e)
+                                        }
                                     }}
                                     value={index}
                                     checked={
@@ -108,10 +133,20 @@ export class MultiTextArea extends React.Component {
                 <sp-textarea
                     id="taPrompt"
                     onInput={(event: any) => {
-                        this.changePositivePrompt(
-                            event.target.value,
-                            store.data.current_index
-                        )
+                        try {
+                            this.changePositivePrompt(
+                                event.target.value,
+                                store.data.current_index
+                            )
+                            autoResize(
+                                event.target,
+                                store.data.positivePrompts[
+                                    store.data.current_index
+                                ]
+                            )
+                        } catch (e) {
+                            console.warn(e)
+                        }
                     }}
                     placeholder={`prompt ${store.data.current_index + 1}`}
                     value={store.data.positivePrompts[store.data.current_index]}
@@ -119,10 +154,21 @@ export class MultiTextArea extends React.Component {
                 <sp-textarea
                     id="taNegativePrompt"
                     onInput={(event: any) => {
-                        this.changeNegativePrompt(
-                            event.target.value,
-                            store.data.current_index
-                        )
+                        try {
+                            this.changeNegativePrompt(
+                                event.target.value,
+                                store.data.current_index
+                            )
+
+                            autoResize(
+                                event.target,
+                                store.data.negativePrompts[
+                                    store.data.current_index
+                                ]
+                            )
+                        } catch (e) {
+                            console.warn(e)
+                        }
                     }}
                     placeholder={`negative prompt ${
                         store.data.current_index + 1
@@ -140,7 +186,7 @@ export class MultiTextArea extends React.Component {
 //     const root = ReactDOM.createRoot(container)
 
 //     root.render(
-//         <React.StrictMode>
+//         //<React.StrictMode>
 //             <ErrorBoundary>
 //                 <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
 //                     <Collapsible defaultIsOpen={true} label={'Prompts'}>
@@ -148,6 +194,6 @@ export class MultiTextArea extends React.Component {
 //                     </Collapsible>
 //                 </div>
 //             </ErrorBoundary>
-//         </React.StrictMode>
+//         //</React.StrictMode>
 //     )
 // })

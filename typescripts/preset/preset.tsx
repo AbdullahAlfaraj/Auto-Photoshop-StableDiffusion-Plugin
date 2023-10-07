@@ -270,16 +270,13 @@ const gridContainerNode = document.getElementById('PresetTabContainer')!
 const gridRoot = ReactDOM.createRoot(gridContainerNode)
 
 gridRoot.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Collapsible
-                    defaultIsOpen={true}
-                    label={Locale('Custom Preset')}
-                >
-                    <PresetTab></PresetTab>
-                </Collapsible>
-            </div>
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+            <Collapsible defaultIsOpen={false} label={Locale('Custom Preset')}>
+                <PresetTab></PresetTab>
+            </Collapsible>
+        </div>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

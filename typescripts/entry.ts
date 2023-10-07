@@ -34,5 +34,8 @@ export * as tool_bar from './tool_bar/tool_bar'
 export * as extra_page from './extra_page/extra_page'
 export * as selection_ts from './util/ts/selection'
 export * as stores from './stores'
+
+export { default as lexica } from './lexical/lexical'
+export * as api_ts from './util/ts/api'
 export { toJS } from 'mobx'
 export { default as node_fs } from 'fs'

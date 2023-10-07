@@ -433,7 +433,8 @@
         }
 
         #rbSelectionModeLabel,
-        .rbSelectionMode {
+        .rbSelectionMode,
+        .rbBaseSize {
             font-size: 1em;
             margin-right: 12px;
         }
@@ -740,9 +741,6 @@
                     <sp-label>ControlNet</sp-label>
                 </div>
 
-                <div class="sp-tab" id="sp-lexica-tab" style="display: none">
-                    <sp-label>Lexica</sp-label>
-                </div>
                 <div
                     class="sp-tab"
                     id="sp-image_search-tab"
@@ -853,14 +851,6 @@
                             value="prompts-library"
                             >Prompts Library</sp-radio
                         >
-                        <sp-radio
-                            title=""
-                            class="rbSubTab"
-                            id="rbLexica"
-                            data-tab-name="sp-lexica-tab"
-                            value="lexica"
-                            >Lexica</sp-radio
-                        >
                     </sp-radio-group>
                 </div>
                 <div id="viewerSubTab">
@@ -895,48 +885,6 @@
                 <!-- </div> -->
             </div>
             <div class="sp-tab-page" id="sp-control_net-tab-page"></div>
-
-            <div class="sp-tab-page" id="sp-lexica-tab-page">
-                <div class="subTabOptionsContainer"></div>
-
-                <div class="flexContainer">
-                    <sp-label slot="label"
-                        >Explore Lexica for prompts and inspiration</sp-label
-                    >
-                </div>
-                <div></div>
-                <div>
-                    <sp-textfield
-                        id="LexicaSearchField"
-                        type="text"
-                        placeholder="cute cats"
-                        value=""
-                        ><sp-label slot="label">Search:</sp-label></sp-textfield
-                    >
-
-                    <button
-                        class="btnSquare search-button"
-                        id="btnSearchLexica"
-                        title="user prompt(text) to Search Lexica"
-                    ></button>
-
-                    <button
-                        class="btnSquare reverse_image_serach"
-                        id="btnReverseSearchLexica"
-                        title="User the selected area (image) on canvas to Search Lexica"
-                    ></button>
-                </div>
-                <sp-textarea id="lexicaPrompt" style="margin-bottom: 3px">
-                </sp-textarea>
-                <div class="viewer-container" id="divLexicaImagesContainer">
-                    <img
-                        class="history-image"
-                        id="history_image_test"
-                        data-metadata_json_string='{"a":1}'
-                        src="https://source.unsplash.com/random"
-                    />
-                </div>
-            </div>
 
             <div class="sp-tab-page" id="sp-image_search-tab-page">
                 <div class="subTabOptionsContainer"></div>
@@ -1129,12 +1077,6 @@
                 <div id="reactSettingsContainer"></div>
 
                 <div>
-                    <sp-checkbox checked id="chUseSmartObject"
-                        >Smart Object</sp-checkbox
-                    >
-                </div>
-
-                <div>
                     <sp-checkbox checked id="chUseOriginalPrompt"
                         >Restore Original Prompt</sp-checkbox
                     >
@@ -1235,6 +1177,9 @@
                 <sp-divider class="line-divider" size="large"></sp-divider>
                 <sp-divider class="line-divider" size="large"></sp-divider>
                 <div id="historyImagesContainer"></div>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <sp-divider class="line-divider" size="large"></sp-divider>
+                <div class="lexicaContainer"></div>
                 <sp-divider class="line-divider" size="large"></sp-divider>
                 <sp-divider class="line-divider" size="large"></sp-divider>
             </div>

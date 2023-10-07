@@ -432,6 +432,7 @@ async function getSettings(session_data) {
             uniqueDocumentId: uniqueDocumentId,
             mode: mode,
             restore_faces: b_restore_faces,
+            tiling: sd_tab_store.data.tiling,
             // script_args: script_args,
             // script_name:"Run on Stable Horde"
         }

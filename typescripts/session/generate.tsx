@@ -1,3 +1,4 @@
+import { app } from 'photoshop'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
@@ -21,6 +22,7 @@ import {
     mask_store as viewer_mask_store,
     // init_store as viewer_init_store,
 } from '../viewer/viewer_util'
+
 declare let g_automatic_status: any
 declare let g_current_batch_index: number
 //example: take 'oI' in 'LassoInpaint' and replace it with 'o I' thus creating 'Lasso Inpaint'
@@ -176,8 +178,12 @@ const resetBatch = () => {
 }
 
 const handleGenerate = async () => {
+    //save the active layer:
+    const active_layer = app.activeDocument.activeLayers[0]
     //save user input for later
+
     //1) save selection as channel
+
     await selection.selectionToChannel('mask')
 
     await initializeBackground() //fix background if there is a need
@@ -190,6 +196,8 @@ const handleGenerate = async () => {
             await Session.generate(sd_tab_store.data.mode)
 
         if (session_store.data.is_interrupted) {
+            //reselect the layer that was selected before the generation start
+            await psapi.selectLayersExe([active_layer])
             return void 0
         }
 
@@ -223,10 +231,14 @@ const handleGenerate = async () => {
 
 const handleGenerateMore = async () => {
     try {
+        //save the active layer:
+        const active_layer = app.activeDocument.activeLayers[0]
+
         var { output_images, response_json, ui_settings } =
             await Session.generateMore()
 
         if (session_store.data.is_interrupted) {
+            await psapi.selectLayersExe([active_layer]) // reselect the layer that was active layer before the generation start
             return void 0
         }
 
@@ -342,9 +354,9 @@ const toolBarButtonsContainer = document.getElementById(
 )!
 const toolBarButtonsContainerRoot = ReactDOM.createRoot(toolBarButtonsContainer)
 toolBarButtonsContainerRoot.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <ToolbarGenerateButtons></ToolbarGenerateButtons>
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <ToolbarGenerateButtons></ToolbarGenerateButtons>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

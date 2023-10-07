@@ -538,5 +538,22 @@ async def heartbeat():
     return {'heartbeat':True}
 
 
+@router.post("/readPngMetadata")
+async def readPngMetadata(request: Request):
+    try:
+        print('readPngMetadata endpoint:  ')
+        print('readPngMetadata request:  ',request)
+        contents = await request.body()
+        image = Image.open(io.BytesIO(contents))
+        
+        print("image.info: ",image.info)
+        return {"metadata":image.info}
+        
+
+    except Exception as e:
+        print("readPngMetadata() error ",repr(e),e)
+        return {"status": "falid"}
+
+
 app = FastAPI()
 app.include_router(router)

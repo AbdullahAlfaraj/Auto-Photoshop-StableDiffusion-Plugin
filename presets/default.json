@@ -1,6 +1,5 @@
 {
     "sd_tab_preset": {
-        "selected_model": "v1-5-pruned-emaonly.ckpt [cc6cb27103]",
         "is_lasso_mode": false,
         "mode": "txt2img",
         "rb_mode": "txt2img",

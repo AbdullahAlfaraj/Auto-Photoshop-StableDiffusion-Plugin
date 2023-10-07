@@ -78,6 +78,25 @@ function scrollToPreview() {
         console.error(e)
     }
 }
+function scrollToHistory() {
+    try {
+        document
+            .querySelector('#search_second_panel > div#historyImagesContainer')!
+            .scrollIntoView()
+    } catch (e) {
+        console.error(e)
+    }
+}
+function scrollToLexica() {
+    try {
+        document
+            .querySelector('#search_second_panel > div.lexicaContainer')!
+            .scrollIntoView()
+    } catch (e) {
+        console.error(e)
+    }
+}
+
 @observer
 class ToolBar extends React.Component<{}> {
     componentDidMount(): void {
@@ -202,6 +221,22 @@ class ToolBar extends React.Component<{}> {
                     >
                         C
                     </button>
+                    <button
+                        id=""
+                        className="btnSquare svgButton"
+                        title="Quickly jump to the History Panel"
+                        onClick={scrollToHistory}
+                    >
+                        H
+                    </button>
+                    <button
+                        id=""
+                        className="btnSquare svgButton"
+                        title="Quickly jump to the Lexica Panel"
+                        onClick={scrollToLexica}
+                    >
+                        L
+                    </button>
                 </div>
             </div>
         )
@@ -212,9 +247,9 @@ const container = document.getElementById('toolBarContainer')!
 const root = ReactDOM.createRoot(container)
 
 root.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <ToolBar></ToolBar>
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <ToolBar></ToolBar>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

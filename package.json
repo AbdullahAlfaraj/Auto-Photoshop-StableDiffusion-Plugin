@@ -50,7 +50,7 @@
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "watch": "npx webpack --config ./build-script/webpack.config.js --watch",
+        "watch": "npx webpack --config ./build-script/webpack.config.js --watch --devtool eval-source-map",
         "build": "npx webpack --config ./build-script/webpack.config.js",
         "publish": "npx webpack --config ./build-script/webpack.config.js --mode production",
         "format": "npx prettier -w typescripts"

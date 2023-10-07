@@ -34,7 +34,7 @@ import {
     loadPresetSettings,
 } from './util'
 import { general } from '../util/oldSystem'
-import { requestSwapModel } from '../util/ts/sdapi'
+import { requestSwapModel, setInpaintMaskWeight } from '../util/ts/sdapi'
 import { GenerateButtons } from '../session/generate'
 import { MultiTextArea } from '../multiTextarea'
 import { store as progress_store } from '../session/progress'
@@ -86,14 +86,43 @@ const Modes = observer(() => {
             ].includes(store.data.mode)
         ) {
             return (
-                <SpCheckBox
-                    // style={{ marginRight: '10px' }}
-                    onChange={handleLassoModeChange}
-                    checked={store.data.is_lasso_mode}
-                    // id={`chEnableControlNet_${this.props.index}`}
-                >
-                    Lasso Mode
-                </SpCheckBox>
+                <>
+                    <div>
+                        <SpCheckBox
+                            // style={{ marginRight: '10px' }}
+                            onChange={handleLassoModeChange}
+                            checked={store.data.is_lasso_mode}
+                            // id={`chEnableControlNet_${this.props.index}`}
+                        >
+                            Lasso Mode
+                        </SpCheckBox>
+
+                        <SpSlider
+                            show-value="false"
+                            id="lasso_offset"
+                            min="0"
+                            max="100"
+                            value={helper_store.data.lasso_offset}
+                            onInput={(evt: any) => {
+                                helper_store.data.lasso_offset = Number(
+                                    evt.target.value
+                                )
+                            }}
+                            style={{
+                                display: store.data.is_lasso_mode
+                                    ? void 0
+                                    : 'none',
+                            }}
+                        >
+                            <sp-label slot="label" class="title">
+                                Lasso Offset:
+                            </sp-label>
+                            <sp-label slot="label">
+                                {helper_store.data.lasso_offset}
+                            </sp-label>
+                        </SpSlider>
+                    </div>
+                </>
 
                 // <sp-checkbox checked={store.data.is_lasso_mode ? true : void 0}>
                 //     lasso mode
@@ -108,11 +137,11 @@ const Modes = observer(() => {
 // const root = ReactDOM.createRoot(container)
 
 // root.render(
-//     <React.StrictMode>
+//     //<React.StrictMode>
 //         <ErrorBoundary>
 //             <Modes />
 //         </ErrorBoundary>
-//     </React.StrictMode>
+//     //</React.StrictMode>
 // )
 @observer
 class SDTab extends React.Component<{}> {
@@ -149,46 +178,6 @@ class SDTab extends React.Component<{}> {
             //     0,
             //     3
             // )
-
-            // //REFACTOR: move to events.js
-
-            // //REFACTOR: move to events.js
-
-            // adding a listner here for the inpaint_mask_strengh to be able to use api calls, allowing to dynamicly change the value
-            // a set button could be added to the ui to reduce the number of api calls in case of a slow connection
-            // //REFACTOR: move to events.js
-            // document
-            //     .querySelector('#slInpaintingMaskWeight')
-            //     .addEventListener('input', async (evt) => {
-            //         const label_value = evt.target.value / 100
-            //         document.getElementById(
-            //             'lInpaintingMaskWeight'
-            //         ).innerHTML = `${label_value}`
-            //         // await sdapi.setInpaintMaskWeight(label_value)
-            //     })
-            // //REFACTOR: move to events.js
-            // document
-            //     .querySelector('#slInpaintingMaskWeight')
-            //     .addEventListener('change', async (evt) => {
-            //         try {
-            //             const label_value = evt.target.value / 100
-            //             document.getElementById(
-            //                 'lInpaintingMaskWeight'
-            //             ).innerHTML = `${label_value}`
-            //             await sdapi.setInpaintMaskWeight(label_value)
-
-            //             // //get the inpaint mask weight from the webui sd
-            //             // await g_sd_options_obj.getOptions()
-            //             // const inpainting_mask_weight =
-            //             //     await g_sd_options_obj.getInpaintingMaskWeight()
-
-            //             // console.log('inpainting_mask_weight: ', inpainting_mask_weight)
-            //             // html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
-            //         } catch (e) {
-            //             console.warn(e)
-            //         }
-            //     })
-            //REFACTOR: move to events.js
         } catch (e) {
             console.warn(e)
         }
@@ -570,9 +559,20 @@ class SDTab extends React.Component<{}> {
                                                 }
                                                 value={selection_mode.value}
                                                 title={selection_mode.title}
-                                                onClick={(evt: any) => {
+                                                onClick={async (evt: any) => {
                                                     store.data.selection_mode =
                                                         selection_mode.value
+                                                    try {
+                                                        const selectionInfo =
+                                                            //@ts-ignore
+                                                            await psapi.getSelectionInfoExe()
+                                                        //@ts-ignore
+                                                        await calcWidthHeightFromSelection(
+                                                            selectionInfo
+                                                        )
+                                                    } catch (e) {
+                                                        console.warn(e)
+                                                    }
                                                 }}
                                             >
                                                 {selection_mode.name}
@@ -626,6 +626,55 @@ class SDTab extends React.Component<{}> {
                                     ></sp-menu>
                                 </sp-picker> */}
                             </div>
+                        </div>
+                        <div>
+                            <sp-radio-group
+                                id="baseSizeGroup"
+                                class=""
+                                style={{
+                                    display:
+                                        store.data.selection_mode !== 'ratio'
+                                            ? 'hidden'
+                                            : undefined,
+                                }}
+                            >
+                                {[512, 768, 1024].map(
+                                    (base_size: number, index) => {
+                                        return (
+                                            <sp-radio
+                                                key={index}
+                                                class="rbBaseSize"
+                                                checked={
+                                                    helper_store.data
+                                                        .base_size === base_size
+                                                        ? true
+                                                        : void 0
+                                                }
+                                                value={base_size}
+                                                title={base_size}
+                                                onClick={async (evt: any) => {
+                                                    helper_store.data.base_size =
+                                                        base_size
+
+                                                    try {
+                                                        const selectionInfo =
+                                                            //@ts-ignore
+                                                            await psapi.getSelectionInfoExe()
+                                                        //@ts-ignore
+                                                        await calcWidthHeightFromSelection(
+                                                            selectionInfo
+                                                        )
+                                                    } catch (e) {
+                                                        console.warn(e)
+                                                    }
+                                                }}
+                                            >
+                                                {base_size}
+                                            </sp-radio>
+                                        )
+                                    }
+                                )}
+                            </sp-radio-group>
                         </div>
                         <div
                             style={{
@@ -888,12 +937,12 @@ class SDTab extends React.Component<{}> {
                         </SpSlider>
 
                         <div style={{ display: 'flex' }}>
-                            <sp-slider
+                            <SpSlider
                                 show-value="false"
                                 id="slInpaintingMaskWeight"
                                 min="0"
                                 max="100"
-                                value="100"
+                                value={store.data.inpainting_mask_weight * 100}
                                 title="0 will keep the composition; 1 will allow composition to change"
                                 style={{
                                     display: [
@@ -904,6 +953,22 @@ class SDTab extends React.Component<{}> {
                                         ? void 0
                                         : 'none',
                                 }}
+                                onInput={async (evt: any) => {
+                                    store.data.inpainting_mask_weight =
+                                        evt.target.value / 100
+                                }}
+                                onChange={async (evt: any) => {
+                                    try {
+                                        store.data.inpainting_mask_weight =
+                                            evt.target.value / 100
+
+                                        await setInpaintMaskWeight(
+                                            store.data.inpainting_mask_weight
+                                        )
+                                    } catch (e) {
+                                        console.warn(e)
+                                    }
+                                }}
                             >
                                 <sp-label slot="label" class="title">
                                     Inpainting conditioning mask strength:
@@ -912,9 +977,9 @@ class SDTab extends React.Component<{}> {
                                     slot="label"
                                     id="lInpaintingMaskWeight"
                                 >
-                                    1
+                                    {store.data.inpainting_mask_weight}
                                 </sp-label>
-                            </sp-slider>
+                            </SpSlider>
                         </div>
 
                         <div
@@ -1006,6 +1071,16 @@ class SDTab extends React.Component<{}> {
                                 }}
                             >
                                 Hi Res Fix
+                            </SpCheckBox>
+                            <SpCheckBox
+                                class="checkbox"
+                                id=""
+                                checked={store.data.tiling}
+                                onClick={(evt: any) => {
+                                    store.data.tiling = evt.target.checked
+                                }}
+                            >
+                                tiling
                             </SpCheckBox>
                         </div>
                         <div
@@ -1226,6 +1301,7 @@ class SDTab extends React.Component<{}> {
                             </sp-label>
                         </SpSlider>
                     </div>
+
                     <div>
                         <div style={{ display: 'flex' }}>
                             <sp-label id="sdLabelSeed">Seed:</sp-label>
@@ -1317,9 +1393,9 @@ class SDTab extends React.Component<{}> {
 const sdTabContainer = document.getElementById('sdTabContainer')!
 const sdTabRoot = ReactDOM.createRoot(sdTabContainer)
 sdTabRoot.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            {/* <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        {/* <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
                 <Collapsible
                     defaultIsOpen={true}
                     label={Locale('Stable Diffusion Tab')}
@@ -1327,7 +1403,7 @@ sdTabRoot.render(
                     <SDTab></SDTab>
                 </Collapsible>
             </div> */}
-            <SDTab></SDTab>
-        </ErrorBoundary>
-    </React.StrictMode>
+        <SDTab></SDTab>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

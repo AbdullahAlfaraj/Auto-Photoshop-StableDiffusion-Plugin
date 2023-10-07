@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { observer } from 'mobx-react'
 import { AStore } from '../main/astore'
 
-import { SpCheckBox, SpMenu } from '../util/elements'
+import { SpCheckBox, SpMenu, SpSlider } from '../util/elements'
 import Locale from '../locale/locale'
 import globalStore from '../globalstore'
 import { io } from '../util/oldSystem'
@@ -13,10 +13,11 @@ import { storage } from 'uxp'
 import { ErrorBoundary } from '../util/errorBoundary'
 import { MaskModeEnum, ScriptMode } from '../util/ts/enum'
 import { store as progress_store } from '../session/progress'
+import { requestPost } from '../util/ts/api'
 
 // import { Jimp } from '../util/oldSystem'
 declare const Jimp: any // make sure you import jimp before importing settings.tsx
-
+declare let g_sd_url: string
 type InterpolationMethod = {
     [key: string]: {
         photoshop: string
@@ -77,6 +78,9 @@ interface AStoreData {
     extension_type: ExtensionTypeEnum
     use_sharp_mask: boolean
     use_prompt_shortcut: boolean
+    bTurnOffServerStatusAlert: boolean
+    CLIP_stop_at_last_layers: number
+    use_smart_object: boolean
 }
 export const store = new AStore<AStoreData>({
     scale_interpolation_method: interpolationMethods.bilinear,
@@ -88,6 +92,11 @@ export const store = new AStore<AStoreData>({
     extension_type: ExtensionTypeEnum.Auto1111Extension,
     use_sharp_mask: false,
     use_prompt_shortcut: true,
+    bTurnOffServerStatusAlert:
+        JSON.parse(storage.localStorage.getItem('bTurnOffServerStatusAlert')) ||
+        false,
+    CLIP_stop_at_last_layers: 1,
+    use_smart_object: true, // true to keep layer as smart objects, false to rasterize them
 })
 
 function onShouldLogToFileChange(event: any) {
@@ -125,10 +134,41 @@ function setDeleteLogTimer() {
     console.log('setDeleteLogTimer() timer_id :', timer_id)
     return timer_id
 }
+async function postOptions(options: Object) {
+    try {
+        const full_url = `${g_sd_url}/sdapi/v1/options`
+        await requestPost(full_url, options)
+    } catch (e) {
+        console.warn('failed postOptions at : ', g_sd_url, options, e)
+    }
+}
+
+interface Options {
+    [key: string]: number
+    CLIP_stop_at_last_layers: number
+}
+
+async function getOptions(): Promise<Options | null> {
+    const full_url = `${g_sd_url}/sdapi/v1/options`
+    try {
+        const response = await fetch(full_url)
+        if (response.status === 404) return null
+        return await response.json()
+    } catch (error) {
+        console.error(`Error fetching from ${full_url}:`, error)
+        return null
+    }
+}
 
 @observer
 export class Settings extends React.Component<{}> {
-    componentDidMount(): void {}
+    async componentDidMount(): Promise<void> {
+        const options = await getOptions()
+
+        store.data.CLIP_stop_at_last_layers =
+            options?.CLIP_stop_at_last_layers ??
+            store.data.CLIP_stop_at_last_layers
+    }
 
     render() {
         return (
@@ -278,6 +318,12 @@ export class Settings extends React.Component<{}> {
                                     title={config[extension_type].title}
                                     class="rbExtensionType"
                                     value={config[extension_type].value}
+                                    checked={
+                                        store.data.extension_type ===
+                                        config[extension_type].value
+                                            ? true
+                                            : void 0
+                                    }
                                     onClick={(evt: any) => {
                                         store.data.extension_type =
                                             evt.target.value
@@ -289,6 +335,68 @@ export class Settings extends React.Component<{}> {
                         })}
                     </sp-radio-group>
                 </div>
+                <div>
+                    <sp-checkbox
+                        id="chTurnOffServerStatusAlert"
+                        checked={
+                            store.data.bTurnOffServerStatusAlert
+                                ? true
+                                : undefined
+                        }
+                        onClick={(evt: any) => {
+                            store.data.bTurnOffServerStatusAlert =
+                                evt.target.checked
+                            storage.localStorage.setItem(
+                                'bTurnOffServerStatusAlert',
+                                evt.target.checked
+                            )
+                        }}
+                    >
+                        Turn Off Server Status Alert
+                    </sp-checkbox>
+                </div>
+                <div>
+                    <SpSlider
+                        show-value="false"
+                        min={1}
+                        max={12}
+                        value={store.data.CLIP_stop_at_last_layers}
+                        onInput={(evt: any) => {
+                            store.data.CLIP_stop_at_last_layers =
+                                evt.target.value
+                        }}
+                        onChange={async (evt: any) => {
+                            console.log(
+                                'should update clip skip through the option endpoint'
+                            )
+                            await postOptions({
+                                CLIP_stop_at_last_layers:
+                                    store.data.CLIP_stop_at_last_layers,
+                            })
+                        }}
+                        title="clip skip: use 1 for none, 2 for skipping one layer"
+                    >
+                        <sp-label slot="label">
+                            {Locale('Clip Skip: ')}
+                        </sp-label>
+                        <sp-label slot="label">
+                            {store.data.CLIP_stop_at_last_layers}
+                        </sp-label>
+                    </SpSlider>
+                </div>
+                <div>
+                    <sp-checkbox
+                        checked={store.data.use_smart_object ? true : undefined}
+                        id="chUseSmartObject"
+                        onClick={(evt: any) => {
+                            store.data.use_smart_object = evt.target.checked
+                                ? true
+                                : false
+                        }}
+                    >
+                        Smart Object
+                    </sp-checkbox>
+                </div>
             </div>
         )
     }
@@ -297,11 +405,15 @@ const containerNode = document.getElementById('reactSettingsContainer')!
 const root = ReactDOM.createRoot(containerNode)
 
 root.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <Settings></Settings>
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <Settings></Settings>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )
 
 progress_store.data.live_progress_image
+
+export default {
+    store: store,
+}

@@ -21,6 +21,7 @@ import {
     setInpaintMaskWeight,
 } from '../util/ts/sdapi'
 import { store as session_store } from '../session/session_store'
+import settings_tab_ts from '../settings/settings'
 import { setUnitData } from '../controlnet/entry'
 import { controlNetUnitData } from '../controlnet/store'
 import { presetToStore } from '../util/ts/io'
@@ -133,6 +134,8 @@ export const store = new AStore({
     hr_upscaler: '',
 
     selection_mode: selection_mode_config[0].value,
+    inpainting_mask_weight: 1,
+    tiling: false,
 })
 export const default_preset = {
     sd_tab_preset: {
@@ -180,6 +183,8 @@ export const helper_store = new AStore({
     previous_width: 512,
     previous_height: 512,
     native_presets: {},
+    base_size: 512 as number,
+    lasso_offset: 10 as number,
 })
 export async function refreshModels() {
     let b_result = false
@@ -359,10 +364,11 @@ export async function refreshUI() {
         }
 
         //@ts-ignore
-        g_automatic_status = await checkAutoStatus()
-        //@ts-ignore
-        await displayNotification(g_automatic_status)
-
+        g_automatic_status = await checkAutoStatus() // check the webui status regardless if alert are turned on or off
+        if (!settings_tab_ts.store.data.bTurnOffServerStatusAlert) {
+            //@ts-ignore
+            await displayNotification(g_automatic_status) // only show alert if the alert are turn on
+        }
         const bSamplersStatus = await initSamplers()
 
         await refreshModels()
@@ -670,6 +676,8 @@ export function loadPresetSettings(preset: any) {
         preset?.controlnet_tab_preset.forEach(
             (unit: controlNetUnitData, index: number) => {
                 try {
+                    unit.filter_keyword = 'none' // value of 'none' will display all models and modules
+
                     setUnitData(unit, index)
                 } catch (e) {
                     console.log('error at unit index: ', index)
@@ -679,4 +687,9 @@ export function loadPresetSettings(preset: any) {
         )
         // io_ts.presetToStore(preset?.controlnet_tab_preset, store)
     }
+}
+
+export default {
+    store: store,
+    helper_store: helper_store,
 }

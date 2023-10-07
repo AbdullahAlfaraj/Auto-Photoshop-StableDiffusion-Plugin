@@ -23,7 +23,8 @@ function convertMetadataToJson(metadata_str) {
         // console.log('sub_settings: ', sub_settings)
 
         const settings_json = {}
-        settings_json['prompt'] = prompt
+        ;[settings_json['prompt'], settings_json['negative_prompt']] =
+            prompt.split('Negative prompt:  ')
 
         for (const setting of sub_settings) {
             let [key, value] = setting.split(':').map((s) => s.trimLeft())
@@ -157,15 +158,13 @@ async function txt2ImgRequest(payload) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(payload),
-            // "body": payload
         })
 
         let r = await request.json()
         // console.log('txt2ImgRequest json:', r)
 
         const uniqueDocumentId = payload['uniqueDocumentId']
-        // dir_fullpath,dirName = serverHelper.getUniqueDocumentDirPathName(uniqueDocumentId)
-        // serverHelper.createFolder(dir_fullpath)
+
         const image_paths = []
 
         const metadata = []
@@ -176,36 +175,19 @@ async function txt2ImgRequest(payload) {
             try {
                 const auto_metadata_str = await getAuto1111Metadata(i)
                 auto_metadata_json = convertMetadataToJson(auto_metadata_str)
-                console.warn(
-                    'auto_metadata_json.Seed:',
-                    auto_metadata_json?.Seed
-                )
             } catch (e) {
                 console.warn(e)
                 auto_metadata_json = {} // set the metadata to empty if there an error while getting the metadata
             }
 
-            // response2 = await client.post(url=f'{sd_url}/sdapi/v1/png-info', json=png_payload)
-            // pnginfo = PngImagePlugin.PngInfo()
-            // pnginfo.add_text("parameters", response2.json().get("info"))
-
             const image_name = general.newOutputImageName()
             const image_path = `${uniqueDocumentId}/${image_name}`
-
-            // image_path = f'output/{dirName}/{image_name}'
-            // image_paths.append(image_path)
-            // image.save(f'./{image_path}', pnginfo=pnginfo)
-
-            // metadata_info = response2.json().get("info")
-            // metadata_json = metadata_to_json.convertMetadataToJson(metadata_info)
-            // metadata.append(metadata_json)
 
             images_info.push({
                 base64: i,
                 path: image_path,
                 auto_metadata: auto_metadata_json,
             })
-            // console.log("metadata_json: ", metadata_json)
         }
         const dir_name = 'temp_dir_name'
         return {
@@ -218,8 +200,6 @@ async function txt2ImgRequest(payload) {
         console.warn(e)
         return {}
     }
-
-    // const request_path = '/sdapi/v1/txt2img'
 }
 function getExtensionUrl() {
     const extension_type = settings_tab_ts.store.data.extension_type
@@ -414,6 +394,7 @@ async function loadPromptShortcut(file_name) {
         }
     } catch (e) {
         console.warn(e)
+        return {}
     }
 }
 

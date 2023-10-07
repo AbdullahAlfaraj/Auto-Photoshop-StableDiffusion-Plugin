@@ -188,6 +188,54 @@ export class UltimateSDUpscalerForm extends React.Component<{
         this.props.store.updateProperty('is_installed', is_installed)
         return is_installed
     }
+
+    renderScaleSlider() {
+        switch (this.props.store.data.target_size_type) {
+            case ui_config.target_size_type.choices.indexOf(
+                'Scale from image size'
+            ):
+                return (
+                    <SpSliderWithLabel
+                        label={ui_config.custom_scale.label}
+                        output_value={this.props.store.data.custom_scale}
+                        id={'custom_scale'}
+                        out_min={ui_config.custom_scale.minimum}
+                        out_max={ui_config.custom_scale.maximum}
+                        onSliderInput={this.handleSliderChange}
+                        steps={0.01}
+                        slider_type={SliderType.Float}
+                    />
+                )
+            case ui_config.target_size_type.choices.indexOf('Custom size'):
+                return (
+                    <>
+                        <SpSliderWithLabel
+                            label={ui_config.custom_width.label}
+                            output_value={this.props.store.data.custom_width}
+                            id={'custom_width'}
+                            out_min={ui_config.custom_width.minimum}
+                            out_max={ui_config.custom_width.maximum}
+                            onSliderInput={this.handleSliderChange}
+                            steps={ui_config.custom_width.step}
+                            slider_type={SliderType.Integer}
+                        />
+                        <SpSliderWithLabel
+                            label={ui_config.custom_height.label}
+                            output_value={this.props.store.data.custom_height}
+                            id={'custom_height'}
+                            out_min={ui_config.custom_height.minimum}
+                            out_max={ui_config.custom_height.maximum}
+                            onSliderInput={this.handleSliderChange}
+                            steps={ui_config.custom_height.step}
+                            slider_type={SliderType.Integer}
+                        />
+                    </>
+                )
+            default:
+                return void 0
+        }
+    }
+
     render() {
         if (!this.props.store.data.is_installed) {
             return (
@@ -269,47 +317,43 @@ export class UltimateSDUpscalerForm extends React.Component<{
                     onChange={this.handleMenuChange}
                     selected_index={this.props.store.data.target_size_type}
                 />
-                <SpSliderWithLabel
-                    label={ui_config.custom_scale.label}
-                    output_value={this.props.store.data.custom_scale}
-                    id={'custom_scale'}
-                    out_min={ui_config.custom_scale.minimum}
-                    out_max={ui_config.custom_scale.maximum}
-                    onSliderInput={this.handleSliderChange}
-                    steps={0.01}
-                    slider_type={SliderType.Float}
-                />
-
-                <sp-checkbox
-                    checked={
-                        this.props.store.data.save_upscaled_image
-                            ? true
-                            : undefined
-                    }
-                    onClick={(event: React.ChangeEvent<HTMLInputElement>) => {
-                        this.props.store.updateProperty(
-                            'save_upscaled_image',
-                            event.target.checked
-                        )
-                    }}
-                >
-                    {ui_config.save_upscaled_image.label}
-                </sp-checkbox>
-                <sp-checkbox
-                    checked={
-                        this.props.store.data.save_seams_fix_image
-                            ? true
-                            : undefined
-                    }
-                    onClick={(event: React.ChangeEvent<HTMLInputElement>) => {
-                        this.props.store.updateProperty(
-                            'save_seams_fix_image',
-                            event.target.checked
-                        )
-                    }}
-                >
-                    {ui_config.save_seams_fix_image.label}
-                </sp-checkbox>
+                {this.renderScaleSlider()}
+                <div>
+                    <sp-checkbox
+                        checked={
+                            this.props.store.data.save_upscaled_image
+                                ? true
+                                : undefined
+                        }
+                        onClick={(
+                            event: React.ChangeEvent<HTMLInputElement>
+                        ) => {
+                            this.props.store.updateProperty(
+                                'save_upscaled_image',
+                                event.target.checked
+                            )
+                        }}
+                    >
+                        {ui_config.save_upscaled_image.label}
+                    </sp-checkbox>
+                    <sp-checkbox
+                        checked={
+                            this.props.store.data.save_seams_fix_image
+                                ? true
+                                : undefined
+                        }
+                        onClick={(
+                            event: React.ChangeEvent<HTMLInputElement>
+                        ) => {
+                            this.props.store.updateProperty(
+                                'save_seams_fix_image',
+                                event.target.checked
+                            )
+                        }}
+                    >
+                        {ui_config.save_seams_fix_image.label}
+                    </sp-checkbox>
+                </div>
                 {group_1_sliders}
                 <SpMenu
                     title={'Seams Fix Type'}

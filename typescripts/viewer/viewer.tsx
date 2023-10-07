@@ -101,7 +101,12 @@ const add_new = async (
     //change the color of thumbnail border
     //add image to the canvas
     await psapi.unselectActiveLayersExe()
-    const layer = await moveImageToLayer(base64, selectionInfo)
+    const layer = await moveImageToLayer(
+        base64,
+        selectionInfo,
+        'output_image.png',
+        settings_tab_ts.store.data.use_smart_object
+    )
 
     // create channel if the generated mode support masking
     if (
@@ -631,25 +636,25 @@ const containers = document.querySelectorAll('.reactViewerContainer')
 containers.forEach((container) => {
     const root = ReactDOM.createRoot(container)
     root.render(
-        <React.StrictMode>
-            <ErrorBoundary>
-                {/* <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+        //<React.StrictMode>
+        <ErrorBoundary>
+            {/* <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
                     <Collapsible defaultIsOpen={true} label={Locale('Viewer')}>
                         <Viewer></Viewer>
                     </Collapsible>
                 </div> */}
-                <Viewer></Viewer>
-            </ErrorBoundary>
-        </React.StrictMode>
+            <Viewer></Viewer>
+        </ErrorBoundary>
+        //</React.StrictMode>
     )
 })
 
 const button_container = document.getElementById('viewerButtonContainer')!
 const root = ReactDOM.createRoot(button_container)
 root.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <ToolbarViewerButtons />
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <ToolbarViewerButtons />
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

@@ -73,15 +73,6 @@ async function loadSettings() {
     }
 }
 
-document.getElementById('chUseSmartObject').addEventListener('change', (ev) => {
-    const isChecked = ev.target.checked
-    if (isChecked) {
-        g_b_use_smart_object = true
-    } else {
-        g_b_use_smart_object = false
-    }
-})
-
 function getUseOriginalPrompt() {
     const b_use_original_prompt = document.getElementById(
         'chUseOriginalPrompt'
