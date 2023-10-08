@@ -28,7 +28,7 @@
     "controlnet_tab_preset": [
         {
             "enabled": true,
-            "module": "inpaint_only",
+            "module": "inpaint_global_harmonious",
             "model": "control_v11p_sd15_inpaint [ebff9138]",
             "weight": 1,
             "resize_mode": "Scale to Fit (Inner Fit)",
@@ -39,7 +39,7 @@
             "guidance_start": 0,
             "guidance_end": 1,
             "guessmode": false,
-            "control_mode": "Balanced",
+            "control_mode": "ControlNet is more important",
             "pixel_perfect": true,
             "auto_image": true,
             "filter_keyword": "Inpaint"
