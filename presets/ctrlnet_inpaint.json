@@ -1,6 +1,5 @@
 {
     "sd_tab_preset": {
-        "selected_model": "juggernaut_final.safetensors [88967f03f2]",
         "is_lasso_mode": false,
         "mode": "inpaint",
         "rb_mode": "inpaint",
