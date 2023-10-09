@@ -101,6 +101,7 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Mats+Oldin" alt="Mats Oldin"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Rodrigo+Terra" alt="Rodrigo Terra"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Nicolas+Meunier" alt="Nicolas Meunier"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ihor+Pankin" alt="Ihor Pankin"></td>
 </tr>
 <tr>
 <td>que0005</td>
@@ -108,6 +109,7 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <td>Mats Oldin</td>
 <td>Rodrigo Terra</td>
 <td>Nicolas Meunier</td>
+<td>Ihor Pankin</td>
 </tr>
 </table>
 
@@ -121,6 +123,7 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Mvs+Srs" alt="Mvs Srs"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Felipe+Cortes" alt="Felipe Cortes"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Smith" alt="Smith"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Sanchez" alt="Sanchez"></td>
 </tr>
 <tr>
 <td>Amith Thomas</td>
@@ -130,6 +133,13 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <td>Mvs Srs</td>
 <td>Felipe Cortes</td>
 <td>Smith</td>
+<td>Sanchez</td>
+</tr>
+<tr>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Ziui+Witter" alt="Ziui Witter"></td>
+</tr>
+<tr>
+<td>Ziui Witter</td>
 </tr>
 </table>
 
@@ -140,12 +150,16 @@ By supporting us on [Patreon](https://www.patreon.com/AbdullahAlfaraj), you’ll
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Petter+Lundh" alt="Petter Lundh"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=AWWalker" alt="AWWalker"></td>
 <td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=cdmusic" alt="cdmusic"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=Jason+Bessonette" alt="Jason Bessonette"></td>
+<td><img src="https://ui-avatars.com/api/?background=random&color=fff&rounded=true&name=22two+" alt="22two "></td>
 </tr>
 <tr>
 <td>Sebastian Karbowniczek</td>
 <td>Petter Lundh</td>
 <td>AWWalker</td>
 <td>cdmusic</td>
+<td>Jason Bessonette</td>
+<td>22two </td>
 </tr>
 </table>
 
