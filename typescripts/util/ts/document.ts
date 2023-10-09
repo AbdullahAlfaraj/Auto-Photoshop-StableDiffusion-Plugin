@@ -251,7 +251,8 @@ export async function base64ToFileAndGetLayer(
                             _obj: 'rectangle',
                             bottom: {
                                 _unit: 'pixelsUnit',
-                                _value: jimp_image.bitmap.height * willScaleSize,
+                                _value:
+                                    jimp_image.bitmap.height * willScaleSize,
                             },
                             left: {
                                 _unit: 'pixelsUnit',
@@ -274,7 +275,7 @@ export async function base64ToFileAndGetLayer(
             commandName: 'select import area',
         }
     )
-    
+
     await executeAsModal(
         async () => {
             const result = await batchPlay(
@@ -288,19 +289,25 @@ export async function base64ToFileAndGetLayer(
                         },
                         freeTransformCenterState: {
                             _enum: 'quadCenterState',
-                            _value: "QCSCorner0"
+                            _value: 'QCSCorner0',
                         },
                         offset: {
-                            _obj: "offset",
-                            horizontal: { _unit: "pixelsUnit", _value: 0.0 },
-                            vertical: { _unit: "pixelsUnit", _value: 0.0 }
+                            _obj: 'offset',
+                            horizontal: { _unit: 'pixelsUnit', _value: 0.0 },
+                            vertical: { _unit: 'pixelsUnit', _value: 0.0 },
                         },
                         _isCommand: true,
                         _options: {
                             dialogOptions: 'dontDisplay',
                         },
-                        width: { "_unit": "percentUnit", "_value": 1 / willScaleSize * 100 },
-                        height: { "_unit": "percentUnit", "_value": 1 / willScaleSize * 100 }
+                        width: {
+                            _unit: 'percentUnit',
+                            _value: (1 / willScaleSize) * 100,
+                        },
+                        height: {
+                            _unit: 'percentUnit',
+                            _value: (1 / willScaleSize) * 100,
+                        },
                     },
                 ],
                 {}
