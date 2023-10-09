@@ -45,6 +45,7 @@ const zipList = [
     './*.txt',
     './*.md',
     './*.png',
+    './presets/**/*',
 ]
 
 const zipfile = new yazl.ZipFile()
