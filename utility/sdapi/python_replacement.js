@@ -24,7 +24,7 @@ function convertMetadataToJson(metadata_str) {
 
         const settings_json = {}
         ;[settings_json['prompt'], settings_json['negative_prompt']] =
-            prompt.split('Negative prompt:  ')
+            prompt.split('Negative prompt: ')
 
         for (const setting of sub_settings) {
             let [key, value] = setting.split(':').map((s) => s.trimLeft())
