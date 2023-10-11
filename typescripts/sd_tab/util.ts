@@ -21,10 +21,14 @@ import {
     setInpaintMaskWeight,
 } from '../util/ts/sdapi'
 import { store as session_store } from '../session/session_store'
+import settings_tab_ts from '../settings/settings'
 import { setUnitData } from '../controlnet/entry'
 import { controlNetUnitData } from '../controlnet/store'
 import { presetToStore } from '../util/ts/io'
 import { refreshExtraUpscalers } from '../extra_page/extra_page'
+
+import { readdirSync, readFileSync } from 'fs'
+
 declare let g_models: any[]
 declare let g_automatic_status: any
 declare let g_sd_options_obj: any
@@ -130,6 +134,8 @@ export const store = new AStore({
     hr_upscaler: '',
 
     selection_mode: selection_mode_config[0].value,
+    inpainting_mask_weight: 1,
+    tiling: false,
 })
 export const default_preset = {
     sd_tab_preset: {
@@ -171,10 +177,14 @@ export const helper_store = new AStore({
     b_show_sampler: false, //false when off, true when on,
     models: [] as any[],
     loras: [] as any[],
+    embeddings: [] as any[],
     sampler_list: [] as any[],
     hr_upscaler_list: [] as string[],
     previous_width: 512,
     previous_height: 512,
+    native_presets: {},
+    base_size: 512 as number,
+    lasso_offset: 10 as number,
 })
 export async function refreshModels() {
     let b_result = false
@@ -249,7 +259,7 @@ export async function updateClickEventHandler(current_version: string) {
             online_data.new_version
         )
 
-        let header_message = "You're Plugin is up to date."
+        let header_message = 'Your Plugin is up to date.'
         let long_message = ''
         if (b_need_update) {
             header_message = `New Version is Available (${online_data.new_version})`
@@ -328,6 +338,21 @@ export async function initSamplers() {
     return bStatus
 }
 
+export function loadNativePreset() {
+    const json_container: { [key: string]: any } = {}
+    const dir = 'plugin:/presets' // specify the directory containing the .json files
+
+    readdirSync(dir).forEach((file) => {
+        if (file.endsWith('.json')) {
+            const fileContent = readFileSync(`${dir}/${file}`, 'utf8')
+            const fileNameWithoutExtension = file.slice(0, -5)
+            json_container[fileNameWithoutExtension] = JSON.parse(fileContent)
+        }
+    })
+
+    console.log(json_container)
+    return json_container
+}
 export async function refreshUI() {
     try {
         const b_proxy_server_status = await updateVersionUI()
@@ -339,14 +364,16 @@ export async function refreshUI() {
         }
 
         //@ts-ignore
-        g_automatic_status = await checkAutoStatus()
-        //@ts-ignore
-        await displayNotification(g_automatic_status)
-
+        g_automatic_status = await checkAutoStatus() // check the webui status regardless if alert are turned on or off
+        if (!settings_tab_ts.store.data.bTurnOffServerStatusAlert) {
+            //@ts-ignore
+            await displayNotification(g_automatic_status) // only show alert if the alert are turn on
+        }
         const bSamplersStatus = await initSamplers()
 
         await refreshModels()
         helper_store.data.loras = await requestLoraModels()
+        helper_store.data.embeddings = await requestEmbeddings()
         await refreshExtraUpscalers()
 
         await setInpaintMaskWeight(1.0) //set the inpaint conditional mask to 1 when the on plugin start
@@ -375,6 +402,8 @@ export async function refreshUI() {
         g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
         await control_net.initializeControlNetTab(g_controlnet_max_models)
         await main.populateVAE()
+
+        helper_store.data.native_presets = loadNativePreset()
     } catch (e) {
         console.warn(e)
     }
@@ -410,6 +439,18 @@ export async function requestLoraModels() {
     const full_url = `${g_sd_url}/sdapi/v1/loras`
     const lora_models = (await requestGet(full_url)) ?? []
     return lora_models
+}
+
+export async function requestEmbeddings() {
+    try {
+        const full_url = `${g_sd_url}/sdapi/v1/embeddings`
+        let results = (await requestGet(full_url)) || {}
+        let embeddings = Object.keys(results?.loaded || {})
+        return embeddings
+    } catch (e) {
+        console.error(e)
+        return []
+    }
 }
 
 export function getLoraModelPrompt(lora_model_name: string) {
@@ -635,6 +676,8 @@ export function loadPresetSettings(preset: any) {
         preset?.controlnet_tab_preset.forEach(
             (unit: controlNetUnitData, index: number) => {
                 try {
+                    unit.filter_keyword = 'none' // value of 'none' will display all models and modules
+
                     setUnitData(unit, index)
                 } catch (e) {
                     console.log('error at unit index: ', index)
@@ -644,4 +687,9 @@ export function loadPresetSettings(preset: any) {
         )
         // io_ts.presetToStore(preset?.controlnet_tab_preset, store)
     }
+}
+
+export default {
+    store: store,
+    helper_store: helper_store,
 }

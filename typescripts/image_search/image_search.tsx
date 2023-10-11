@@ -6,6 +6,7 @@ import { Grid } from '../util/grid'
 import { MoveToCanvasSvg } from '../util/elements'
 import { io } from '../util/oldSystem'
 import { ErrorBoundary } from '../util/errorBoundary'
+import { urlToCanvas } from '../util/ts/general'
 
 export const store = new AStore({
     images: [],
@@ -14,11 +15,6 @@ export const store = new AStore({
     width: 50,
     height: 50,
 })
-
-async function urlToCanvas(url: string) {
-    const image_file_name = 'search_image_temp.png'
-    await io.IO.urlToLayer(url, image_file_name)
-}
 
 const ImageSearch = observer(() => {
     console.log('rendered')
@@ -45,7 +41,10 @@ const ImageSearch = observer(() => {
                     {
                         ComponentType: MoveToCanvasSvg,
                         callback: (index: number) => {
-                            urlToCanvas(store.data.images[index])
+                            urlToCanvas(
+                                store.data.images[index],
+                                'search_image_temp.png'
+                            )
                         },
                         title: 'Copy Image to Canvas',
                     },
@@ -63,9 +62,9 @@ const gridRoot = ReactDOM.createRoot(gridContainerNode)
 
 let images: string[] = []
 gridRoot.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <ImageSearch></ImageSearch>
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <ImageSearch></ImageSearch>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

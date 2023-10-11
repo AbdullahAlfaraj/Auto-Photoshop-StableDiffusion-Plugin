@@ -120,6 +120,7 @@ class ControlNetTab extends React.Component<{
 
             ControlNetStore.controlNetUnitData.forEach(async (data) => {
                 data.input_image = base64_image
+                data.selection_info = selectionInfo
             })
         } else {
             await note.Notification.inactiveSelectionArea()

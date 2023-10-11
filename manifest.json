@@ -1,213 +1,212 @@
 {
-  "id": "auto.photoshop.stable.diffusion.plugin",
-  "name": "Auto Photoshop Stable Diffusion Plugin",
-  "version": "1.1.0",
-  "host": [
-    {
-      "app": "PS",
-      "minVersion": "24.0.0"
-    }
-  ],
-  "main": "index.html",
-  "manifestVersion": 5,
-  "requiredPermissions": {
-    "network": {
-      "domains": "all"
+    "id": "auto.photoshop.stable.diffusion.plugin",
+    "name": "Auto Photoshop Stable Diffusion Plugin",
+    "version": "1.3.3",
+    "host": {
+        "app": "PS",
+        "minVersion": "24.0.0"
     },
-    "launchProcess": {
-      "schemes": [
-        "http",
-        "https",
-        "mailto"
-      ],
-      "extensions": [
-        ".png",
-        ".jpg",
-        ".pdf",
-        ""
-      ]
+    "main": "index.html",
+    "manifestVersion": 5,
+    "requiredPermissions": {
+        "allowCodeGenerationFromStrings": true,
+        "network": {
+            "domains": "all"
+        },
+        "launchProcess": {
+            "schemes": [
+                "http",
+                "https",
+                "mailto"
+            ],
+            "extensions": [
+                ".png",
+                ".jpg",
+                ".pdf",
+                ""
+            ]
+        },
+        "clipboard": "readAndWrite",
+        "localFileSystem": "request",
+        "ipc": {
+            "enablePluginCommunication": true
+        }
     },
-    "clipboard": "readAndWrite",
-    "localFileSystem": "request",
-    "ipc": {
-      "enablePluginCommunication": true
-    }
-  },
-  "entrypoints": [
-    {
-      "type": "panel",
-      "id": "main_panel",
-      "label": {
-        "default": "Auto-Photoshop-SD",
-        "en-US": "Auto-Photoshop-SD",
-        "es-ES": "Auto-Photoshop-SD",
-        "zh-CN": "SD插件（明空汉化）"
-      },
-      "minimumSize": {
-        "width": 400,
-        "height": 800
-      },
-      "maximumSize": {
-        "width": 1200,
-        "height": 10000
-      },
-      "preferredDockedSize": {
-        "width": 150,
-        "height": 800
-      },
-      "preferredFloatingSize": {
-        "width": 300,
-        "height": 800
-      },
-      "commands": [
+    "entrypoints": [
         {
-          "id": "show_alert",
-          "label": {
-            "default": "Show Alert",
-            "en-US": "Show Alert (US)",
-            "es-ES": "Show Alert (ES)"
-          }
-        }
-      ],
-      "icons": [
+            "type": "panel",
+            "id": "main_panel",
+            "label": {
+                "default": "Auto-Photoshop-SD",
+                "en-US": "Auto-Photoshop-SD",
+                "es-ES": "Auto-Photoshop-SD",
+                "zh-CN": "SD插件（明空汉化）"
+            },
+            "minimumSize": {
+                "width": 400,
+                "height": 400
+            },
+            "maximumSize": {
+                "width": 1200,
+                "height": 10000
+            },
+            "preferredDockedSize": {
+                "width": 150,
+                "height": 800
+            },
+            "preferredFloatingSize": {
+                "width": 300,
+                "height": 800
+            },
+            "commands": [
+                {
+                    "id": "show_alert",
+                    "label": {
+                        "default": "Show Alert",
+                        "en-US": "Show Alert (US)",
+                        "es-ES": "Show Alert (ES)"
+                    }
+                }
+            ],
+            "icons": [
+                {
+                    "width": 23,
+                    "height": 23,
+                    "path": "icon/panel.png",
+                    "scale": [
+                        1,
+                        2
+                    ],
+                    "theme": [
+                        "all"
+                    ],
+                    "species": [
+                        "chrome"
+                    ]
+                }
+            ]
+        },
         {
-          "width": 23,
-          "height": 23,
-          "path": "icon/panel.png",
-          "scale": [
-            1,
-            2
-          ],
-          "theme": [
-            "all"
-          ],
-          "species": [
-            "chrome"
-          ]
-        }
-      ]
-    },
-    {
-      "type": "panel",
-      "id": "second_panel",
-      "label": {
-        "default": "Second Auto-Photoshop-SD",
-        "en-US": "Second Auto-Photoshop-SD",
-        "es-ES": "Second Auto-Photoshop-SD",
-        "zh-CN": "SD插件（明空汉化）"
-      },
-      "minimumSize": {
-        "width": 100,
-        "height": 100
-      },
-      "maximumSize": {
-        "width": 1200,
-        "height": 10000
-      },
-      "preferredDockedSize": {
-        "width": 150,
-        "height": 800
-      },
-      "preferredFloatingSize": {
-        "width": 300,
-        "height": 800
-      },
-      "commands": [
+            "type": "panel",
+            "id": "second_panel",
+            "label": {
+                "default": "Second Auto-Photoshop-SD",
+                "en-US": "Second Auto-Photoshop-SD",
+                "es-ES": "Second Auto-Photoshop-SD",
+                "zh-CN": "SD插件（明空汉化）"
+            },
+            "minimumSize": {
+                "width": 100,
+                "height": 100
+            },
+            "maximumSize": {
+                "width": 1200,
+                "height": 10000
+            },
+            "preferredDockedSize": {
+                "width": 150,
+                "height": 800
+            },
+            "preferredFloatingSize": {
+                "width": 300,
+                "height": 800
+            },
+            "commands": [
+                {
+                    "id": "show_alert",
+                    "label": {
+                        "default": "Show Alert",
+                        "en-US": "Show Alert (US)",
+                        "es-ES": "Show Alert (ES)"
+                    }
+                }
+            ],
+            "icons": [
+                {
+                    "width": 23,
+                    "height": 23,
+                    "path": "icon/panel.png",
+                    "scale": [
+                        1,
+                        2
+                    ],
+                    "theme": [
+                        "all"
+                    ],
+                    "species": [
+                        "chrome"
+                    ]
+                }
+            ]
+        },
         {
-          "id": "show_alert",
-          "label": {
-            "default": "Show Alert",
-            "en-US": "Show Alert (US)",
-            "es-ES": "Show Alert (ES)"
-          }
+            "type": "panel",
+            "id": "toolbar",
+            "label": {
+                "default": "toolbar Auto-Photoshop-SD",
+                "en-US": "toolbar Auto-Photoshop-SD",
+                "es-ES": "toolbar Auto-Photoshop-SD"
+            },
+            "minimumSize": {
+                "width": 30,
+                "height": 100
+            },
+            "maximumSize": {
+                "width": 1200,
+                "height": 10000
+            },
+            "preferredDockedSize": {
+                "width": 30,
+                "height": 800
+            },
+            "preferredFloatingSize": {
+                "width": 30,
+                "height": 800
+            },
+            "commands": [
+                {
+                    "id": "show_alert",
+                    "label": {
+                        "default": "Show Alert",
+                        "en-US": "Show Alert (US)",
+                        "es-ES": "Show Alert (ES)"
+                    }
+                }
+            ],
+            "icons": [
+                {
+                    "width": 23,
+                    "height": 23,
+                    "path": "icon/panel.png",
+                    "scale": [
+                        1,
+                        2
+                    ],
+                    "theme": [
+                        "all"
+                    ],
+                    "species": [
+                        "chrome"
+                    ]
+                }
+            ]
         }
-      ],
-      "icons": [
+    ],
+    "icons": [
         {
-          "width": 23,
-          "height": 23,
-          "path": "icon/panel.png",
-          "scale": [
-            1,
-            2
-          ],
-          "theme": [
-            "all"
-          ],
-          "species": [
-            "chrome"
-          ]
+            "width": 48,
+            "height": 48,
+            "path": "icon/plugin.png",
+            "scale": [
+                1,
+                2
+            ],
+            "theme": [
+                "all"
+            ],
+            "species": [
+                "pluginList"
+            ]
         }
-      ]
-    },
-    {
-      "type": "panel",
-      "id": "toolbar",
-      "label": {
-        "default": "toolbar Auto-Photoshop-SD",
-        "en-US": "toolbar Auto-Photoshop-SD",
-        "es-ES": "toolbar Auto-Photoshop-SD"
-      },
-      "minimumSize": {
-        "width": 30,
-        "height": 100
-      },
-      "maximumSize": {
-        "width": 1200,
-        "height": 10000
-      },
-      "preferredDockedSize": {
-        "width": 30,
-        "height": 800
-      },
-      "preferredFloatingSize": {
-        "width": 30,
-        "height": 800
-      },
-      "commands": [
-        {
-          "id": "show_alert",
-          "label": {
-            "default": "Show Alert",
-            "en-US": "Show Alert (US)",
-            "es-ES": "Show Alert (ES)"
-          }
-        }
-      ],
-      "icons": [
-        {
-          "width": 23,
-          "height": 23,
-          "path": "icon/panel.png",
-          "scale": [
-            1,
-            2
-          ],
-          "theme": [
-            "all"
-          ],
-          "species": [
-            "chrome"
-          ]
-        }
-      ]
-    }
-  ],
-  "icons": [
-    {
-      "width": 48,
-      "height": 48,
-      "path": "icon/plugin.png",
-      "scale": [
-        1,
-        2
-      ],
-      "theme": [
-        "all"
-      ],
-      "species": [
-        "pluginList"
-      ]
-    }
-  ]
+    ]
 }

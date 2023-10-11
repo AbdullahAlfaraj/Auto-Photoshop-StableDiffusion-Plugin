@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { observer } from 'mobx-react'
 import { AStore, toJS } from '../main/astore'
 import { Grid } from '../util/grid'
-import { io, settings_tab } from '../util/oldSystem'
+import { io, python_replacement, settings_tab } from '../util/oldSystem'
 import { MoveToCanvasSvg, PenSvg } from '../util/elements'
 import { ErrorBoundary } from '../util/errorBoundary'
 import Locale from '../locale/locale'
@@ -13,6 +13,10 @@ import { Collapsible } from '../util/collapsible'
 import { storage } from 'uxp'
 import { _arrayBufferToBase64 } from '../util/ts/io'
 import { sd_tab_store } from '../stores'
+import { postPng } from '../util/ts/api'
+import { setPrompt } from '../multiTextarea'
+import sd_tab_util from '../sd_tab/util'
+
 declare let g_ui_settings_object: any
 export const store = new AStore({
     images: [] as string[], //full resloution images
@@ -179,6 +183,43 @@ function getHistoryMetadata(metadata_json: any) {
     //     metadata_json?.seed
 
     g_ui_settings_object.autoFillInSettings(toJS(metadata_json))
+}
+
+interface Auto111Metadata {
+    prompt?: string
+    negative_prompt?: string
+    Steps?: string
+    Sampler?: string
+    'CFG scale'?: string
+    Seed?: string
+    Size?: string
+    'Model hash'?: string
+    Model?: string
+    'Denoising strength'?: string
+    'Mask blur'?: string
+    Version?: string
+}
+function ChangeSettingsFromAuto1111Metadata(metadata: Auto111Metadata) {
+    if (metadata?.prompt)
+        setPrompt({
+            positive: metadata.prompt,
+            negative: metadata?.negative_prompt,
+        })
+
+    if (metadata?.Steps) sd_tab_util.store.data.steps = Number(metadata.Steps)
+
+    if (metadata?.Sampler)
+        sd_tab_util.store.data.sampler_name = metadata.Sampler
+    if (metadata?.['CFG scale'])
+        sd_tab_util.store.data.cfg = Number(metadata['CFG scale'])
+    if (metadata?.Seed) sd_tab_util.store.data.seed = metadata.Seed
+    if (metadata?.Size)
+        [sd_tab_util.store.data.width, sd_tab_util.store.data.height] =
+            metadata.Size.split('x').map((dim) => Number(dim))
+    if (metadata?.['Denoising strength'])
+        sd_tab_util.store.data.denoising_strength = Number(
+            metadata['Denoising strength']
+        )
 }
 interface CombinedElement {
     thumbnail: string
@@ -372,36 +413,80 @@ class History extends React.Component<{}> {
 
     render(): React.ReactNode {
         return (
-            <div style={{ width: '100%' }}>
-                {/* {store.data.refresh} */}
-                <sp-slider
-                    min={85}
-                    max={300}
-                    onInput={(event: React.ChangeEvent<HTMLInputElement>) => {
-                        const new_value = event.target.value
-                        store.updateProperty('height', new_value)
-                        store.updateProperty('width', new_value)
-                    }}
-                    show-value="true"
-                    value={100}
-                >
-                    <sp-label slot="label">Image Size:</sp-label>
-                </sp-slider>
-                <div>
-                    <button className="btnSquare" id="btnLoadHistory">
-                        Load Previous Generations
-                    </button>
-                    <button className="btnSquare" id="btnClearHistoryCache">
-                        Clear Results
-                    </button>
-                </div>
-                {store.data.metadata_jsons.length > 0
-                    ? this.createGrids(
-                          store.data.thumbnails,
-                          store.data.images,
-                          store.data.metadata_jsons
-                      )
-                    : void 0}
+            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+                <Collapsible defaultIsOpen={true} label={Locale('History')}>
+                    <div style={{ width: '100%' }}>
+                        {/* {store.data.refresh} */}
+                        <sp-slider
+                            min={85}
+                            max={300}
+                            onInput={(
+                                event: React.ChangeEvent<HTMLInputElement>
+                            ) => {
+                                const new_value = event.target.value
+                                store.updateProperty('height', new_value)
+                                store.updateProperty('width', new_value)
+                            }}
+                            show-value="true"
+                            value={100}
+                        >
+                            <sp-label slot="label">Image Size:</sp-label>
+                        </sp-slider>
+                        <div>
+                            <button
+                                style={{ marginBottom: '3px' }}
+                                className="btnSquare"
+                                onClick={async () => {
+                                    try {
+                                        const response_json = await postPng()
+                                        if (
+                                            response_json?.metadata?.parameters
+                                        ) {
+                                            const auto_metadata =
+                                                python_replacement.convertMetadataToJson(
+                                                    response_json.metadata
+                                                        .parameters
+                                                )
+                                            console.log(
+                                                'auto_metadata: ',
+                                                auto_metadata
+                                            )
+                                            ChangeSettingsFromAuto1111Metadata(
+                                                auto_metadata
+                                            )
+                                        }
+                                    } catch (e) {
+                                        console.warn(e)
+                                    }
+                                }}
+                            >
+                                Load Metadata from Image
+                            </button>
+                        </div>
+                        <div>
+                            <button
+                                className="btnSquare"
+                                id="btnLoadHistory"
+                                style={{ marginRight: '3px' }}
+                            >
+                                Load Previous Generations
+                            </button>
+                            <button
+                                className="btnSquare"
+                                id="btnClearHistoryCache"
+                            >
+                                Clear Results
+                            </button>
+                        </div>
+                        {store.data.metadata_jsons.length > 0
+                            ? this.createGrids(
+                                  store.data.thumbnails,
+                                  store.data.images,
+                                  store.data.metadata_jsons
+                              )
+                            : void 0}
+                    </div>
+                </Collapsible>
             </div>
         )
     }
@@ -411,13 +496,9 @@ const gridContainerNode = document.getElementById('historyImagesContainer')!
 const gridRoot = ReactDOM.createRoot(gridContainerNode)
 
 gridRoot.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Collapsible defaultIsOpen={true} label={Locale('History')}>
-                    <History></History>
-                </Collapsible>
-            </div>
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <History></History>
+    </ErrorBoundary>
+    //</React.StrictMode>
 )

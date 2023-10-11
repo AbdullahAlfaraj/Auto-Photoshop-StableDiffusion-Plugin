@@ -31,15 +31,19 @@ function finalWidthHeight(
     return [finalWidth, finalHeight]
 }
 
-async function selectionToFinalWidthHeight() {
+async function selectionToFinalWidthHeight(
+    selectionInfo,
+    minWidth = 512,
+    minHeight = 512
+) {
     // const { getSelectionInfoExe } = require('./psapi')
     try {
-        const selectionInfo = await psapi.getSelectionInfoExe()
+        // const selectionInfo = await psapi.getSelectionInfoExe()
         const [finalWidth, finalHeight] = finalWidthHeight(
             selectionInfo.width,
             selectionInfo.height,
-            512,
-            512
+            minWidth,
+            minHeight
         )
 
         return [
@@ -319,15 +323,47 @@ async function channelToSelectionExe(channel_name = 'mask') {
         console.warn(e)
     }
 }
-async function inpaintLassoInitImageAndMask(channel_name = 'mask') {
+
+function makeSquare(selectionInfo, offset) {
+    // Calculate the current width and height
+    let width = selectionInfo.right - selectionInfo.left
+    let height = selectionInfo.bottom - selectionInfo.top
+
+    // Determine the maximum dimension
+    let maxDim = Math.max(width, height)
+
+    // Calculate the difference for width and height
+    let diffWidth = maxDim - width
+    let diffHeight = maxDim - height
+
+    // Add half the difference to 'right' and 'bottom', subtract the rest from 'left' and 'top'
+    selectionInfo.right += Math.floor(diffWidth / 2) + offset
+    selectionInfo.left -= diffWidth - Math.floor(diffWidth / 2) + offset
+    selectionInfo.bottom += Math.floor(diffHeight / 2) + offset
+    selectionInfo.top -= diffHeight - Math.floor(diffHeight / 2) + offset
+
+    // Update width and height
+    selectionInfo.width = maxDim + 2 * offset
+    selectionInfo.height = maxDim + 2 * offset
+
+    return selectionInfo
+}
+
+async function inpaintLassoInitImageAndMask(channel_name = 'mask', offset = 0) {
+    const selectionInfo = await psapi.getSelectionInfoExe()
+    //convert the selection box into square box so that you have best output results
+    const squareSelection = makeSquare(selectionInfo, offset)
+    //correct width and height sliders, since this is lasso mode.
+    await calcWidthHeightFromSelection(squareSelection)
+
     async function getImageFromCanvas() {
         const width = html_manip.getWidth()
         const height = html_manip.getHeight()
-        const selectionInfo = await psapi.getSelectionInfoExe()
+
         const base64 = await io.IO.getSelectionFromCanvasAsBase64Interface_New(
             width,
             height,
-            selectionInfo,
+            squareSelection,
             true
         )
         return base64
@@ -348,7 +384,7 @@ async function inpaintLassoInitImageAndMask(channel_name = 'mask') {
     //     )
     //     const selection_info = await psapi.getSelectionInfoExe()
     // })
-    await selectionToChannel('mask') //lasso selection to channel called 'mask'
+    await selectionToChannel(channel_name) //lasso selection to channel called 'mask'
 
     const init_base64 = await getImageFromCanvas()
 
@@ -360,7 +396,7 @@ async function inpaintLassoInitImageAndMask(channel_name = 'mask') {
             synchronousExecution: true,
         })
         // const selection_info = await psapi.getSelectionInfoExe()
-        mask_base64 = await fillSelectionWhiteOutsideBlack()
+        mask_base64 = await fillSelectionWhiteOutsideBlack(squareSelection)
     })
 
     //save laso selection to channel
@@ -385,7 +421,7 @@ async function inpaintLassoInitImageAndMask(channel_name = 'mask') {
     //mask
 }
 
-async function fillSelectionWhiteOutsideBlack() {
+async function fillSelectionWhiteOutsideBlack(selectionInfo) {
     // Create a new layer
     const layer_name = 'mask'
     const getSelectionDesc = () => ({
@@ -495,10 +531,7 @@ async function fillSelectionWhiteOutsideBlack() {
         { modalBehavior: 'execute' }
     )
 
-    //get the rectangular bounding box selection
-
-    const rect_selection_info = await psapi.getSelectionInfoExe()
-    await psapi.reSelectMarqueeExe(rect_selection_info)
+    await psapi.reSelectMarqueeExe(selectionInfo)
     const width = html_manip.getWidth()
     const height = html_manip.getHeight()
 
@@ -506,7 +539,7 @@ async function fillSelectionWhiteOutsideBlack() {
     const base64 = await io.IO.getSelectionFromCanvasAsBase64Interface_New(
         width,
         height,
-        rect_selection_info,
+        selectionInfo,
         true,
         layer_name + '.png'
     )

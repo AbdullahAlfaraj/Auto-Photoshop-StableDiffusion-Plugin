@@ -23,4 +23,4 @@ uvicorn==0.20.0
 # uvloop==0.17.0
 watchfiles==0.18.1
 websockets==10.4
-duckduckgo_search==3.7.1
+duckduckgo_search==3.9.3

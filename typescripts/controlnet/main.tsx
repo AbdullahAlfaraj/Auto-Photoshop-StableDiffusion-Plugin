@@ -22,28 +22,28 @@ if (elem) {
 if (elem2) {
     const root = ReactDOM.createRoot(elem2)
     root.render(
-        <React.StrictMode>
-            <ErrorBoundary>
-                <div
-                    style={{
-                        border: '2px solid #6d6c6c',
-                        padding: '3px',
-                    }}
+        //<React.StrictMode>
+        <ErrorBoundary>
+            <div
+                style={{
+                    border: '2px solid #6d6c6c',
+                    padding: '3px',
+                }}
+            >
+                <Collapsible
+                    defaultIsOpen={true}
+                    label={Locale('ControlNet Tab')}
                 >
-                    <Collapsible
-                        defaultIsOpen={true}
-                        label={Locale('ControlNet Tab')}
+                    <div
+                        id="controlNetTabParentContainer"
+                        style={{ marginTop: '10px' }}
                     >
-                        <div
-                            id="controlNetTabParentContainer"
-                            style={{ marginTop: '10px' }}
-                        >
-                            <ControlNetTab appState={store} />
-                        </div>
-                    </Collapsible>
-                </div>
-            </ErrorBoundary>
-        </React.StrictMode>
+                        <ControlNetTab appState={store} />
+                    </div>
+                </Collapsible>
+            </div>
+        </ErrorBoundary>
+        //</React.StrictMode>
     )
 }
 function scrollToEnabledControlNetUnit() {}

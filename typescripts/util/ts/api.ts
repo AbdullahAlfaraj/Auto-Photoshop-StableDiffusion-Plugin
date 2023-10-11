@@ -1,3 +1,5 @@
+import { storage } from 'uxp'
+
 declare let g_sd_url: string
 export async function requestGet(url: string) {
     let json = null
@@ -89,4 +91,34 @@ export async function isScriptInstalled(script_name: string): Promise<boolean> {
     }
     console.log('is_installed: ', is_installed)
     return is_installed
+}
+
+export async function postArrayBuffer(url: string, data: Uint8Array) {
+    const response = await fetch(url, {
+        method: 'POST',
+        body: data,
+        headers: {
+            'Content-Type': 'application/octet-stream', // or whatever type your data should be
+        },
+    })
+
+    if (!response.ok) {
+        throw new Error('Network response was not ok')
+    }
+
+    return response.json() // parses JSON response into native JavaScript objects
+}
+
+export async function postPng() {
+    const new_file = await storage.localFileSystem.getFileForOpening()
+    const arrayBuffer = await new_file.read({ format: storage.formats.binary })
+
+    //@ts-ignore
+    const extension_url = py_re.getExtensionUrl()
+    const full_url = `${extension_url}/readPngMetadata`
+    const json = await postArrayBuffer(full_url, new Uint8Array(arrayBuffer))
+    //@ts-ignore
+    // const json = await postArrayBuffer(full_url, 'ping')
+    console.log('json:', json)
+    return json
 }

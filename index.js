@@ -8,7 +8,10 @@ const _log = console.log
 const _warn = console.warn
 const _error = console.error
 let g_timer_value = 300 // temporary global variable for testing the timer pause function
-let g_version = 'v1.3.0'
+let g_version =
+    'v' +
+    JSON.parse(require('fs').readFileSync('plugin:manifest.json', 'utf-8'))
+        .version
 let g_sd_url = 'http://127.0.0.1:7860'
 let g_online_data_url =
     'https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/master/utility/online_data.json'
@@ -55,7 +58,7 @@ const settings_tab = require('./utility/tab/settings')
 //load tabs
 
 const image_search_tab = require('./utility/tab/image_search_tab')
-const lexica_tab = require('./utility/tab/lexica_tab')
+
 // const share_tab = require('./utility/tab/share_tab')
 const api = require('./utility/api')
 
@@ -88,6 +91,8 @@ const {
     extra_page,
     selection_ts,
     stores,
+    lexica,
+    api_ts,
     comfyui,
 } = require('./typescripts/dist/bundle')
 
@@ -156,7 +161,6 @@ function setLogMethod(should_log_to_file = true) {
     }
 }
 setLogMethod(settings_tab_ts.store.data.should_log_to_file)
-// const ultimate_sd_upscaler_script_test = require('./ultimate_sd_upscaler/dist/main')
 
 // const {
 //     script_args,
@@ -193,20 +197,24 @@ async function hasSessionSelectionChanged() {
     }
 }
 
-async function calcWidthHeightFromSelection() {
+async function calcWidthHeightFromSelection(selectionInfo) {
     //set the width and height, hrWidth, and hrHeight using selection info and selection mode
     const selection_mode = sd_tab_store.data.selection_mode
     if (selection_mode === 'ratio') {
         //change (width and height) and (hrWidth, hrHeight) to match the ratio of selection
+        const base_size = sd_tab_util.helper_store.data.base_size
         const [width, height, hr_width, hr_height] =
-            await selection.selectionToFinalWidthHeight()
+            await selection.selectionToFinalWidthHeight(
+                selectionInfo,
+                base_size,
+                base_size
+            )
         // console.log('width,height: ', width, height)
         html_manip.autoFillInWidth(width)
         html_manip.autoFillInHeight(height)
         html_manip.autoFillInHRWidth(hr_width)
         html_manip.autoFillInHRHeight(hr_height)
     } else if (selection_mode === 'precise') {
-        const selectionInfo = await psapi.getSelectionInfoExe()
         const [width, height, hr_width, hr_height] = [
             selectionInfo.width,
             selectionInfo.height,
@@ -229,9 +237,7 @@ const eventHandler = async (event, descriptor) => {
 
         // const isSelectionActive = await psapi.checkIfSelectionAreaIsActive()
         if (new_selection_info) {
-            const current_selection = new_selection_info // Note: don't use checkIfSelectionAreaIsActive to return the selection object, change this.
-
-            await calcWidthHeightFromSelection()
+            await calcWidthHeightFromSelection(new_selection_info)
         }
     } catch (e) {
         console.warn(e)
@@ -457,7 +463,7 @@ function promptShortcutExample() {
         large_building_1: 'castle, huge building, large building',
         painterly_style_1:
             'A full portrait of a beautiful post apocalyptic offworld arctic explorer, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration',
-        ugly: ' ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), out of frame, extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck)))',
+        ugly: '((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), out of frame, extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck)))',
     }
     var JSONInPrettyFormat = JSON.stringify(
         prompt_shortcut_example,
@@ -667,7 +673,7 @@ document.addEventListener('mouseenter', async (event) => {
             ) {
                 // if there is an active selection and if the selection has changed
 
-                await calcWidthHeightFromSelection()
+                await calcWidthHeightFromSelection(new_selection)
             } else {
                 // sessionStartHtml(true)//generate more, green color
                 //if you didn't move the selection.
@@ -1136,30 +1142,6 @@ async function convertToSmartObjectExe() {
     await require('photoshop').core.executeAsModal(convertToSmartObjectAction)
 }
 
-async function ImagesToLayersExe(images_paths) {
-    g_generation_session.isLoadingActive = true
-
-    await psapi.reSelectMarqueeExe(g_generation_session.selectionInfo)
-    image_path_to_layer = {}
-    console.log('ImagesToLayersExe: images_paths: ', images_paths)
-    for (image_path of images_paths) {
-        gCurrentImagePath = image_path
-        console.log(gCurrentImagePath)
-        await openImageExe() //local image to new document
-        await convertToSmartObjectExe() //convert the current image to smart object
-        if (g_b_use_smart_object === false) {
-            await executeAsModal(async () => {
-                await app.activeDocument.activeLayers[0].rasterize() //rastrize the active layer
-            })
-        }
-        await stackLayers() // move the smart object to the original/old document
-        await psapi.layerToSelection(g_generation_session.selectionInfo) //transform the new smart object layer to fit selection area
-        layer = await app.activeDocument.activeLayers[0]
-        image_path_to_layer[image_path] = layer
-        // await reselect(selectionInfo)
-    }
-    return image_path_to_layer
-}
 //REFACTOR: unused, remove?
 async function silentImagesToLayersExe_old(images_info) {
     try {
@@ -1506,19 +1488,13 @@ document
 
 //REFACTOR: move to document.js
 async function loadPromptShortcut() {
-    try {
-        let prompt_shortcut = await sdapi.loadPromptShortcut()
-        if (!prompt_shortcut || prompt_shortcut === {}) {
-            prompt_shortcut = promptShortcutExample()
-        }
-
-        // var JSONInPrettyFormat = JSON.stringify(prompt_shortcut, undefined, 4);
-        // document.getElementById('taPromptShortcut').value = JSONInPrettyFormat
-        html_manip.setPromptShortcut(prompt_shortcut) // fill the prompt shortcut textarea
-        await refreshPromptMenu() //refresh the prompt menue
-    } catch (e) {
-        console.warn(`loadPromptShortcut warning: ${e}`)
+    let prompt_shortcut = await sdapi.loadPromptShortcut() // always return json object or empty object {}
+    if (!Object.keys(prompt_shortcut).length) {
+        //load the default prompt shortcut if we have an empty prompt shortcut object (on failure to load from file)
+        prompt_shortcut = promptShortcutExample()
     }
+    html_manip.setPromptShortcut(prompt_shortcut) // fill the prompt shortcut textarea
+    await refreshPromptMenu() //refresh the prompt menu
 }
 //REFACTOR: move to ui.js
 async function refreshPromptMenu() {
@@ -1706,11 +1682,6 @@ const submenu = {
         'data-tab-name': 'sp-prompts-library-tab',
     },
 
-    lexica: {
-        value: 'lexica',
-        Label: 'Lexica',
-        'data-tab-name': 'sp-lexica-tab',
-    },
     image_search: {
         value: 'image_search',
         Label: 'Image Search',
@@ -1811,3 +1782,35 @@ Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
 //         .querySelector('#sp-stable-diffusion-ui-tab-page .reactViewerContainer')
 //         .scrollIntoView()
 // })
+
+const photoshop = require('photoshop')
+const uxp = require('uxp')
+async function openFileFromUrl(url, format = 'gif') {
+    try {
+        // Download the image
+        const response = await fetch(url)
+        // const blob = await response.blob()
+
+        // Convert the blob to an ArrayBuffer
+        const arrayBuffer = await response.arrayBuffer()
+
+        // Save the image to a temporary file
+        const tempFolder = await storage.localFileSystem.getTemporaryFolder()
+        const tempFile = await tempFolder.createFile(`temp.${format}`, {
+            overwrite: true,
+        })
+        await tempFile.write(arrayBuffer)
+
+        // Open the file in Photoshop
+        const document = await app.open(tempFile)
+        console.log(`Opened document: ${document.title}`)
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+async function openFileFromUrlExe(url, format = 'gif') {
+    await executeAsModal(async () => {
+        await openFileFromUrl(url, format)
+    })
+}
