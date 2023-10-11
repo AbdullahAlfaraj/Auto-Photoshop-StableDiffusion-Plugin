@@ -8,7 +8,10 @@ const _log = console.log
 const _warn = console.warn
 const _error = console.error
 let g_timer_value = 300 // temporary global variable for testing the timer pause function
-let g_version = 'v' + JSON.parse(require('fs').readFileSync("plugin:manifest.json", 'utf-8')).version
+let g_version =
+    'v' +
+    JSON.parse(require('fs').readFileSync('plugin:manifest.json', 'utf-8'))
+        .version
 let g_sd_url = 'http://127.0.0.1:7860'
 let g_online_data_url =
     'https://raw.githubusercontent.com/AbdullahAlfaraj/Auto-Photoshop-StableDiffusion-Plugin/master/utility/online_data.json'
@@ -459,7 +462,7 @@ function promptShortcutExample() {
         large_building_1: 'castle, huge building, large building',
         painterly_style_1:
             'A full portrait of a beautiful post apocalyptic offworld arctic explorer, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration',
-        ugly: ' ((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), out of frame, extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck)))',
+        ugly: '((((ugly)))), (((duplicate))), ((morbid)), ((mutilated)), out of frame, extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck)))',
     }
     var JSONInPrettyFormat = JSON.stringify(
         prompt_shortcut_example,
@@ -1778,3 +1781,35 @@ Array.from(document.querySelectorAll('.rbSubTab')).forEach((rb) => {
 //         .querySelector('#sp-stable-diffusion-ui-tab-page .reactViewerContainer')
 //         .scrollIntoView()
 // })
+
+const photoshop = require('photoshop')
+const uxp = require('uxp')
+async function openFileFromUrl(url, format = 'gif') {
+    try {
+        // Download the image
+        const response = await fetch(url)
+        // const blob = await response.blob()
+
+        // Convert the blob to an ArrayBuffer
+        const arrayBuffer = await response.arrayBuffer()
+
+        // Save the image to a temporary file
+        const tempFolder = await storage.localFileSystem.getTemporaryFolder()
+        const tempFile = await tempFolder.createFile(`temp.${format}`, {
+            overwrite: true,
+        })
+        await tempFile.write(arrayBuffer)
+
+        // Open the file in Photoshop
+        const document = await app.open(tempFile)
+        console.log(`Opened document: ${document.title}`)
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+async function openFileFromUrlExe(url, format = 'gif') {
+    await executeAsModal(async () => {
+        await openFileFromUrl(url, format)
+    })
+}
