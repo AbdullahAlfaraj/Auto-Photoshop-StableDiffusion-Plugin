@@ -54,7 +54,6 @@ export class VAEComponent extends React.Component<{
                 <SpMenu
                     title="vae models"
                     items={store.data.vae_model_list}
-                    // disabled={script_store.disabled}
                     // style="width: 199px; margin-right: 5px"
                     label_item="Select A VAE"
                     // id={'model_list'}

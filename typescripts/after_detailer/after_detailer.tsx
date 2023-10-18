@@ -155,7 +155,6 @@ export class AfterDetailerComponent extends React.Component<{
                 <SpMenu
                     title="model"
                     items={store.data.model_list}
-                    // disabled={script_store.disabled}
                     // style="width: 199px; margin-right: 5px"
                     label_item="Select a ADetailer Model"
                     // id={'model_list'}
@@ -219,7 +218,6 @@ export class AfterDetailerComponent extends React.Component<{
                 <SpMenu
                     title="controlnet inpaint model"
                     items={store.data.controlnet_models}
-                    // disabled={script_store.disabled}
                     // style="width: 199px; margin-right: 5px"
                     label_item="Select a ControlNet Model"
                     // id={'model_list'}

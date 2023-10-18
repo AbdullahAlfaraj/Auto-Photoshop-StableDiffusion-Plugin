@@ -61,6 +61,7 @@ export class SpSliderWithLabel extends React.Component<{
     output_value?: number // can be use to represent sd value
     // slider_value?: number // it's slider value can be from 1 to 100
     slider_type?: SliderType
+    disabled?: boolean
 }> {
     // const [sliderValue,setSliderValue] = useState<number>(0)
     state = { output_value: this.props.output_value || 0, slider_value: 0 }
@@ -164,6 +165,7 @@ export class SpSliderWithLabel extends React.Component<{
                     show-value="false"
                     // id="slControlNetWeight_0"
                     class="slControlNetWeight_"
+                    disabled={this.props.disabled ? true : void 0}
                     min={this.in_min}
                     max={this.in_max}
                     value={this.state.slider_value}
@@ -197,7 +199,8 @@ export class SpMenu extends React.Component<{
     title?: string
     style?: CSSProperties
     items?: string[]
-    disabled?: boolean[]
+    disabled?: boolean
+    disabled_items?: boolean[]
     label_item?: string
     onChange?: any
     selected_index?: number
@@ -238,6 +241,7 @@ export class SpMenu extends React.Component<{
                 title={this.props.title}
                 size={this.props.size || 'm'}
                 style={this.props.style}
+                disabled={this.props.disabled ? 'disabled' : undefined}
                 // style={{ width: '199px', marginRight: '5px' }}
             >
                 <sp-menu id={this.props.id} slot="options">
@@ -263,7 +267,7 @@ export class SpMenu extends React.Component<{
                                     : undefined
                             }
                             disabled={
-                                this.props.disabled?.[index]
+                                this.props.disabled_items?.[index]
                                     ? 'disabled'
                                     : undefined
                             }

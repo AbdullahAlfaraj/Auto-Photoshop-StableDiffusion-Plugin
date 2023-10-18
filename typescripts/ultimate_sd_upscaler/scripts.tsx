@@ -118,7 +118,7 @@ class ScriptComponent extends React.Component<{}> {
                 <SpMenu
                     title="Scripts"
                     items={script_store.scripts_list}
-                    disabled={script_store.disabled}
+                    disabled_items={script_store.disabled}
                     // style="width: 199px; margin-right: 5px"
                     label_item="Select A Script"
                     id={'script_list'}
