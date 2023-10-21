@@ -1,0 +1,92 @@
+{
+    "1": {
+        "inputs": {
+            "ckpt_name": "cardosAnime_v20.safetensors",
+            "beta_schedule": "sqrt_linear (AnimateDiff)"
+        },
+        "class_type": "CheckpointLoaderSimpleWithNoiseSelect"
+    },
+    "2": {
+        "inputs": {
+            "vae_name": "MoistMix.vae.pt"
+        },
+        "class_type": "VAELoader"
+    },
+    "3": {
+        "inputs": {
+            "text": "ship in storm, waves, dark, night, Artstation   ",
+            "clip": ["4", 0]
+        },
+        "class_type": "CLIPTextEncode"
+    },
+    "4": {
+        "inputs": {
+            "stop_at_clip_layer": -2,
+            "clip": ["1", 1]
+        },
+        "class_type": "CLIPSetLastLayer"
+    },
+    "6": {
+        "inputs": {
+            "text": "(ugly:1.2), (worst quality, low quality: 1.4)",
+            "clip": ["4", 0]
+        },
+        "class_type": "CLIPTextEncode"
+    },
+    "7": {
+        "inputs": {
+            "seed": 711493021904285,
+            "steps": 20,
+            "cfg": 8,
+            "sampler_name": "euler",
+            "scheduler": "normal",
+            "denoise": 1,
+            "model": ["8", 0],
+            "positive": ["3", 0],
+            "negative": ["6", 0],
+            "latent_image": ["8", 1]
+        },
+        "class_type": "KSampler"
+    },
+    "8": {
+        "inputs": {
+            "model_name": "mm_sd_v14.ckpt",
+            "unlimited_area_hack": true,
+            "model": ["1", 0],
+            "latents": ["9", 0]
+        },
+        "class_type": "AnimateDiffLoaderV1"
+    },
+    "9": {
+        "inputs": {
+            "width": 512,
+            "height": 512,
+            "batch_size": 16
+        },
+        "class_type": "EmptyLatentImage"
+    },
+    "10": {
+        "inputs": {
+            "samples": ["7", 0],
+            "vae": ["2", 0]
+        },
+        "class_type": "VAEDecode"
+    },
+    "12": {
+        "inputs": {
+            "filename_prefix": "AA_readme",
+            "images": ["10", 0]
+        },
+        "class_type": "SaveImage"
+    },
+    "26": {
+        "inputs": {
+            "frame_rate": 8,
+            "loop_count": 0,
+            "save_image": "Enabled",
+            "filename_prefix": "AA_readme_gif",
+            "images": ["10", 0]
+        },
+        "class_type": "ADE_AnimateDiffCombine"
+    }
+}

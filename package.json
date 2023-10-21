@@ -9,6 +9,7 @@
         "@types/react": "^18.2.6",
         "@types/react-dom": "^18.2.4",
         "changedpi": "^1.0.4",
+        "diffusion-chain": "file:../diffusion-chain",
         "fastify": "^4.10.2",
         "jimp": "^0.16.2",
         "madge": "^6.0.0",
@@ -30,6 +31,7 @@
         "@babel/plugin-transform-react-jsx": "^7.21.5",
         "@svgr/webpack": "^8.0.1",
         "babel-loader": "^9.1.2",
+        "chalk": "^5.3.0",
         "clean-webpack-plugin": "^4.0.0",
         "commander": "^11.0.0",
         "copy-webpack-plugin": "^11.0.0",
@@ -45,7 +47,6 @@
         "url-loader": "^4.1.1",
         "webpack": "^5.82.1",
         "webpack-cli": "^5.1.1",
-        "chalk": "^5.3.0",
         "yazl": "^2.5.1"
     },
     "scripts": {

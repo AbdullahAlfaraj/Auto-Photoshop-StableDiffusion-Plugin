@@ -94,6 +94,8 @@ const {
     lexica,
     api_ts,
     comfyui,
+    comfyui_util,
+    diffusion_chain,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
@@ -1814,3 +1816,6 @@ async function openFileFromUrlExe(url, format = 'gif') {
         await openFileFromUrl(url, format)
     })
 }
+
+let comfy_server = new diffusion_chain.ComfyServer('http://127.0.0.1:8188')
+let comfy_object_info = diffusion_chain.ComfyApi.objectInfo(comfy_server)

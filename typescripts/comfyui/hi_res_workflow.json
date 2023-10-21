@@ -7,22 +7,10 @@
             "sampler_name": "dpmpp_sde",
             "scheduler": "normal",
             "denoise": 1,
-            "model": [
-                "16",
-                0
-            ],
-            "positive": [
-                "6",
-                0
-            ],
-            "negative": [
-                "7",
-                0
-            ],
-            "latent_image": [
-                "5",
-                0
-            ]
+            "model": ["16", 0],
+            "positive": ["6", 0],
+            "negative": ["7", 0],
+            "latent_image": ["5", 0]
         },
         "class_type": "KSampler"
     },
@@ -37,43 +25,28 @@
     "6": {
         "inputs": {
             "text": "masterpiece HDR victorian portrait painting of woman, blonde hair, mountain nature, blue sky\n",
-            "clip": [
-                "16",
-                1
-            ]
+            "clip": ["16", 1]
         },
         "class_type": "CLIPTextEncode"
     },
     "7": {
         "inputs": {
             "text": "bad hands, text, watermark\n",
-            "clip": [
-                "16",
-                1
-            ]
+            "clip": ["16", 1]
         },
         "class_type": "CLIPTextEncode"
     },
     "8": {
         "inputs": {
-            "samples": [
-                "3",
-                0
-            ],
-            "vae": [
-                "16",
-                2
-            ]
+            "samples": ["3", 0],
+            "vae": ["16", 2]
         },
         "class_type": "VAEDecode"
     },
     "9": {
         "inputs": {
             "filename_prefix": "ComfyUI",
-            "images": [
-                "8",
-                0
-            ]
+            "images": ["8", 0]
         },
         "class_type": "SaveImage"
     },
@@ -83,10 +56,7 @@
             "width": 1152,
             "height": 1152,
             "crop": "disabled",
-            "samples": [
-                "3",
-                0
-            ]
+            "samples": ["3", 0]
         },
         "class_type": "LatentUpscale"
     },
@@ -98,45 +68,24 @@
             "sampler_name": "dpmpp_2m",
             "scheduler": "simple",
             "denoise": 0.5,
-            "model": [
-                "16",
-                0
-            ],
-            "positive": [
-                "6",
-                0
-            ],
-            "negative": [
-                "7",
-                0
-            ],
-            "latent_image": [
-                "10",
-                0
-            ]
+            "model": ["16", 0],
+            "positive": ["6", 0],
+            "negative": ["7", 0],
+            "latent_image": ["10", 0]
         },
         "class_type": "KSampler"
     },
     "12": {
         "inputs": {
             "filename_prefix": "ComfyUI",
-            "images": [
-                "13",
-                0
-            ]
+            "images": ["13", 0]
         },
         "class_type": "SaveImage"
     },
     "13": {
         "inputs": {
-            "samples": [
-                "11",
-                0
-            ],
-            "vae": [
-                "16",
-                2
-            ]
+            "samples": ["11", 0],
+            "vae": ["16", 2]
         },
         "class_type": "VAEDecode"
     },

@@ -1,0 +1,187 @@
+{
+    "8": {
+        "inputs": {
+            "vae_name": "klF8Anime2VAE_klF8Anime2VAE.ckpt"
+        },
+        "class_type": "VAELoader"
+    },
+    "16": {
+        "inputs": {
+            "ckpt_name": "juggernaut_final.safetensors"
+        },
+        "class_type": "CheckpointLoaderSimple"
+    },
+    "18": {
+        "inputs": {
+            "text": "(front view:1.2)",
+            "clip": ["16", 1]
+        },
+        "class_type": "CLIPTextEncode"
+    },
+    "21": {
+        "inputs": {
+            "width": 512,
+            "height": 512,
+            "batch_size": 2
+        },
+        "class_type": "EmptyLatentImage"
+    },
+    "30": {
+        "inputs": {
+            "text": "(a dog sitting:1.3) on a tile floor with a blue eyes and a white nose and tail, looking at the camera, artist, extremely detailed oil painting, a photorealistic painting, photorealism",
+            "clip": ["16", 1]
+        },
+        "class_type": "CLIPTextEncode"
+    },
+    "31": {
+        "inputs": {
+            "tile_size": 512,
+            "samples": ["97", 0],
+            "vae": ["8", 0]
+        },
+        "class_type": "VAEDecodeTiled"
+    },
+    "48": {
+        "inputs": {
+            "weight": ["163", 0],
+            "model_name": "ip-adapter-plus_sd15.bin",
+            "dtype": "fp32",
+            "model": ["162", 0],
+            "image": ["168", 0],
+            "clip_vision": ["57", 0]
+        },
+        "class_type": "IPAdapter"
+    },
+    "50": {
+        "inputs": {
+            "strength": ["163", 0],
+            "noise_augmentation": 0,
+            "conditioning": ["30", 0],
+            "clip_vision_output": ["48", 1]
+        },
+        "class_type": "unCLIPConditioning"
+    },
+    "57": {
+        "inputs": {
+            "clip_name": "model.safetensors"
+        },
+        "class_type": "CLIPVisionLoader"
+    },
+    "97": {
+        "inputs": {
+            "seed": 229741993160779,
+            "steps": 32,
+            "cfg": 6.5,
+            "sampler_name": "dpmpp_2s_ancestral",
+            "scheduler": "karras",
+            "denoise": 1,
+            "model": ["48", 0],
+            "positive": ["50", 0],
+            "negative": ["18", 0],
+            "latent_image": ["21", 0]
+        },
+        "class_type": "KSampler"
+    },
+    "122": {
+        "inputs": {
+            "images": ["31", 0]
+        },
+        "class_type": "PreviewImage"
+    },
+    "155": {
+        "inputs": {
+            "seed": 216203953003378,
+            "steps": 40,
+            "cfg": 5,
+            "sampler_name": "ddim",
+            "scheduler": "normal",
+            "denoise": 0.45,
+            "model": ["48", 0],
+            "positive": ["50", 0],
+            "negative": ["18", 0],
+            "latent_image": ["156", 0]
+        },
+        "class_type": "KSampler"
+    },
+    "156": {
+        "inputs": {
+            "tile_size": 640,
+            "pixels": ["159", 0],
+            "vae": ["8", 0]
+        },
+        "class_type": "VAEEncodeTiled"
+    },
+    "157": {
+        "inputs": {
+            "upscale_model": ["158", 0],
+            "image": ["31", 0]
+        },
+        "class_type": "ImageUpscaleWithModel"
+    },
+    "158": {
+        "inputs": {
+            "model_name": "RealESRGAN_x4plus_anime_6B.pth"
+        },
+        "class_type": "UpscaleModelLoader"
+    },
+    "159": {
+        "inputs": {
+            "upscale_method": "nearest-exact",
+            "scale_by": 0.45,
+            "image": ["157", 0]
+        },
+        "class_type": "ImageScaleBy"
+    },
+    "160": {
+        "inputs": {
+            "filename_prefix": "ComfyUI",
+            "images": ["161", 0]
+        },
+        "class_type": "SaveImage"
+    },
+    "161": {
+        "inputs": {
+            "tile_size": 512,
+            "samples": ["155", 0],
+            "vae": ["8", 0]
+        },
+        "class_type": "VAEDecodeTiled"
+    },
+    "162": {
+        "inputs": {
+            "b1": 1.1500000000000001,
+            "b2": 1.35,
+            "s1": 0.9500000000000001,
+            "s2": 0.18,
+            "model": ["16", 0]
+        },
+        "class_type": "FreeU"
+    },
+    "163": {
+        "inputs": {
+            "Value": 0.5
+        },
+        "class_type": "Float"
+    },
+    "168": {
+        "inputs": {
+            "image": "Layer 4 (3).png",
+            "choose file to upload": "image"
+        },
+        "class_type": "LoadImage"
+    },
+    "169": {
+        "inputs": {
+            "image": "Layer 3 (1).png",
+            "choose file to upload": "image"
+        },
+        "class_type": "LoadImage"
+    },
+    "188": {
+        "inputs": {
+            "image": "01285-3246154361-a photo of charddim15 person looking happy, beautiful, ((cloth)), ((full body)), ((chest)), ((far away)), ((waist up)).png",
+            "choose file to upload": "image"
+        },
+        "class_type": "LoadImage"
+    }
+}

@@ -40,3 +40,6 @@ export * as api_ts from './util/ts/api'
 export * as comfyui from './comfyui/comfyui'
 export { toJS } from 'mobx'
 export { default as node_fs } from 'fs'
+export { default as comfyui_util } from './comfyui/util'
+
+export * as diffusion_chain from 'diffusion-chain'

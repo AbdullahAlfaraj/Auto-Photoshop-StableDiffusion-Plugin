@@ -2,10 +2,13 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { requestGet, requestPost } from '../util/ts/api'
 import { observer } from 'mobx-react'
+import { runInAction } from 'mobx'
 import {
     MoveToCanvasSvg,
+    SliderType,
     SpMenu,
     SpSlider,
+    SpSliderWithLabel,
     SpTextfield,
 } from '../util/elements'
 import { ErrorBoundary } from '../util/errorBoundary'
@@ -13,15 +16,15 @@ import { Collapsible } from '../util/collapsible'
 import Locale from '../locale/locale'
 import { AStore } from '../main/astore'
 
-import hi_res_prompt from './prompt.json'
 import { Grid } from '../util/grid'
 import { io } from '../util/oldSystem'
 import { app } from 'photoshop'
 import { reaction, toJS } from 'mobx'
 import { storage } from 'uxp'
-export let hi_res_prompt_temp = hi_res_prompt
-console.log('hi_res_prompt: ', hi_res_prompt)
 
+import util from './util'
+import * as diffusion_chain from 'diffusion-chain'
+import { urlToCanvas } from '../util/ts/general'
 interface Error {
     type: string
     message: string
@@ -38,49 +41,6 @@ interface NodeError {
 interface Result {
     error?: Error
     node_errors?: { [key: string]: NodeError }
-}
-
-const result: Result = {
-    error: {
-        type: 'prompt_outputs_failed_validation',
-        message: 'Prompt outputs failed validation',
-        details: '',
-        extra_info: {},
-    },
-    node_errors: {
-        '16': {
-            errors: [
-                {
-                    type: 'value_not_in_list',
-                    message: 'Value not in list',
-                    details:
-                        "ckpt_name: 'v2-1_768-ema-pruned.ckpt' not in ['anythingV5Anything_anythingV5PrtRE.safetensors', 'deliberate_v2.safetensors', 'dreamshaper_631BakedVae.safetensors', 'dreamshaper_631Inpainting.safetensors', 'edgeOfRealism_eorV20Fp16BakedVAE.safetensors', 'juggernaut_final-inpainting.safetensors', 'juggernaut_final.safetensors', 'loraChGirl.safetensors', 'sd-v1-5-inpainting.ckpt', 'sd_xl_base_1.0.safetensors', 'sd_xl_refiner_1.0.safetensors', 'v1-5-pruned-emaonly.ckpt']",
-                    extra_info: {
-                        input_name: 'ckpt_name',
-                        input_config: [
-                            [
-                                'anythingV5Anything_anythingV5PrtRE.safetensors',
-                                'deliberate_v2.safetensors',
-                                'dreamshaper_631BakedVae.safetensors',
-                                'dreamshaper_631Inpainting.safetensors',
-                                'edgeOfRealism_eorV20Fp16BakedVAE.safetensors',
-                                'juggernaut_final-inpainting.safetensors',
-                                'juggernaut_final.safetensors',
-                                'loraChGirl.safetensors',
-                                'sd-v1-5-inpainting.ckpt',
-                                'sd_xl_base_1.0.safetensors',
-                                'sd_xl_refiner_1.0.safetensors',
-                                'v1-5-pruned-emaonly.ckpt',
-                            ],
-                        ],
-                        received_value: 'v2-1_768-ema-pruned.ckpt',
-                    },
-                },
-            ],
-            dependent_outputs: ['9', '12'],
-            class_type: 'CheckpointLoaderSimple',
-        },
-    },
 }
 
 function logError(result: Result) {
@@ -179,6 +139,7 @@ export async function generateRequest(prompt: any) {
 export async function generateImage(prompt: any) {
     try {
         let { history_result, prompt_id }: any = await generateRequest(prompt)
+
         const outputs: any[] = Object.values(history_result[prompt_id].outputs)
         const images: any[] = []
         for (const output of outputs) {
@@ -188,6 +149,8 @@ export async function generateImage(prompt: any) {
         }
 
         const base64_imgs = []
+        const formats: string[] = []
+
         for (const image of images) {
             const img = await loadImage(
                 image.filename,
@@ -195,14 +158,20 @@ export async function generateImage(prompt: any) {
                 image.type
             )
             base64_imgs.push(img)
+            formats.push(util.getFileFormat(image.filename))
         }
 
         store.data.comfyui_output_images = base64_imgs
 
         const thumbnails = []
-        for (const image of base64_imgs) {
-            thumbnails.push(await io.createThumbnail(image, 300))
+        for (let i = 0; i < base64_imgs.length; ++i) {
+            if (['png', 'webp', 'jpg'].includes(formats[i])) {
+                thumbnails.push(await io.createThumbnail(base64_imgs[i], 300))
+            } else if (['gif'].includes(formats[i])) {
+                thumbnails.push('data:image/gif;base64,' + base64_imgs[i])
+            }
         }
+
         store.data.comfyui_output_thumbnail_images = thumbnails
 
         return base64_imgs
@@ -242,6 +211,7 @@ export async function loadImage(
 }
 
 export async function getConfig() {
+    //TODO: replace this method with get_object_info from comfyapi
     try {
         const prompt = {
             '1': {
@@ -376,11 +346,31 @@ export const store = new AStore({
     // workflows_paths: [] as string[],
     // workflows_names: [] as string[],
     workflows: {} as any,
-    selected_workflow: '', // the selected workflow from the workflow menu
+    selected_workflow_name: '', // the selected workflow from the workflow menu
     current_prompt: {} as any, // current prompt extracted from the workflow
     thumbnail_image_size: 100,
     load_image_nodes: {} as any, //our custom loadImageBase64 nodes, we need to substitute comfyui LoadImage nodes with before generating a prompt
     // load_image_base64_strings: {} as any, //images the user added to the plugin comfy ui
+    object_info: undefined as any,
+    current_prompt2: {} as any,
+    current_prompt2_output: {} as any,
+    output_thumbnail_image_size: {} as Record<string, number>,
+    comfy_server: new diffusion_chain.ComfyServer(
+        'http://127.0.0.1:8188'
+    ) as diffusion_chain.ComfyServer,
+    loaded_images_base64_url: [] as string[],
+    current_loaded_image: {} as Record<string, string>,
+    loaded_images_list: [] as string[], // store an array of all images in the comfy's input directory
+    nodes_order: [] as string[], // nodes with smaller index will be rendered first,
+    can_edit_nodes: false as boolean,
+    nodes_label: {} as Record<string, string>,
+    workflows2: {
+        hi_res_workflow: util.hi_res_workflow,
+        lora_less_workflow: util.lora_less_workflow,
+        img2img_workflow: util.img2img_workflow,
+        animatediff_workflow: util.animatediff_workflow,
+    } as Record<string, any>,
+    progress_value: 0,
 })
 
 export function storeToPrompt(store: any, basePrompt: any) {
@@ -615,9 +605,9 @@ class ComfyNodeComponent extends React.Component<{}> {
                             label_item="Select a workflow"
                             selected_index={Object.values(
                                 store.data.workflows
-                            ).indexOf(store.data.selected_workflow)}
+                            ).indexOf(store.data.selected_workflow_name)}
                             onChange={async (id: any, value: any) => {
-                                store.data.selected_workflow = value.item
+                                store.data.selected_workflow_name = value.item
                                 await loadWorkflow(
                                     store.data.workflows[value.item]
                                 )
@@ -745,17 +735,803 @@ class ComfyNodeComponent extends React.Component<{}> {
     }
 }
 
+function setSliderValue(store: any, node_id: string, name: string, value: any) {
+    runInAction(() => {
+        store.data.current_prompt2[node_id].inputs[name] = value
+    })
+}
+async function onChangeLoadImage(node_id: string, filename: string) {
+    try {
+        store.data.current_loaded_image[node_id] =
+            await util.base64UrlFromComfy(store.data.comfy_server, {
+                filename: encodeURIComponent(filename),
+                type: 'input',
+                subfolder: '',
+            })
+    } catch (e) {
+        console.warn(e)
+    }
+}
+function renderNode(node_id: string, node: any) {
+    const comfy_node_info = toJS(store.data.object_info[node.class_type])
+    const is_output = comfy_node_info.output_node
+    console.log('comfy_node_info: ', comfy_node_info)
+    const node_type = util.getNodeType(node.class_type)
+    let node_html
+    if (node_type === util.ComfyNodeType.LoadImage) {
+        const loaded_images = store.data.loaded_images_list
+        const inputs = store.data.current_prompt2[node_id].inputs
+        const node_name = node.class_type
+        node_html = (
+            <div>
+                New load image component
+                <sp-label class="title" style={{ display: 'inline-block' }}>
+                    {node_name}
+                </sp-label>
+                <div>
+                    <SpMenu
+                        disabled={store.data.can_edit_nodes ? true : void 0}
+                        size="m"
+                        title={node_name}
+                        items={loaded_images}
+                        label_item={`Select an Image`}
+                        // id={'model_list'}
+                        selected_index={loaded_images.indexOf(inputs.image)}
+                        onChange={async (
+                            id: any,
+                            { index, item }: Record<string, any>
+                        ) => {
+                            console.log('onChange value.item: ', item)
+                            inputs.image = item
+                            //load image store for each LoadImage Node
+                            //use node_id to store these
+
+                            onChangeLoadImage(node_id, item)
+                        }}
+                    ></SpMenu>
+                </div>
+                <div>
+                    <button
+                        onClick={() => {
+                            let index: number = loaded_images.indexOf(
+                                inputs.image
+                            )
+                            index--
+                            const length = loaded_images.length
+                            index = ((index % length) + length) % length
+                            inputs.image = loaded_images[index]
+                            onChangeLoadImage(node_id, inputs.image)
+                        }}
+                    >
+                        {' '}
+                        {'<'}{' '}
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            let index: number = loaded_images.indexOf(
+                                inputs.image
+                            )
+                            index++
+                            const length = loaded_images.length
+                            index = ((index % length) + length) % length
+                            inputs.image = loaded_images[index]
+                            onChangeLoadImage(node_id, inputs.image)
+                        }}
+                    >
+                        {' '}
+                        {'>'}{' '}
+                    </button>
+                </div>
+                <img
+                    src={store.data.current_loaded_image[node_id]}
+                    style={{ height: '200px' }}
+                    onError={async () => {
+                        console.error(
+                            'error loading image: ',
+                            store.data.current_loaded_image[node_id]
+                        )
+                        // try {
+                        //     const filename = inputs.image
+                        //     store.data.current_loaded_image[node_id] =
+                        //         await util.base64UrlFromComfy(
+                        //             store.data.comfy_server,
+                        //             {
+                        //                 filename: encodeURIComponent(filename),
+                        //                 type: 'input',
+                        //                 subfolder: '',
+                        //             }
+                        //         )
+                        //     console.log(
+                        //         'store.data.current_loaded_image[node_id]: ',
+                        //         toJS(store.data.current_loaded_image[node_id])
+                        //     )
+                        // } catch (e) {
+                        //     console.warn(e)
+                        // }
+                        onChangeLoadImage(node_id, inputs.image)
+                    }}
+                />
+                {/* <Grid
+                    thumbnails={store.data.loaded_images_base64_url}
+                    width={200}
+                    height={200}
+                ></Grid> */}
+            </div>
+        )
+    } else if (node_type === util.ComfyNodeType.Normal) {
+        node_html = Object.entries(node.inputs).map(([name, value], index) => {
+            // store.data.current_prompt2[node_id].inputs[name] = value
+            try {
+                const input = comfy_node_info.input.required[name]
+                let { type, config } = util.parseComfyInput(input)
+                const html_element = renderInput(
+                    node_id,
+                    name,
+                    type,
+                    config,
+                    `${node_id}_${name}_${type}_${index}`
+                )
+                return html_element
+            } catch (e) {
+                console.error(e)
+            }
+        })
+    }
+    if (is_output) {
+        const output_node_element = (
+            <div>
+                <SpSlider
+                    disabled={store.data.can_edit_nodes ? true : void 0}
+                    style={{ display: 'block' }}
+                    show-value="false"
+                    id="slUpscaleSize"
+                    min="100"
+                    max="300"
+                    value={store.data.output_thumbnail_image_size[node_id]}
+                    title=""
+                    onInput={(evt: any) => {
+                        store.data.output_thumbnail_image_size[node_id] =
+                            evt.target.value
+                    }}
+                >
+                    <sp-label slot="label" class="title">
+                        Thumbnail Size:
+                    </sp-label>
+                    <sp-label class="labelNumber" slot="label">
+                        {parseInt(
+                            store.data.output_thumbnail_image_size[
+                                node_id
+                            ] as any
+                        )}
+                    </sp-label>
+                </SpSlider>
+                <Grid
+                    // thumbnails_data={store.data.images}
+
+                    thumbnails={store.data.current_prompt2_output[node_id]}
+                    width={store.data.output_thumbnail_image_size[node_id]}
+                    height={200}
+                    action_buttons={[
+                        {
+                            ComponentType: MoveToCanvasSvg,
+                            callback: (index: number) => {
+                                // io.IO.base64ToLayer(
+                                //     store.data.current_prompt2_output[node_id][
+                                //         index
+                                //     ]
+                                // )
+                                urlToCanvas(
+                                    store.data.current_prompt2_output[node_id][
+                                        index
+                                    ],
+                                    'comfy_output.png'
+                                )
+                            },
+                            title: 'Copy Image to Canvas',
+                        },
+                    ]}
+                ></Grid>
+            </div>
+        )
+
+        return output_node_element
+    }
+    return node_html
+}
+function renderInput(
+    node_id: string,
+    name: string,
+    type: any,
+    config: any,
+    key?: string
+) {
+    let html_element = (
+        <div key={key ?? void 0}>
+            {name},{type}, {JSON.stringify(config)}
+        </div>
+    )
+    const inputs = store.data.current_prompt2[node_id].inputs
+    if (type === util.ComfyInputType.BigNumber) {
+        html_element = (
+            <>
+                <sp-label slot="label">{name}:</sp-label>
+                <sp-textfield
+                    disabled={store.data.can_edit_nodes ? true : void 0}
+                    // key={key ?? void 0}
+                    type="text"
+                    // placeholder="cute cats"
+                    // value={config.default}
+                    value={inputs[name]}
+                    onInput={(event: any) => {
+                        // store.data.search_query = event.target.value
+                        inputs[name] = event.target.value
+                        console.log(`${name}: ${event.target.value}`)
+                    }}
+                ></sp-textfield>
+            </>
+        )
+    } else if (type === util.ComfyInputType.TextFieldNumber) {
+        html_element = (
+            <>
+                <sp-label slot="label">{name}:</sp-label>
+                <SpTextfield
+                    disabled={store.data.can_edit_nodes ? true : void 0}
+                    type="text"
+                    // value={config.default}
+                    value={inputs[name]}
+                    onChange={(e: any) => {
+                        const v = e.target.value
+                        let new_value =
+                            v !== ''
+                                ? Math.max(config.min, Math.min(config.max, v))
+                                : v
+                        inputs[name] = new_value
+
+                        console.log(`${name}: ${e.target.value}`)
+                    }}
+                ></SpTextfield>
+            </>
+        )
+    } else if (type === util.ComfyInputType.Slider) {
+        html_element = (
+            <SpSliderWithLabel
+                // key={key ?? void 0}
+                disabled={store.data.can_edit_nodes ? true : void 0}
+                show-value={false}
+                steps={config?.step ?? 1}
+                out_min={config?.min ?? 0}
+                out_max={config?.max ?? 100}
+                output_value={store.data.current_prompt2[node_id].inputs[name]}
+                label={name}
+                slider_type={
+                    config?.step && !Number.isInteger(config?.step)
+                        ? SliderType.Float
+                        : SliderType.Integer
+                }
+                onSliderInput={(new_value: number) => {
+                    // inputs[name] = new_value
+                    // setSliderValue(store, node_id, name, new_value)
+                    store.data.current_prompt2[node_id].inputs[name] = new_value
+                    console.log('slider_change: ', new_value)
+                }}
+            />
+        )
+    } else if (type === util.ComfyInputType.Menu) {
+        html_element = (
+            <>
+                <sp-label class="title" style={{ display: 'inline-block' }}>
+                    {name}
+                </sp-label>
+                <SpMenu
+                    disabled={store.data.can_edit_nodes ? true : void 0}
+                    size="m"
+                    title={name}
+                    items={config}
+                    label_item={`Select a ${name}`}
+                    // id={'model_list'}
+                    selected_index={config.indexOf(inputs[name])}
+                    onChange={(
+                        id: any,
+                        { index, item }: Record<string, any>
+                    ) => {
+                        console.log('onChange value.item: ', item)
+                        inputs[name] = item
+                    }}
+                ></SpMenu>
+            </>
+        )
+    } else if (type === util.ComfyInputType.TextArea) {
+        html_element = (
+            <sp-textarea
+                disabled={store.data.can_edit_nodes ? true : void 0}
+                // key={key}
+                onInput={(event: any) => {
+                    try {
+                        // this.changePositivePrompt(
+                        //     event.target.value,
+                        //     store.data.current_index
+                        // )
+                        // autoResize(
+                        //     event.target,
+                        //     store.data.positivePrompts[
+                        //         store.data.current_index
+                        //     ]
+                        // )
+                        inputs[name] = event.target.value
+                    } catch (e) {
+                        console.warn(e)
+                    }
+                }}
+                placeholder={`${name}`}
+                value={inputs[name]}
+            ></sp-textarea>
+        )
+    } else if (type === util.ComfyInputType.TextField) {
+        html_element = (
+            <>
+                <sp-label slot="label">{name}:</sp-label>
+
+                <SpTextfield
+                    disabled={store.data.can_edit_nodes ? true : void 0}
+                    type="text"
+                    // value={config.default}
+                    value={inputs[name]}
+                    onChange={(e: any) => {
+                        inputs[name] = e.target.value
+                        console.log(`${name}: ${e.target.value}`)
+                    }}
+                ></SpTextfield>
+            </>
+        )
+    }
+
+    return <div key={key}>{html_element}</div>
+}
+
+export function swap(index1: number, index2: number) {
+    const { length } = store.data.nodes_order
+    if (index1 >= 0 && index1 < length && index2 >= 0 && index2 < length) {
+        ;[store.data.nodes_order[index1], store.data.nodes_order[index2]] = [
+            store.data.nodes_order[index2],
+            store.data.nodes_order[index1],
+        ]
+    }
+}
+
+export function saveWorkflowData(
+    workflow_name: string,
+    { prompt, nodes_order, nodes_label }: WorkflowData
+) {
+    storage.localStorage.setItem(
+        workflow_name,
+        JSON.stringify({ prompt, nodes_order, nodes_label })
+    )
+}
+export function loadWorkflowData(workflow_name: string): WorkflowData {
+    const workflow_data: WorkflowData = JSON.parse(
+        storage.localStorage.getItem(workflow_name)
+    )
+    return workflow_data
+}
+interface WorkflowData {
+    prompt: any
+    nodes_order: string[]
+    nodes_label: Record<string, string>
+}
+function loadWorkflow2(workflow: any) {
+    const copyJson = (originalObject: any) =>
+        JSON.parse(JSON.stringify(originalObject))
+    //1) get prompt
+    store.data.current_prompt2 = copyJson(workflow)
+
+    //2)  get the original order
+    store.data.nodes_order = Object.keys(toJS(store.data.current_prompt2))
+
+    //3) get labels for each nodes
+    store.data.nodes_label = Object.fromEntries(
+        Object.entries(toJS(store.data.current_prompt2)).map(
+            ([node_id, node]: [string, any]) => {
+                return [
+                    node_id,
+                    toJS(store.data.object_info[node.class_type]).display_name,
+                ]
+            }
+        )
+    )
+
+    // parse the output nodes
+    // Note: we can't modify the node directly in the prompt like we do for input nodes.
+    //.. since this data doesn't exist on the prompt. so we create separate container for the output images
+    store.data.current_prompt2_output = Object.entries(
+        store.data.current_prompt2
+    ).reduce(
+        (
+            output_entries: Record<string, any[]>,
+            [node_id, node]: [string, any]
+        ) => {
+            if (store.data.object_info[node.class_type].output_node) {
+                output_entries[node_id] = []
+            }
+            return output_entries
+        },
+        {}
+    )
+
+    //slider variables for output nodes
+    //TODO: delete store.data.output_thumbnail_image_size before loading a new workflow
+    for (let key in toJS(store.data.current_prompt2_output)) {
+        store.data.output_thumbnail_image_size[key] = 200
+    }
+
+    const workflow_name = store.data.selected_workflow_name
+    if (workflow_name) {
+        // check if the workflow has a name
+
+        if (workflow_name in storage.localStorage) {
+            //load the workflow data from local storage
+            //1) load the last parameters used in generation
+            //2) load the order of the nodes
+            //3) load the labels of the nodes
+
+            const workflow_data: WorkflowData = loadWorkflowData(workflow_name)
+            if (
+                util.isSameStructure(
+                    workflow_data.prompt,
+                    toJS(store.data.current_prompt2)
+                )
+            ) {
+                //load 1)
+                store.data.current_prompt2 = workflow_data.prompt
+                //load 2)
+                store.data.nodes_order = workflow_data.nodes_order
+                //load 3)
+                store.data.nodes_label = workflow_data.nodes_label
+            } else {
+                // do not load. instead override the localStorage with the new values
+                workflow_data.prompt = toJS(store.data.current_prompt2)
+                workflow_data.nodes_order = toJS(store.data.nodes_order)
+                workflow_data.nodes_label = toJS(store.data.nodes_label)
+
+                saveWorkflowData(workflow_name, workflow_data)
+            }
+        } else {
+            // if workflow data is missing from local storage then save it for next time.
+            //1) save parameters values
+            //2) save nodes order
+            //3) save nodes label
+
+            const prompt = toJS(store.data.current_prompt2)
+            const nodes_order = toJS(store.data.nodes_order)
+            const nodes_label = toJS(store.data.nodes_label)
+            saveWorkflowData(workflow_name, {
+                prompt,
+                nodes_order,
+                nodes_label,
+            })
+        }
+    }
+}
+@observer
+class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
+    async componentDidMount(): Promise<void> {
+        try {
+            store.data.object_info = await diffusion_chain.ComfyApi.objectInfo(
+                store.data.comfy_server
+            )
+
+            loadWorkflow2(util.lora_less_workflow)
+
+            //convert all of comfyui loaded images into base64url that the plugin can use
+            const loaded_images =
+                store.data.object_info.LoadImage.input.required['image'][0]
+            const loaded_images_base64_url = await Promise.all(
+                loaded_images.map(async (filename: string) => {
+                    try {
+                        return await util.base64UrlFromComfy(
+                            store.data.comfy_server,
+                            {
+                                filename: encodeURIComponent(filename),
+                                type: 'input',
+                                subfolder: '',
+                            }
+                        )
+                    } catch (e) {
+                        console.warn(e)
+                    }
+                })
+            )
+            store.data.loaded_images_list =
+                store.data.object_info.LoadImage.input.required['image'][0]
+
+            store.data.loaded_images_base64_url = loaded_images_base64_url
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    render(): React.ReactNode {
+        const comfy_server = store.data.comfy_server
+        return (
+            <div>
+                <div
+                    style={{ display: 'flex', justifyContent: 'space-between' }}
+                >
+                    {/* {util.getNodes(util.hi_res_workflow).map((node, index) => {
+                    // return <div>{node.class_type}</div>
+                    return (
+                        <div key={'node_' + index}>{this.renderNode(node)}</div>
+                    )
+                })} */}
+                    <button
+                        className="btnSquare"
+                        onClick={async () => {
+                            // let interval
+                            let interval: NodeJS.Timeout = setInterval(
+                                function () {
+                                    store.data.progress_value++
+                                    console.log(store.data.progress_value)
+                                },
+                                1000
+                            ) // 1000 milliseconds = 1 second
+                            try {
+                                // Start the progress update
+
+                                let store_output =
+                                    await util.postPromptAndGetBase64JsonResult(
+                                        comfy_server,
+                                        toJS(store.data.current_prompt2)
+                                    )
+                                store.data.current_prompt2_output =
+                                    store_output ?? {}
+                            } catch (e) {
+                                console.error(e)
+                            } finally {
+                                clearInterval(interval as NodeJS.Timeout)
+                                store.data.progress_value = 0
+                            }
+                        }}
+                    >
+                        Generate
+                    </button>
+                    <button
+                        className="btnSquare"
+                        onClick={async () => {
+                            store.data.can_edit_nodes =
+                                !store.data.can_edit_nodes
+
+                            const workflow_name =
+                                store.data.selected_workflow_name
+                            const prompt = toJS(store.data.current_prompt2)
+                            const nodes_order = toJS(store.data.nodes_order)
+                            const nodes_label = toJS(store.data.nodes_label)
+
+                            saveWorkflowData(workflow_name, {
+                                prompt,
+                                nodes_order,
+                                nodes_label,
+                            })
+                        }}
+                    >
+                        {store.data.can_edit_nodes
+                            ? 'Done Editing'
+                            : 'Edit Nodes'}
+                    </button>
+                </div>
+                <div>
+                    <sp-progressbar
+                        class="pProgressBars preview_progress_bar"
+                        max="100"
+                        value={`${store.data.progress_value}`}
+                    ></sp-progressbar>
+                </div>
+                <div>
+                    <SpMenu
+                        size="m"
+                        title="workflows"
+                        items={Object.keys(store.data.workflows2)}
+                        label_item="Select a workflow"
+                        selected_index={Object.values(
+                            store.data.workflows2
+                        ).indexOf(store.data.selected_workflow_name)}
+                        onChange={async (id: any, value: any) => {
+                            store.data.selected_workflow_name = value.item
+                            loadWorkflow2(store.data.workflows2[value.item])
+                        }}
+                    ></SpMenu>{' '}
+                    <button
+                        className="btnSquare refreshButton"
+                        id="btnResetSettings"
+                        title="Refresh the ADetailer Extension"
+                        onClick={async () => {
+                            // await getConfig()
+                        }}
+                    ></button>
+                </div>
+
+                {store.data.object_info ? (
+                    <>
+                        <div>
+                            {util
+                                .getNodes(store.data.current_prompt2)
+                                .sort(
+                                    ([node_id1, node1], [node_id2, node2]) => {
+                                        return (
+                                            store.data.nodes_order.indexOf(
+                                                node_id1
+                                            ) -
+                                            store.data.nodes_order.indexOf(
+                                                node_id2
+                                            )
+                                        )
+                                    }
+                                )
+
+                                .map(([node_id, node], index) => {
+                                    return (
+                                        <div
+                                            key={`node_${node_id}_${index}`}
+                                            style={{
+                                                border: '2px solid #6d6c6c',
+
+                                                padding: '3px',
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    display: store.data
+                                                        .can_edit_nodes
+                                                        ? 'flex'
+                                                        : 'none',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'flex-end',
+                                                }}
+                                            >
+                                                <div>
+                                                    <button
+                                                        id={`${node_id}_swap_up`}
+                                                        style={{
+                                                            width: '26px',
+                                                        }}
+                                                        className="btnSquare"
+                                                        onClick={(e: any) => {
+                                                            console.log(
+                                                                'node_id assign to the swap button: ',
+                                                                node_id
+                                                            )
+                                                            swap(
+                                                                index,
+                                                                index - 1
+                                                            )
+
+                                                            // setTimeout(() => {
+                                                            //     // e.target.scrollIntoView()
+
+                                                            //     ;(
+                                                            //         document.getElementById(
+                                                            //             `${node_id}_swap_up`
+                                                            //         ) as any
+                                                            //     ).scrollIntoView(
+                                                            //         false
+                                                            //     )
+                                                            // }, 200)
+                                                        }}
+                                                    >
+                                                        {' '}
+                                                        {'▲'}{' '}
+                                                    </button>
+                                                </div>
+                                                <div>
+                                                    <button
+                                                        id={`${node_id}_swap_down`}
+                                                        style={{
+                                                            width: '26px',
+                                                        }}
+                                                        className="btnSquare"
+                                                        onClick={() => {
+                                                            swap(
+                                                                index,
+                                                                index + 1
+                                                            )
+                                                            // setTimeout(() => {
+                                                            //     ;(
+                                                            //         document.getElementById(
+                                                            //             `${node_id}_swap_down`
+                                                            //         ) as any
+                                                            //     ).scrollIntoView()
+                                                            // }, 200)
+                                                        }}
+                                                    >
+                                                        {' '}
+                                                        {'▼'}{' '}
+                                                    </button>
+                                                    {/* <span ></span> */}
+                                                </div>
+                                            </div>
+                                            <sp-label>
+                                                "{node_id}":{' '}
+                                                <span
+                                                    style={{
+                                                        color: store.data
+                                                            .can_edit_nodes
+                                                            ? 'white'
+                                                            : void 0,
+                                                    }}
+                                                >
+                                                    {
+                                                        store.data.nodes_label[
+                                                            node_id
+                                                        ]
+                                                    }
+                                                </span>{' '}
+                                            </sp-label>{' '}
+                                            <sp-label
+                                                style={{
+                                                    display: store.data
+                                                        .can_edit_nodes
+                                                        ? void 0
+                                                        : 'none',
+                                                }}
+                                            >
+                                                {node.class_type}
+                                            </sp-label>
+                                            <div
+                                                style={{
+                                                    display: !store.data
+                                                        .can_edit_nodes
+                                                        ? 'none'
+                                                        : void 0,
+                                                }}
+                                            >
+                                                <sp-textfield
+                                                    type="text"
+                                                    placeholder="write a node label"
+                                                    value={
+                                                        store.data.nodes_label[
+                                                            node_id
+                                                        ]
+                                                    }
+                                                    onInput={(event: any) => {
+                                                        store.data.nodes_label[
+                                                            node_id
+                                                        ] = event.target.value
+                                                    }}
+                                                ></sp-textfield>
+                                            </div>
+                                            {renderNode(node_id, node)}
+                                            {/* <sp-divider
+                                            class="line-divider"
+                                            size="large"
+                                        ></sp-divider>
+                                        <sp-divider
+                                            class="line-divider"
+                                            size="large"
+                                        ></sp-divider> */}
+                                        </div>
+                                    )
+                                })}
+                        </div>
+                    </>
+                ) : (
+                    void 0
+                )}
+            </div>
+        )
+    }
+}
 const container = document.getElementById('ComfyUIContainer')!
 const root = ReactDOM.createRoot(container)
 root.render(
-    <React.StrictMode>
-        <ErrorBoundary>
-            <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-                <Collapsible defaultIsOpen={true} label={Locale('ComfyUI')}>
-                    <ComfyNodeComponent></ComfyNodeComponent>
-                </Collapsible>
-            </div>
-            {/* <ComfyNodeComponent></ComfyNodeComponent> */}
-        </ErrorBoundary>
-    </React.StrictMode>
+    //<React.StrictMode>
+    <ErrorBoundary>
+        <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
+            <Collapsible defaultIsOpen={true} label={Locale('ComfyUI')}>
+                {/* <ComfyNodeComponent></ComfyNodeComponent> */}
+
+                <ComfyWorkflowComponent />
+            </Collapsible>
+        </div>
+        {/* <ComfyNodeComponent></ComfyNodeComponent> */}
+    </ErrorBoundary>
+    //</React.StrictMode>
 )
