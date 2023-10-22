@@ -371,6 +371,7 @@ export const store = new AStore({
         animatediff_workflow: util.animatediff_workflow,
     } as Record<string, any>,
     progress_value: 0,
+    is_random_seed: {} as Record<string, boolean>,
 })
 
 export function storeToPrompt(store: any, basePrompt: any) {
@@ -510,6 +511,13 @@ export async function loadWorkflow(workflow_path: string) {
             await getWorkflowApi(workflow_path)
         )?.prompt
 
+        store.data.is_random_seed = Object.fromEntries(
+            Object.keys(toJS(store.data.current_prompt)).map(
+                (node_id: string) => {
+                    return [node_id, false]
+                }
+            )
+        )
         const current_prompt: any = store.toJsFunc().data.current_prompt
         const loadImageNodes = Object.keys(current_prompt)
             .filter(
@@ -864,7 +872,7 @@ function renderNode(node_id: string, node: any) {
             // store.data.current_prompt2[node_id].inputs[name] = value
             try {
                 const input = comfy_node_info.input.required[name]
-                let { type, config } = util.parseComfyInput(input)
+                let { type, config } = util.parseComfyInput(name, input)
                 const html_element = renderInput(
                     node_id,
                     name,
@@ -952,7 +960,37 @@ function renderInput(
         </div>
     )
     const inputs = store.data.current_prompt2[node_id].inputs
-    if (type === util.ComfyInputType.BigNumber) {
+
+    if (type === util.ComfyInputType.Seed) {
+        html_element = (
+            <>
+                <sp-label slot="label">{name}:</sp-label>
+                <sp-textfield
+                    disabled={store.data.can_edit_nodes ? true : void 0}
+                    // key={key ?? void 0}
+                    type="text"
+                    // placeholder="cute cats"
+                    // value={config.default}
+                    value={inputs[name]}
+                    onInput={(event: any) => {
+                        // store.data.search_query = event.target.value
+                        inputs[name] = event.target.value
+                        console.log(`${name}: ${event.target.value}`)
+                    }}
+                ></sp-textfield>
+                <sp-checkbox
+                    title="randomize seed before generation"
+                    value={store.data.is_random_seed[node_id]}
+                    onClick={(evt: any) => {
+                        store.data.is_random_seed[node_id] = evt.target.checked
+                    }}
+                    style={{ display: 'inline-flex' }}
+                >
+                    random
+                </sp-checkbox>
+            </>
+        )
+    } else if (type === util.ComfyInputType.BigNumber) {
         html_element = (
             <>
                 <sp-label slot="label">{name}:</sp-label>
@@ -1277,6 +1315,38 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                             try {
                                 // Start the progress update
 
+                                function runScript() {
+                                    function getRandomBigIntApprox(
+                                        min: bigint,
+                                        max: bigint
+                                    ): bigint {
+                                        min = BigInt(min)
+                                        max = BigInt(max)
+                                        const range = Number(max - min)
+                                        const rand = Math.floor(
+                                            Math.random() * range
+                                        )
+                                        return BigInt(rand) + min
+                                    }
+
+                                    Object.entries(
+                                        toJS(store.data.is_random_seed)
+                                    ).forEach(([node_id, is_random]) => {
+                                        if (is_random) {
+                                            const min: bigint = 0n
+                                            const max: bigint =
+                                                18446744073709552000n
+                                            const random_seed: bigint =
+                                                getRandomBigIntApprox(min, max)
+                                            store.data.current_prompt2[
+                                                node_id
+                                            ].inputs['seed'] =
+                                                random_seed.toString()
+                                            // Usage
+                                        }
+                                    })
+                                }
+                                runScript()
                                 let store_output =
                                     await util.postPromptAndGetBase64JsonResult(
                                         comfy_server,

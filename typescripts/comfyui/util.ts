@@ -25,6 +25,7 @@ export enum ComfyInputType {
     BigNumber = 'BigNumber',
     TextFieldNumber = 'TextFieldNumber',
     Skip = 'Skip',
+    Seed = 'Seed',
 }
 export enum ComfyNodeType {
     LoadImage = 'LoadImage',
@@ -49,7 +50,10 @@ export function getNodeType(node_name: any) {
     }
     return node_type
 }
-export function parseComfyInput(input_info: any): {
+export function parseComfyInput(
+    name: string,
+    input_info: any
+): {
     type: ComfyInputType
     config: any
 } {
@@ -58,7 +62,10 @@ export function parseComfyInput(input_info: any): {
     let input_type: ComfyInputType = ComfyInputType.Skip
     let input_config
 
-    if (typeof value === 'string') {
+    if (name === 'seed') {
+        input_type = ComfyInputType.Seed // similar to big number
+        input_config = input_info[1]
+    } else if (typeof value === 'string') {
         if (value === 'FLOAT') {
             input_type = ComfyInputType.Slider
             input_config = input_info[1]
@@ -97,7 +104,7 @@ export function nodeToUIConfig(
     let node_ui_config = Object.entries(node.inputs).map(
         ([name, value]: [string, any]) => {
             const first_value = comfy_node_info[name][0]
-            let { type, config } = parseComfyInput(first_value)
+            let { type, config } = parseComfyInput(name, first_value)
 
             return
         }
