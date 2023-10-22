@@ -372,6 +372,7 @@ export const store = new AStore({
     } as Record<string, any>,
     progress_value: 0,
     is_random_seed: {} as Record<string, boolean>,
+    last_moved: undefined as string | undefined, // the last node that has been moved in the edit mode
 })
 
 export function storeToPrompt(store: any, basePrompt: any) {
@@ -927,7 +928,7 @@ function renderNode(node_id: string, node: any) {
                     style={{ display: 'block' }}
                     show-value="false"
                     id="slUpscaleSize"
-                    min="100"
+                    min="25"
                     max="300"
                     value={store.data.output_thumbnail_image_size[node_id]}
                     title=""
@@ -1400,6 +1401,7 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                     <button
                         className="btnSquare"
                         onClick={async () => {
+                            store.data.last_moved = void 0
                             store.data.can_edit_nodes =
                                 !store.data.can_edit_nodes
 
@@ -1476,7 +1478,11 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                             key={`node_${node_id}_${index}`}
                                             style={{
                                                 border: '2px solid #6d6c6c',
-
+                                                borderColor:
+                                                    store.data.last_moved ===
+                                                    node_id
+                                                        ? '#2c4639'
+                                                        : void 0,
                                                 padding: '3px',
                                             }}
                                         >
@@ -1498,6 +1504,8 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                                         }}
                                                         className="btnSquare"
                                                         onClick={(e: any) => {
+                                                            store.data.last_moved =
+                                                                node_id
                                                             console.log(
                                                                 'node_id assign to the swap button: ',
                                                                 node_id
@@ -1532,6 +1540,8 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                                         }}
                                                         className="btnSquare"
                                                         onClick={() => {
+                                                            store.data.last_moved =
+                                                                node_id
                                                             swap(
                                                                 index,
                                                                 index + 1
