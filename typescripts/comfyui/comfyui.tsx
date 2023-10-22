@@ -889,6 +889,39 @@ function renderNode(node_id: string, node: any) {
     if (is_output) {
         const output_node_element = (
             <div>
+                <>
+                    {'filename_prefix' in
+                    store.data.current_prompt2[node_id].inputs ? (
+                        <>
+                            <sp-label slot="label" class="title">
+                                filename prefix:
+                            </sp-label>
+                            <SpTextfield
+                                disabled={
+                                    store.data.can_edit_nodes ? true : void 0
+                                }
+                                onChange={(event: any) => {
+                                    try {
+                                        store.data.current_prompt2[
+                                            node_id
+                                        ].inputs['filename_prefix'] =
+                                            event.target.value
+                                    } catch (e) {
+                                        console.warn(e)
+                                    }
+                                }}
+                                placeholder={`filename_prefix`}
+                                value={
+                                    store.data.current_prompt2[node_id].inputs[
+                                        'filename_prefix'
+                                    ]
+                                }
+                            ></SpTextfield>
+                        </>
+                    ) : (
+                        void 0
+                    )}
+                </>
                 <SpSlider
                     disabled={store.data.can_edit_nodes ? true : void 0}
                     style={{ display: 'block' }}
