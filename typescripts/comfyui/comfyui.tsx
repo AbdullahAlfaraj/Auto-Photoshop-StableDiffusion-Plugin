@@ -963,12 +963,36 @@ function renderNode(node_id: string, node: any) {
                                 //         index
                                 //     ]
                                 // )
-                                urlToCanvas(
+                                function extractImageFormat(dataURL: string) {
+                                    let format = dataURL
+                                        .split(':')[1]
+                                        .split(';')[0]
+                                        .split('/')[1]
+                                    return format
+                                }
+
+                                let format = extractImageFormat(
                                     store.data.current_prompt2_output[node_id][
                                         index
-                                    ],
-                                    'comfy_output.png'
+                                    ]
                                 )
+
+                                if (format === 'gif') {
+                                    //@ts-ignore
+                                    openFileFromUrlExe(
+                                        store.data.current_prompt2_output[
+                                            node_id
+                                        ][index],
+                                        format
+                                    )
+                                } else if (format === 'png') {
+                                    urlToCanvas(
+                                        store.data.current_prompt2_output[
+                                            node_id
+                                        ][index],
+                                        'comfy_output.png'
+                                    )
+                                }
                             },
                             title: 'Copy Image to Canvas',
                         },
