@@ -1798,9 +1798,13 @@ async function openFileFromUrl(url, format = 'gif') {
 
         // Save the image to a temporary file
         const tempFolder = await storage.localFileSystem.getTemporaryFolder()
-        const tempFile = await tempFolder.createFile(`temp.${format}`, {
-            overwrite: true,
-        })
+        const randomNumber = Math.floor(Math.random() * 1000000000) // generates a random number between 0 and 999999999
+        const tempFile = await tempFolder.createFile(
+            `temp_${randomNumber}.${format}`,
+            {
+                overwrite: true,
+            }
+        )
         await tempFile.write(arrayBuffer)
 
         // Open the file in Photoshop
