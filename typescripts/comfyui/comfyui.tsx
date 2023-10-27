@@ -871,6 +871,14 @@ function renderNode(node_id: string, node: any) {
                 const input = comfy_node_info.input.required[name]
 
                 let { type, config } = util.parseComfyInput(name, input, value)
+                if (type === ComfyInputType.Skip) {
+                    return (
+                        <div
+                            key={`${node_id}_${name}_${type}_${index}`}
+                            style={{ display: 'none' }}
+                        ></div>
+                    )
+                }
                 const html_element = renderInput(
                     node_id,
                     name,
@@ -878,6 +886,7 @@ function renderNode(node_id: string, node: any) {
                     config,
                     `${node_id}_${name}_${type}_${index}`
                 )
+
                 return html_element
             } catch (e) {
                 console.error(e)
