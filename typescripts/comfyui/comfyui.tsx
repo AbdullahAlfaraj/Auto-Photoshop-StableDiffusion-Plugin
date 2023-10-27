@@ -955,20 +955,7 @@ function renderNode(node_id: string, node: any) {
                         {
                             ComponentType: MoveToCanvasSvg,
                             callback: (index: number) => {
-                                // io.IO.base64ToLayer(
-                                //     store.data.current_prompt2_output[node_id][
-                                //         index
-                                //     ]
-                                // )
-                                function extractImageFormat(dataURL: string) {
-                                    let format = dataURL
-                                        .split(':')[1]
-                                        .split(';')[0]
-                                        .split('/')[1]
-                                    return format
-                                }
-
-                                let format = extractImageFormat(
+                                let format = util.extractFormat(
                                     store.data.current_prompt2_output[node_id][
                                         index
                                     ]

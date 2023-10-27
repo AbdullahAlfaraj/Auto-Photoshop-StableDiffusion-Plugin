@@ -353,6 +353,20 @@ function isSameStructure(obj1: LooseObject, obj2: LooseObject): boolean {
     return true
 }
 
+function extractFormat(input: string) {
+    let format: string = ''
+    if (input.includes('data:')) {
+        // Case for dataURL
+        format = input.split(':')[1].split(';')[0].split('/')[1]
+    } else if (input.includes('.')) {
+        // Case for file name with extension
+        format = input.split('.').pop() || ''
+    } else {
+        throw `input doesn't have an extension. input:${input}`
+    }
+    return format
+}
+
 export default {
     getNodes,
     parseComfyInput,
