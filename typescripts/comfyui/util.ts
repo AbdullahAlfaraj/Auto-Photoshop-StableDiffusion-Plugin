@@ -1,11 +1,22 @@
-import hi_res_workflow from './hi_res_workflow.json'
-import img2img_workflow from './img2img_workflow.json'
-import animatediff_workflow from './animatediff_workflow.json'
-import lora_less_workflow from './lora_less_workflow.json'
 import { diffusion_chain } from '../entry'
 import { ComfyPrompt } from 'diffusion-chain/dist/backends/comfyui-api.mjs'
 // import { ComfyPrompt } from 'diffusion-chain/dist/backends/comfyui-api.mjs'
 // import { ComfyPrompt } from 'diffusion-chain/'
+
+import { readdirSync, readFileSync } from 'fs'
+
+let workflows2: Record<string, any> = {}
+
+// Assuming the json files are in a directory named 'native_workflows'
+const dir = 'plugin:/typescripts/comfyui/native_workflows' // specify the directory containing the .json files
+
+readdirSync(dir).forEach((file) => {
+    if (file.endsWith('.json')) {
+        const fileContent = readFileSync(`${dir}/${file}`, 'utf8')
+        const fileNameWithoutExtension = file.slice(0, -5)
+        workflows2[fileNameWithoutExtension] = JSON.parse(fileContent)
+    }
+})
 export function getWorkflow() {}
 
 interface Workflow {}
@@ -354,10 +365,8 @@ export default {
     mapComfyOutputToStoreOutput,
     postPromptAndGetBase64JsonResult,
     isSameStructure,
-    hi_res_workflow,
-    img2img_workflow,
-    animatediff_workflow,
-    lora_less_workflow,
+    extractFormat,
+    workflows2,
     ComfyInputType,
     ComfyNodeType,
 }

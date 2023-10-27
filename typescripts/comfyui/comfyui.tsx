@@ -364,12 +364,8 @@ export const store = new AStore({
     nodes_order: [] as string[], // nodes with smaller index will be rendered first,
     can_edit_nodes: false as boolean,
     nodes_label: {} as Record<string, string>,
-    workflows2: {
-        hi_res_workflow: util.hi_res_workflow,
-        lora_less_workflow: util.lora_less_workflow,
-        img2img_workflow: util.img2img_workflow,
-        animatediff_workflow: util.animatediff_workflow,
-    } as Record<string, any>,
+
+    workflows2: util.workflows2 as Record<string, any>,
     progress_value: 0,
     is_random_seed: {} as Record<string, boolean>,
     last_moved: undefined as string | undefined, // the last node that has been moved in the edit mode
