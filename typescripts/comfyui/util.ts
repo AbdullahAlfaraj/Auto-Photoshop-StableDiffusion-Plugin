@@ -297,19 +297,33 @@ export async function mapComfyOutputToStoreOutput(
     //         ],
     //     },
     // }
-
     const store_output: Record<string, any> = {}
+
     for (let key in comfy_output) {
-        if (comfy_output[key].hasOwnProperty('images')) {
-            let base64_url_list = await Promise.all(
-                comfy_output[key].images.map(
-                    async (image: ComfyOutputImage) =>
-                        await base64UrlFromComfy(comfy_server, image)
-                )
+        let base64_url_list = await Promise.all(
+            (Object.values(comfy_output[key]).flat() as ComfyOutputImage[]).map(
+                async (output: ComfyOutputImage) => {
+                    try {
+                        if (
+                            ['png', 'gif'].includes(
+                                extractFormat(output.filename)
+                            )
+                        ) {
+                            return await base64UrlFromComfy(
+                                comfy_server,
+                                output
+                            )
+                        }
+                    } catch (e) {
+                        console.error(output, e)
+                        return ''
+                    }
+                }
             )
-            store_output[key] = base64_url_list
-        }
+        )
+        store_output[key] = [...(store_output[key] || []), ...base64_url_list]
     }
+
     return store_output
 }
 
