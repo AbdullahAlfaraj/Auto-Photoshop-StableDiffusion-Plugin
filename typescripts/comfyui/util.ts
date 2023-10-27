@@ -63,7 +63,8 @@ export function getNodeType(node_name: any) {
 }
 export function parseComfyInput(
     name: string,
-    input_info: any
+    input_info: any,
+    prompt_value: any // the default value, set in the prompt api
 ): {
     type: ComfyInputType
     config: any
@@ -73,14 +74,14 @@ export function parseComfyInput(
     let input_type: ComfyInputType = ComfyInputType.Skip
     let input_config
 
-    if (name === 'seed') {
+    if (name === 'seed' && !Array.isArray(prompt_value)) {
         input_type = ComfyInputType.Seed // similar to big number
         input_config = input_info[1]
     } else if (typeof value === 'string') {
-        if (value === 'FLOAT') {
+        if (value === 'FLOAT' && !Array.isArray(prompt_value)) {
             input_type = ComfyInputType.Slider
             input_config = input_info[1]
-        } else if (value === 'INT') {
+        } else if (value === 'INT' && !Array.isArray(prompt_value)) {
             if (input_info[1].max > Number.MAX_SAFE_INTEGER) {
                 input_type = ComfyInputType.BigNumber
                 input_config = input_info[1]
@@ -88,7 +89,7 @@ export function parseComfyInput(
                 input_type = ComfyInputType.TextFieldNumber
                 input_config = input_info[1]
             }
-        } else if (value === 'STRING') {
+        } else if (value === 'STRING' && !Array.isArray(prompt_value)) {
             if (input_info[1]?.multiline) {
                 input_type = ComfyInputType.TextArea
                 input_config = input_info[1]

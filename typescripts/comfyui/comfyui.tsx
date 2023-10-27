@@ -869,7 +869,8 @@ function renderNode(node_id: string, node: any) {
             // store.data.current_prompt2[node_id].inputs[name] = value
             try {
                 const input = comfy_node_info.input.required[name]
-                let { type, config } = util.parseComfyInput(name, input)
+
+                let { type, config } = util.parseComfyInput(name, input, value)
                 const html_element = renderInput(
                     node_id,
                     name,
