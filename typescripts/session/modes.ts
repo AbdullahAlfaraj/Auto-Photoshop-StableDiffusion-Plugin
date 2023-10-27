@@ -161,8 +161,15 @@ export class Txt2ImgMode extends Mode {
             }
             control_networks[index] = true
 
+            const is_inpaint_model: boolean =
+                control_net_settings['controlnet_units'][index][
+                    'module'
+                ].includes('inpaint')
             if (
-                !control_net_settings['controlnet_units'][index]['input_image']
+                !control_net_settings['controlnet_units'][index][
+                    'input_image'
+                ] &&
+                !is_inpaint_model
             ) {
                 //@ts-ignore
                 app.showAlert('you need to add a valid ControlNet input image')
@@ -304,8 +311,17 @@ export class Img2ImgMode extends Mode {
                 continue
             }
             control_networks[index] = true
+
+            const is_inpaint_model: boolean =
+                control_net_settings['controlnet_units'][index][
+                    'module'
+                ].includes('inpaint')
+
             if (
-                !control_net_settings['controlnet_units'][index]['input_image']
+                !control_net_settings['controlnet_units'][index][
+                    'input_image'
+                ] &&
+                !is_inpaint_model
             ) {
                 //@ts-ignore
                 app.showAlert('you need to add a valid ControlNet input image')
