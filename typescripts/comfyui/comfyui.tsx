@@ -1316,8 +1316,6 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                 store.data.comfy_server
             )
 
-            loadWorkflow2(util.lora_less_workflow)
-
             //convert all of comfyui loaded images into base64url that the plugin can use
             const loaded_images =
                 store.data.object_info.LoadImage.input.required['image'][0]
