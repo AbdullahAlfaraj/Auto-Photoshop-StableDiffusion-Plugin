@@ -22,7 +22,7 @@ import { app } from 'photoshop'
 import { reaction, toJS } from 'mobx'
 import { storage } from 'uxp'
 
-import util from './util'
+import util, { ComfyInputType } from './util'
 import * as diffusion_chain from 'diffusion-chain'
 import { urlToCanvas } from '../util/ts/general'
 interface Error {
@@ -896,64 +896,36 @@ function renderNode(node_id: string, node: any) {
     if (is_output) {
         const output_node_element = (
             <div>
-                <>
-                    {'filename_prefix' in
-                    store.data.current_prompt2[node_id].inputs ? (
-                        <>
-                            <sp-label slot="label" class="title">
-                                filename prefix:
-                            </sp-label>
-                            <SpTextfield
-                                disabled={
-                                    store.data.can_edit_nodes ? true : void 0
-                                }
-                                onChange={(event: any) => {
-                                    try {
-                                        store.data.current_prompt2[
-                                            node_id
-                                        ].inputs['filename_prefix'] =
-                                            event.target.value
-                                    } catch (e) {
-                                        console.warn(e)
-                                    }
-                                }}
-                                placeholder={`filename_prefix`}
-                                value={
-                                    store.data.current_prompt2[node_id].inputs[
-                                        'filename_prefix'
-                                    ]
-                                }
-                            ></SpTextfield>
-                        </>
-                    ) : (
-                        void 0
-                    )}
-                </>
-                <SpSlider
-                    disabled={store.data.can_edit_nodes ? true : void 0}
-                    style={{ display: 'block' }}
-                    show-value="false"
-                    id="slUpscaleSize"
-                    min="25"
-                    max="300"
-                    value={store.data.output_thumbnail_image_size[node_id]}
-                    title=""
-                    onInput={(evt: any) => {
-                        store.data.output_thumbnail_image_size[node_id] =
-                            evt.target.value
-                    }}
-                >
-                    <sp-label slot="label" class="title">
-                        Thumbnail Size:
-                    </sp-label>
-                    <sp-label class="labelNumber" slot="label">
-                        {parseInt(
-                            store.data.output_thumbnail_image_size[
-                                node_id
-                            ] as any
-                        )}
-                    </sp-label>
-                </SpSlider>
+                {node_html}
+                {store.data.current_prompt2_output[node_id].length > 0 ? (
+                    <SpSlider
+                        disabled={store.data.can_edit_nodes ? true : void 0}
+                        style={{ display: 'block' }}
+                        show-value="false"
+                        id="slUpscaleSize"
+                        min="25"
+                        max="300"
+                        value={store.data.output_thumbnail_image_size[node_id]}
+                        title=""
+                        onInput={(evt: any) => {
+                            store.data.output_thumbnail_image_size[node_id] =
+                                evt.target.value
+                        }}
+                    >
+                        <sp-label slot="label" class="title">
+                            Thumbnail Size:
+                        </sp-label>
+                        <sp-label class="labelNumber" slot="label">
+                            {parseInt(
+                                store.data.output_thumbnail_image_size[
+                                    node_id
+                                ] as any
+                            )}
+                        </sp-label>
+                    </SpSlider>
+                ) : (
+                    void 0
+                )}
                 <Grid
                     // thumbnails_data={store.data.images}
 
