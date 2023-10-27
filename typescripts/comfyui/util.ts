@@ -108,22 +108,6 @@ export function parseComfyInput(
 
 export function makeHtmlInput() {}
 
-export function nodeToUIConfig(
-    node: { inputs: { [key: string]: any }; class_type: string },
-    object_info: any
-) {
-    let comfy_node_info = object_info[node.class_type]
-    let node_ui_config = Object.entries(node.inputs).map(
-        ([name, value]: [string, any]) => {
-            const first_value = comfy_node_info[name][0]
-            let { type, config } = parseComfyInput(name, first_value)
-
-            return
-        }
-    )
-    // comfy_node_info.input.required[]
-}
-
 async function getHistory(comfy_server: diffusion_chain.ComfyServer) {
     while (true) {
         const res = await diffusion_chain.ComfyApi.queue(comfy_server)
@@ -202,101 +186,6 @@ export async function mapComfyOutputToStoreOutput(
     comfy_server: diffusion_chain.ComfyServer,
     comfy_output: Record<string, any>
 ) {
-    // const comfy_output: Record<string, any> = {
-    //     '12': {
-    //         images: [
-    //             {
-    //                 filename: 'AA_readme_00506_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00507_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00508_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00509_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00510_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00511_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00512_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00513_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00514_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00515_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00516_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00517_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00518_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00519_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00520_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //             {
-    //                 filename: 'AA_readme_00521_.png',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //         ],
-    //     },
-    //     '26': {
-    //         images: [
-    //             {
-    //                 filename: 'AA_readme_gif_00079_.gif',
-    //                 subfolder: '',
-    //                 type: 'output',
-    //             },
-    //         ],
-    //     },
-    // }
     const store_output: Record<string, any> = {}
 
     for (let key in comfy_output) {
