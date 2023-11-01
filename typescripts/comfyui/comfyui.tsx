@@ -1145,6 +1145,24 @@ function renderInput(
                 ></SpTextfield>
             </>
         )
+    } else if (type === util.ComfyInputType.CheckBox) {
+        html_element = (
+            <>
+                {/* <sp-label slot="label">{name}:</sp-label> */}
+
+                <sp-checkbox
+                    disabled={store.data.can_edit_nodes ? true : void 0}
+                    title={name}
+                    value={inputs[name]}
+                    onClick={(evt: any) => {
+                        inputs[name] = evt.target.checked
+                    }}
+                    style={{ display: 'inline-flex' }}
+                >
+                    {name}
+                </sp-checkbox>
+            </>
+        )
     }
 
     return <div key={key}>{html_element}</div>

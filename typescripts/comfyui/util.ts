@@ -37,6 +37,7 @@ export enum ComfyInputType {
     TextFieldNumber = 'TextFieldNumber',
     Skip = 'Skip',
     Seed = 'Seed',
+    CheckBox = 'CheckBox',
 }
 export enum ComfyNodeType {
     LoadImage = 'LoadImage',
@@ -97,6 +98,9 @@ export function parseComfyInput(
                 input_type = ComfyInputType.TextField
                 input_config = input_info[1]
             }
+        } else if (value === 'BOOLEAN' && !Array.isArray(prompt_value)) {
+            input_type = ComfyInputType.CheckBox
+            input_config = input_info[1]
         }
     } else if (Array.isArray(value)) {
         input_type = ComfyInputType.Menu
