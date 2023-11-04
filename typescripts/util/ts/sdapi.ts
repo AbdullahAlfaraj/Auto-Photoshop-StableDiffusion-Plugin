@@ -61,8 +61,10 @@ export async function requestGetModels() {
     let json = []
     const full_url = `${g_sd_url}/sdapi/v1/sd-models`
     try {
-        let request = await fetch(full_url)
-        json = await request.json()
+        let res = await fetch(full_url)
+        if (res.status == 200) {
+            json = await res.json()
+        }
         console.log('models json:')
         console.dir(json)
     } catch (e) {

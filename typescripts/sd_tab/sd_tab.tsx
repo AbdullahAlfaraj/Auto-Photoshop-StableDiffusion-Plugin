@@ -148,7 +148,6 @@ class SDTab extends React.Component<{}> {
     async componentDidMount() {
         try {
             await refreshUI()
-            await refreshModels()
             await initPlugin()
             helper_store.data.loras = await requestLoraModels()
             initInitMaskElement()
@@ -202,27 +201,17 @@ class SDTab extends React.Component<{}> {
                 <div id="menu-bar-container" style={styles.menuBarContainer}>
                     <SpMenu
                         title="Stable Diffusion Models"
-                        items={helper_store.data.models.map((model) => {
-                            return model.model_name
-                        })}
+                        items={helper_store.data.models || []}
                         label_item="Select a Model"
                         style={{ ...styles.spMenu }}
-                        selected_index={helper_store.data.models
-                            .map((model) => {
-                                return model.title
-                            })
-                            .indexOf(store.data.selected_model)}
+                        selected_index={(
+                            helper_store.data.models || []
+                        ).indexOf(store.data.selected_model)}
                         onChange={(id: any, value: any) => {
                             // console.log('onChange value: ', value)
                             // store.updateProperty('subject', value.item)
                             console.log('value:', value)
                             store.data.selected_model = value.item
-
-                            //REFACTOR: move to events.js
-                            const model_index = value.index
-                            let model = helper_store.data.models[model_index]
-
-                            // g_model_name = `${model.model_name}.ckpt`
 
                             requestSwapModel(store.data.selected_model)
                         }}

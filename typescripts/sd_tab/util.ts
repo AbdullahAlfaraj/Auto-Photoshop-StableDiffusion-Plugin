@@ -192,9 +192,12 @@ export async function refreshModels() {
         g_models = await requestGetModels()
         if (g_models.length > 0) {
             b_result = true
+            helper_store.data.models = g_models
+                ? g_models.map((model) => {
+                      model.title
+                  })
+                : helper_store.data.models
         }
-
-        helper_store.data.models = g_models
 
         // for (let model of g_models) {
         //     // console.log(model.title)//Log
