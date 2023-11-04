@@ -890,10 +890,17 @@ async function createThumbnail(base64Image, width = 100) {
     return thumbnail
 }
 
-async function getImageFromCanvas() {
-    const width = html_manip.getWidth()
-    const height = html_manip.getHeight()
+async function getImageFromCanvas(scale_to_sliders = true) {
+    let width
+    let height
     const selectionInfo = await psapi.getSelectionInfoExe()
+    if (scale_to_sliders) {
+        width = html_manip.getWidth()
+        height = html_manip.getHeight()
+    } else {
+        width = selectionInfo.width
+        height = selectionInfo.height
+    }
     const base64 = await io.IO.getSelectionFromCanvasAsBase64Interface_New(
         width,
         height,
