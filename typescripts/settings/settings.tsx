@@ -81,6 +81,8 @@ interface AStoreData {
     bTurnOffServerStatusAlert: boolean
     CLIP_stop_at_last_layers: number
     use_smart_object: boolean
+    selected_backend: 'Automatic1111' | 'ComfyUI'
+    comfy_url: string
 }
 export const store = new AStore<AStoreData>({
     scale_interpolation_method: interpolationMethods.bilinear,
@@ -97,6 +99,9 @@ export const store = new AStore<AStoreData>({
         false,
     CLIP_stop_at_last_layers: 1,
     use_smart_object: true, // true to keep layer as smart objects, false to rasterize them
+    // selected_backend: 'Automatic1111' as 'Automatic1111' | 'ComfyUI',
+    selected_backend: 'ComfyUI' as 'Automatic1111' | 'ComfyUI',
+    comfy_url: 'http://127.0.0.1:8188',
 })
 
 function onShouldLogToFileChange(event: any) {
@@ -163,16 +168,54 @@ async function getOptions(): Promise<Options | null> {
 @observer
 export class Settings extends React.Component<{}> {
     async componentDidMount(): Promise<void> {
-        const options = await getOptions()
+        if (store.data.selected_backend === 'Automatic1111') {
+            const options = await getOptions()
 
-        store.data.CLIP_stop_at_last_layers =
-            options?.CLIP_stop_at_last_layers ??
-            store.data.CLIP_stop_at_last_layers
+            store.data.CLIP_stop_at_last_layers =
+                options?.CLIP_stop_at_last_layers ??
+                store.data.CLIP_stop_at_last_layers
+        }
     }
 
     render() {
         return (
             <div style={{ width: '100%' }}>
+                <sp-label>ComfyUI Url:</sp-label>
+                <sp-textfield
+                    type="text"
+                    placeholder="http://127.0.0.1:8188"
+                    // value={config.default}
+                    value={store.data.comfy_url}
+                    onChange={(event: any) => {
+                        // store.data.search_query = event.target.value
+                        store.data.comfy_url = event.target.value
+                        // console.log(`${}: ${event.target.value}`)
+                    }}
+                ></sp-textfield>
+                <sp-radio-group>
+                    {['Automatic1111', 'ComfyUI'].map(
+                        (backend: any, index: number) => {
+                            return (
+                                <sp-radio
+                                    key={index}
+                                    title={backend}
+                                    value={backend}
+                                    onClick={(evt: any) => {
+                                        store.data.selected_backend =
+                                            evt.target.value
+                                    }}
+                                    checked={
+                                        store.data.selected_backend === backend
+                                            ? true
+                                            : void 0
+                                    }
+                                >
+                                    {backend}
+                                </sp-radio>
+                            )
+                        }
+                    )}
+                </sp-radio-group>
                 <SpMenu
                     title="select an interploation method for resizing images"
                     items={Object.keys(interpolationMethods)}
