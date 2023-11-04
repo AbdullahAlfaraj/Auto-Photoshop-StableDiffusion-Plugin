@@ -14,7 +14,6 @@ import {
 import { ErrorBoundary } from '../util/errorBoundary'
 import { Collapsible } from '../util/collapsible'
 import Locale from '../locale/locale'
-import { AStore } from '../main/astore'
 
 import { Grid } from '../util/grid'
 import { io } from '../util/oldSystem'
@@ -22,7 +21,13 @@ import { app } from 'photoshop'
 import { reaction, toJS } from 'mobx'
 import { storage } from 'uxp'
 
-import util, { ComfyInputType } from './util'
+import util, {
+    ComfyInputType,
+    ComfyUINode,
+    InputTypeEnum,
+    ValidInput,
+    store,
+} from './util'
 import * as diffusion_chain from 'diffusion-chain'
 import { copyJson, urlToCanvas } from '../util/ts/general'
 interface Error {
@@ -1287,8 +1292,6 @@ interface WorkflowData {
     nodes_label: Record<string, string>
 }
 function loadWorkflow2(workflow: any) {
-    const copyJson = (originalObject: any) =>
-        JSON.parse(JSON.stringify(originalObject))
     //1) get prompt
     store.data.current_prompt2 = copyJson(workflow)
 
@@ -1379,35 +1382,37 @@ function loadWorkflow2(workflow: any) {
         }
     }
 }
-@observer
-class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
-    async componentDidMount(): Promise<void> {
-        try {
-            store.data.object_info = await diffusion_chain.ComfyApi.objectInfo(
-                store.data.comfy_server
-            )
 
-            //convert all of comfyui loaded images into base64url that the plugin can use
-            const loaded_images =
-                store.data.object_info.LoadImage.input.required['image'][0]
-            const loaded_images_base64_url = await Promise.all(
-                loaded_images.map(async (filename: string) => {
-                    try {
-                        return await util.base64UrlFromComfy(
-                            store.data.comfy_server,
-                            {
-                                filename: encodeURIComponent(filename),
-                                type: 'input',
-                                subfolder: '',
-                            }
-                        )
-                    } catch (e) {
-                        console.warn(e)
-                    }
+async function getUploadedImages(images_list: string[]) {
+    //convert all of comfyui loaded images into base64url that the plugin can use
+    let uploaded_images = images_list
+
+    uploaded_images = uploaded_images.filter((image_name: string) => {
+        let extension = image_name.split('.').pop() || ''
+        // return extension !== 'gif' && extension !== 'mp4'
+        return ['png', 'jpg', 'webp'].includes(extension)
+    })
+
+    const uploaded_images_base64_url: string[] = await Promise.all(
+        uploaded_images.map(async (filename: string) => {
+            try {
+                return await util.base64UrlFromComfy(store.data.comfy_server, {
+                    filename: encodeURIComponent(filename),
+                    type: 'input',
+                    subfolder: '',
                 })
-            )
-            store.data.loaded_images_list =
-                store.data.object_info.LoadImage.input.required['image'][0]
+            } catch (e) {
+                console.warn(e)
+                return ''
+            }
+        })
+    )
+    store.data.uploaded_images_list =
+        store.data.object_info.LoadImage.input.required['image'][0]
+
+    store.data.uploaded_images_base64_url = uploaded_images_base64_url
+    return store.data.uploaded_images_base64_url
+}
 
 function getBorderColor(is_output: boolean, last_moved: boolean) {
     let color: string | undefined = void 0
@@ -1426,6 +1431,22 @@ function getBorderColor(is_output: boolean, last_moved: boolean) {
 
     return color
 }
+@observer
+class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
+    async componentDidMount(): Promise<void> {
+        try {
+            store.data.object_info = await diffusion_chain.ComfyApi.objectInfo(
+                store.data.comfy_server
+            )
+            getUploadedImages(
+                store.data.object_info.LoadImage.input.required['image'][0]
+            )
+            if (store.data.object_info?.VHS_LoadVideo) {
+                store.data.uploaded_video_list =
+                    store.data.object_info.VHS_LoadVideo.input.required[
+                        'video'
+                    ][0]
+            }
         } catch (e) {
             console.error(e)
         }

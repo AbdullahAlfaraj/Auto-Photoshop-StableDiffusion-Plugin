@@ -426,6 +426,29 @@ async function readFile() {
     })
     return { content: contents, name: entry.name }
 }
+
+function getRandomBigIntApprox(min: bigint, max: bigint): bigint {
+    min = BigInt(min)
+    max = BigInt(max)
+    const range = Number(max - min)
+    const rand = Math.floor(Math.random() * range)
+    return BigInt(rand) + min
+}
+function runRandomSeedScript() {
+    Object.entries(toJS(store.data.is_random_seed)).forEach(
+        ([node_id, is_random]) => {
+            if (is_random) {
+                const random_seed: bigint = getRandomBigIntApprox(
+                    0n,
+                    18446744073709552000n
+                )
+                store.data.current_prompt2[node_id].inputs['seed'] =
+                    random_seed.toString()
+                // Usage
+            }
+        }
+    )
+}
 export default {
     uploadImage,
     uploadImagePost,
@@ -442,6 +465,8 @@ export default {
     postPromptAndGetBase64JsonResult,
     isSameStructure,
     extractFormat,
+    getRandomBigIntApprox,
+    runRandomSeedScript,
     workflows2,
     ComfyInputType,
     ComfyNodeType,
