@@ -274,7 +274,83 @@ function extractFormat(input: string) {
     return format
 }
 
+async function uploadImagePost(
+    comfyui: ComfyServer,
+    buffer: any,
+    file_name: string,
+    subfolder: string = 'auto-photoshop-plugin'
+) {
+    try {
+        const full_url = comfyui.getBaseUrl() + '/upload/image'
+        var formData = new FormData()
+
+        formData.append('image', buffer, file_name)
+        formData.append('subfolder', subfolder)
+        var requestOptions = {
+            method: 'POST',
+            // header: myHeaders,
+            body: formData,
+        }
+        //@ts-ignore
+        const res = await fetch(full_url, requestOptions)
+
+        console.log(res.status, full_url)
+
+        const contentType = res.headers.get('Content-Type')
+
+        if (contentType?.indexOf('json') != -1) {
+            return res.json()
+        } else {
+            if (res.status == 200) {
+                return res.arrayBuffer()
+            } else {
+                return res.text()
+            }
+        }
+    } catch (e) {
+        console.error(e)
+    }
+}
+async function uploadImage(
+    comfyui: ComfyServer,
+    b_from_disk = false,
+    imgBase64: string
+) {
+    try {
+        let content, name
+        if (b_from_disk) {
+            const res = await readFile()
+            content = res.content
+            name = res.name
+        } else {
+            //from canvas
+            //@ts-ignore
+            const buffer = _base64ToArrayBuffer(imgBase64)
+            content = buffer
+            name = 'buffer.png'
+        }
+
+        // console.log('content: ', content)
+        // console.log('name: ', name)
+
+        const uploaded_image = await uploadImagePost(comfyui, content, name, '')
+        return uploaded_image
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+async function readFile() {
+    const entry = await storage.localFileSystem.getFileForOpening() // Prompts the user to select a file
+    // const contents = await entry.read('binary') // Reads the file as a string
+    const contents = await entry.read({
+        format: storage.formats.binary,
+    })
+    return { content: contents, name: entry.name }
+}
 export default {
+    uploadImage,
+    uploadImagePost,
     getNodes,
     parseComfyInput,
     getNodeType,
