@@ -183,7 +183,7 @@ async function getSettings(session_data) {
 
     try {
         const extension_type = settings_tab_ts.store.data.extension_type // get the extension type
-        payload['selection_info'] = session_data.selectionInfo
+        payload['selection_info'] = session_data?.selectionInfo
         const numberOfBatchSize = parseInt(sd_tab_store.data.batch_size)
 
         const prompt = multiPrompts.getPrompt().positive
