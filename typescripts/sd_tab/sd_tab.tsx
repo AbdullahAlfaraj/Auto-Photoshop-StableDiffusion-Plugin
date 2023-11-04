@@ -1348,25 +1348,25 @@ class SDTab extends React.Component<{}> {
                             }}
                         >
                             <sp-label slot="label">Select Sampler:</sp-label>
-                            {helper_store.data.sampler_list.map(
+                            {(helper_store.data.sampler_list || []).map(
                                 (sampler: any, index: number) => {
                                     return (
                                         <sp-radio
                                             class="rbSampler"
                                             checked={
-                                                sampler.name ===
+                                                sampler ===
                                                 store.data.sampler_name
                                                     ? true
                                                     : void 0
                                             }
-                                            value={sampler.name}
+                                            value={sampler}
                                             key={index}
                                             onClick={(evt: any) => {
                                                 store.data.sampler_name =
-                                                    sampler.name
+                                                    sampler
                                             }}
                                         >
-                                            {sampler.name}
+                                            {sampler}
                                         </sp-radio>
                                     )
                                 }

@@ -306,39 +306,18 @@ async function updateVersionUI() {
 
 //REFACTOR: move to generation_settings.js
 export async function initSamplers() {
-    let bStatus = false
     try {
-        // let sampler_group = document.getElementById('sampler_group')!
-        // sampler_group.innerHTML = ''
-
         let samplers = await requestGetSamplers()
-        if (!samplers) {
-            //if we failed to get the sampler list from auto1111, use the list stored in sampler.js
-            samplers = sampler_data.samplers
-        }
-        helper_store.data.sampler_list = samplers
-
-        // for (let sampler of samplers) {
-        //     // console.log(sampler)//Log
-        //     // sampler.name
-        //     // <sp-radio class="rbSampler" value="Euler">Euler</sp-radio>
-        //     // const rbSampler = document.createElement('sp-radio')
-        //     // rbSampler.innerHTML = sampler.name
-        //     // rbSampler.setAttribute('class', 'rbSampler')
-        //     // rbSampler.setAttribute('value', sampler.name)
-        //     // sampler_group.appendChild(rbSampler)
-        //     //add click event on radio button for Sampler radio button, so that when a button is clicked it change g_sd_sampler globally
-        // }
-        // document
-        //     .getElementsByClassName('rbSampler')[0]
-        //     .setAttribute('checked', '')
         if (samplers.length > 0) {
-            bStatus = true
+            helper_store.data.sampler_list = samplers.map((sampler: any) => {
+                return sampler.name
+            })
         }
+        return samplers
     } catch (e) {
         console.warn(e)
     }
-    return bStatus
+    return []
 }
 
 export function loadNativePreset() {
