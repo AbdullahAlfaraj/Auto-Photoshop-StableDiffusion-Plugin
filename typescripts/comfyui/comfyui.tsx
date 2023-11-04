@@ -704,11 +704,41 @@ async function onChangeLoadVideo(node_id: string, filename: string) {
         console.warn(e)
     }
 }
+function renderNode(node_id: string, node: any, is_output: boolean) {
     const comfy_node_info = toJS(store.data.object_info[node.class_type])
-    const is_output = comfy_node_info.output_node
+
     console.log('comfy_node_info: ', comfy_node_info)
     const node_type = util.getNodeType(node.class_type)
     let node_html
+
+    node_html = Object.entries(node.inputs).map(([name, value], index) => {
+        // store.data.current_prompt2[node_id].inputs[name] = value
+        try {
+            const input = comfy_node_info.input.required[name]
+
+            let { type, config } = util.parseComfyInput(name, input, value)
+            if (type === ComfyInputType.Skip) {
+                return (
+                    <div
+                        key={`${node_id}_${name}_${type}_${index}`}
+                        style={{ display: 'none' }}
+                    ></div>
+                )
+            }
+            const html_element = renderInput(
+                node_id,
+                name,
+                type,
+                config,
+                `${node_id}_${name}_${type}_${index}`
+            )
+
+            return html_element
+        } catch (e) {
+            console.error(e)
+        }
+    })
+
     if (node_type === util.ComfyNodeType.LoadImage) {
         const uploaded_images = store.data.uploaded_images_list
         const inputs = store.data.current_prompt2[node_id].inputs
@@ -955,7 +985,7 @@ async function onChangeLoadVideo(node_id: string, filename: string) {
         const output_node_element = (
             <div>
                 {node_html}
-                {store.data.current_prompt2_output[node_id].length > 0 ? (
+                {store.data.current_prompt2_output[node_id]?.length > 0 ? (
                     <SpSlider
                         disabled={store.data.can_edit_nodes ? true : void 0}
                         style={{ display: 'block' }}
@@ -1505,6 +1535,9 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                 )
 
                                 .map(([node_id, node], index) => {
+                                    const is_output =
+                                        store.data.object_info[node.class_type]
+                                            .output_node
                                     return (
                                         <div
                                             key={`node_${node_id}_${index}`}
@@ -1643,7 +1676,11 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                                     }}
                                                 ></sp-textfield>
                                             </div>
-                                            {renderNode(node_id, node)}
+                                            {renderNode(
+                                                node_id,
+                                                node,
+                                                is_output
+                                            )}
                                             {/* <sp-divider
                                             class="line-divider"
                                             size="large"
