@@ -6,8 +6,6 @@
         "batch_size": 1,
         "batch_count": 1,
         "steps": 20,
-        "width": 512,
-        "height": 512,
         "ratio": 1,
         "cfg": 7,
         "b_width_height_link": true,
@@ -28,13 +26,5 @@
         "hr_upscaler": "",
         "selection_mode": "ratio"
     },
-    "controlnet_tab_preset": [
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {}
-    ]
+    "controlnet_tab_preset": [{}, {}, {}, {}, {}, {}, {}]
 }
