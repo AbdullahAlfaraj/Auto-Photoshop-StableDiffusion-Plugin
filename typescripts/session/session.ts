@@ -26,7 +26,7 @@ import {
     updateViewerStoreImageAndThumbnail,
 } from '../viewer/viewer_util'
 import { sd_tab_store } from '../stores'
-
+import settings_tab from '../settings/settings'
 declare let g_inpaint_mask_layer: any
 declare const g_image_not_found_url: string
 declare let g_current_batch_index: number
@@ -395,7 +395,11 @@ export class Session {
     }
     static async getProgress() {
         // Progress.startSudoProgress()
-        progress.Progress.startTimer(async () => {
+
+        const comfyProgress = async () => {
+            progress.store.data.progress_value += 1
+        }
+        const auto1111Progress = async () => {
             try {
                 let json = await progress.requestProgress()
                 const can_update = progress.store.data.can_update
@@ -422,7 +426,12 @@ export class Session {
             } catch (e) {
                 console.warn(e)
             }
-        }, 2000)
+        }
+        const [callback, timer] =
+            settings_tab.store.data.selected_backend === 'Automatic1111'
+                ? [auto1111Progress, 2000]
+                : [comfyProgress, 1000]
+        progress.Progress.startTimer(callback, timer)
     }
     static async endProgress() {
         await progress.Progress.endTimer(async () => {

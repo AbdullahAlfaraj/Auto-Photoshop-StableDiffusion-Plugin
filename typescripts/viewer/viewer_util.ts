@@ -136,3 +136,9 @@ export const resetViewer = () => {
     init_store.data.images = []
     init_store.data.thumbnails = []
 }
+
+export default {
+    store,
+    init_store,
+    mask_store,
+}

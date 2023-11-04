@@ -70,6 +70,7 @@ const {
     logger,
     toJS,
     viewer,
+    viewer_util,
     preview,
     // session_ts,
     session_store,
@@ -95,7 +96,9 @@ const {
     api_ts,
     comfyui,
     comfyui_util,
+    comfyui_main_ui,
     diffusion_chain,
+    comfyapi,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
@@ -534,8 +537,6 @@ let g_inpaint_mask_layer_history_id //store the history state id when creating a
 let g_selection = {}
 let g_b_use_smart_object = true // true to keep layer as smart objects, false to rasterize them
 let g_sd_options_obj = new sd_options.SdOptions()
-
-g_sd_options_obj.getOptions()
 
 let g_controlnet_max_models
 

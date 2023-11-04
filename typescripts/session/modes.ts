@@ -4,7 +4,8 @@ import * as scripts from '../ultimate_sd_upscaler/scripts'
 import * as control_net from '../controlnet/entry'
 import { store as session_store } from '../session/session_store'
 import sd_tab_util from '../sd_tab/util'
-
+import settings_tab from '../settings/settings'
+import comfyui_main_ui from '../comfyui/main_ui'
 import {
     html_manip,
     io,
@@ -268,13 +269,28 @@ export class Txt2ImgMode extends Mode {
 
                 response_json = await this.requestControlNetTxt2Img(settings)
             } else {
-                response_json = await this.requestTxt2Img(settings)
+                if (
+                    settings_tab.store.data.selected_backend === 'Automatic1111'
+                ) {
+                    response_json = await this.requestTxt2Img(settings) //this is automatic1111 txt2img
+                } else if (
+                    settings_tab.store.data.selected_backend === 'ComfyUI'
+                ) {
+                    //request Txt2Img from comfyui
+                    const { image_base64_list, image_url_list } =
+                        await comfyui_main_ui.generateComfyTxt2img(settings)
+                    output_images = image_base64_list
+                }
             }
 
-            output_images = await this.processOutput(
-                response_json.images_info,
-                settings
-            )
+            if (settings_tab.store.data.selected_backend === 'Automatic1111') {
+                output_images = await this.processOutput(
+                    response_json.images_info,
+                    settings
+                )
+            } else if (settings_tab.store.data.selected_backend === 'ComfyUI') {
+                // output_images = image_base64_list
+            }
         } catch (e) {
             console.warn(e)
             console.warn('output_images: ', output_images)

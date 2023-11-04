@@ -49,3 +49,14 @@ export function autoResize(textarea: any, text_content: string, delay = 300) {
 export async function urlToCanvas(url: string, image_name = 'image.png') {
     await io.IO.urlToLayer(url, image_name)
 }
+
+export const copyJson = (originalObject: any) =>
+    JSON.parse(JSON.stringify(originalObject))
+
+export function base64ToBase64Url(base64_image: string) {
+    return 'data:image/png;base64,' + base64_image
+}
+export function base64UrlToBase64(base64_url: string) {
+    const base64_image = base64_url.replace('data:image/png;base64,', '')
+    return base64_image
+}
