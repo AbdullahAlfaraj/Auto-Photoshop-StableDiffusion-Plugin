@@ -1409,7 +1409,23 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
             store.data.loaded_images_list =
                 store.data.object_info.LoadImage.input.required['image'][0]
 
-            store.data.loaded_images_base64_url = loaded_images_base64_url
+function getBorderColor(is_output: boolean, last_moved: boolean) {
+    let color: string | undefined = void 0
+    if (last_moved) {
+        // color = '#2c4639'
+        color = '#e34d12'
+
+        return color
+    }
+    if (is_output) {
+        // color = '#e34d12'
+        color = '#6db579'
+    } else {
+        color = '#6d6c6c'
+    }
+
+    return color
+}
         } catch (e) {
             console.error(e)
         }
@@ -1543,11 +1559,12 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                             key={`node_${node_id}_${index}`}
                                             style={{
                                                 border: '2px solid #6d6c6c',
-                                                borderColor:
+                                                borderColor: getBorderColor(
+                                                    is_output,
                                                     store.data.last_moved ===
-                                                    node_id
-                                                        ? '#2c4639'
-                                                        : void 0,
+                                                        node_id
+                                                ),
+
                                                 padding: '3px',
                                             }}
                                         >
