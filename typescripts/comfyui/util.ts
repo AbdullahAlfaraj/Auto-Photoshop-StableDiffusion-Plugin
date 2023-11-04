@@ -7,8 +7,78 @@ import { readdirSync, readFileSync } from 'fs'
 import { requestPost } from '../util/ts/api'
 import { ComfyServer } from 'diffusion-chain'
 import { storage } from 'uxp'
+import { reaction, toJS } from 'mobx'
+import { AStore } from '../main/astore'
+export enum InputTypeEnum {
+    NumberField = 'NumberField',
+    TextField = 'TextField',
+    TextArea = 'TextArea',
+    Menu = 'Menu',
+    ImageBase64 = 'ImageBase64',
+}
+export interface ValidInput {
+    [key: string]: any
+    value: string | number
+    label: string
+    list?: any[]
+    type: InputTypeEnum
+    id?: string
+}
+export interface PhotoshopNode {
+    inputs: ValidInput[]
+    id: string
+}
 
+export interface ComfyUIConfig {
+    [key: string]: any
+    checkpoints: string[]
+    samplers: string[]
+    schedulers: string[]
+}
+
+export interface ComfyUINode {
+    inputs: any
+    class_type: string
+}
 let workflows2: Record<string, any> = {}
+export const store = new AStore({
+    comfyui_valid_nodes: {} as any, // comfyui nodes like structure that contain all info necessary to create plugin ui elements
+    uuids: {} as any,
+
+    comfyui_output_images: [] as string[], //store the output images from generation
+    comfyui_output_thumbnail_images: [] as string[], // store thumbnail size images
+    comfyui_config: {} as ComfyUIConfig, // all config data like samplers, checkpoints ...etc
+    workflow_path: '', // the path of an image that contains prompt information
+    workflow_dir_path: '', // the path of the directory that contains all workflow files
+    // workflows_paths: [] as string[],
+    // workflows_names: [] as string[],
+    workflows: {} as any,
+    selected_workflow_name: '', // the selected workflow from the workflow menu
+    current_prompt: {} as any, // current prompt extracted from the workflow
+    thumbnail_image_size: 100,
+    load_image_nodes: {} as any, //our custom loadImageBase64 nodes, we need to substitute comfyui LoadImage nodes with before generating a prompt
+    // load_image_base64_strings: {} as any, //images the user added to the plugin comfy ui
+    object_info: undefined as any,
+    current_prompt2: {} as any,
+    current_prompt2_output: {} as any,
+    output_thumbnail_image_size: {} as Record<string, number>,
+    comfy_server: new diffusion_chain.ComfyServer(
+        'http://127.0.0.1:8188'
+    ) as diffusion_chain.ComfyServer,
+    uploaded_images_base64_url: [] as string[],
+    current_uploaded_image: {} as Record<string, string>, //key: node_id, value: base64_url; only used in UI to show the selected images for LoadImage nodes
+    current_uploaded_video: {} as Record<string, string>,
+    uploaded_images_list: [] as string[], // store an array of all images in the comfy's input directory
+    uploaded_video_list: [] as string[], // store the name of .gif and .mp4 videos in comfy's input directory and subcategories
+    nodes_order: [] as string[], // nodes with smaller index will be rendered first,
+    can_edit_nodes: false as boolean,
+    nodes_label: {} as Record<string, string>,
+
+    workflows2: workflows2 as Record<string, any>,
+    progress_value: 0,
+    is_random_seed: {} as Record<string, boolean>,
+    last_moved: undefined as string | undefined, // the last node that has been moved in the edit mode
+})
 
 // Assuming the json files are in a directory named 'native_workflows'
 const dir = 'plugin:/typescripts/comfyui/native_workflows' // specify the directory containing the .json files
