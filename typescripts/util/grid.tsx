@@ -58,7 +58,6 @@ export class Grid extends React.Component<{
                                                     event
                                                 )
                                             }
-                                            this.props?.callback(index, event) //todo: is this a typo why do we call callback twice?
                                         }
                                     } catch (e) {
                                         console.warn(
