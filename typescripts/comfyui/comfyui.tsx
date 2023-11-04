@@ -24,7 +24,7 @@ import { storage } from 'uxp'
 
 import util, { ComfyInputType } from './util'
 import * as diffusion_chain from 'diffusion-chain'
-import { urlToCanvas } from '../util/ts/general'
+import { copyJson, urlToCanvas } from '../util/ts/general'
 interface Error {
     type: string
     message: string
@@ -358,9 +358,11 @@ export const store = new AStore({
     comfy_server: new diffusion_chain.ComfyServer(
         'http://127.0.0.1:8188'
     ) as diffusion_chain.ComfyServer,
-    loaded_images_base64_url: [] as string[],
-    current_loaded_image: {} as Record<string, string>,
-    loaded_images_list: [] as string[], // store an array of all images in the comfy's input directory
+    uploaded_images_base64_url: [] as string[],
+    current_uploaded_image: {} as Record<string, string>, //key: node_id, value: base64_url; only used in UI to show the selected images for LoadImage nodes
+    current_uploaded_video: {} as Record<string, string>,
+    uploaded_images_list: [] as string[], // store an array of all images in the comfy's input directory
+    uploaded_video_list: [] as string[], // store the name of .gif and .mp4 videos in comfy's input directory and subcategories
     nodes_order: [] as string[], // nodes with smaller index will be rendered first,
     can_edit_nodes: false as boolean,
     nodes_label: {} as Record<string, string>,
@@ -747,29 +749,95 @@ function setSliderValue(store: any, node_id: string, name: string, value: any) {
 }
 async function onChangeLoadImage(node_id: string, filename: string) {
     try {
-        store.data.current_loaded_image[node_id] =
+        store.data.current_uploaded_image[node_id] =
             await util.base64UrlFromComfy(store.data.comfy_server, {
                 filename: encodeURIComponent(filename),
                 type: 'input',
                 subfolder: '',
             })
+        store.data.current_prompt2[node_id].inputs.image = filename
     } catch (e) {
         console.warn(e)
     }
 }
-function renderNode(node_id: string, node: any) {
+async function onChangeLoadVideo(node_id: string, filename: string) {
+    try {
+        store.data.current_uploaded_video[node_id] =
+            await util.base64UrlFromComfy(store.data.comfy_server, {
+                filename: encodeURIComponent(filename),
+                type: 'input',
+                subfolder: '',
+            })
+        store.data.current_prompt2[node_id].inputs.video = filename
+    } catch (e) {
+        console.warn(e)
+    }
+}
     const comfy_node_info = toJS(store.data.object_info[node.class_type])
     const is_output = comfy_node_info.output_node
     console.log('comfy_node_info: ', comfy_node_info)
     const node_type = util.getNodeType(node.class_type)
     let node_html
     if (node_type === util.ComfyNodeType.LoadImage) {
-        const loaded_images = store.data.loaded_images_list
+        const uploaded_images = store.data.uploaded_images_list
         const inputs = store.data.current_prompt2[node_id].inputs
         const node_name = node.class_type
         node_html = (
             <div>
                 New load image component
+                <div>
+                    <button
+                        className="btnSquare "
+                        onClick={async () => {
+                            const image = await io.getImageFromCanvas(false)
+                            const new_loaded_image = await util.uploadImage(
+                                store.data.comfy_server,
+                                false,
+                                image
+                            )
+                            console.log('new_loaded_image: ', new_loaded_image)
+                            if (new_loaded_image) {
+                                store.data.uploaded_images_list = [
+                                    ...store.data.uploaded_images_list,
+                                    new_loaded_image.name,
+                                ]
+
+                                await onChangeLoadImage(
+                                    node_id,
+                                    new_loaded_image.name
+                                )
+                            }
+                        }}
+                    >
+                        Load Image From Canvas
+                    </button>
+                    <button
+                        className="btnSquare"
+                        onClick={async () => {
+                            const new_uploaded_image = await util.uploadImage(
+                                store.data.comfy_server,
+                                true,
+                                ''
+                            )
+                            console.log(
+                                'new_loaded_image: ',
+                                new_uploaded_image
+                            )
+                            if (new_uploaded_image) {
+                                store.data.uploaded_images_list = [
+                                    ...store.data.uploaded_images_list,
+                                    new_uploaded_image.name,
+                                ]
+                                await onChangeLoadImage(
+                                    node_id,
+                                    new_uploaded_image.name
+                                )
+                            }
+                        }}
+                    >
+                        Load Image From Folder
+                    </button>
+                </div>
                 <sp-label class="title" style={{ display: 'inline-block' }}>
                     {node_name}
                 </sp-label>
@@ -778,10 +846,10 @@ function renderNode(node_id: string, node: any) {
                         disabled={store.data.can_edit_nodes ? true : void 0}
                         size="m"
                         title={node_name}
-                        items={loaded_images}
+                        items={uploaded_images}
                         label_item={`Select an Image`}
                         // id={'model_list'}
-                        selected_index={loaded_images.indexOf(inputs.image)}
+                        selected_index={uploaded_images.indexOf(inputs.image)}
                         onChange={async (
                             id: any,
                             { index, item }: Record<string, any>
@@ -798,13 +866,13 @@ function renderNode(node_id: string, node: any) {
                 <div>
                     <button
                         onClick={() => {
-                            let index: number = loaded_images.indexOf(
+                            let index: number = uploaded_images.indexOf(
                                 inputs.image
                             )
                             index--
-                            const length = loaded_images.length
+                            const length = uploaded_images.length
                             index = ((index % length) + length) % length
-                            inputs.image = loaded_images[index]
+                            inputs.image = uploaded_images[index]
                             onChangeLoadImage(node_id, inputs.image)
                         }}
                     >
@@ -814,13 +882,13 @@ function renderNode(node_id: string, node: any) {
 
                     <button
                         onClick={() => {
-                            let index: number = loaded_images.indexOf(
+                            let index: number = uploaded_images.indexOf(
                                 inputs.image
                             )
                             index++
-                            const length = loaded_images.length
+                            const length = uploaded_images.length
                             index = ((index % length) + length) % length
-                            inputs.image = loaded_images[index]
+                            inputs.image = uploaded_images[index]
                             onChangeLoadImage(node_id, inputs.image)
                         }}
                     >
@@ -829,70 +897,129 @@ function renderNode(node_id: string, node: any) {
                     </button>
                 </div>
                 <img
-                    src={store.data.current_loaded_image[node_id]}
+                    src={store.data.current_uploaded_image[node_id]}
                     style={{ height: '200px' }}
                     onError={async () => {
                         console.error(
                             'error loading image: ',
-                            store.data.current_loaded_image[node_id]
+                            store.data.current_uploaded_image[node_id]
                         )
-                        // try {
-                        //     const filename = inputs.image
-                        //     store.data.current_loaded_image[node_id] =
-                        //         await util.base64UrlFromComfy(
-                        //             store.data.comfy_server,
-                        //             {
-                        //                 filename: encodeURIComponent(filename),
-                        //                 type: 'input',
-                        //                 subfolder: '',
-                        //             }
-                        //         )
-                        //     console.log(
-                        //         'store.data.current_loaded_image[node_id]: ',
-                        //         toJS(store.data.current_loaded_image[node_id])
-                        //     )
-                        // } catch (e) {
-                        //     console.warn(e)
-                        // }
+
                         onChangeLoadImage(node_id, inputs.image)
                     }}
                 />
-                {/* <Grid
-                    thumbnails={store.data.loaded_images_base64_url}
-                    width={200}
-                    height={200}
-                ></Grid> */}
             </div>
         )
-    } else if (node_type === util.ComfyNodeType.Normal) {
-        node_html = Object.entries(node.inputs).map(([name, value], index) => {
-            // store.data.current_prompt2[node_id].inputs[name] = value
-            try {
-                const input = comfy_node_info.input.required[name]
+    } else if (node_type === util.ComfyNodeType.LoadVideo) {
+        //ToDo: rewrite this to support video loading node
+        const uploaded_video_list = store.data.uploaded_video_list
+        const inputs = store.data.current_prompt2[node_id].inputs
+        const node_name = node.class_type
+        node_html = (
+            <div>
+                New load Video component
+                <div>
+                    <button
+                        className="btnSquare"
+                        onClick={async () => {
+                            const new_uploaded_video = await util.uploadImage(
+                                store.data.comfy_server,
+                                true,
+                                ''
+                            )
+                            console.log(
+                                'new_uploaded_video: ',
+                                new_uploaded_video
+                            )
+                            if (new_uploaded_video) {
+                                store.data.uploaded_video_list = [
+                                    ...store.data.uploaded_video_list,
+                                    new_uploaded_video.name,
+                                ]
+                                await onChangeLoadVideo(
+                                    node_id,
+                                    new_uploaded_video.name
+                                )
+                            }
+                        }}
+                    >
+                        Load Image From Folder
+                    </button>
+                </div>
+                <sp-label class="title" style={{ display: 'inline-block' }}>
+                    {node_name}
+                </sp-label>
+                <div>
+                    <SpMenu
+                        disabled={store.data.can_edit_nodes ? true : void 0}
+                        size="m"
+                        title={node_name}
+                        items={uploaded_video_list}
+                        label_item={`Select a Video`}
+                        // id={'model_list'}
+                        selected_index={uploaded_video_list.indexOf(
+                            inputs.video
+                        )}
+                        onChange={async (
+                            id: any,
+                            { index, item }: Record<string, any>
+                        ) => {
+                            console.log('onChange value.item: ', item)
+                            inputs.video = item
 
-                let { type, config } = util.parseComfyInput(name, input, value)
-                if (type === ComfyInputType.Skip) {
-                    return (
-                        <div
-                            key={`${node_id}_${name}_${type}_${index}`}
-                            style={{ display: 'none' }}
-                        ></div>
-                    )
-                }
-                const html_element = renderInput(
-                    node_id,
-                    name,
-                    type,
-                    config,
-                    `${node_id}_${name}_${type}_${index}`
-                )
+                            onChangeLoadVideo(node_id, item)
+                        }}
+                    ></SpMenu>
+                </div>
+                <div>
+                    <button
+                        onClick={() => {
+                            let index: number = uploaded_video_list.indexOf(
+                                inputs.video
+                            )
+                            index--
+                            const length = uploaded_video_list.length
+                            index = ((index % length) + length) % length
+                            inputs.video = uploaded_video_list[index]
+                            onChangeLoadVideo(node_id, inputs.video)
+                        }}
+                    >
+                        {' '}
+                        {'<'}{' '}
+                    </button>
 
-                return html_element
-            } catch (e) {
-                console.error(e)
-            }
-        })
+                    <button
+                        onClick={() => {
+                            let index: number = uploaded_video_list.indexOf(
+                                inputs.video
+                            )
+                            index++
+                            const length = uploaded_video_list.length
+                            index = ((index % length) + length) % length
+                            inputs.video = uploaded_video_list[index]
+                            onChangeLoadVideo(node_id, inputs.video)
+                        }}
+                    >
+                        {' '}
+                        {'>'}{' '}
+                    </button>
+                </div>
+                <img
+                    src={store.data.current_uploaded_video[node_id]}
+                    style={{ height: '200px' }}
+                    onError={async () => {
+                        console.error(
+                            'error loading video: ',
+                            store.data.current_uploaded_video[node_id]
+                        )
+
+                        onChangeLoadVideo(node_id, inputs.video)
+                    }}
+                />
+            </div>
+        )
     }
+
     if (is_output) {
         const output_node_element = (
             <div>

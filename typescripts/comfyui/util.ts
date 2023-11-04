@@ -4,6 +4,9 @@ import { ComfyPrompt } from 'diffusion-chain/dist/backends/comfyui-api.mjs'
 // import { ComfyPrompt } from 'diffusion-chain/'
 
 import { readdirSync, readFileSync } from 'fs'
+import { requestPost } from '../util/ts/api'
+import { ComfyServer } from 'diffusion-chain'
+import { storage } from 'uxp'
 
 let workflows2: Record<string, any> = {}
 
@@ -41,6 +44,7 @@ export enum ComfyInputType {
 }
 export enum ComfyNodeType {
     LoadImage = 'LoadImage',
+    LoadVideo = 'LoadVideo',
     Normal = 'Normal',
     Skip = 'Skip',
 }
@@ -57,6 +61,10 @@ export function getNodeType(node_name: any) {
         case 'LoadImage':
             node_type = ComfyNodeType.LoadImage
             break
+        case 'LoadVideo':
+            node_type = ComfyNodeType.LoadVideo
+            break
+
         default:
             break
     }
