@@ -28,7 +28,7 @@ const app = window.require('photoshop').app
 const constants = require('photoshop').constants
 const { batchPlay } = require('photoshop').action
 const { executeAsModal } = require('photoshop').core
-// const dialog_box = require('./dialog_box')
+const dialog_box = require('./dialog_box')
 // const {entrypoints} = require('uxp')
 const { sd_tab_store } = require('./typescripts/dist/bundle')
 const html_manip = require('./utility/html_manip')
@@ -84,7 +84,7 @@ const {
     ui_ts,
     preset,
     preset_util,
-    dialog_box,
+    // dialog_box,
     sd_tab_util,
     node_fs,
     io_ts,
