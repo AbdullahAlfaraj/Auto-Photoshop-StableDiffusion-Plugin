@@ -1,0 +1,110 @@
+{
+  "4": {
+    "inputs": {
+      "ckpt_name": "anythingV5Anything_anythingV5PrtRE.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple"
+  },
+  "6": {
+    "inputs": {
+      "text": "masterpiece, best quality, 1girl, solo, cherry blossoms, hanami, pink flower, white flower, spring season, wisteria, petals, flower, plum blossoms, outdoors, falling petals, white hair, black eyes",
+      "clip": [
+        "4",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "7": {
+    "inputs": {
+      "text": "embedding:easynegative, embedding:badhandv4, ",
+      "clip": [
+        "4",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "8": {
+    "inputs": {
+      "samples": [
+        "15",
+        0
+      ],
+      "vae": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "12": {
+    "inputs": {
+      "frame_rate": 8,
+      "loop_count": 0,
+      "save_image": false,
+      "filename_prefix": "AnimateDiff",
+      "format": "image/gif",
+      "pingpong": false,
+      "ad_video_preview__0": "/view?filename=AnimateDiff_00005_.gif&subfolder=&type=temp&format=image%2Fgif",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "AnimateDiffCombine"
+  },
+  "13": {
+    "inputs": {
+      "vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"
+    },
+    "class_type": "VAELoader"
+  },
+  "15": {
+    "inputs": {
+      "inject_method": "default",
+      "frame_number": 16,
+      "seed": 345029849956677,
+      "steps": 20,
+      "cfg": 8,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 0.8,
+      "motion_module": [
+        "16",
+        0
+      ],
+      "model": [
+        "4",
+        0
+      ],
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "7",
+        0
+      ],
+      "latent_image": [
+        "20",
+        0
+      ]
+    },
+    "class_type": "AnimateDiffSampler"
+  },
+  "16": {
+    "inputs": {
+      "model_name": "mm_sd_v15_v2.ckpt"
+    },
+    "class_type": "AnimateDiffModuleLoader"
+  },
+  "20": {
+    "inputs": {
+      "width": 512,
+      "height": 512,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage"
+  }
+}

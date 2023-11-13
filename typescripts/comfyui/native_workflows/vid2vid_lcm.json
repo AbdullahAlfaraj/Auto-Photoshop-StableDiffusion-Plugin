@@ -1,0 +1,110 @@
+{
+  "28": {
+    "inputs": {
+      "images": [
+        "30",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "29": {
+    "inputs": {
+      "frame_rate": 10,
+      "loop_count": 0,
+      "filename_prefix": "LCM",
+      "format": "image/gif",
+      "pingpong": true,
+      "save_image": false,
+      "Sync playback": null,
+      "vhs_gif_preview__0": "/view?filename=LCM_00003_.gif&subfolder=&type=temp&format=image%2Fgif",
+      "images": [
+        "35",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine"
+  },
+  "30": {
+    "inputs": {
+      "video": "Head rotations_.mp4",
+      "force_rate": 0,
+      "force_size": "Disabled",
+      "frame_load_cap": 20,
+      "skip_first_frames": 17,
+      "select_every_nth": 10,
+      "choose file to upload": "video"
+    },
+    "class_type": "VHS_LoadVideo"
+  },
+  "35": {
+    "inputs": {
+      "seed": 567253074059555,
+      "prompt_strength": 0.4,
+      "steps": 4,
+      "cfg": 8,
+      "height": 512,
+      "width": 512,
+      "num_images": 1,
+      "use_fp16": true,
+      "positive_prompt": "cute girl, oil painting",
+      "images": [
+        "30",
+        0
+      ]
+    },
+    "class_type": "LCM_img2img_Sampler"
+  },
+  "37": {
+    "inputs": {
+      "image": "000662ed61a84c86fc8a3fe69d38a6e2 (1).jpg",
+      "choose file to upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "38": {
+    "inputs": {
+      "images": [
+        "35",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "39": {
+    "inputs": {
+      "width": 512,
+      "height": 512,
+      "batch_size": 30
+    },
+    "class_type": "EmptyLatentImage"
+  },
+  "40": {
+    "inputs": {
+      "samples": [
+        "39",
+        0
+      ],
+      "vae": [
+        "41",
+        0
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "41": {
+    "inputs": {
+      "vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"
+    },
+    "class_type": "VAELoader"
+  },
+  "42": {
+    "inputs": {
+      "images": [
+        "40",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  }
+}
