@@ -309,7 +309,7 @@ async function getSettings(session_data) {
         function setAlwaysOnScripts() {
             const data = after_detailer_script.store.toJsFunc().data
             // console.log('setAlwaysOnScripts=> data:', data)
-            let ad_controlnet_module = null
+            let ad_controlnet_module = 'None'
             if (data.controlnet_model?.includes('inpaint')) {
                 ad_controlnet_module = 'inpaint_global_harmonious'
             }
