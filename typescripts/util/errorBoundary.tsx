@@ -29,12 +29,12 @@ export class ErrorBoundary extends Component<Props, State> {
         console.error('Uncaught error:', error, errorInfo)
     }
 
-    handleRefresh = async () => {
+    handleRefresh = () => {
         this.setState((prevState) => ({
             hasError: false, // reset the error state
             key: prevState.key + 1, // increment key to remount children
         }))
-        await refreshUI()
+        // await refreshUI()
     }
 
     public render() {
