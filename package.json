@@ -9,7 +9,6 @@
         "@types/react": "^18.2.6",
         "@types/react-dom": "^18.2.4",
         "changedpi": "^1.0.4",
-        "diffusion-chain": "file:../diffusion-chain",
         "fastify": "^4.10.2",
         "jimp": "^0.16.2",
         "madge": "^6.0.0",

@@ -43,5 +43,5 @@ export { toJS } from 'mobx'
 export { default as node_fs } from 'fs'
 export { default as comfyui_util } from './comfyui/util'
 export { default as comfyui_main_ui } from './comfyui/main_ui'
-export * as diffusion_chain from 'diffusion-chain'
+
 export { default as comfyapi } from './comfyui/comfyapi'

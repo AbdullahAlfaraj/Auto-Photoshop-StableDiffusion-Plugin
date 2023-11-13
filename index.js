@@ -97,7 +97,7 @@ const {
     comfyui,
     comfyui_util,
     comfyui_main_ui,
-    diffusion_chain,
+
     comfyapi,
 } = require('./typescripts/dist/bundle')
 
@@ -1821,6 +1821,3 @@ async function openFileFromUrlExe(url, format = 'gif') {
         await openFileFromUrl(url, format)
     })
 }
-
-let comfy_server = new diffusion_chain.ComfyServer('http://127.0.0.1:8188')
-let comfy_object_info = diffusion_chain.ComfyApi.objectInfo(comfy_server)
