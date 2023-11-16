@@ -1,3 +1,4 @@
+import { toJS } from 'mobx'
 import { setControlImageSrc } from '../../utility/html_manip'
 // import { session_ts } from '../entry'
 // import * as session_ts from '../session/session'
@@ -111,6 +112,35 @@ async function initializeControlNetTab(controlnet_max_models: number) {
         console.warn(e)
     }
 }
+async function initializeControlNetTabComfyUI(
+    controlnet_max_models: number,
+    controlnet_models: string[],
+    preprocessor_list: string[]
+) {
+    store.maxControlNet = controlnet_max_models || store.maxControlNet
+    // store.controlnetApiVersion = await requestControlNetApiVersion()
+
+    try {
+        const models = controlnet_models
+        store.supportedModels = models || []
+    } catch (e) {
+        console.warn(e)
+    }
+    try {
+        store.supportedPreprocessors = preprocessor_list || []
+        store.preprocessorDetail = {}
+    } catch (e) {
+        console.warn(e)
+    }
+    try {
+        store.controlNetUnitData.forEach((unitData) => {
+            unitData.module_list = store.supportedPreprocessors
+            unitData.model_list = store.supportedModels
+        })
+    } catch (e) {
+        console.warn(e)
+    }
+}
 
 function getEnableControlNet(index: number) {
     if (typeof index == 'undefined')
@@ -122,11 +152,11 @@ function getEnableControlNet(index: number) {
 function mapPluginSettingsToControlNet(plugin_settings: any) {
     const ps = plugin_settings // for shortness
     let controlnet_units: any[] = []
+    const controlNetUnits = store.controlNetUnitData
     function getControlNetInputImage(index: number) {
         try {
-            const b_sync_input_image =
-                store.controlNetUnitData[index].auto_image
-            let input_image = store.controlNetUnitData[index].input_image
+            const b_sync_input_image = controlNetUnits[index].auto_image
+            let input_image = controlNetUnits[index].input_image
             if (
                 b_sync_input_image &&
                 [GenerationModeEnum.Txt2Img].includes(session_store.data.mode)
@@ -134,8 +164,8 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
                 //conditions: 1) txt2img mode 2)auto image on  3)first generation of session
 
                 input_image = session_store.data.controlnet_input_image ?? ''
-                store.controlNetUnitData[index].input_image = input_image
-                store.controlNetUnitData[index].selection_info =
+                controlNetUnits[index].input_image = input_image
+                controlNetUnits[index].selection_info =
                     plugin_settings.selection_info
             }
             if (
@@ -149,13 +179,10 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
             ) {
                 // img2img mode
                 input_image = session_store.data.init_image
-                store.controlNetUnitData[index].input_image = input_image
-                store.controlNetUnitData[index].selection_info =
+                controlNetUnits[index].input_image = input_image
+                controlNetUnits[index].selection_info =
                     plugin_settings.selection_info
-            } else if (
-                b_sync_input_image &&
-                store.controlNetUnitData[index].enabled
-            ) {
+            } else if (b_sync_input_image && controlNetUnits[index].enabled) {
                 //txt2img mode
             }
 
@@ -175,9 +202,9 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
                 //maskless mode
             } else {
                 //mask related mode
-                store.controlNetUnitData[index].mask = '' // use the mask from the sd mode
+                controlNetUnits[index].mask = '' // use the mask from the sd mode
             }
-            return store.controlNetUnitData[index].mask
+            return controlNetUnits[index].mask
         } catch (e) {
             console.warn(e)
         }
@@ -187,28 +214,27 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
             enabled: getEnableControlNet(index),
             input_image: getControlNetInputImage(index),
             mask: getControlNetMask(index),
-            module: store.controlNetUnitData[index].module,
-            model: store.controlNetUnitData[index].model,
-            weight: store.controlNetUnitData[index].weight,
+            module: controlNetUnits[index].module,
+            model: controlNetUnits[index].model,
+            weight: controlNetUnits[index].weight,
             resize_mode: 'Crop and Resize',
-            lowvram: store.controlNetUnitData[index].lowvram,
-            processor_res: store.controlNetUnitData[index].processor_res || 512,
-            threshold_a: store.controlNetUnitData[index].threshold_a,
-            threshold_b: store.controlNetUnitData[index].threshold_b,
+            lowvram: controlNetUnits[index].lowvram,
+            processor_res: controlNetUnits[index].processor_res || 512,
+            threshold_a: controlNetUnits[index].threshold_a,
+            threshold_b: controlNetUnits[index].threshold_b,
             // guidance: ,
-            guidance_start: store.controlNetUnitData[index].guidance_start,
-            guidance_end: store.controlNetUnitData[index].guidance_end,
+            guidance_start: controlNetUnits[index].guidance_start,
+            guidance_end: controlNetUnits[index].guidance_end,
         }
         if (store.controlnetApiVersion > 1) {
             //new controlnet v2
             controlnet_units[index].control_mode =
-                store.controlNetUnitData[index].control_mode
+                controlNetUnits[index].control_mode
             controlnet_units[index].pixel_perfect =
-                store.controlNetUnitData[index].pixel_perfect
+                controlNetUnits[index].pixel_perfect
         } else {
             // old controlnet v1
-            controlnet_units[index].guessmode =
-                store.controlNetUnitData[index].guessmode
+            controlnet_units[index].guessmode = controlNetUnits[index].guessmode
         }
     }
 
@@ -284,6 +310,7 @@ export {
     requestControlNetMaxUnits,
     requestControlNetFiltersKeywords,
     initializeControlNetTab,
+    initializeControlNetTabComfyUI,
     getEnableControlNet,
     mapPluginSettingsToControlNet,
     getControlNetMaxModelsNumber,

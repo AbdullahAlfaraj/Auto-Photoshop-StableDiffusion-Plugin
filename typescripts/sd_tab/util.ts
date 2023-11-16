@@ -1,4 +1,5 @@
-import { control_net, main } from '../entry'
+import { control_net } from '../entry'
+import vae_settings from '../settings/vae'
 import { AStore } from '../main/astore'
 import { script_store } from '../ultimate_sd_upscaler/scripts'
 import { ScriptMode } from '../ultimate_sd_upscaler/ultimate_sd_upscaler'
@@ -28,7 +29,7 @@ import { presetToStore } from '../util/ts/io'
 import { refreshExtraUpscalers } from '../extra_page/extra_page'
 
 import { readdirSync, readFileSync } from 'fs'
-
+import comfyapi from '../comfyui/comfyapi'
 declare let g_models: any[]
 declare let g_automatic_status: any
 declare let g_sd_options_obj: any
@@ -128,7 +129,7 @@ export const store = new AStore({
 
     hr_resize_x: 512,
     hr_resize_y: 512,
-    hr_second_pass_steps: 0,
+    hr_second_pass_steps: 20,
     restore_faces: false,
     inpainting_fill: mask_content_config[0].value,
     hr_upscaler: '',
@@ -194,7 +195,7 @@ export async function refreshModels() {
             b_result = true
             helper_store.data.models = g_models
                 ? g_models.map((model) => {
-                      model.title
+                      return model.title
                   })
                 : helper_store.data.models
         }
@@ -312,6 +313,7 @@ export async function initSamplers() {
             helper_store.data.sampler_list = samplers.map((sampler: any) => {
                 return sampler.name
             })
+            store.data.sampler_name = helper_store.data.sampler_list[0]
         }
         return samplers
     } catch (e) {
@@ -345,47 +347,84 @@ export async function refreshUI() {
             html_manip.setProxyServerStatus('disconnected', 'connected')
         }
 
-        //@ts-ignore
-        g_automatic_status = await checkAutoStatus() // check the webui status regardless if alert are turned on or off
-        if (!settings_tab_ts.store.data.bTurnOffServerStatusAlert) {
-            //@ts-ignore
-            await displayNotification(g_automatic_status) // only show alert if the alert are turn on
-        }
-        const bSamplersStatus = await initSamplers()
-
-        await refreshModels()
-        helper_store.data.loras = await requestLoraModels()
-        helper_store.data.embeddings = await requestEmbeddings()
-        await refreshExtraUpscalers()
-
-        await setInpaintMaskWeight(1.0) //set the inpaint conditional mask to 1 when the on plugin start
-
-        //get the latest options
-
-        await g_sd_options_obj.getOptions()
-        //get the selected model
-        store.data.selected_model = g_sd_options_obj.getCurrentModel()
-        //update the ui with that model title
-
-        // const current_model_hash =
-        //     html_manip.getModelHashByTitle(current_model_title)
-        // html_manip.autoFillInModel(current_model_hash)
-
-        //fetch the inpaint mask weight from sd webui and update the slider with it.
-        const inpainting_mask_weight =
-            await g_sd_options_obj.getInpaintingMaskWeight()
-        console.log('inpainting_mask_weight: ', inpainting_mask_weight)
-        html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
-
-        //init ControlNet Tab
-
-        helper_store.data.hr_upscaler_list = await requestGetHiResUpscalers()
-
-        g_controlnet_max_models = await control_net.requestControlNetMaxUnits()
-        await control_net.initializeControlNetTab(g_controlnet_max_models)
-        await main.populateVAE()
-
         helper_store.data.native_presets = loadNativePreset()
+        if (settings_tab_ts.store.data.selected_backend === 'Automatic1111') {
+            //@ts-ignore
+            g_automatic_status = await checkAutoStatus() // check the webui status regardless if alert are turned on or off
+            if (!settings_tab_ts.store.data.bTurnOffServerStatusAlert) {
+                //@ts-ignore
+                await displayNotification(g_automatic_status) // only show alert if the alert are turn on
+            }
+            const bSamplersStatus = await initSamplers()
+            await refreshModels()
+            helper_store.data.loras = await requestLoraModels()
+            helper_store.data.embeddings = await requestEmbeddings()
+            await refreshExtraUpscalers()
+            await setInpaintMaskWeight(1.0) //set the inpaint conditional mask to 1 when the on plugin start
+            //get the latest options
+
+            await g_sd_options_obj.getOptions()
+            //get the selected model
+            store.data.selected_model = g_sd_options_obj.getCurrentModel()
+            //update the ui with that model title
+
+            // const current_model_hash =
+            //     html_manip.getModelHashByTitle(current_model_title)
+            // html_manip.autoFillInModel(current_model_hash)
+
+            //fetch the inpaint mask weight from sd webui and update the slider with it.
+            const inpainting_mask_weight =
+                await g_sd_options_obj.getInpaintingMaskWeight()
+            console.log('inpainting_mask_weight: ', inpainting_mask_weight)
+            html_manip.autoFillInInpaintMaskWeight(inpainting_mask_weight)
+            //init ControlNet Tab
+
+            helper_store.data.hr_upscaler_list =
+                await requestGetHiResUpscalers()
+
+            g_controlnet_max_models =
+                await control_net.requestControlNetMaxUnits()
+            await control_net.initializeControlNetTab(g_controlnet_max_models)
+            await vae_settings.populateVAE()
+        }
+
+        if (settings_tab_ts.store.data.selected_backend === 'ComfyUI') {
+            await comfyapi.comfy_api.init()
+
+            helper_store.data.models = comfyapi.comfy_api.getModels()
+            store.data.selected_model = helper_store.data.models?.[0]
+
+            helper_store.data.sampler_list =
+                comfyapi.comfy_api.getSamplerNames()
+            store.data.sampler_name = helper_store.data.sampler_list?.[0]
+
+            vae_settings.store.data.vae_model_list =
+                comfyapi.comfy_api.getVAEs()
+            vae_settings.store.data.current_vae =
+                vae_settings.store.data.vae_model_list?.[0]
+
+            helper_store.data.hr_upscaler_list =
+                comfyapi.comfy_api.getHiResUpscalers()
+            store.data.hr_upscaler = helper_store.data.hr_upscaler_list?.[0]
+
+            helper_store.data.loras = comfyapi.comfy_api
+                .getLoras()
+                .map((lora) => lora.split('.')[0]) //remove .safetensor from loraname
+
+            const controlnet_models =
+                //@ts-ignorets
+                comfyapi.comfy_api.object_info?.ControlNetLoader.input.required
+                    .control_net_name[0]
+            const preprocessor_list = //@ts-ignorets
+                comfyapi.comfy_api?.object_info?.ControlNetScript.input.required
+                    .preprocessor_name_1[0]
+
+            control_net.initializeControlNetTabComfyUI(
+                3,
+                controlnet_models,
+                preprocessor_list
+            )
+        }
     } catch (e) {
         console.warn(e)
     }
@@ -419,7 +458,12 @@ export async function requestGetHiResUpscalers(): Promise<string[]> {
 
 export async function requestLoraModels() {
     const full_url = `${g_sd_url}/sdapi/v1/loras`
-    const lora_models = (await requestGet(full_url)) ?? []
+    let lora_models = (await requestGet(full_url)) ?? []
+    if (lora_models.length > 0) {
+        lora_models = lora_models.map((lora: any) => {
+            return lora.name
+        })
+    }
     return lora_models
 }
 
