@@ -28,8 +28,10 @@ import util, {
     ValidInput,
     store,
 } from './util'
-import * as diffusion_chain from 'diffusion-chain'
+
 import { copyJson, urlToCanvas } from '../util/ts/general'
+import comfyapi from './comfyapi'
+
 interface Error {
     type: string
     message: string
@@ -126,7 +128,7 @@ export async function generateRequest(prompt: any) {
         while (true && !has_error) {
             try {
                 console.log('get history attempt: ', numberOfAttempts)
-                history_result = await getHistory(prompt_id)
+                history_result = await util.getHistory(prompt_id)
                 console.log('history_result:', history_result)
                 if (history_result?.[prompt_id]) break
 
@@ -157,10 +159,10 @@ export async function generateImage(prompt: any) {
         const formats: string[] = []
 
         for (const image of images) {
-            const img = await loadImage(
+            const img = await comfyapi.comfy_api.view(
                 image.filename,
-                image.subfolder,
-                image.type
+                image.type,
+                image.subfolder
             )
             base64_imgs.push(img)
             formats.push(util.getFileFormat(image.filename))
@@ -180,36 +182,6 @@ export async function generateImage(prompt: any) {
         store.data.comfyui_output_thumbnail_images = thumbnails
 
         return base64_imgs
-    } catch (e) {
-        console.error(e)
-    }
-}
-
-export async function getHistory(prompt_id: string) {
-    try {
-        const url = `http://127.0.0.1:8188/history/${prompt_id}`
-        const history_result: any = await requestGet(url)
-
-        return history_result
-    } catch (e) {
-        console.error(e)
-    }
-}
-
-export async function loadImage(
-    filename = 'ComfyUI_00003_.png',
-    subfolder = '',
-    type = 'output'
-) {
-    try {
-        const url = `http://127.0.0.1:8188/view?filename=${filename}&subfolder=${subfolder}&type=${type}`
-        const image = await fetch(url)
-
-        const array_buffer = await image.arrayBuffer()
-        //@ts-ignore
-        const b64 = _arrayBufferToBase64(array_buffer)
-
-        return b64
     } catch (e) {
         console.error(e)
     }
@@ -489,195 +461,6 @@ export async function loadWorkflow(workflow_path: string) {
     }
 }
 
-@observer
-class ComfyNodeComponent extends React.Component<{}> {
-    async componentDidMount(): Promise<void> {
-        try {
-            await getConfig()
-        } catch (e) {
-            console.error(e)
-        }
-    }
-
-    render(): React.ReactNode {
-        return (
-            <div>
-                <div>
-                    {/* <sp-label></sp-label>
-                    <SpTextfield
-                        style={{ width: '100%' }}
-                        title="Workflows directory"
-                        type={'text'}
-                        placeholder=""
-                        value={store.data.workflow_dir_path}
-                        onChange={(evt: any) => {
-                            store.data.workflow_dir_path = evt.target.value
-                        }}
-                    ></SpTextfield> */}
-                    <button
-                        className="btnSquare"
-                        style={{ marginTop: '3px' }}
-                        onClick={async () => {
-                            try {
-                                const entries = await workflowEntries()
-
-                                store.data.workflows = {}
-                                for (const entry of entries) {
-                                    store.data.workflows[entry.name] =
-                                        entry.nativePath
-                                }
-                            } catch (e) {
-                                console.error(e)
-                            }
-                        }}
-                    >
-                        load workflows
-                    </button>
-
-                    <div>
-                        {/* <sp-label
-                            class="title"
-                            style={{ width: '60px', display: 'inline-block' }}
-                        >
-                            {'select workflow:'}
-                        </sp-label> */}
-                        <SpMenu
-                            size="m"
-                            title="workflows"
-                            items={Object.keys(store.data.workflows)}
-                            label_item="Select a workflow"
-                            selected_index={Object.values(
-                                store.data.workflows
-                            ).indexOf(store.data.selected_workflow_name)}
-                            onChange={async (id: any, value: any) => {
-                                store.data.selected_workflow_name = value.item
-                                await loadWorkflow(
-                                    store.data.workflows[value.item]
-                                )
-                            }}
-                        ></SpMenu>{' '}
-                        <button
-                            className="btnSquare refreshButton"
-                            id="btnResetSettings"
-                            title="Refresh the ADetailer Extension"
-                            onClick={async () => {
-                                await getConfig()
-                            }}
-                        ></button>
-                    </div>
-                    <sp-label>workflow path:</sp-label>
-                    <SpTextfield
-                        style={{ width: '100%' }}
-                        title="workflow path"
-                        type={'text'}
-                        placeholder=""
-                        value={store.data.workflow_path}
-                        onChange={(evt: any) => {
-                            store.data.workflow_path = evt.target.value
-                        }}
-                    ></SpTextfield>
-                    <div style={{ marginTop: '3px' }}>
-                        <button
-                            className="btnSquare"
-                            style={{ marginRight: '3px' }}
-                            onClick={async () => {
-                                await loadWorkflow(store.data.workflow_path)
-                            }}
-                        >
-                            Load Workflow
-                        </button>
-                        <button
-                            className="btnSquare"
-                            onClick={async () => {
-                                try {
-                                    const new_prompt = storeToPrompt(
-                                        store.toJsFunc(),
-                                        store.toJsFunc().data.current_prompt
-                                    )
-                                    await generateImage(new_prompt)
-                                } catch (e) {
-                                    console.error(e)
-                                }
-                            }}
-                        >
-                            Generate
-                        </button>
-                    </div>
-                </div>
-                {Object.keys(store.data.comfyui_valid_nodes).map(
-                    (node_id: string, index_i) => {
-                        return (
-                            <div
-                                key={`${store.data.uuids[node_id]}`}
-                                style={{
-                                    border: '2px solid #6d6c6c',
-                                    padding: '3px',
-                                }}
-                            >
-                                {Object.keys(
-                                    store.data.comfyui_valid_nodes[node_id]
-                                ).map((input_id: string, index_j: number) => {
-                                    return (
-                                        <div
-                                            key={`${node_id}_${index_i}_${index_j}`}
-                                        >
-                                            {nodeInputToHtmlElement(
-                                                store.data.comfyui_valid_nodes[
-                                                    node_id
-                                                ][input_id]
-                                            )}
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        )
-                    }
-                )}
-                <div>
-                    <sp-label>Result: </sp-label>
-                    <SpSlider
-                        style={{ display: 'block' }}
-                        show-value="false"
-                        id="slUpscaleSize"
-                        min="100"
-                        max="300"
-                        value={store.data.thumbnail_image_size}
-                        title=""
-                        onInput={(evt: any) => {
-                            store.data.thumbnail_image_size = evt.target.value
-                        }}
-                    >
-                        <sp-label slot="label" class="title">
-                            Thumbnail Size:
-                        </sp-label>
-                        <sp-label class="labelNumber" slot="label">
-                            {parseInt(store.data.thumbnail_image_size as any)}
-                        </sp-label>
-                    </SpSlider>
-                    <Grid
-                        // thumbnails_data={store.data.images}
-
-                        thumbnails={store.data.comfyui_output_thumbnail_images}
-                        width={store.data.thumbnail_image_size}
-                        height={200}
-                        action_buttons={[
-                            {
-                                ComponentType: MoveToCanvasSvg,
-                                callback: (index: number) => {
-                                    io.IO.base64ToLayer(
-                                        store.data.comfyui_output_images[index]
-                                    )
-                                },
-                                title: 'Copy Image to Canvas',
-                            },
-                        ]}
-                    ></Grid>
-                </div>
-            </div>
-        )
-    }
-}
-
 function setSliderValue(store: any, node_id: string, name: string, value: any) {
     runInAction(() => {
         store.data.current_prompt2[node_id].inputs[name] = value
@@ -686,7 +469,7 @@ function setSliderValue(store: any, node_id: string, name: string, value: any) {
 async function onChangeLoadImage(node_id: string, filename: string) {
     try {
         store.data.current_uploaded_image[node_id] =
-            await util.base64UrlFromComfy(store.data.comfy_server, {
+            await util.base64UrlFromComfy({
                 filename: encodeURIComponent(filename),
                 type: 'input',
                 subfolder: '',
@@ -699,7 +482,7 @@ async function onChangeLoadImage(node_id: string, filename: string) {
 async function onChangeLoadVideo(node_id: string, filename: string) {
     try {
         store.data.current_uploaded_video[node_id] =
-            await util.base64UrlFromComfy(store.data.comfy_server, {
+            await util.base64UrlFromComfy({
                 filename: encodeURIComponent(filename),
                 type: 'input',
                 subfolder: '',
@@ -712,7 +495,7 @@ async function onChangeLoadVideo(node_id: string, filename: string) {
 function renderNode(node_id: string, node: any, is_output: boolean) {
     const comfy_node_info = toJS(store.data.object_info[node.class_type])
 
-    console.log('comfy_node_info: ', comfy_node_info)
+    // console.log('comfy_node_info: ', comfy_node_info)
     const node_type = util.getNodeType(node.class_type)
     let node_html
 
@@ -757,7 +540,6 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
                         onClick={async () => {
                             const image = await io.getImageFromCanvas(false)
                             const new_loaded_image = await util.uploadImage(
-                                store.data.comfy_server,
                                 false,
                                 image
                             )
@@ -781,7 +563,6 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
                         className="btnSquare"
                         onClick={async () => {
                             const new_uploaded_image = await util.uploadImage(
-                                store.data.comfy_server,
                                 true,
                                 ''
                             )
@@ -889,7 +670,6 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
                         className="btnSquare"
                         onClick={async () => {
                             const new_uploaded_video = await util.uploadImage(
-                                store.data.comfy_server,
                                 true,
                                 ''
                             )
@@ -1396,7 +1176,7 @@ async function getUploadedImages(images_list: string[]) {
     const uploaded_images_base64_url: string[] = await Promise.all(
         uploaded_images.map(async (filename: string) => {
             try {
-                return await util.base64UrlFromComfy(store.data.comfy_server, {
+                return await util.base64UrlFromComfy({
                     filename: encodeURIComponent(filename),
                     type: 'input',
                     subfolder: '',
@@ -1435,12 +1215,10 @@ function getBorderColor(is_output: boolean, last_moved: boolean) {
 class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
     async componentDidMount(): Promise<void> {
         try {
-            store.data.object_info = await diffusion_chain.ComfyApi.objectInfo(
-                store.data.comfy_server
-            )
-            getUploadedImages(
-                store.data.object_info.LoadImage.input.required['image'][0]
-            )
+            store.data.object_info = await comfyapi.comfy_api.init()
+            // getUploadedImages(
+            //     store.data.object_info.LoadImage.input.required['image'][0]
+            // )
             if (store.data.object_info?.VHS_LoadVideo) {
                 store.data.uploaded_video_list =
                     store.data.object_info.VHS_LoadVideo.input.required[
@@ -1453,7 +1231,6 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
     }
 
     render(): React.ReactNode {
-        const comfy_server = store.data.comfy_server
         return (
             <div>
                 <div
@@ -1482,7 +1259,6 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                 util.runRandomSeedScript()
                                 let store_output =
                                     await util.postPromptAndGetBase64JsonResult(
-                                        comfy_server,
                                         toJS(store.data.current_prompt2)
                                     )
                                 store.data.current_prompt2_output =
@@ -1617,18 +1393,6 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                                                 index,
                                                                 index - 1
                                                             )
-
-                                                            // setTimeout(() => {
-                                                            //     // e.target.scrollIntoView()
-
-                                                            //     ;(
-                                                            //         document.getElementById(
-                                                            //             `${node_id}_swap_up`
-                                                            //         ) as any
-                                                            //     ).scrollIntoView(
-                                                            //         false
-                                                            //     )
-                                                            // }, 200)
                                                         }}
                                                     >
                                                         {' '}
@@ -1649,13 +1413,6 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                                                 index,
                                                                 index + 1
                                                             )
-                                                            // setTimeout(() => {
-                                                            //     ;(
-                                                            //         document.getElementById(
-                                                            //             `${node_id}_swap_down`
-                                                            //         ) as any
-                                                            //     ).scrollIntoView()
-                                                            // }, 200)
                                                         }}
                                                     >
                                                         {' '}
@@ -1719,14 +1476,6 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                                 node,
                                                 is_output
                                             )}
-                                            {/* <sp-divider
-                                            class="line-divider"
-                                            size="large"
-                                        ></sp-divider>
-                                        <sp-divider
-                                            class="line-divider"
-                                            size="large"
-                                        ></sp-divider> */}
                                         </div>
                                     )
                                 })}
