@@ -24,6 +24,8 @@ import {
 } from '../controlnet/entry'
 
 import { store as extra_page_store } from '../extra_page/extra_page'
+import { requestPost } from '../util/ts/api'
+import { comfyapi } from '../entry'
 const executeAsModal = core.executeAsModal
 
 declare let g_inpaint_mask_layer: any
@@ -87,7 +89,13 @@ class Mode {
         return base64OutputImages
     }
     static async interrupt() {
-        return await this.requestInterrupt()
+        //automatic1111
+        if (settings_tab.store.data.selected_backend === 'Automatic1111') {
+            return await this.requestInterrupt()
+        } else if (settings_tab.store.data.selected_backend === 'ComfyUI') {
+            await comfyapi.comfy_api.interrupt()
+            //comfy
+        }
     }
 
     static async requestInterrupt() {
@@ -256,31 +264,29 @@ export class Txt2ImgMode extends Mode {
             // const b_enable_control_net = control_net.getEnableControlNet()
             const b_enable_control_net = control_net.isControlNetModeEnable()
 
-            if (b_enable_control_net) {
-                //use control net
-                if (session_store.data.generation_number === 1) {
-                    session_store.data.controlnet_input_image =
-                        await io.getImg2ImgInitImage()
-                }
-                // console.log(
-                //     'session_store.data.controlnet_input_image: ',
-                //     session_store.data.controlnet_input_image
-                // )
+            if (settings_tab.store.data.selected_backend === 'Automatic1111') {
+                if (b_enable_control_net) {
+                    //use control net
+                    if (session_store.data.generation_number === 1) {
+                        session_store.data.controlnet_input_image =
+                            await io.getImg2ImgInitImage()
+                    }
+                    // console.log(
+                    //     'session_store.data.controlnet_input_image: ',
+                    //     session_store.data.controlnet_input_image
+                    // )
 
-                response_json = await this.requestControlNetTxt2Img(settings)
-            } else {
-                if (
-                    settings_tab.store.data.selected_backend === 'Automatic1111'
-                ) {
-                    response_json = await this.requestTxt2Img(settings) //this is automatic1111 txt2img
-                } else if (
-                    settings_tab.store.data.selected_backend === 'ComfyUI'
-                ) {
-                    //request Txt2Img from comfyui
-                    const { image_base64_list, image_url_list } =
-                        await comfyui_main_ui.generateComfyTxt2img(settings)
-                    output_images = image_base64_list
+                    response_json = await this.requestControlNetTxt2Img(
+                        settings
+                    )
                 }
+                response_json = await this.requestTxt2Img(settings) //this is automatic1111 txt2img
+            } else if (settings_tab.store.data.selected_backend === 'ComfyUI') {
+                //request Txt2Img from comfyui
+                settings = mapPluginSettingsToControlNet(settings)
+                const { image_base64_list, image_url_list } =
+                    await comfyui_main_ui.generateComfyTxt2Img(settings)
+                output_images = image_base64_list
             }
 
             if (settings_tab.store.data.selected_backend === 'Automatic1111') {
@@ -451,18 +457,38 @@ export class Img2ImgMode extends Mode {
         let output_images
         try {
             //checks on index 0 as if not enabled ignores the rest
-            const b_enable_control_net = control_net.isControlNetModeEnable()
 
-            if (b_enable_control_net) {
-                //use control net
-                response_json = await this.requestControlNetImg2Img(settings)
-            } else {
-                response_json = await this.requestImg2Img(settings)
+            if (settings_tab.store.data.selected_backend === 'Automatic1111') {
+                const b_enable_control_net =
+                    control_net.isControlNetModeEnable()
+                if (b_enable_control_net) {
+                    //use control net
+                    response_json = await this.requestControlNetImg2Img(
+                        settings
+                    )
+                } else {
+                    response_json = await this.requestImg2Img(settings)
+                    output_images = await this.processOutput(
+                        response_json.images_info,
+                        settings
+                    )
+                }
+            } else if (settings_tab.store.data.selected_backend === 'ComfyUI') {
+                settings = mapPluginSettingsToControlNet(settings)
+                if (settings?.mode === 'img2img') {
+                    const { image_base64_list, image_url_list } =
+                        await comfyui_main_ui.generateComfyImg2Img(settings)
+                    output_images = image_base64_list
+                } else if (settings?.mode === 'inpaint') {
+                    const { image_base64_list, image_url_list } =
+                        await comfyui_main_ui.generateComfyInpaint(settings)
+                    output_images = image_base64_list
+                } else if (settings?.mode === 'outpaint') {
+                    const { image_base64_list, image_url_list } =
+                        await comfyui_main_ui.generateComfyInpaint(settings)
+                    output_images = image_base64_list
+                }
             }
-            output_images = await this.processOutput(
-                response_json.images_info,
-                settings
-            )
         } catch (e) {
             console.warn(e)
             console.warn('output_images: ', output_images)

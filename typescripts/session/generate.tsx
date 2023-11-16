@@ -226,6 +226,7 @@ const handleGenerate = async () => {
         console.error(e)
         console.warn('output_images: ', output_images)
         console.warn('response_json: ', response_json)
+        console.warn('ui_settings: ', ui_settings)
     }
 }
 

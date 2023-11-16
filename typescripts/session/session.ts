@@ -27,6 +27,7 @@ import {
 } from '../viewer/viewer_util'
 import { sd_tab_store } from '../stores'
 import settings_tab from '../settings/settings'
+import comfyui_util from '../comfyui/util'
 declare let g_inpaint_mask_layer: any
 declare const g_image_not_found_url: string
 declare let g_current_batch_index: number
@@ -150,11 +151,19 @@ export async function getExpandedMask(
             //only if mask is available and sharp_mask is off
             // use blurry and expanded mask
             const iterations = expansion_value
-            expanded_mask = await python_replacement.maskExpansionRequest(
-                mask,
-                iterations,
-                blur
-            )
+            if (settings_tab.store.data.selected_backend === 'Automatic1111') {
+                expanded_mask = await python_replacement.maskExpansionRequest(
+                    mask,
+                    iterations,
+                    blur
+                )
+            } else if (settings_tab.store.data.selected_backend === 'ComfyUI') {
+                expanded_mask = await comfyui_util.maskExpansion(
+                    mask,
+                    iterations,
+                    blur
+                )
+            }
         }
 
         // return expanded_mask
