@@ -247,7 +247,8 @@ async function getSettings(session_data) {
 
         const sampler_name = sd_tab_store.data.sampler_name
 
-        const mode = sd_tab_store.data.rb_mode
+        const mode = session_data?.rb_mode || sd_tab_store.data.rb_mode // Use the 'rb_mode' from the session, if not available, fallback to the 'rb_mode' from the interface.
+
         const b_restore_faces = sd_tab_store.data.restore_faces
 
         let denoising_strength = h_denoising_strength

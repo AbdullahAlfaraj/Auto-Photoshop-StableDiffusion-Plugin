@@ -182,6 +182,7 @@ export class Session {
             store.data.current_session_id = await incrementSessionID()
 
             store.data.mode = mode
+            store.data.rb_mode = sd_tab_store.data.rb_mode
 
             if (modeToClassMap.hasOwnProperty(store.data.mode)) {
                 const { selectionInfo, init_image, mask } =
@@ -296,6 +297,7 @@ export class Session {
                 selectionInfo,
                 init_image,
                 mask,
+                rb_mode: store.data.rb_mode, // set in initializeSession
             })
 
             //this should be part of initialization method or gettingSettings()
@@ -350,6 +352,7 @@ export class Session {
                 init_image: store.data.init_image,
                 mask: store.data.preprocessed_mask,
                 selectionInfo: store.data.selectionInfo,
+                rb_mode: store.data.rb_mode, // set in initializeSession
             }
             var ui_settings = await this.getSettings(session_data)
             if (
