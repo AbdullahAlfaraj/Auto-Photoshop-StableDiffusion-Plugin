@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { observer } from 'mobx-react'
 import { AStore } from '../main/astore'
 
-import { SpCheckBox, SpMenu, SpSlider } from '../util/elements'
+import { SpCheckBox, SpMenu, SpSlider, SpTextfield } from '../util/elements'
 import Locale from '../locale/locale'
 import globalStore from '../globalstore'
 import { io } from '../util/oldSystem'
@@ -14,6 +14,7 @@ import { ErrorBoundary } from '../util/errorBoundary'
 import { MaskModeEnum, ScriptMode } from '../util/ts/enum'
 import { store as progress_store } from '../session/progress'
 import { requestPost } from '../util/ts/api'
+import { comfyapi } from '../entry'
 
 // import { Jimp } from '../util/oldSystem'
 declare const Jimp: any // make sure you import jimp before importing settings.tsx
@@ -181,17 +182,20 @@ export class Settings extends React.Component<{}> {
         return (
             <div style={{ width: '100%' }}>
                 <sp-label>ComfyUI Url:</sp-label>
-                <sp-textfield
+                <SpTextfield
                     type="text"
                     placeholder="http://127.0.0.1:8188"
                     // value={config.default}
                     value={store.data.comfy_url}
                     onChange={(event: any) => {
                         // store.data.search_query = event.target.value
-                        store.data.comfy_url = event.target.value
-                        // console.log(`${}: ${event.target.value}`)
+                        let url = event.target.value
+                        url = url.replace(/[/\\]$/, '')
+                        console.log(url)
+                        store.data.comfy_url = url
+                        comfyapi.comfy_api.setUrl(store.data.comfy_url)
                     }}
-                ></sp-textfield>
+                ></SpTextfield>
                 <sp-radio-group>
                     {['Automatic1111', 'ComfyUI'].map(
                         (backend: any, index: number) => {
