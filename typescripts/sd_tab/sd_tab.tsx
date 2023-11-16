@@ -5,7 +5,13 @@ import { observer } from 'mobx-react'
 
 import { GenerationModeEnum, ScriptMode } from '../util/ts/enum'
 import { reaction } from 'mobx'
-import { SpCheckBox, SpMenu, SpSlider, SpTextfield } from '../util/elements'
+import {
+    SearchableMenu,
+    SpCheckBox,
+    SpMenu,
+    SpSlider,
+    SpTextfield,
+} from '../util/elements'
 import { ErrorBoundary } from '../util/errorBoundary'
 import { Collapsible } from '../util/collapsible'
 
@@ -44,6 +50,7 @@ import { getExpandedMask } from '../session/session'
 import { mapRange } from '../controlnet/util'
 
 import { store as preset_store } from '../preset/shared_ui_preset'
+import Locale from '../locale/locale'
 
 declare let g_version: string
 
@@ -149,10 +156,8 @@ class SDTab extends React.Component<{}> {
         try {
             await refreshUI()
             await initPlugin()
-            helper_store.data.loras = await requestLoraModels()
+
             initInitMaskElement()
-            helper_store.data.hr_upscaler_list =
-                await requestGetHiResUpscalers()
             const btnSquareClass = document.getElementsByClassName('btnSquare')
             //REFACTOR: move to events.js
             for (let btnSquareButton of btnSquareClass) {
@@ -198,8 +203,16 @@ class SDTab extends React.Component<{}> {
         }
         return (
             <div>
-                <div id="menu-bar-container" style={styles.menuBarContainer}>
-                    <SpMenu
+                <div
+                    id="menu-bar-container"
+                    style={{
+                        ...styles.menuBarContainer,
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    {/* <SpMenu
                         title="Stable Diffusion Models"
                         items={helper_store.data.models || []}
                         label_item="Select a Model"
@@ -215,39 +228,54 @@ class SDTab extends React.Component<{}> {
 
                             requestSwapModel(store.data.selected_model)
                         }}
-                    ></SpMenu>
+                    ></SpMenu> */}
+                    <SearchableMenu
+                        allItems={helper_store.data.models}
+                        placeholder={'Select a Model'}
+                        selected_item={store.data.selected_model}
+                        onChange={(item: any) => {
+                            store.data.selected_model = item
 
-                    <button
-                        title="Refresh the plugin, only fixes minor issues."
-                        id="btnRefreshModels"
-                        style={styles.button}
-                        onClick={async (e) => {
-                            await refreshUI()
+                            requestSwapModel(store.data.selected_model)
+                        }}
+                    />
 
-                            tempDisableElement(e.target, 3000)
-                        }}
-                    >
-                        Refresh
-                    </button>
-                    <button
-                        title="Update the plugin if you encounter bugs. Get the latest features"
-                        className="btnSquare"
-                        id="btnUpdate"
-                        style={styles.button}
-                        onClick={async () => {
-                            await updateClickEventHandler(g_version)
-                        }}
-                    >
-                        Update
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                        <button
+                            style={{ padding: '3px' }}
+                            title="Refresh the plugin, only fixes minor issues."
+                            id="btnRefreshModels"
+                            // style={styles.button}
+                            onClick={async (e) => {
+                                await refreshUI()
+
+                                tempDisableElement(e.target, 3000)
+                            }}
+                        >
+                            Refresh
+                        </button>
+                        <button
+                            style={{ padding: '3px' }}
+                            title="Update the plugin if you encounter bugs. Get the latest features"
+                            className="btnSquare"
+                            id="btnUpdate"
+                            // style={styles.button}
+                            onClick={async () => {
+                                await updateClickEventHandler(g_version)
+                            }}
+                        >
+                            Update
+                        </button>
+                    </div>
                 </div>
                 <div id="sdBtnContainer">
-                    <SpMenu
+                    {/* <SpMenu
                         title="use lora in your prompt"
                         style={{ ...styles.spMenu }}
-                        items={helper_store.data.loras.map((lora: any) => {
-                            return lora.name
-                        })}
+                        // items={helper_store.data.loras.map((lora: any) => {
+                        //     return lora.name
+                        // })}
+                        items={helper_store.data.loras}
                         label_item="Select Lora"
                         // selected_index={store.data.models
                         //     .map((model) => {
@@ -261,8 +289,19 @@ class SDTab extends React.Component<{}> {
                                 positive: `${prompt} ${lora_prompt}`,
                             })
                         }}
-                    ></SpMenu>
-                    <SpMenu
+                    ></SpMenu> */}
+                    <SearchableMenu
+                        allItems={helper_store.data.loras}
+                        placeholder={'Select Lora'}
+                        onChange={(item: any) => {
+                            const lora_prompt = getLoraModelPrompt(item)
+                            const prompt = multiPrompts.getPrompt().positive
+                            multiPrompts.setPrompt({
+                                positive: `${prompt} ${lora_prompt}`,
+                            })
+                        }}
+                    />
+                    {/* <SpMenu
                         title="use textual inversion in your prompt"
                         style={{ ...styles.spMenu }}
                         items={helper_store.data.embeddings}
@@ -273,7 +312,17 @@ class SDTab extends React.Component<{}> {
                                 positive: `${prompt} ${value.item}`,
                             })
                         }}
-                    ></SpMenu>
+                    ></SpMenu> */}
+                    <SearchableMenu
+                        allItems={helper_store.data.embeddings || []}
+                        placeholder={Locale('Select Textual Inversion')}
+                        onChange={(item: any) => {
+                            const prompt = multiPrompts.getPrompt().positive
+                            multiPrompts.setPrompt({
+                                positive: `${prompt} ${item}`,
+                            })
+                        }}
+                    />
 
                     <sp-checkbox
                         title="use {keyword} form the prompts library"
