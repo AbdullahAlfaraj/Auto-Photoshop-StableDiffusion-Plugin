@@ -1,14 +1,12 @@
-import { diffusion_chain } from '../entry'
-import { ComfyPrompt } from 'diffusion-chain/dist/backends/comfyui-api.mjs'
-// import { ComfyPrompt } from 'diffusion-chain/dist/backends/comfyui-api.mjs'
-// import { ComfyPrompt } from 'diffusion-chain/'
-
 import { readdirSync, readFileSync } from 'fs'
 import { requestPost } from '../util/ts/api'
-import { ComfyServer } from 'diffusion-chain'
+
 import { storage } from 'uxp'
 import { reaction, toJS } from 'mobx'
 import { AStore } from '../main/astore'
+
+import comfyapi from './comfyapi'
+import { base64UrlToBase64 } from '../util/ts/general'
 export enum InputTypeEnum {
     NumberField = 'NumberField',
     TextField = 'TextField',
@@ -40,7 +38,17 @@ export interface ComfyUINode {
     inputs: any
     class_type: string
 }
+// Assuming the json files are in a directory named 'native_workflows'
+const dir = 'plugin:/typescripts/comfyui/native_workflows' // specify the directory containing the .json files
 let workflows2: Record<string, any> = {}
+readdirSync(dir).forEach((file) => {
+    if (file.endsWith('.json')) {
+        const fileContent = readFileSync(`${dir}/${file}`, 'utf8')
+        const fileNameWithoutExtension = file.slice(0, -5)
+        workflows2[fileNameWithoutExtension] = JSON.parse(fileContent)
+    }
+})
+
 export const store = new AStore({
     comfyui_valid_nodes: {} as any, // comfyui nodes like structure that contain all info necessary to create plugin ui elements
     uuids: {} as any,
@@ -62,9 +70,7 @@ export const store = new AStore({
     current_prompt2: {} as any,
     current_prompt2_output: {} as any,
     output_thumbnail_image_size: {} as Record<string, number>,
-    comfy_server: new diffusion_chain.ComfyServer(
-        'http://127.0.0.1:8188'
-    ) as diffusion_chain.ComfyServer,
+
     uploaded_images_base64_url: [] as string[],
     current_uploaded_image: {} as Record<string, string>, //key: node_id, value: base64_url; only used in UI to show the selected images for LoadImage nodes
     current_uploaded_video: {} as Record<string, string>,
@@ -79,18 +85,6 @@ export const store = new AStore({
     is_random_seed: {} as Record<string, boolean>,
     last_moved: undefined as string | undefined, // the last node that has been moved in the edit mode
 })
-
-// Assuming the json files are in a directory named 'native_workflows'
-const dir = 'plugin:/typescripts/comfyui/native_workflows' // specify the directory containing the .json files
-
-readdirSync(dir).forEach((file) => {
-    if (file.endsWith('.json')) {
-        const fileContent = readFileSync(`${dir}/${file}`, 'utf8')
-        const fileNameWithoutExtension = file.slice(0, -5)
-        workflows2[fileNameWithoutExtension] = JSON.parse(fileContent)
-    }
-})
-export function getWorkflow() {}
 
 interface Workflow {}
 export function getNodes(workflow: Workflow) {
@@ -148,51 +142,62 @@ export function parseComfyInput(
     type: ComfyInputType
     config: any
 } {
-    const value = input_info[0]
-
     let input_type: ComfyInputType = ComfyInputType.Skip
     let input_config
-
-    if (name === 'seed' && !Array.isArray(prompt_value)) {
-        input_type = ComfyInputType.Seed // similar to big number
-        input_config = input_info[1]
-    } else if (typeof value === 'string') {
-        if (value === 'FLOAT' && !Array.isArray(prompt_value)) {
-            input_type = ComfyInputType.Slider
-            input_config = input_info[1]
-        } else if (value === 'INT' && !Array.isArray(prompt_value)) {
-            if (input_info[1].max > Number.MAX_SAFE_INTEGER) {
-                input_type = ComfyInputType.BigNumber
-                input_config = input_info[1]
-            } else {
-                input_type = ComfyInputType.TextFieldNumber
-                input_config = input_info[1]
-            }
-        } else if (value === 'STRING' && !Array.isArray(prompt_value)) {
-            if (input_info[1]?.multiline) {
-                input_type = ComfyInputType.TextArea
-                input_config = input_info[1]
-            } else {
-                input_type = ComfyInputType.TextField
-                input_config = input_info[1]
-            }
-        } else if (value === 'BOOLEAN' && !Array.isArray(prompt_value)) {
-            input_type = ComfyInputType.CheckBox
-            input_config = input_info[1]
-        }
-    } else if (Array.isArray(value)) {
-        input_type = ComfyInputType.Menu
-        input_config = value
+    if (input_info === undefined) {
+        return { type: input_type, config: input_config }
     }
 
+    try {
+        const value = input_info[0]
+
+        if (name === 'seed' && !Array.isArray(prompt_value)) {
+            input_type = ComfyInputType.Seed // similar to big number
+            input_config = input_info[1]
+        } else if (typeof value === 'string') {
+            if (value === 'FLOAT' && !Array.isArray(prompt_value)) {
+                input_type = ComfyInputType.Slider
+                input_config = input_info[1]
+            } else if (value === 'INT' && !Array.isArray(prompt_value)) {
+                if (input_info[1].max > Number.MAX_SAFE_INTEGER) {
+                    input_type = ComfyInputType.BigNumber
+                    input_config = input_info[1]
+                } else {
+                    input_type = ComfyInputType.TextFieldNumber
+                    input_config = input_info[1]
+                }
+            } else if (value === 'STRING' && !Array.isArray(prompt_value)) {
+                if (input_info[1]?.multiline) {
+                    input_type = ComfyInputType.TextArea
+                    input_config = input_info[1]
+                } else {
+                    input_type = ComfyInputType.TextField
+                    input_config = input_info[1]
+                }
+            } else if (value === 'BOOLEAN' && !Array.isArray(prompt_value)) {
+                input_type = ComfyInputType.CheckBox
+                input_config = input_info[1]
+            }
+        } else if (Array.isArray(value)) {
+            input_type = ComfyInputType.Menu
+            input_config = value
+        }
+    } catch (e) {
+        console.error(
+            `name:${name},
+    input_info:${input_info},
+    prompt_value:${prompt_value}`,
+            e
+        )
+    }
     return { type: input_type, config: input_config }
 }
 
 export function makeHtmlInput() {}
 
-async function getHistory(comfy_server: diffusion_chain.ComfyServer) {
+async function getHistory(prompt_id: string) {
     while (true) {
-        const res = await diffusion_chain.ComfyApi.queue(comfy_server)
+        const res = await comfyapi.comfy_api.queue()
         if (res.queue_pending.length || res.queue_running.length) {
             await new Promise((resolve) => setTimeout(resolve, 500))
         } else {
@@ -200,26 +205,22 @@ async function getHistory(comfy_server: diffusion_chain.ComfyServer) {
         }
         await new Promise((resolve) => setTimeout(resolve, 500))
     }
-    const history = await diffusion_chain.ComfyApi.history(comfy_server)
+    const history = await comfyapi.comfy_api.getHistory(prompt_id)
     return history
 }
 export async function postPromptAndGetBase64JsonResult(
-    comfy_server: diffusion_chain.ComfyServer,
     prompt: Record<string, any>
 ) {
     try {
-        const res = await diffusion_chain.ComfyApi.prompt(comfy_server, {
-            prompt,
-        } as ComfyPrompt)
+        const res = await comfyapi.comfy_api.prompt(prompt)
         if (res.error) {
-            const readable_error = comfy_server.getReadableError(res)
+            const readable_error = comfyapi.comfy_api.getReadableError(res)
             throw new Error(readable_error)
         }
         const prompt_id = res.prompt_id
-        const history = await getHistory(comfy_server)
+        const history = await getHistory(prompt_id)
         const promptInfo = history[prompt_id]
         const store_output = await mapComfyOutputToStoreOutput(
-            comfy_server,
             promptInfo.outputs
         )
         //         // [4][0] for output id.
@@ -238,16 +239,12 @@ export async function postPromptAndGetBase64JsonResult(
 export const getFileFormat = (fileName: string): string =>
     fileName.includes('.') ? fileName.split('.').pop()! : ''
 
-export async function base64UrlFromComfy(
-    comfy_server: diffusion_chain.ComfyServer,
-    { filename, type, subfolder }: ComfyOutputImage
-) {
-    const base64 = await diffusion_chain.ComfyApi.view(
-        comfy_server,
-        filename,
-        type,
-        subfolder
-    )
+export async function base64UrlFromComfy({
+    filename,
+    type,
+    subfolder,
+}: ComfyOutputImage) {
+    const base64 = await comfyapi.comfy_api.view(filename, type, subfolder)
     return base64Url(base64, getFileFormat(filename))
 }
 export function base64UrlFromFileName(base64: string, filename: string) {
@@ -265,7 +262,6 @@ export function updateOutput(output: any, output_store_obj: any) {
 }
 
 export async function mapComfyOutputToStoreOutput(
-    comfy_server: diffusion_chain.ComfyServer,
     comfy_output: Record<string, any>
 ) {
     const store_output: Record<string, any> = {}
@@ -280,10 +276,7 @@ export async function mapComfyOutputToStoreOutput(
                                 extractFormat(output.filename)
                             )
                         ) {
-                            return await base64UrlFromComfy(
-                                comfy_server,
-                                output
-                            )
+                            return await base64UrlFromComfy(output)
                         }
                     } catch (e) {
                         console.error(output, e)
@@ -292,6 +285,7 @@ export async function mapComfyOutputToStoreOutput(
                 }
             )
         )
+        base64_url_list = base64_url_list.filter((item) => item !== '') // Filter out empty strings
         store_output[key] = [...(store_output[key] || []), ...base64_url_list]
     }
 
@@ -353,13 +347,12 @@ function extractFormat(input: string) {
 }
 
 async function uploadImagePost(
-    comfyui: ComfyServer,
     buffer: any,
     file_name: string,
     subfolder: string = 'auto-photoshop-plugin'
 ) {
     try {
-        const full_url = comfyui.getBaseUrl() + '/upload/image'
+        const full_url = comfyapi.comfy_api.comfy_url + '/upload/image'
         var formData = new FormData()
 
         formData.append('image', buffer, file_name)
@@ -389,11 +382,7 @@ async function uploadImagePost(
         console.error(e)
     }
 }
-async function uploadImage(
-    comfyui: ComfyServer,
-    b_from_disk = false,
-    imgBase64: string
-) {
+async function uploadImage(b_from_disk = false, imgBase64: string) {
     try {
         let content, name
         if (b_from_disk) {
@@ -411,7 +400,7 @@ async function uploadImage(
         // console.log('content: ', content)
         // console.log('name: ', name)
 
-        const uploaded_image = await uploadImagePost(comfyui, content, name, '')
+        const uploaded_image = await uploadImagePost(content, name, '')
         return uploaded_image
     } catch (e) {
         console.error(e)
@@ -449,6 +438,39 @@ function runRandomSeedScript() {
         }
     )
 }
+async function maskExpansion(
+    base64_mask: string,
+    expansion: number,
+    blur: number
+) {
+    const prompt = {
+        '1': {
+            inputs: {
+                mask: base64_mask,
+                expansion: expansion,
+                blur: blur,
+            },
+            class_type: 'MaskExpansion',
+        },
+        '6': {
+            inputs: {
+                images: ['1', 0],
+            },
+            class_type: 'PreviewImage',
+        },
+    }
+    try {
+        const out = await postPromptAndGetBase64JsonResult(prompt)
+        if (out) {
+            const expanded_mask = out['6'][0]
+            return base64UrlToBase64(expanded_mask)
+        }
+        // html_manip.setInitImageMaskSrc(expanded_mask)
+    } catch (e) {
+        console.error(e)
+    }
+    return base64_mask
+}
 export default {
     uploadImage,
     uploadImagePost,
@@ -467,7 +489,9 @@ export default {
     extractFormat,
     getRandomBigIntApprox,
     runRandomSeedScript,
+    maskExpansion,
     workflows2,
     ComfyInputType,
     ComfyNodeType,
+    store,
 }

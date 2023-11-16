@@ -1,0 +1,248 @@
+{
+  "3": {
+    "inputs": {
+      "seed": 945794611996037,
+      "steps": 12,
+      "cfg": 8,
+      "sampler_name": "dpmpp_sde",
+      "scheduler": "normal",
+      "denoise": 1,
+      "model": [
+        "58",
+        0
+      ],
+      "positive": [
+        "81",
+        3
+      ],
+      "negative": [
+        "81",
+        4
+      ],
+      "latent_image": [
+        "5",
+        0
+      ]
+    },
+    "class_type": "KSampler"
+  },
+  "5": {
+    "inputs": {
+      "width": 512,
+      "height": 512,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage"
+  },
+  "6": {
+    "inputs": {
+      "text": [
+        "58",
+        2
+      ],
+      "clip": [
+        "58",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "7": {
+    "inputs": {
+      "text": [
+        "60",
+        2
+      ],
+      "clip": [
+        "60",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "8": {
+    "inputs": {
+      "samples": [
+        "3",
+        0
+      ],
+      "vae": [
+        "57",
+        0
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "9": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage"
+  },
+  "11": {
+    "inputs": {
+      "seed": 702670332387358,
+      "steps": 14,
+      "cfg": 8,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "simple",
+      "denoise": 0.5,
+      "model": [
+        "58",
+        0
+      ],
+      "positive": [
+        "81",
+        3
+      ],
+      "negative": [
+        "81",
+        4
+      ],
+      "latent_image": [
+        "55",
+        0
+      ]
+    },
+    "class_type": "KSampler"
+  },
+  "12": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "SaveImage"
+  },
+  "13": {
+    "inputs": {
+      "samples": [
+        "11",
+        0
+      ],
+      "vae": [
+        "57",
+        0
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "16": {
+    "inputs": {
+      "ckpt_name": "dreamshaper_8.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple"
+  },
+  "55": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "scale_by": 2,
+      "samples": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "LatentUpscaleBy"
+  },
+  "57": {
+    "inputs": {
+      "vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"
+    },
+    "class_type": "VAELoader"
+  },
+  "58": {
+    "inputs": {
+      "prompt": "<lora:lora_delta_small:0.7> lora_delta girl lora_bright_style girl masterpiece HDR victorian portrait painting of woman, blonde hair, mountain nature, blue sky",
+      "model": [
+        "60",
+        0
+      ],
+      "clip": [
+        "16",
+        1
+      ]
+    },
+    "class_type": "LoadLorasFromPrompt"
+  },
+  "60": {
+    "inputs": {
+      "prompt": "bad hands, text, watermark",
+      "model": [
+        "16",
+        0
+      ],
+      "clip": [
+        "16",
+        1
+      ]
+    },
+    "class_type": "LoadLorasFromPrompt"
+  },
+  "81": {
+    "inputs": {
+      "is_enabled_1": "enable",
+      "preprocessor_name_1": "CannyEdgePreprocessor",
+      "control_net_name_1": "control_lora_rank128_v11p_sd15_canny_fp16.safetensors",
+      "strength_1": 1,
+      "start_percent_1": 0,
+      "end_percent_1": 1,
+      "resolution_1": 512,
+      "is_enabled_2": "disable",
+      "preprocessor_name_2": "CannyEdgePreprocessor",
+      "control_net_name_2": "control_lora_rank128_v11e_sd15_ip2p_fp16.safetensors",
+      "strength_2": 1,
+      "start_percent_2": 0,
+      "end_percent_2": 1,
+      "resolution_2": 512,
+      "is_enabled_3": "disable",
+      "preprocessor_name_3": "InpaintPreprocessor",
+      "control_net_name_3": "control_lora_rank128_v11p_sd15_inpaint_fp16.safetensors",
+      "strength_3": 1,
+      "start_percent_3": 0,
+      "end_percent_3": 1,
+      "resolution_3": 512,
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "ControlNetScript"
+  },
+  "91": {
+    "inputs": {
+      "images": [
+        "81",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "92": {
+    "inputs": {
+      "images": [
+        "81",
+        1
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "93": {
+    "inputs": {
+      "images": [
+        "81",
+        2
+      ]
+    },
+    "class_type": "PreviewImage"
+  }
+}

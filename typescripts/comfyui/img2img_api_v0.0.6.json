@@ -1,0 +1,294 @@
+{
+  "3": {
+    "inputs": {
+      "seed": 532429388244110,
+      "steps": 20,
+      "cfg": 8,
+      "sampler_name": "dpmpp_sde",
+      "scheduler": "karras",
+      "denoise": 0.72,
+      "model": [
+        "76",
+        0
+      ],
+      "positive": [
+        "91",
+        3
+      ],
+      "negative": [
+        "91",
+        4
+      ],
+      "latent_image": [
+        "63",
+        0
+      ]
+    },
+    "class_type": "KSampler"
+  },
+  "6": {
+    "inputs": {
+      "text": [
+        "76",
+        2
+      ],
+      "clip": [
+        "76",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "7": {
+    "inputs": {
+      "text": [
+        "78",
+        2
+      ],
+      "clip": [
+        "78",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "8": {
+    "inputs": {
+      "samples": [
+        "3",
+        0
+      ],
+      "vae": [
+        "57",
+        0
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "9": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage"
+  },
+  "11": {
+    "inputs": {
+      "seed": 4820153955672,
+      "steps": 20,
+      "cfg": 8,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "simple",
+      "denoise": 0.4,
+      "model": [
+        "76",
+        0
+      ],
+      "positive": [
+        "91",
+        3
+      ],
+      "negative": [
+        "91",
+        4
+      ],
+      "latent_image": [
+        "55",
+        0
+      ]
+    },
+    "class_type": "KSampler"
+  },
+  "12": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "SaveImage"
+  },
+  "13": {
+    "inputs": {
+      "samples": [
+        "11",
+        0
+      ],
+      "vae": [
+        "57",
+        0
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "16": {
+    "inputs": {
+      "ckpt_name": "dreamshaper_8.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple"
+  },
+  "55": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "scale_by": 2,
+      "samples": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "LatentUpscaleBy"
+  },
+  "57": {
+    "inputs": {
+      "vae_name": "MoistMix.vae.pt"
+    },
+    "class_type": "VAELoader"
+  },
+  "58": {
+    "inputs": {
+      "image": "Layer 3 (1).png",
+      "choose file to upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "59": {
+    "inputs": {
+      "pixels": [
+        "60",
+        0
+      ],
+      "vae": [
+        "57",
+        0
+      ]
+    },
+    "class_type": "VAEEncode"
+  },
+  "60": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "width": 512,
+      "height": 512,
+      "crop": "disabled",
+      "image": [
+        "58",
+        0
+      ]
+    },
+    "class_type": "ImageScale"
+  },
+  "63": {
+    "inputs": {
+      "amount": 1,
+      "samples": [
+        "59",
+        0
+      ]
+    },
+    "class_type": "RepeatLatentBatch"
+  },
+  "76": {
+    "inputs": {
+      "prompt": "",
+      "model": [
+        "78",
+        0
+      ],
+      "clip": [
+        "16",
+        1
+      ]
+    },
+    "class_type": "LoadLorasFromPrompt"
+  },
+  "78": {
+    "inputs": {
+      "prompt": "bad hands, text, watermark",
+      "model": [
+        "16",
+        0
+      ],
+      "clip": [
+        "16",
+        1
+      ]
+    },
+    "class_type": "LoadLorasFromPrompt"
+  },
+  "87": {
+    "inputs": {
+      "image": "ComfyUI_temp_cqoqp_00001_.png",
+      "choose file to upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "88": {
+    "inputs": {
+      "images": [
+        "91",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "89": {
+    "inputs": {
+      "images": [
+        "91",
+        1
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "90": {
+    "inputs": {
+      "images": [
+        "91",
+        2
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "91": {
+    "inputs": {
+      "is_enabled_1": "enable",
+      "preprocessor_name_1": "CannyEdgePreprocessor",
+      "control_net_name_1": "control_lora_rank128_v11p_sd15_canny_fp16.safetensors",
+      "strength_1": 1,
+      "start_percent_1": 0,
+      "end_percent_1": 1,
+      "resolution_1": 512,
+      "is_enabled_2": "disable",
+      "preprocessor_name_2": "CannyEdgePreprocessor",
+      "control_net_name_2": "control_lora_rank128_v11e_sd15_ip2p_fp16.safetensors",
+      "strength_2": 1,
+      "start_percent_2": 0,
+      "end_percent_2": 1,
+      "resolution_2": 512,
+      "is_enabled_3": "disable",
+      "preprocessor_name_3": "InpaintPreprocessor",
+      "control_net_name_3": "control_lora_rank128_v11p_sd15_inpaint_fp16.safetensors",
+      "strength_3": 1,
+      "start_percent_3": 0,
+      "end_percent_3": 1,
+      "resolution_3": 512,
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "7",
+        0
+      ],
+      "image_1": [
+        "87",
+        0
+      ]
+    },
+    "class_type": "ControlNetScript"
+  }
+}
