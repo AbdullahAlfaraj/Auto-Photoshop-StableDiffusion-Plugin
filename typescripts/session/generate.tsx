@@ -44,7 +44,7 @@ export const GenerateButtons = observer(() => {
                     display: session_store.data.can_generate ? void 0 : 'none',
                 }}
             >
-                Generate {modeDisplayNames[sd_tab_store.data.mode]}
+                {Locale(`Generate ${modeDisplayNames[sd_tab_store.data.mode]}`)}
             </button>
             {session_store.data.can_generate ? (
                 <button

@@ -11,7 +11,7 @@
     "Select Lora": "选择 Lora",
     "use lora in your prompt": "在提示中使用 lora",
     "Generate": "生成",
-    "Generate txt2img": "生成 txt2img",
+    "Generate Txt2Img": "生成 Txt2Img",
     "Progress...": "进度...",
     "Toggle the visibility of the Preview Image on the canvas": "切换画布上预览图像的可见性",
     "Move and reSize the highlighted layer to fit into the Selection Area": "移动和调整突出显示的图层以适合选择区域",
@@ -181,4 +181,4 @@
     "Delete all generated images from the canvas": "在画布上删除所有生成图像",
     "Keep only the highlighted images": "在画布上保留选中的图像",
     "Generate More": "生成更多"
-  }
+}
