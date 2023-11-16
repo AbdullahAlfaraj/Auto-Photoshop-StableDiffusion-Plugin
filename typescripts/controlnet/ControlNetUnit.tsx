@@ -815,6 +815,13 @@ export default class ControlNetUnit extends React.Component<
                                 allItems={storeData.module_list || ['none']}
                                 placeholder={Locale('Select Module')}
                                 selected_item={storeData.module}
+                                onSelectItemFailure={() => {
+                                    const default_value =
+                                        storeData.module_list[0] || 'None'
+
+                                    storeData.module = default_value
+                                    return default_value
+                                }}
                                 onChange={(item: any) => {
                                     this.onPreprocsesorChange(item)
                                 }}
@@ -836,6 +843,12 @@ export default class ControlNetUnit extends React.Component<
                                     allItems={storeData.model_list || ['none']}
                                     placeholder={Locale('Select Module')}
                                     selected_item={storeData.model}
+                                    onSelectItemFailure={() => {
+                                        const default_value =
+                                            storeData.model_list[0] || 'None'
+                                        storeData.model = default_value
+                                        return default_value
+                                    }}
                                     onChange={(item: any) => {
                                         this.onModelChange(item)
                                     }}

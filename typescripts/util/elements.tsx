@@ -514,6 +514,8 @@ export class SearchableMenu extends React.Component<{
     placeholder: string
     onChange?: any
     selected_item?: string
+    onSelectItemFailure?: any
+    // default_value?: string
     // searchQuery: string
 }> {
     state = {
@@ -524,10 +526,11 @@ export class SearchableMenu extends React.Component<{
         openMenu: false,
     }
     selectItem(selected_item: string) {
-        const value = this.props.allItems.includes(selected_item)
+        let final_value = this.props.allItems.includes(selected_item)
             ? selected_item
-            : ''
-        this.setState({ searchQuery: value })
+            : this.props.onSelectItemFailure && this.props.onSelectItemFailure()
+
+        this.setState({ searchQuery: final_value })
     }
     componentDidMount(): void {
         if (this.props.selected_item) {

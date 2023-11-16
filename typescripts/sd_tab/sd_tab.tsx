@@ -233,6 +233,12 @@ class SDTab extends React.Component<{}> {
                         allItems={helper_store.data.models}
                         placeholder={'Select a Model'}
                         selected_item={store.data.selected_model}
+                        onSelectItemFailure={() => {
+                            const default_value =
+                                helper_store.data.models[0] || ''
+                            store.data.selected_model = default_value
+                            return default_value
+                        }}
                         onChange={(item: any) => {
                             store.data.selected_model = item
 
