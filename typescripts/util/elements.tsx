@@ -26,6 +26,8 @@ declare global {
             'sp-textfield': any
             'sp-action-button': any
             'sp-progressbar': any
+            'sp-popover': any
+            'sp-dialog': any
         }
     }
 }
@@ -505,3 +507,176 @@ export const ScriptInstallComponent = observer(
         )
     }
 )
+
+@observer
+export class SearchableMenu extends React.Component<{
+    allItems: string[]
+    placeholder: string
+    onChange?: any
+    selected_item?: string
+    // searchQuery: string
+}> {
+    state = {
+        selectedItem: this.props.allItems ? this.props.allItems[0] : undefined,
+        searchItems: this.props.allItems,
+        // searchQuery: this.props.searchQuery,
+        searchQuery: '',
+        openMenu: false,
+    }
+    selectItem(selected_item: string) {
+        const value = this.props.allItems.includes(selected_item)
+            ? selected_item
+            : ''
+        this.setState({ searchQuery: value })
+    }
+    componentDidMount(): void {
+        if (this.props.selected_item) {
+            // console.log('selected_item has changed:', this.props.selected_item)
+            this.selectItem(this.props.selected_item)
+        }
+    }
+    componentDidUpdate(prevProps: any, prevState: { searchQuery: string }) {
+        if (prevState.searchQuery !== this.state.searchQuery) {
+            this.searchItem(this.state.searchQuery)
+        }
+        if (prevProps.selected_item !== this.props.selected_item) {
+            console.log('selected_item has changed:', this.props.selected_item)
+
+            if (this.props.selected_item !== undefined) {
+                this.selectItem(this.props.selected_item)
+            }
+        }
+    }
+
+    // searchItem = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    searchItem = (searchQuery: string) => {
+        console.log('onInput')
+
+        // const filter = event.currentTarget.value.toUpperCase()
+        const filter = searchQuery.toUpperCase()
+
+        const searchItems = this.props.allItems.filter((item) =>
+            item.toUpperCase().includes(filter)
+        )
+        this.setState({ searchItems: searchItems })
+
+        console.log(
+            'this.props.searchItems.length: ',
+            this.state.searchItems.length
+        )
+
+        this.setState({
+            openMenu: this.state.searchItems.length > 0 ? true : false,
+        })
+
+        console.log('this.state.openMenu: ', this.state.openMenu)
+    }
+    render() {
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    width: '100%',
+                    zIndex: 1000,
+                    // position: 'absolute',
+                }}
+            >
+                <div style={{ position: 'relative', flex: 1, width: '100%' }}>
+                    <SpTextfield
+                        type="text"
+                        title={this.state.searchQuery}
+                        style={{ width: '100%' }}
+                        value={this.state.searchQuery}
+                        placeholder={this.props.placeholder}
+                        onInput={(evt: any) => {
+                            this.setState({ searchQuery: evt.target.value })
+                            // this.searchItem(evt.taret)
+                            console.log('onInput:', evt.target.value)
+
+                            console.log(
+                                'this.state.searchQuery: ',
+                                this.state.searchQuery
+                            )
+                        }}
+                        onChange={(evt: any) => {
+                            this.setState({ searchQuery: evt.target.value })
+                            console.log('onChange:', evt.target.value)
+
+                            console.log(
+                                'this.state.searchQuery: ',
+                                this.state.searchQuery
+                            )
+                        }}
+                        onFocus={(evt: any) => {
+                            console.log('onFocus:', evt.target.value)
+                            if (evt.target.value === '') {
+                                this.setState({
+                                    searchItems: this.props.allItems,
+                                })
+                            }
+                            this.setState({ openMenu: true })
+                            console.log(
+                                'this.state.searchQuery: ',
+                                this.state.searchQuery
+                            )
+                        }}
+                        onBlur={(evt: any) => {
+                            setTimeout(
+                                () => {
+                                    console.log('onBlur:', evt.target.value)
+
+                                    this.setState({ openMenu: false })
+
+                                    console.log(
+                                        'this.state.searchQuery: ',
+                                        this.state.searchQuery
+                                    )
+                                },
+
+                                200
+                            )
+                        }}
+                    ></SpTextfield>
+
+                    <ul
+                        id="myMenu"
+                        style={{
+                            // position: 'absolute',
+                            width: '100%',
+                            display: this.state.openMenu ? void 0 : 'none',
+                            zIndex: 1000,
+                        }}
+                    >
+                        {this.state.searchItems.map((item: string, index) => (
+                            <li
+                                key={index}
+                                title={item}
+                                onClick={() => {
+                                    console.log('onClick:')
+
+                                    this.setState({
+                                        searchQuery: item,
+                                        openMenu: false,
+                                    })
+                                    console.log(
+                                        'this.state.searchQuery: ',
+                                        this.state.searchQuery
+                                    )
+                                    console.log('item: ', item)
+                                    if (this.props.onChange) {
+                                        this.props.onChange(item)
+                                    }
+                                }}
+                                style={{ zIndex: 1000 }}
+                            >
+                                <a href="#" style={{ fontSize: '12px' }}>
+                                    {item}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        )
+    }
+}
