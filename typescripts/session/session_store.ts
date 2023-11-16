@@ -1,5 +1,9 @@
 import { AStore } from '../main/astore'
-import { GenerationModeEnum, SelectionInfoType } from '../util/ts/enum'
+import {
+    GenerationModeEnum,
+    ScriptMode,
+    SelectionInfoType,
+} from '../util/ts/enum'
 
 interface AStoreUISettings {
     batch_size: number
@@ -17,6 +21,7 @@ interface AStoreData {
     preprocessed_mask: string //
     sd_mask: string // mask send to sd as payload[mask]
     mode: GenerationModeEnum
+    rb_mode: ScriptMode
 
     ui_settings: AStoreUISettings
     selectionInfo: SelectionInfoType | undefined //the session selection info
@@ -47,6 +52,7 @@ export const store = new AStore<AStoreData>({
     preprocessed_mask: '', //
     sd_mask: '', // mask send to sd as payload[mask]
     mode: GenerationModeEnum.Txt2Img,
+    rb_mode: ScriptMode.Txt2Img,
     ui_settings: { batch_size: 1 },
     selectionInfo: undefined, //the session selection info
     current_selection_info: undefined, // any new selection, could be undefined too
