@@ -195,11 +195,14 @@ async function getSettings(session_data) {
 
         function calculateSeed(init_seed, batch_index, batch_size) {
             if (init_seed === -1) return -1
-            const seed = init_seed + batch_index * batch_size
+            // const seed = init_seed + batch_index * batch_size
+            const seed = init_seed + BigInt(batch_index) * BigInt(batch_size)
             return seed
         }
 
-        const init_seed = parseInt(sd_tab_store.data.seed)
+        // const init_seed = parseInt(sd_tab_store.data.seed)
+        const init_seed = BigInt(sd_tab_store.data.seed)
+
         const seed = calculateSeed(
             init_seed,
             g_current_batch_index,
@@ -425,7 +428,7 @@ async function getSettings(session_data) {
             denoising_strength: denoising_strength,
             batch_size: numberOfBatchSize,
             cfg_scale: cfg_scale,
-            seed: seed,
+            seed: seed.toString(),
             mask_blur: 4, //mask_blur, // don't use auto1111 blur, instead use Auto-Photoshop-SD blur
             use_sharp_mask: use_sharp_mask,
             use_prompt_shortcut: bUsePromptShortcut,

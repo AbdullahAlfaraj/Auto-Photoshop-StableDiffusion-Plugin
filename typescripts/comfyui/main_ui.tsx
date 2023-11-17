@@ -14,6 +14,7 @@ import util from './util'
 import { store } from './util'
 
 import { base64UrlToBase64, copyJson } from '../util/ts/general'
+import { session_store } from '../stores'
 
 // Function to parse metadata from a title string
 function parseMetadata(title: string) {
@@ -265,6 +266,7 @@ async function addMissingSettings(plugin_settings: Record<string, any>) {
             ? random_seed.toString()
             : plugin_settings['seed'] // use the same as the main seed
 
+    session_store.data.last_seed = plugin_settings['seed']
     plugin_settings['hr_seed'] = plugin_settings['seed']
 
     return plugin_settings
