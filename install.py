@@ -25,7 +25,7 @@ if auto_update:
 
         branch_result = run(f'"{git}" -C "{REPO_LOCATION}" branch', "[Auto-Photoshop-SD] Current Branch.")
         print("branch_result:",branch_result)
-        
+
         fetch_result = run(f'"{git}" -C "{REPO_LOCATION}" fetch', "[Auto-Photoshop-SD] Fetch upstream.")
         print("fetch_result:",fetch_result)
 
@@ -41,7 +41,7 @@ if auto_update:
 # print("Auto-Photoshop-SD plugin is installing")
 
 package_name = 'duckduckgo_search'
-package_version= '3.9.3'
+package_version= '3.9.6'
 if not launch.is_installed(package_name):
     launch.run_pip(f"install {package_name}=={package_version}", "requirements for Auto-Photoshop Image Search")
 else:# it's installed but we need to check for update
