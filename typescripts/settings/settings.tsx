@@ -102,7 +102,8 @@ export const store = new AStore<AStoreData>({
     use_smart_object: true, // true to keep layer as smart objects, false to rasterize them
     // selected_backend: 'Automatic1111' as 'Automatic1111' | 'ComfyUI',
     selected_backend: 'ComfyUI' as 'Automatic1111' | 'ComfyUI',
-    comfy_url: 'http://127.0.0.1:8188',
+    comfy_url:
+        storage.localStorage.getItem('comfy_url') || 'http://127.0.0.1:8188',
 })
 
 function onShouldLogToFileChange(event: any) {
@@ -189,11 +190,16 @@ export class Settings extends React.Component<{}> {
                     value={store.data.comfy_url}
                     onChange={(event: any) => {
                         // store.data.search_query = event.target.value
-                        let url = event.target.value
+
+                        let url = event.target.value.trim() // remove leading and trailing white spaces
                         url = url.replace(/[/\\]$/, '')
                         console.log(url)
                         store.data.comfy_url = url
                         comfyapi.comfy_api.setUrl(store.data.comfy_url)
+                        storage.localStorage.setItem(
+                            'comfy_url',
+                            store.data.comfy_url
+                        )
                     }}
                 ></SpTextfield>
                 <sp-radio-group>
