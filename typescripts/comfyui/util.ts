@@ -7,6 +7,7 @@ import { AStore } from '../main/astore'
 
 import comfyapi from './comfyapi'
 import { base64UrlToBase64 } from '../util/ts/general'
+import { app } from 'photoshop'
 export enum InputTypeEnum {
     NumberField = 'NumberField',
     TextField = 'TextField',
@@ -236,6 +237,7 @@ export async function postPromptAndGetBase64JsonResult(
         return store_output
     } catch (e) {
         console.error(e)
+        app.showAlert(`${e}`)
     }
 }
 export const getFileFormat = (fileName: string): string =>
