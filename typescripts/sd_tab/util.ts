@@ -77,6 +77,24 @@ export const mask_content_config = [
         value: 3,
     },
 ]
+export const comfy_mask_content_config = [
+    // {
+    //     name: 'fill',
+    //     value: 0,
+    // },
+    {
+        name: 'original',
+        value: 1,
+    },
+    // {
+    //     name: 'latent noise',
+    //     value: 2,
+    // },
+    {
+        name: 'latent nothing',
+        value: 3,
+    },
+]
 export enum SelectionModeEnum {
     Ratio = 'ratio',
     Precise = 'precise',
@@ -131,7 +149,9 @@ export const store = new AStore({
     hr_resize_y: 512,
     hr_second_pass_steps: 20,
     restore_faces: false,
-    inpainting_fill: mask_content_config[0].value,
+    // inpainting_fill: mask_content_config[0].value,
+    inpainting_fill: 1, //set original as default value
+
     hr_upscaler: '',
 
     selection_mode: selection_mode_config[0].value,
@@ -167,7 +187,7 @@ export const default_preset = {
         hr_resize_y: 512,
         hr_second_pass_steps: 0,
         // restore_faces: false,
-        inpainting_fill: 0,
+        inpainting_fill: 1,
         hr_upscaler: '',
         selection_mode: 'ratio',
     },
