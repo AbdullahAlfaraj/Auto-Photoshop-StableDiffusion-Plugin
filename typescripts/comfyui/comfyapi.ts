@@ -1,3 +1,4 @@
+import { app } from 'photoshop'
 import settings_tab from '../settings/settings'
 import { requestGet, requestPost } from '../util/ts/api'
 import { base64UrlToBase64 } from '../util/ts/general'
@@ -20,12 +21,21 @@ export interface ComfyResult {
 class ComfyAPI {
     private object_info: Record<string, any> = {}
     comfy_url: string
+    status: boolean = false
+
     constructor(comfy_url: string) {
         this.comfy_url = comfy_url
     }
     async init() {
-        this.object_info = await this.getObjectInfo(this.comfy_url)
-        return this.object_info
+        try {
+            this.object_info = await this.getObjectInfo(this.comfy_url)
+            this.status = true
+            return this.object_info
+        } catch (e) {
+            console.error(e)
+            app.showAlert(`${e}`)
+            this.status = false
+        }
     }
     setUrl(comfy_url: string) {
         this.comfy_url = comfy_url
@@ -74,10 +84,14 @@ class ComfyAPI {
 
     async getObjectInfo(comfy_url: string) {
         try {
-            const object_info = await requestGet(`${comfy_url}/object_info`)
+            const full_url = `${comfy_url}/object_info`
+            const object_info = await requestGet(full_url)
+            if (!object_info)
+                throw `can not request from comfyui url: ${comfy_url}`
             return object_info
         } catch (e) {
             console.error(e)
+            throw e
         }
     }
     getReadableError(result: ComfyResult): string {
