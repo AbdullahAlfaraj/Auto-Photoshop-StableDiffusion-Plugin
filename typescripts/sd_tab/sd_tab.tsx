@@ -38,6 +38,8 @@ import {
     onHeightSliderInput,
     heightSliderOnChangeEventHandler,
     loadPresetSettings,
+    
+    isHiResMode,
 } from './util'
 import { general } from '../util/oldSystem'
 import { requestSwapModel, setInpaintMaskWeight } from '../util/ts/sdapi'
@@ -1103,11 +1105,7 @@ class SDTab extends React.Component<{}> {
                                 class="checkbox"
                                 id="chHiResFixs"
                                 style={{
-                                    display: [ScriptMode.Txt2Img].includes(
-                                        store.data.rb_mode
-                                    )
-                                        ? 'flex'
-                                        : 'none',
+                                    display: isHiResMode() ? 'flex' : 'none',
                                 }}
                                 checked={store.data.enable_hr}
                                 onClick={(evt: any) => {
@@ -1131,9 +1129,7 @@ class SDTab extends React.Component<{}> {
                             id="HiResDiv"
                             style={{
                                 display:
-                                    [ScriptMode.Txt2Img].includes(
-                                        store.data.rb_mode
-                                    ) && store.data.enable_hr
+                                    isHiResMode() && store.data.enable_hr
                                         ? void 0
                                         : 'none',
                             }}

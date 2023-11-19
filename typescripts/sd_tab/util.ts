@@ -714,6 +714,20 @@ export function loadPresetSettings(preset: any) {
         // io_ts.presetToStore(preset?.controlnet_tab_preset, store)
     }
 }
+export function isHiResMode() {
+    let is_hi_res_mode = false
+    if (settings_tab_ts.store.data.selected_backend === 'Automatic1111') {
+        is_hi_res_mode = [ScriptMode.Txt2Img].includes(store.data.rb_mode)
+    } else if (settings_tab_ts.store.data.selected_backend === 'ComfyUI') {
+        is_hi_res_mode = [
+            ScriptMode.Txt2Img,
+            ScriptMode.Img2Img,
+            ScriptMode.Inpaint,
+            ScriptMode.Outpaint,
+        ].includes(store.data.rb_mode)
+    }
+    return is_hi_res_mode
+}
 
 export default {
     store: store,
