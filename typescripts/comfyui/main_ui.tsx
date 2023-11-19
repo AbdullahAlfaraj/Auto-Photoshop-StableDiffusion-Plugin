@@ -15,6 +15,7 @@ import { store } from './util'
 
 import { base64UrlToBase64, copyJson } from '../util/ts/general'
 import { session_store } from '../stores'
+import ControlNetStore from '../controlnet/store'
 
 // Function to parse metadata from a title string
 function parseMetadata(title: string) {
@@ -223,7 +224,27 @@ const inpaint_map: Record<string, any> = {
     // hr_scheduler: 'normal',
     hr_denoising_strength: 'hires_sampler.denoise',
 }
-
+async function reuseOrUploadComfyImage(
+    base64: string,
+    all_uploaded_images: Record<string, any>
+) {
+    let image_name: string = ''
+    if (all_uploaded_images[base64]) {
+        image_name = all_uploaded_images[base64]
+    } else {
+        const new_loaded_image = await util.uploadImage(false, base64)
+        console.log('new_loaded_image: ', new_loaded_image)
+        if (new_loaded_image) {
+            store.data.uploaded_images_list = [
+                ...store.data.uploaded_images_list,
+                new_loaded_image.name,
+            ]
+            image_name = new_loaded_image.name
+            all_uploaded_images[base64] = new_loaded_image.name
+        }
+    }
+    return image_name
+}
 async function addMissingSettings(plugin_settings: Record<string, any>) {
     plugin_settings['vae'] = vae_settings.store.data.current_vae
     plugin_settings['model'] = sd_tab_util.store.data.selected_model
@@ -232,27 +253,19 @@ async function addMissingSettings(plugin_settings: Record<string, any>) {
     plugin_settings['hr_sampler_name'] = sd_tab_util.store.data.sampler_name // use the same sampler for the first and second pass (hires) upscale sampling steps
     if ('init_images' in plugin_settings) {
         const base64 = plugin_settings['init_images'][0]
-        const new_loaded_image = await util.uploadImage(false, base64)
-        console.log('new_loaded_image: ', new_loaded_image)
-        if (new_loaded_image) {
-            store.data.uploaded_images_list = [
-                ...store.data.uploaded_images_list,
-                new_loaded_image.name,
-            ]
-            plugin_settings['init_image'] = new_loaded_image.name
-        }
+
+        plugin_settings['init_image'] = await reuseOrUploadComfyImage(
+            base64,
+            store.data.base64_to_uploaded_images_names
+        )
     }
     if ('mask' in plugin_settings) {
         const base64 = plugin_settings['mask']
-        const new_loaded_image = await util.uploadImage(false, base64)
-        console.log('new_loaded_image: ', new_loaded_image)
-        if (new_loaded_image) {
-            store.data.uploaded_images_list = [
-                ...store.data.uploaded_images_list,
-                new_loaded_image.name,
-            ]
-            plugin_settings['comfy_mask'] = new_loaded_image.name
-        }
+
+        plugin_settings['comfy_mask'] = await reuseOrUploadComfyImage(
+            base64,
+            store.data.base64_to_uploaded_images_names
+        )
     }
 
     //calculate positive random seed if seed is -1
@@ -275,35 +288,31 @@ async function addMissingSettings(plugin_settings: Record<string, any>) {
 async function addMissingControlnetSettings(
     plugin_settings: Record<string, any>
 ) {
+    plugin_settings['disableControlNetTab'] =
+        ControlNetStore.disableControlNetTab
     for (const unit of plugin_settings['controlnet_units']) {
-        unit['comfy_enabled'] = unit.enabled ? 'enable' : 'disable'
+        unit['comfy_enabled'] =
+            !plugin_settings['disableControlNetTab'] && unit.enabled
+                ? 'enable'
+                : 'disable'
 
         unit['comfy_input_image'] = ''
         unit['comfy_mask'] = ''
         if ('input_image' in unit && unit['input_image'] !== '') {
             const base64 = unit['input_image']
-            const new_loaded_image = await util.uploadImage(false, base64)
-            console.log('new_loaded_image: ', new_loaded_image)
-            if (new_loaded_image) {
-                store.data.uploaded_images_list = [
-                    ...store.data.uploaded_images_list,
-                    new_loaded_image.name,
-                ]
-                unit['comfy_input_image'] = new_loaded_image.name
-            }
+            unit['comfy_input_image'] = await reuseOrUploadComfyImage(
+                base64,
+                store.data.base64_to_uploaded_images_names
+            )
         }
         if ('mask' in unit && unit['mask'] !== '') {
             //if mask have been set manually
             const base64 = unit['mask']
-            const new_loaded_image = await util.uploadImage(false, base64)
-            console.log('new_loaded_image: ', new_loaded_image)
-            if (new_loaded_image) {
-                store.data.uploaded_images_list = [
-                    ...store.data.uploaded_images_list,
-                    new_loaded_image.name,
-                ]
-                unit['comfy_mask'] = new_loaded_image.name
-            }
+
+            unit['comfy_mask'] = await reuseOrUploadComfyImage(
+                base64,
+                store.data.base64_to_uploaded_images_names
+            )
         } else if ('comfy_mask' in plugin_settings) {
             // use the mask from the main ui (inpaint and outpaint mode)
 

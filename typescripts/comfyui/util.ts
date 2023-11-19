@@ -84,6 +84,8 @@ export const store = new AStore({
     progress_value: 0,
     is_random_seed: {} as Record<string, boolean>,
     last_moved: undefined as string | undefined, // the last node that has been moved in the edit mode
+
+    base64_to_uploaded_images_names: {} as Record<string, any>,
 })
 
 interface Workflow {}
