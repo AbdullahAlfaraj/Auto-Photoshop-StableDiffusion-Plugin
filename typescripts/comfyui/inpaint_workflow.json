@@ -1,6 +1,6 @@
 {
-  "last_node_id": 159,
-  "last_link_id": 304,
+  "last_node_id": 160,
+  "last_link_id": 306,
   "nodes": [
     {
       "id": 13,
@@ -14,7 +14,7 @@
         "1": 46
       },
       "flags": {},
-      "order": 35,
+      "order": 36,
       "mode": 0,
       "inputs": [
         {
@@ -200,7 +200,7 @@
         "1": 46
       },
       "flags": {},
-      "order": 32,
+      "order": 33,
       "mode": 0,
       "inputs": [
         {
@@ -277,7 +277,7 @@
         "1": 82
       },
       "flags": {},
-      "order": 31,
+      "order": 32,
       "mode": 0,
       "inputs": [
         {
@@ -318,7 +318,7 @@
         "1": 474
       },
       "flags": {},
-      "order": 33,
+      "order": 34,
       "mode": 0,
       "inputs": [
         {
@@ -419,7 +419,7 @@
         "1": 200
       },
       "flags": {},
-      "order": 10,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
@@ -554,79 +554,6 @@
       }
     },
     {
-      "id": 141,
-      "type": "APS_Seed",
-      "pos": [
-        359,
-        532
-      ],
-      "size": {
-        "0": 361.20001220703125,
-        "1": 82
-      },
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "s",
-          "type": "INT",
-          "links": [
-            259,
-            260
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "title": "Auto-Photoshop-SD Seed | id:first_pass_seed",
-      "properties": {
-        "Node name for S&R": "APS_Seed"
-      },
-      "widgets_values": [
-        370804183246305,
-        "randomize"
-      ]
-    },
-    {
-      "id": 121,
-      "type": "Reroute",
-      "pos": [
-        2069,
-        410
-      ],
-      "size": [
-        90.4,
-        26
-      ],
-      "flags": {},
-      "order": 21,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "",
-          "type": "*",
-          "link": 290
-        }
-      ],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            217
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "showOutputText": true,
-        "horizontal": false
-      },
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
       "id": 148,
       "type": "PreviewImage",
       "pos": [
@@ -663,7 +590,7 @@
         "1": 106
       },
       "flags": {},
-      "order": 2,
+      "order": 1,
       "mode": 0,
       "outputs": [
         {
@@ -695,7 +622,7 @@
         "1": 200
       },
       "flags": {},
-      "order": 15,
+      "order": 14,
       "mode": 0,
       "inputs": [
         {
@@ -806,7 +733,7 @@
         "1": 180.6060791015625
       },
       "flags": {},
-      "order": 16,
+      "order": 15,
       "mode": 0,
       "inputs": [
         {
@@ -843,6 +770,33 @@
       ]
     },
     {
+      "id": 9,
+      "type": "SaveImage",
+      "pos": [
+        1546,
+        1609
+      ],
+      "size": {
+        "0": 277.20001220703125,
+        "1": 282.4336242675781
+      },
+      "flags": {},
+      "order": 35,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 9
+        }
+      ],
+      "title": "Save Image | id:first_pass_output",
+      "properties": {},
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
       "id": 126,
       "type": "Integer",
       "pos": [
@@ -854,7 +808,7 @@
         "1": 58
       },
       "flags": {},
-      "order": 3,
+      "order": 2,
       "mode": 0,
       "outputs": [
         {
@@ -887,7 +841,7 @@
         "1": 58
       },
       "flags": {},
-      "order": 4,
+      "order": 3,
       "mode": 0,
       "outputs": [
         {
@@ -909,6 +863,53 @@
       ]
     },
     {
+      "id": 16,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        -3105,
+        1139
+      ],
+      "size": {
+        "0": 315,
+        "1": 98
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            141
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            132,
+            139
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [],
+          "slot_index": 2
+        }
+      ],
+      "title": "Load Checkpoint | id:checkpoint",
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "aniverse_v15Pruned.safetensors"
+      ]
+    },
+    {
       "id": 159,
       "type": "ControlNetScript",
       "pos": [
@@ -920,7 +921,7 @@
         "1": 678
       },
       "flags": {},
-      "order": 26,
+      "order": 27,
       "mode": 0,
       "inputs": [
         {
@@ -1053,7 +1054,7 @@
         "1": 130
       },
       "flags": {},
-      "order": 11,
+      "order": 10,
       "mode": 4,
       "inputs": [
         {
@@ -1096,7 +1097,7 @@
         "1": 130
       },
       "flags": {},
-      "order": 9,
+      "order": 11,
       "mode": 4,
       "inputs": [
         {
@@ -1140,7 +1141,7 @@
         "1": 58
       },
       "flags": {},
-      "order": 14,
+      "order": 16,
       "mode": 4,
       "inputs": [
         {
@@ -1166,6 +1167,47 @@
       ]
     },
     {
+      "id": 58,
+      "type": "LoadImage",
+      "pos": [
+        933,
+        -569
+      ],
+      "size": {
+        "0": 315,
+        "1": 314
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            258,
+            274
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "title": "Load Image | id:init_image",
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "04b380cb676f37e52d5963a0982edd5e.jpg",
+        "image"
+      ]
+    },
+    {
       "id": 83,
       "type": "LoadImage",
       "pos": [
@@ -1177,7 +1219,7 @@
         "1": 314
       },
       "flags": {},
-      "order": 5,
+      "order": 6,
       "mode": 0,
       "outputs": [
         {
@@ -1203,7 +1245,7 @@
         "Node name for S&R": "LoadImage"
       },
       "widgets_values": [
-        "pasted/image (14).png",
+        "pasted/image (4).png",
         "image"
       ]
     },
@@ -1219,7 +1261,7 @@
         "1": 446
       },
       "flags": {},
-      "order": 30,
+      "order": 31,
       "mode": 0,
       "inputs": [
         {
@@ -1241,7 +1283,7 @@
         {
           "name": "latent_image",
           "type": "LATENT",
-          "link": 217
+          "link": 306
         },
         {
           "name": "seed",
@@ -1268,14 +1310,114 @@
         "Node name for S&R": "KSampler"
       },
       "widgets_values": [
-        520196330675958,
+        109789101278740,
         "randomize",
         20,
         7,
         "euler_ancestral",
         "karras",
-        1
+        0.71
       ]
+    },
+    {
+      "id": 12,
+      "type": "SaveImage",
+      "pos": [
+        3162,
+        1131
+      ],
+      "size": {
+        "0": 407.53717041015625,
+        "1": 468.13226318359375
+      },
+      "flags": {},
+      "order": 37,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 17
+        }
+      ],
+      "title": "Save Image | id:hires_output",
+      "properties": {},
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 141,
+      "type": "APS_Seed",
+      "pos": [
+        359,
+        532
+      ],
+      "size": {
+        "0": 361.20001220703125,
+        "1": 82
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "s",
+          "type": "INT",
+          "links": [
+            259,
+            260
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "title": "Auto-Photoshop-SD Seed | id:first_pass_seed",
+      "properties": {
+        "Node name for S&R": "APS_Seed"
+      },
+      "widgets_values": [
+        519416762507340,
+        "fixed"
+      ]
+    },
+    {
+      "id": 121,
+      "type": "Reroute",
+      "pos": [
+        2069,
+        410
+      ],
+      "size": [
+        90.4,
+        26
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "",
+          "type": "*",
+          "link": 290
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            305
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "showOutputText": true,
+        "horizontal": false
+      },
+      "color": "#223",
+      "bgcolor": "#335"
     },
     {
       "id": 135,
@@ -1377,180 +1519,52 @@
         "Node name for S&R": "ContentMaskLatent"
       },
       "widgets_values": [
-        "latent_nothing",
+        "original",
         512,
         768,
-        282350396232002,
+        933689295201272,
         "randomize"
       ]
     },
     {
-      "id": 16,
-      "type": "CheckpointLoaderSimple",
+      "id": 160,
+      "type": "RepeatLatentBatch",
       "pos": [
-        -3105,
-        1139
+        1752,
+        517
       ],
       "size": {
         "0": 315,
-        "1": 98
+        "1": 58
       },
       "flags": {},
-      "order": 6,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            141
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": [
-            132,
-            139
-          ],
-          "slot_index": 1
-        },
-        {
-          "name": "VAE",
-          "type": "VAE",
-          "links": [],
-          "slot_index": 2
-        }
-      ],
-      "title": "Load Checkpoint | id:checkpoint",
-      "properties": {
-        "Node name for S&R": "CheckpointLoaderSimple"
-      },
-      "widgets_values": [
-        "dreamshaper_8Inpainting.safetensors"
-      ]
-    },
-    {
-      "id": 12,
-      "type": "SaveImage",
-      "pos": [
-        3162,
-        1131
-      ],
-      "size": {
-        "0": 407.53717041015625,
-        "1": 468.13226318359375
-      },
-      "flags": {},
-      "order": 36,
+      "order": 26,
       "mode": 0,
       "inputs": [
         {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 17
+          "name": "samples",
+          "type": "LATENT",
+          "link": 305
         }
       ],
-      "title": "Save Image | id:hires_output",
-      "properties": {},
-      "widgets_values": [
-        "ComfyUI"
-      ]
-    },
-    {
-      "id": 9,
-      "type": "SaveImage",
-      "pos": [
-        1546,
-        1609
-      ],
-      "size": {
-        "0": 277.20001220703125,
-        "1": 282.4336242675781
-      },
-      "flags": {},
-      "order": 34,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 9
-        }
-      ],
-      "title": "Save Image | id:first_pass_output",
-      "properties": {},
-      "widgets_values": [
-        "ComfyUI"
-      ]
-    },
-    {
-      "id": 58,
-      "type": "LoadImage",
-      "pos": [
-        933,
-        -569
-      ],
-      "size": {
-        "0": 315,
-        "1": 314
-      },
-      "flags": {},
-      "order": 7,
-      "mode": 0,
       "outputs": [
         {
-          "name": "IMAGE",
-          "type": "IMAGE",
+          "name": "LATENT",
+          "type": "LATENT",
           "links": [
-            258,
-            274
+            306
           ],
           "shape": 3,
           "slot_index": 0
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null,
-          "shape": 3
         }
       ],
-      "title": "Load Image | id:init_image",
+      "title": "Repeat Latent Batch | id:latent_batch",
       "properties": {
-        "Node name for S&R": "LoadImage"
+        "Node name for S&R": "RepeatLatentBatch"
       },
       "widgets_values": [
-        "pasted/image (13).png",
-        "image"
+        1
       ]
-    },
-    {
-      "id": 156,
-      "type": "PreviewImage",
-      "pos": [
-        -860,
-        -240
-      ],
-      "size": {
-        "0": 336,
-        "1": 246
-      },
-      "flags": {},
-      "order": 27,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 291
-        }
-      ],
-      "title": "Preview Image | id:preprocessor_output_1",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
     },
     {
       "id": 157,
@@ -1564,7 +1578,7 @@
         "1": 246
       },
       "flags": {},
-      "order": 28,
+      "order": 29,
       "mode": 0,
       "inputs": [
         {
@@ -1590,7 +1604,7 @@
         "1": 246
       },
       "flags": {},
-      "order": 29,
+      "order": 30,
       "mode": 0,
       "inputs": [
         {
@@ -1600,6 +1614,32 @@
         }
       ],
       "title": "Preview Image | id:preprocessor_output_3",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 156,
+      "type": "PreviewImage",
+      "pos": [
+        -860,
+        -240
+      ],
+      "size": {
+        "0": 336,
+        "1": 246
+      },
+      "flags": {},
+      "order": 28,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 291
+        }
+      ],
+      "title": "Preview Image | id:preprocessor_output_1",
       "properties": {
         "Node name for S&R": "PreviewImage"
       }
@@ -1797,14 +1837,6 @@
       116,
       0,
       "*"
-    ],
-    [
-      217,
-      121,
-      0,
-      3,
-      3,
-      "LATENT"
     ],
     [
       247,
@@ -2021,6 +2053,22 @@
       159,
       3,
       "IMAGE"
+    ],
+    [
+      305,
+      121,
+      0,
+      160,
+      0,
+      "LATENT"
+    ],
+    [
+      306,
+      160,
+      0,
+      3,
+      3,
+      "LATENT"
     ]
   ],
   "groups": [

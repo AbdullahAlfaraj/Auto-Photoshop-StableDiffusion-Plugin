@@ -9,7 +9,7 @@
       "cfg": 7,
       "sampler_name": "euler_ancestral",
       "scheduler": "karras",
-      "denoise": 1,
+      "denoise": 0.71,
       "model": [
         "76",
         0
@@ -23,7 +23,7 @@
         4
       ],
       "latent_image": [
-        "135",
+        "160",
         0
       ]
     },
@@ -130,7 +130,7 @@
   },
   "16": {
     "inputs": {
-      "ckpt_name": "dreamshaper_8Inpainting.safetensors"
+      "ckpt_name": "aniverse_v15Pruned.safetensors"
     },
     "class_type": "CheckpointLoaderSimple"
   },
@@ -153,7 +153,7 @@
   },
   "58": {
     "inputs": {
-      "image": "pasted/image (13).png",
+      "image": "04b380cb676f37e52d5963a0982edd5e.jpg",
       "choose file to upload": "image"
     },
     "class_type": "LoadImage"
@@ -188,7 +188,7 @@
   },
   "83": {
     "inputs": {
-      "image": "pasted/image (14).png",
+      "image": "pasted/image (4).png",
       "choose file to upload": "image"
     },
     "class_type": "LoadImage"
@@ -207,7 +207,7 @@
   },
   "135": {
     "inputs": {
-      "content_mask": "latent_nothing",
+      "content_mask": "original",
       "width": [
         "126",
         0
@@ -237,7 +237,7 @@
   },
   "141": {
     "inputs": {
-      "seed": 370804183246305
+      "seed": 519416762507340
     },
     "class_type": "APS_Seed"
   },
@@ -325,5 +325,15 @@
       ]
     },
     "class_type": "ControlNetScript"
+  },
+  "160": {
+    "inputs": {
+      "amount": 1,
+      "samples": [
+        "135",
+        0
+      ]
+    },
+    "class_type": "RepeatLatentBatch"
   }
 }

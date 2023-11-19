@@ -4,8 +4,8 @@ import txt2img_api from './txt2img_api_v0.0.6.json'
 import img2img from './img2img_workflow_v0.0.6.json'
 import img2img_api from './img2img_api_v0.0.6.json'
 
-import inpaint from './inpaint_workflow_v0.0.10.json'
-import inpaint_api from './inpaint_api_v0.0.10.json'
+import inpaint from './inpaint_workflow.json'
+import inpaint_api from './inpaint_api.json'
 
 import vae_settings from '../settings/vae'
 import sd_tab_util from '../sd_tab/util'
@@ -196,7 +196,7 @@ const inpaint_map: Record<string, any> = {
     vae: 'vae.vae_name',
     width: 'width.Value',
     height: 'height.Value',
-    // batch_size: 'latent_batch.amount',
+    batch_size: 'latent_batch.amount',
     // prompt: 'positive_prompt.text',
     prompt: 'multi_loras_positive_prompt.prompt',
     negative_prompt: 'multi_loras_negative_prompt.prompt',
