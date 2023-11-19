@@ -38,8 +38,8 @@ import {
     onHeightSliderInput,
     heightSliderOnChangeEventHandler,
     loadPresetSettings,
-    
     isHiResMode,
+    comfy_mask_content_config,
 } from './util'
 import { general } from '../util/oldSystem'
 import { requestSwapModel, setInpaintMaskWeight } from '../util/ts/sdapi'
@@ -1043,30 +1043,31 @@ class SDTab extends React.Component<{}> {
                                 <sp-label class="title" slot="label">
                                     Mask Content:
                                 </sp-label>
-                                {mask_content_config.map(
-                                    (mask_content, index: number) => {
-                                        return (
-                                            <sp-radio
-                                                key={index}
-                                                class="rbMaskContent"
-                                                checked={
-                                                    store.data
-                                                        .inpainting_fill ===
+                                {(settings_tab_ts.store.data
+                                    .selected_backend === 'Automatic1111'
+                                    ? mask_content_config
+                                    : comfy_mask_content_config
+                                ).map((mask_content, index: number) => {
+                                    return (
+                                        <sp-radio
+                                            key={index}
+                                            class="rbMaskContent"
+                                            checked={
+                                                store.data.inpainting_fill ===
+                                                mask_content.value
+                                                    ? true
+                                                    : void 0
+                                            }
+                                            value={mask_content.value}
+                                            onClick={(evt: any) => {
+                                                store.data.inpainting_fill =
                                                     mask_content.value
-                                                        ? true
-                                                        : void 0
-                                                }
-                                                value={mask_content.value}
-                                                onClick={(evt: any) => {
-                                                    store.data.inpainting_fill =
-                                                        mask_content.value
-                                                }}
-                                            >
-                                                {mask_content.name}
-                                            </sp-radio>
-                                        )
-                                    }
-                                )}
+                                            }}
+                                        >
+                                            {mask_content.name}
+                                        </sp-radio>
+                                    )
+                                })}
                             </sp-radio-group>
                         </div>
 
