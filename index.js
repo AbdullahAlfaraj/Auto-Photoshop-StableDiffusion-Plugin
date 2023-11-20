@@ -313,9 +313,9 @@ Array.from(document.querySelectorAll('.sp-tab')).forEach((theTab) => {
                             .getAttribute('id')
                             .startsWith(theTab.getAttribute('id'))
                     ) {
-                        tabPage.classList.add('visible-hack')
+                        tabPage.classList.add('visible')
                     } else {
-                        tabPage.classList.remove('visible-hack')
+                        tabPage.classList.remove('visible')
                     }
                 }
             )

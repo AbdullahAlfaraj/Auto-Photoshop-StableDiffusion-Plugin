@@ -340,30 +340,11 @@
         }
 
         .sp-tab-page {
-            visibility: hidden;
-            /* display: none; */
-            flex: 1 1 auto;
-            /* overflow: scroll; */
-            overflow-y: scroll;
-            padding: 12px 0;
+            display: none;
+            padding: 10px 0;
             flex-direction: column;
-        }
-
-        .sp-tab-page.visible-hack {
-            display: flex;
-            /* overflow: hidden; */
-            /* overflow-y: scroll; */
-            /* position: fixed; */
-            top: 25px;
-            visibility: visible;
             max-width: 100%;
-            width: 100%;
-            /* margin: 0px; */
-            position: absolute;
-            width: 100%;
-            left: 0;
-            padding-left: 10px;
-            padding-right: 10px;
+            position: relative;
         }
 
         .sp-tab-page.visible {
@@ -1124,7 +1105,7 @@
             </div>
 
             <div
-                class="sp-tab-page visible-hack"
+                class="sp-tab-page visible"
                 id="sp-stable-diffusion-ui-tab-page"
             >
                 <div id="sdTabContainer"></div>
