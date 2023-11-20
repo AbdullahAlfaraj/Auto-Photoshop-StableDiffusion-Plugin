@@ -212,8 +212,12 @@ async function getHistory(prompt_id: string) {
     return history
 }
 export async function postPromptAndGetBase64JsonResult(
-    prompt: Record<string, any>
-) {
+    prompt: Record<string, any>,
+    separated_output_nodes: string[] = []
+): Promise<{
+    outputs: Record<string, any> | undefined
+    separated_outputs: Record<string, any> | undefined
+}> {
     try {
         const res = await comfyapi.comfy_api.prompt(prompt)
         if (res.error) {
@@ -223,9 +227,11 @@ export async function postPromptAndGetBase64JsonResult(
         const prompt_id = res.prompt_id
         const history = await getHistory(prompt_id)
         const promptInfo = history[prompt_id]
-        const store_output = await mapComfyOutputToStoreOutput(
-            promptInfo.outputs
-        )
+        const { outputs, separated_outputs } =
+            await mapComfyOutputToStoreOutput(
+                promptInfo.outputs,
+                separated_output_nodes
+            )
         //         // [4][0] for output id.
         //         const fileName = promptInfo.outputs[promptInfo.prompt[4][0]].images[0].filename
         //         const resultB64 = await ComfyApi.view(this, fileName);
@@ -234,10 +240,11 @@ export async function postPromptAndGetBase64JsonResult(
         //             try { option.imageFinishCallback(resultB64, index) } catch (e) { }
         //         }
         // }
-        return store_output
+        return { outputs, separated_outputs }
     } catch (e) {
         console.error(e)
         app.showAlert(`${e}`)
+        return { outputs: undefined, separated_outputs: undefined }
     }
 }
 export const getFileFormat = (fileName: string): string =>
@@ -266,9 +273,11 @@ export function updateOutput(output: any, output_store_obj: any) {
 }
 
 export async function mapComfyOutputToStoreOutput(
-    comfy_output: Record<string, any>
+    comfy_output: Record<string, any>,
+    separated_output_nodes: string[] = []
 ) {
-    const store_output: Record<string, any> = {}
+    const outputs: Record<string, any> = {}
+    const separated_outputs: Record<string, any> = {}
 
     for (let key in comfy_output) {
         let base64_url_list = await Promise.all(
@@ -290,10 +299,18 @@ export async function mapComfyOutputToStoreOutput(
             )
         )
         base64_url_list = base64_url_list.filter((item) => item !== '') // Filter out empty strings
-        store_output[key] = [...(store_output[key] || []), ...base64_url_list]
+
+        if (separated_output_nodes.includes(key)) {
+            separated_outputs[key] = [
+                ...(separated_outputs[key] || []),
+                ...base64_url_list,
+            ]
+        } else {
+            outputs[key] = [...(outputs[key] || []), ...base64_url_list]
+        }
     }
 
-    return store_output
+    return { outputs, separated_outputs }
 }
 
 interface LooseObject {
@@ -464,9 +481,10 @@ async function maskExpansion(
         },
     }
     try {
-        const out = await postPromptAndGetBase64JsonResult(prompt)
-        if (out) {
-            const expanded_mask = out['6'][0]
+        const { outputs, separated_outputs } =
+            await postPromptAndGetBase64JsonResult(prompt)
+        if (outputs) {
+            const expanded_mask = outputs['6'][0]
             return base64UrlToBase64(expanded_mask)
         }
         // html_manip.setInitImageMaskSrc(expanded_mask)

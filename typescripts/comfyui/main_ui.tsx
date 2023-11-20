@@ -16,6 +16,7 @@ import { store } from './util'
 import { base64UrlToBase64, copyJson } from '../util/ts/general'
 import { session_store } from '../stores'
 import ControlNetStore from '../controlnet/store'
+import { setControlDetectMapSrc } from '../controlnet/entry'
 
 // Function to parse metadata from a title string
 function parseMetadata(title: string) {
@@ -422,16 +423,21 @@ async function generateComfyMode(
 
             delete final_prompt[hire_output_node.id]
         }
+
+        const separated_output_node_ids: string[] = []
+        const node_id_to_controlnet_unit_index: Record<string, number> = {}
         for (const [index, unit] of plugin_settings[
             'controlnet_units'
         ].entries()) {
+            const node_name_id = `preprocessor_output_${index + 1}`
+            const node = getNodeByNameId(nodes, node_name_id)
+            const node_id = node.id.toString()
+            node_id_to_controlnet_unit_index[node_id] = index
+
             if (unit['comfy_enabled'] === 'disable') {
-                index
-                mutePromptNode(
-                    nodes,
-                    final_prompt,
-                    `preprocessor_output_${index + 1}`
-                )
+                mutePromptNode(nodes, final_prompt, node_name_id)
+            } else if (unit['comfy_enabled'] === 'enable') {
+                separated_output_node_ids.push(node_id)
             }
         }
         // for (let i = 0; i < 3; ++i) {
@@ -444,14 +450,26 @@ async function generateComfyMode(
         //     }
         // }
         console.log('final_prompt: ', final_prompt)
-        const outputs = await comfyui_util.postPromptAndGetBase64JsonResult(
-            final_prompt
-        )
+        const { outputs, separated_outputs } =
+            await comfyui_util.postPromptAndGetBase64JsonResult(
+                final_prompt,
+                separated_output_node_ids
+            )
 
         if (outputs) {
             image_url_list = Object.values(outputs).flat()
             image_base64_list = image_url_list.map((image_url) => {
                 return base64UrlToBase64(image_url)
+            })
+        }
+        if (separated_outputs) {
+            Object.entries(separated_outputs).forEach(([node_id, images]) => {
+                const controlnet_unit_index =
+                    node_id_to_controlnet_unit_index[node_id]
+                setControlDetectMapSrc(
+                    base64UrlToBase64(images[0]),
+                    controlnet_unit_index
+                )
             })
         }
     } catch (e) {

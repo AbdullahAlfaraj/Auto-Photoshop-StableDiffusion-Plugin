@@ -1257,12 +1257,12 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                 // Start the progress update
 
                                 util.runRandomSeedScript()
-                                let store_output =
+                                let { outputs, separated_outputs } =
                                     await util.postPromptAndGetBase64JsonResult(
                                         toJS(store.data.current_prompt2)
                                     )
                                 store.data.current_prompt2_output =
-                                    store_output ?? {}
+                                    outputs ?? {}
                             } catch (e) {
                                 console.error(e)
                             } finally {
