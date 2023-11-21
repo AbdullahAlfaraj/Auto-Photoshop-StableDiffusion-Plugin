@@ -3,7 +3,7 @@ import { setControlImageSrc } from '../../utility/html_manip'
 // import { session_ts } from '../entry'
 // import * as session_ts from '../session/session'
 import { store as session_store } from '../session/session_store'
-import { Enum, api, python_replacement } from '../util/oldSystem'
+import { Enum, api, io, python_replacement } from '../util/oldSystem'
 import { GenerationModeEnum } from '../util/ts/enum'
 import store, {
     DefaultControlNetUnitData,
@@ -149,11 +149,11 @@ function getEnableControlNet(index: number) {
         )
     else return store.controlNetUnitData[index || 0].enabled
 }
-function mapPluginSettingsToControlNet(plugin_settings: any) {
+async function mapPluginSettingsToControlNet(plugin_settings: any) {
     const ps = plugin_settings // for shortness
     let controlnet_units: any[] = []
     const controlNetUnits = store.controlNetUnitData
-    function getControlNetInputImage(index: number) {
+    async function getControlNetInputImage(index: number) {
         try {
             const b_sync_input_image = controlNetUnits[index].auto_image
             let input_image = controlNetUnits[index].input_image
@@ -163,10 +163,19 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
             ) {
                 //conditions: 1) txt2img mode 2)auto image on  3)first generation of session
 
-                input_image = session_store.data.controlnet_input_image ?? ''
-                controlNetUnits[index].input_image = input_image
-                controlNetUnits[index].selection_info =
-                    plugin_settings.selection_info
+                if (
+                    session_store.data.generation_number === 1 &&
+                    session_store.data.controlnet_input_image === ''
+                ) {
+                    session_store.data.controlnet_input_image =
+                        await io.getImg2ImgInitImage()
+                }
+                if (session_store.data.controlnet_input_image !== '') {
+                    input_image = session_store.data.controlnet_input_image
+                    controlNetUnits[index].input_image = input_image
+                    controlNetUnits[index].selection_info =
+                        plugin_settings.selection_info
+                }
             }
             if (
                 b_sync_input_image &&
@@ -212,7 +221,7 @@ function mapPluginSettingsToControlNet(plugin_settings: any) {
     for (let index = 0; index < store.maxControlNet; index++) {
         controlnet_units[index] = {
             enabled: getEnableControlNet(index),
-            input_image: getControlNetInputImage(index),
+            input_image: await getControlNetInputImage(index),
             mask: getControlNetMask(index),
             module: controlNetUnits[index].module,
             model: controlNetUnits[index].model,
