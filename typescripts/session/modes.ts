@@ -25,7 +25,8 @@ import {
 
 import { store as extra_page_store } from '../extra_page/extra_page'
 import { requestPost } from '../util/ts/api'
-import { comfyapi } from '../entry'
+import { comfyapi, settings_tab_ts } from '../entry'
+import { newOutputImageName } from '../util/ts/general'
 const executeAsModal = core.executeAsModal
 
 declare let g_inpaint_mask_layer: any
@@ -38,9 +39,17 @@ interface SessionData {
     mask?: string
     selectionInfo?: any
 }
+interface ImageInfo {
+    path: string
+    base64: string
+    auto_metadata: Record<string, any>
+}
 
-async function saveOutputImagesToDrive(images_info: any, settings: any) {
-    const base64OutputImages = [] //delete all previouse images, Note move this to session end ()
+async function saveOutputImagesToDrive(
+    images_info: ImageInfo[],
+    settings: Record<string, any>
+) {
+    const base64OutputImages = []
     let index = 0
     for (const image_info of images_info) {
         const path = image_info['path']
@@ -58,9 +67,31 @@ async function saveOutputImagesToDrive(images_info: any, settings: any) {
         ) //save the settings
         index += 1
     }
-    session_store.data.last_seed =
-        images_info?.length > 0 ? images_info[0]?.auto_metadata?.Seed : '-1'
+    if (settings_tab_ts.store.data.selected_backend === 'Automatic1111') {
+        session_store.data.last_seed =
+            images_info?.length > 0 ? images_info[0]?.auto_metadata?.Seed : '-1'
+    }
     return base64OutputImages
+}
+async function saveOutputImagesToDriveComfy(
+    base64_images: string[],
+    settings: Record<string, any>
+) {
+    let index = 0
+    const document_name = settings['uniqueDocumentId']
+    delete settings['alwayson_scripts']
+    for (const base64 of base64_images) {
+        const image_name = newOutputImageName()
+        await io.saveFileInSubFolder(base64, document_name, image_name) //save the output image
+        const json_file_name = `${image_name.split('.')[0]}.json`
+
+        await io.saveJsonFileInSubFolder(
+            settings,
+            document_name,
+            json_file_name
+        ) //save the settings
+        index += 1
+    }
 }
 class Mode {
     constructor() {}
@@ -159,8 +190,9 @@ export class Txt2ImgMode extends Mode {
 
         const full_url = `${g_sd_url}/sdapi/v1/txt2img`
 
-        const control_net_settings =
-            mapPluginSettingsToControlNet(plugin_settings)
+        const control_net_settings = await mapPluginSettingsToControlNet(
+            plugin_settings
+        )
         let control_networks = []
         // let active_control_networks = 0
         for (let index = 0; index < g_controlnet_max_models; index++) {
@@ -281,21 +313,20 @@ export class Txt2ImgMode extends Mode {
                     )
                 }
                 response_json = await this.requestTxt2Img(settings) //this is automatic1111 txt2img
-            } else if (settings_tab.store.data.selected_backend === 'ComfyUI') {
-                //request Txt2Img from comfyui
-                settings = mapPluginSettingsToControlNet(settings)
-                const { image_base64_list, image_url_list } =
-                    await comfyui_main_ui.generateComfyTxt2Img(settings)
-                output_images = image_base64_list
-            }
 
-            if (settings_tab.store.data.selected_backend === 'Automatic1111') {
                 output_images = await this.processOutput(
                     response_json.images_info,
                     settings
                 )
             } else if (settings_tab.store.data.selected_backend === 'ComfyUI') {
-                // output_images = image_base64_list
+                //request Txt2Img from comfyui
+                settings = await mapPluginSettingsToControlNet(settings)
+                const { image_base64_list, image_url_list } =
+                    await comfyui_main_ui.generateComfyTxt2Img(settings)
+                output_images = image_base64_list
+                if (output_images) {
+                    saveOutputImagesToDriveComfy(output_images, settings)
+                }
             }
         } catch (e) {
             console.warn(e)
@@ -322,8 +353,9 @@ export class Img2ImgMode extends Mode {
     //REFACTOR: reuse the same code for (requestControlNetTxt2Img,requestControlNetImg2Img)
     static async requestControlNetImg2Img(plugin_settings: any) {
         const full_url = `${g_sd_url}/sdapi/v1/img2img`
-        const control_net_settings =
-            mapPluginSettingsToControlNet(plugin_settings)
+        const control_net_settings = await mapPluginSettingsToControlNet(
+            plugin_settings
+        )
 
         // let control_networks = 0
         let control_networks = []
@@ -474,7 +506,7 @@ export class Img2ImgMode extends Mode {
                     )
                 }
             } else if (settings_tab.store.data.selected_backend === 'ComfyUI') {
-                settings = mapPluginSettingsToControlNet(settings)
+                settings = await mapPluginSettingsToControlNet(settings)
                 if (settings?.mode === 'img2img') {
                     const { image_base64_list, image_url_list } =
                         await comfyui_main_ui.generateComfyImg2Img(settings)
@@ -487,6 +519,10 @@ export class Img2ImgMode extends Mode {
                     const { image_base64_list, image_url_list } =
                         await comfyui_main_ui.generateComfyInpaint(settings)
                     output_images = image_base64_list
+                }
+
+                if (output_images) {
+                    saveOutputImagesToDriveComfy(output_images, settings)
                 }
             }
         } catch (e) {
