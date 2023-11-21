@@ -588,7 +588,8 @@ export class LassoInpaintMode extends Img2ImgMode {
         }
         const [init_image, mask] = await selection.inpaintLassoInitImageAndMask(
             'mask',
-            sd_tab_util.helper_store.data.lasso_offset
+            sd_tab_util.helper_store.data.lasso_offset,
+            sd_tab_util.helper_store.data.make_square
         )
 
         const selectionInfo = await psapi.getSelectionInfoExe()

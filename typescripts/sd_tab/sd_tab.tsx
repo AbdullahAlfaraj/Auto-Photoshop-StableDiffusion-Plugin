@@ -105,6 +105,22 @@ const Modes = observer(() => {
                         >
                             Lasso Mode
                         </SpCheckBox>
+                        <SpCheckBox
+                            style={{
+                                marginLeft: '10px',
+                                display: store.data.is_lasso_mode
+                                    ? void 0
+                                    : 'none',
+                            }}
+                            onChange={() => {
+                                helper_store.data.make_square =
+                                    !helper_store.data.make_square
+                            }}
+                            checked={helper_store.data.make_square}
+                            // id={`chEnableControlNet_${this.props.index}`}
+                        >
+                            Make Square
+                        </SpCheckBox>
 
                         <SpSlider
                             show-value="false"

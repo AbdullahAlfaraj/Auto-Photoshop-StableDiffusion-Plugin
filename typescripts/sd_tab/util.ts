@@ -206,6 +206,7 @@ export const helper_store = new AStore({
     native_presets: {},
     base_size: 512 as number,
     lasso_offset: 10 as number,
+    make_square: true as boolean,
 })
 export async function refreshModels() {
     let b_result = false
