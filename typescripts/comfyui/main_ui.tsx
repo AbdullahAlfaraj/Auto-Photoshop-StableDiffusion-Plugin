@@ -1,5 +1,5 @@
-import txt2img from './txt2img_workflow_v0.0.6.json'
-import txt2img_api from './txt2img_api_v0.0.6.json'
+import txt2img from './txt2img_workflow.json'
+import txt2img_api from './txt2img_api.json'
 
 import img2img from './img2img_workflow_v0.0.6.json'
 import img2img_api from './img2img_api_v0.0.6.json'
@@ -156,8 +156,8 @@ const controlnet_txt2img_map: Record<string, any> = {
     guidance_start: 'controlnet_script.start_percent',
     guidance_end: 'controlnet_script.end_percent',
     processor_res: 'controlnet_script.resolution',
-    // "threshold_a": 0,
-    // "threshold_b": 0,
+    threshold_a: 'controlnet_script.threshold_a',
+    threshold_b: 'controlnet_script.threshold_b',
 }
 const img2img_map: Record<string, any> = {
     init_image: 'init_image.image', // note: this is not init_images but init_image

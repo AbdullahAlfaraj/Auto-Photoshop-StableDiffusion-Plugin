@@ -15,6 +15,40 @@ const { getExtensionUrl } = python_replacement
 declare const g_sd_config_obj: any
 declare let g_sd_url: string
 
+function convertComfyModuleDetailsToPluginModuleDetails(
+    comfy_module_details: Record<string, any>
+) {
+    let outputJson: Record<string, any> = {}
+    for (let preprocessorName in comfy_module_details) {
+        let preprocessorConfig = comfy_module_details[preprocessorName]
+        let sliders = []
+        if (preprocessorConfig.resolution) {
+            sliders.push({
+                name: `${preprocessorName} Resolution`,
+                value: preprocessorConfig.resolution,
+                min: 64,
+                max: 2048,
+            })
+        }
+        if (preprocessorConfig.param_config) {
+            for (let paramName in preprocessorConfig.param_config) {
+                let paramConfig = preprocessorConfig.param_config[paramName]
+                sliders.push({
+                    name: `${paramName}`,
+                    value: preprocessorConfig[paramName],
+                    min: paramConfig.min,
+                    max: paramConfig.max,
+                })
+            }
+        }
+        outputJson[preprocessorName] = {
+            model_free: false,
+            sliders: sliders,
+        }
+    }
+    return outputJson
+}
+
 async function requestControlNetPreprocessors() {
     const control_net_json = await api.requestGet(
         `${g_sd_url}/controlnet/module_list?alias_names=true`
@@ -115,7 +149,8 @@ async function initializeControlNetTab(controlnet_max_models: number) {
 async function initializeControlNetTabComfyUI(
     controlnet_max_models: number,
     controlnet_models: string[],
-    preprocessor_list: string[]
+    preprocessor_list: string[],
+    preprocessorDetail: Record<string, any>
 ) {
     store.maxControlNet = controlnet_max_models || store.maxControlNet
     // store.controlnetApiVersion = await requestControlNetApiVersion()
@@ -128,7 +163,9 @@ async function initializeControlNetTabComfyUI(
     }
     try {
         store.supportedPreprocessors = preprocessor_list || []
-        store.preprocessorDetail = {}
+
+        store.preprocessorDetail =
+            convertComfyModuleDetailsToPluginModuleDetails(preprocessorDetail)
     } catch (e) {
         console.warn(e)
     }

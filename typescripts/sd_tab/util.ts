@@ -439,11 +439,15 @@ export async function refreshUI() {
             const preprocessor_list = //@ts-ignorets
                 comfyapi.comfy_api?.object_info?.ControlNetScript.input.required
                     .preprocessor_name_1[0]
-
+            const preprocessor_detail =
+                //@ts-ignorets
+                comfyapi.comfy_api?.object_info?.GetConfig.input.optional
+                    .controlnet_config
             control_net.initializeControlNetTabComfyUI(
                 3,
                 controlnet_models,
-                preprocessor_list
+                preprocessor_list,
+                preprocessor_detail
             )
         }
     } catch (e) {
