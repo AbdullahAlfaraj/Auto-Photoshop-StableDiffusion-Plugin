@@ -1,8 +1,8 @@
 import txt2img from './txt2img_workflow.json'
 import txt2img_api from './txt2img_api.json'
 
-import img2img from './img2img_workflow_v0.0.6.json'
-import img2img_api from './img2img_api_v0.0.6.json'
+import img2img from './img2img_workflow.json'
+import img2img_api from './img2img_api.json'
 
 import inpaint from './inpaint_workflow.json'
 import inpaint_api from './inpaint_api.json'
@@ -119,6 +119,7 @@ function mutePromptNode(nodes: any[], prompt: any, node_name_id: string) {
 }
 const txt2img_map: Record<string, any> = {
     model: 'checkpoint.ckpt_name',
+    comfy_clip_skip: 'clip_skip.stop_at_clip_layer',
     vae: 'vae.vae_name',
     width: 'latent_image.width',
     height: 'latent_image.height',
@@ -162,6 +163,7 @@ const controlnet_txt2img_map: Record<string, any> = {
 const img2img_map: Record<string, any> = {
     init_image: 'init_image.image', // note: this is not init_images but init_image
     model: 'checkpoint.ckpt_name',
+    comfy_clip_skip: 'clip_skip.stop_at_clip_layer',
     vae: 'vae.vae_name',
     width: 'init_image_scale.width',
     height: 'init_image_scale.height',
@@ -193,8 +195,8 @@ const img2img_map: Record<string, any> = {
 const inpaint_map: Record<string, any> = {
     init_image: 'init_image.image', // note: this is not init_images but init_image
     comfy_mask: 'mask_image.image',
-
     model: 'checkpoint.ckpt_name',
+    comfy_clip_skip: 'clip_skip.stop_at_clip_layer',
     vae: 'vae.vae_name',
     width: 'width.Value',
     height: 'height.Value',
@@ -252,6 +254,7 @@ async function addMissingSettings(plugin_settings: Record<string, any>) {
     plugin_settings['hr_denoising_strength'] =
         sd_tab_util.store.data.hr_denoising_strength
     plugin_settings['hr_sampler_name'] = sd_tab_util.store.data.sampler_name // use the same sampler for the first and second pass (hires) upscale sampling steps
+    plugin_settings['comfy_clip_skip'] = -1 * plugin_settings['clip_skip']
     if ('init_images' in plugin_settings) {
         const base64 = plugin_settings['init_images'][0]
 

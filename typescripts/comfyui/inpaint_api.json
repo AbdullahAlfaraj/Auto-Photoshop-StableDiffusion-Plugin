@@ -166,8 +166,8 @@
         0
       ],
       "clip": [
-        "16",
-        1
+        "162",
+        0
       ]
     },
     "class_type": "LoadLorasFromPrompt"
@@ -180,8 +180,8 @@
         0
       ],
       "clip": [
-        "16",
-        1
+        "162",
+        0
       ]
     },
     "class_type": "LoadLorasFromPrompt"
@@ -282,13 +282,17 @@
       "preprocessor_name_1": "OpenposePreprocessor",
       "control_net_name_1": "control_lora_rank128_v11p_sd15_openpose_fp16.safetensors",
       "strength_1": 1,
+      "threshold_a_1": 100,
+      "threshold_b_1": 200,
       "start_percent_1": 0,
       "end_percent_1": 1,
       "resolution_1": 512,
       "is_enabled_2": "disable",
-      "preprocessor_name_2": "InpaintPreprocessor",
-      "control_net_name_2": "control_lora_rank128_v11p_sd15_inpaint_fp16.safetensors",
+      "preprocessor_name_2": "OpenposePreprocessor",
+      "control_net_name_2": "control_lora_rank128_v11p_sd15_openpose_fp16.safetensors",
       "strength_2": 1,
+      "threshold_a_2": 0,
+      "threshold_b_2": 0,
       "start_percent_2": 0,
       "end_percent_2": 1,
       "resolution_2": 512,
@@ -296,6 +300,8 @@
       "preprocessor_name_3": "InpaintPreprocessor",
       "control_net_name_3": "control_lora_rank128_v11p_sd15_inpaint_fp16.safetensors",
       "strength_3": 1,
+      "threshold_a_3": 0,
+      "threshold_b_3": 0,
       "start_percent_3": 0,
       "end_percent_3": 1,
       "resolution_3": 512,
@@ -322,6 +328,14 @@
       "mask_2": [
         "83",
         0
+      ],
+      "image_3": [
+        "58",
+        0
+      ],
+      "mask_3": [
+        "83",
+        0
       ]
     },
     "class_type": "ControlNetScript"
@@ -335,5 +349,15 @@
       ]
     },
     "class_type": "RepeatLatentBatch"
+  },
+  "162": {
+    "inputs": {
+      "stop_at_clip_layer": -1,
+      "clip": [
+        "16",
+        1
+      ]
+    },
+    "class_type": "CLIPSetLastLayer"
   }
 }

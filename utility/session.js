@@ -416,6 +416,8 @@ async function getSettings(session_data) {
             payload['original_negative_prompt'] = negative_prompt
         }
 
+        payload['clip_skip'] =
+            settings_tab_ts.store.data.CLIP_stop_at_last_layers
         payload = {
             ...payload,
             // prompt: prompt,

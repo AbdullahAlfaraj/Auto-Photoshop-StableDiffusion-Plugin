@@ -1,6 +1,6 @@
 {
-  "last_node_id": 107,
-  "last_link_id": 200,
+  "last_node_id": 109,
+  "last_link_id": 204,
   "nodes": [
     {
       "id": 8,
@@ -14,7 +14,7 @@
         "1": 46
       },
       "flags": {},
-      "order": 31,
+      "order": 32,
       "mode": 0,
       "inputs": [
         {
@@ -54,7 +54,7 @@
         "1": 46
       },
       "flags": {},
-      "order": 35,
+      "order": 36,
       "mode": 0,
       "inputs": [
         {
@@ -94,7 +94,7 @@
         26
       ],
       "flags": {},
-      "order": 20,
+      "order": 21,
       "mode": 0,
       "inputs": [
         {
@@ -201,7 +201,7 @@
         26
       ],
       "flags": {},
-      "order": 19,
+      "order": 20,
       "mode": 0,
       "inputs": [
         {
@@ -238,7 +238,7 @@
         "1": 200
       },
       "flags": {},
-      "order": 16,
+      "order": 17,
       "mode": 0,
       "inputs": [
         {
@@ -249,7 +249,7 @@
         {
           "name": "clip",
           "type": "CLIP",
-          "link": 139
+          "link": 204
         }
       ],
       "outputs": [
@@ -301,7 +301,7 @@
         "1": 262
       },
       "flags": {},
-      "order": 34,
+      "order": 35,
       "mode": 0,
       "inputs": [
         {
@@ -354,69 +354,6 @@
       ]
     },
     {
-      "id": 76,
-      "type": "LoadLorasFromPrompt",
-      "pos": [
-        -283,
-        168
-      ],
-      "size": {
-        "0": 462,
-        "1": 200
-      },
-      "flags": {},
-      "order": 17,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 140
-        },
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": 132
-        }
-      ],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            133
-          ],
-          "shape": 3,
-          "slot_index": 0
-        },
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": [
-            134
-          ],
-          "shape": 3,
-          "slot_index": 1
-        },
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": [
-            135
-          ],
-          "shape": 3,
-          "slot_index": 2
-        }
-      ],
-      "title": "Load Loras From Prompt | id:multi_loras_positive_prompt",
-      "properties": {
-        "Node name for S&R": "LoadLorasFromPrompt"
-      },
-      "widgets_values": [
-        ""
-      ]
-    },
-    {
       "id": 85,
       "type": "Reroute",
       "pos": [
@@ -428,7 +365,7 @@
         26
       ],
       "flags": {},
-      "order": 29,
+      "order": 30,
       "mode": 0,
       "inputs": [
         {
@@ -466,7 +403,7 @@
         "1": 180.6060791015625
       },
       "flags": {},
-      "order": 18,
+      "order": 19,
       "mode": 0,
       "inputs": [
         {
@@ -513,7 +450,7 @@
         26
       ],
       "flags": {},
-      "order": 28,
+      "order": 29,
       "mode": 0,
       "inputs": [
         {
@@ -551,7 +488,7 @@
         "1": 82
       },
       "flags": {},
-      "order": 32,
+      "order": 33,
       "mode": 0,
       "inputs": [
         {
@@ -581,48 +518,6 @@
       ]
     },
     {
-      "id": 94,
-      "type": "LoadImage",
-      "pos": [
-        -1920,
-        -1670
-      ],
-      "size": {
-        "0": 285.6000061035156,
-        "1": 314
-      },
-      "flags": {
-        "collapsed": false
-      },
-      "order": 1,
-      "mode": 2,
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            166
-          ],
-          "shape": 3,
-          "slot_index": 0
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null,
-          "shape": 3
-        }
-      ],
-      "title": "Load Image | id:controlnet_image_2",
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "AnimateDiff_00005_ (1) (2).gif",
-        "image"
-      ]
-    },
-    {
       "id": 93,
       "type": "LoadImage",
       "pos": [
@@ -634,7 +529,7 @@
         "1": 314
       },
       "flags": {},
-      "order": 2,
+      "order": 1,
       "mode": 2,
       "outputs": [
         {
@@ -663,46 +558,6 @@
       ]
     },
     {
-      "id": 96,
-      "type": "LoadImage",
-      "pos": [
-        -2060,
-        -1240
-      ],
-      "size": {
-        "0": 285.6000061035156,
-        "1": 314
-      },
-      "flags": {},
-      "order": 3,
-      "mode": 2,
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            168
-          ],
-          "shape": 3,
-          "slot_index": 0
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null,
-          "shape": 3
-        }
-      ],
-      "title": "Load Image | id:controlnet_image_3",
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "AnimateDiff_00005_ (1) (2).gif",
-        "image"
-      ]
-    },
-    {
       "id": 95,
       "type": "LoadImage",
       "pos": [
@@ -714,7 +569,7 @@
         "1": 314
       },
       "flags": {},
-      "order": 4,
+      "order": 2,
       "mode": 2,
       "outputs": [
         {
@@ -743,53 +598,6 @@
       ]
     },
     {
-      "id": 16,
-      "type": "CheckpointLoaderSimple",
-      "pos": [
-        -1297,
-        369
-      ],
-      "size": {
-        "0": 315,
-        "1": 98
-      },
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            192
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": [
-            132,
-            139
-          ],
-          "slot_index": 1
-        },
-        {
-          "name": "VAE",
-          "type": "VAE",
-          "links": [],
-          "slot_index": 2
-        }
-      ],
-      "title": "Load Checkpoint | id:checkpoint",
-      "properties": {
-        "Node name for S&R": "CheckpointLoaderSimple"
-      },
-      "widgets_values": [
-        "dreamshaper_8.safetensors"
-      ]
-    },
-    {
       "id": 6,
       "type": "CLIPTextEncode",
       "pos": [
@@ -801,7 +609,7 @@
         "1": 164.31304931640625
       },
       "flags": {},
-      "order": 21,
+      "order": 22,
       "mode": 0,
       "inputs": [
         {
@@ -848,7 +656,7 @@
         "1": 58
       },
       "flags": {},
-      "order": 15,
+      "order": 16,
       "mode": 0,
       "inputs": [
         {
@@ -888,7 +696,7 @@
         "1": 102
       },
       "flags": {},
-      "order": 22,
+      "order": 23,
       "mode": 4,
       "inputs": [
         {
@@ -934,7 +742,7 @@
         "1": 282.4336242675781
       },
       "flags": {},
-      "order": 33,
+      "order": 34,
       "mode": 0,
       "inputs": [
         {
@@ -960,7 +768,7 @@
         "1": 102
       },
       "flags": {},
-      "order": 27,
+      "order": 28,
       "mode": 4,
       "inputs": [
         {
@@ -1007,7 +815,7 @@
         "1": 166
       },
       "flags": {},
-      "order": 14,
+      "order": 15,
       "mode": 4,
       "inputs": [
         {
@@ -1075,7 +883,7 @@
         "1": 58
       },
       "flags": {},
-      "order": 6,
+      "order": 3,
       "mode": 4,
       "outputs": [
         {
@@ -1150,7 +958,7 @@
         "1": 46
       },
       "flags": {},
-      "order": 13,
+      "order": 14,
       "mode": 0,
       "inputs": [
         {
@@ -1191,7 +999,7 @@
         "1": 106
       },
       "flags": {},
-      "order": 7,
+      "order": 4,
       "mode": 2,
       "outputs": [
         {
@@ -1223,7 +1031,7 @@
         "1": 262
       },
       "flags": {},
-      "order": 30,
+      "order": 31,
       "mode": 0,
       "inputs": [
         {
@@ -1286,7 +1094,7 @@
       "flags": {
         "collapsed": false
       },
-      "order": 8,
+      "order": 5,
       "mode": 2,
       "outputs": [
         {
@@ -1315,48 +1123,6 @@
       ]
     },
     {
-      "id": 87,
-      "type": "LoadImage",
-      "pos": [
-        -2310,
-        -2188
-      ],
-      "size": {
-        "0": 306.4342346191406,
-        "1": 314
-      },
-      "flags": {
-        "collapsed": false
-      },
-      "order": 9,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            164
-          ],
-          "shape": 3,
-          "slot_index": 0
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null,
-          "shape": 3
-        }
-      ],
-      "title": "Load Image | id:controlnet_image_1",
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "ComfyUI_temp_cqoqp_00001_.png",
-        "image"
-      ]
-    },
-    {
       "id": 58,
       "type": "LoadImage",
       "pos": [
@@ -1368,7 +1134,7 @@
         "1": 314
       },
       "flags": {},
-      "order": 10,
+      "order": 6,
       "mode": 0,
       "outputs": [
         {
@@ -1397,18 +1163,123 @@
       ]
     },
     {
+      "id": 89,
+      "type": "PreviewImage",
+      "pos": [
+        -280,
+        -1260
+      ],
+      "size": {
+        "0": 336,
+        "1": 246
+      },
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 162
+        }
+      ],
+      "title": "Preview Image | id:preprocessor_output_2",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 90,
+      "type": "PreviewImage",
+      "pos": [
+        -40,
+        -1260
+      ],
+      "size": {
+        "0": 336,
+        "1": 246
+      },
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 163
+        }
+      ],
+      "title": "Preview Image | id:preprocessor_output_3",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 88,
+      "type": "PreviewImage",
+      "pos": [
+        -530,
+        -1260
+      ],
+      "size": {
+        "0": 336,
+        "1": 246
+      },
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 161
+        }
+      ],
+      "title": "Preview Image | id:preprocessor_output_1",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 12,
+      "type": "SaveImage",
+      "pos": [
+        2367,
+        49
+      ],
+      "size": {
+        "0": 407.53717041015625,
+        "1": 468.13226318359375
+      },
+      "flags": {},
+      "order": 37,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 17
+        }
+      ],
+      "title": "Save Image | id:hires_output",
+      "properties": {},
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
       "id": 91,
       "type": "ControlNetScript",
       "pos": [
-        -1120,
-        -1050
+        -1381,
+        -1042
       ],
       "size": {
         "0": 506.0240173339844,
-        "1": 678
+        "1": 822
       },
       "flags": {},
-      "order": 23,
+      "order": 24,
       "mode": 0,
       "inputs": [
         {
@@ -1425,7 +1296,7 @@
         {
           "name": "image_1",
           "type": "IMAGE",
-          "link": 164
+          "link": 201
         },
         {
           "name": "mask_1",
@@ -1506,17 +1377,21 @@
         "Node name for S&R": "ControlNetScript"
       },
       "widgets_values": [
-        "enable",
+        "disable",
         "CannyEdgePreprocessor",
         "control_lora_rank128_v11p_sd15_canny_fp16.safetensors",
         1,
+        100,
+        200,
         0,
         1,
         512,
         "disable",
-        "CannyEdgePreprocessor",
-        "control_lora_rank128_v11e_sd15_ip2p_fp16.safetensors",
+        "OpenposePreprocessor",
+        "control_lora_rank128_v11p_sd15_openpose_fp16.safetensors",
         1,
+        0,
+        0,
         0,
         1,
         512,
@@ -1525,113 +1400,284 @@
         "control_lora_rank128_v11p_sd15_inpaint_fp16.safetensors",
         1,
         0,
+        0,
+        0,
         1,
         512
       ]
     },
     {
-      "id": 89,
-      "type": "PreviewImage",
+      "id": 16,
+      "type": "CheckpointLoaderSimple",
       "pos": [
-        -280,
-        -1260
+        -1297,
+        369
       ],
       "size": {
-        "0": 336,
-        "1": 246
+        "0": 315,
+        "1": 98
       },
       "flags": {},
-      "order": 25,
+      "order": 7,
       "mode": 0,
-      "inputs": [
+      "outputs": [
         {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 162
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            192
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            202
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [],
+          "slot_index": 2
         }
       ],
-      "title": "Preview Image | id:preprocessor_output_2",
+      "title": "Load Checkpoint | id:checkpoint",
       "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 90,
-      "type": "PreviewImage",
-      "pos": [
-        -40,
-        -1260
-      ],
-      "size": {
-        "0": 336,
-        "1": 246
+        "Node name for S&R": "CheckpointLoaderSimple"
       },
-      "flags": {},
-      "order": 26,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 163
-        }
-      ],
-      "title": "Preview Image | id:preprocessor_output_3",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 88,
-      "type": "PreviewImage",
-      "pos": [
-        -530,
-        -1260
-      ],
-      "size": {
-        "0": 336,
-        "1": 246
-      },
-      "flags": {},
-      "order": 24,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 161
-        }
-      ],
-      "title": "Preview Image | id:preprocessor_output_1",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 12,
-      "type": "SaveImage",
-      "pos": [
-        2367,
-        49
-      ],
-      "size": {
-        "0": 407.53717041015625,
-        "1": 468.13226318359375
-      },
-      "flags": {},
-      "order": 36,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 17
-        }
-      ],
-      "title": "Save Image | id:hires_output",
-      "properties": {},
       "widgets_values": [
-        "ComfyUI"
+        "dreamshaper_8.safetensors"
+      ]
+    },
+    {
+      "id": 76,
+      "type": "LoadLorasFromPrompt",
+      "pos": [
+        -283,
+        168
+      ],
+      "size": {
+        "0": 462,
+        "1": 200
+      },
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 140
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 203
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            133
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            134
+          ],
+          "shape": 3,
+          "slot_index": 1
+        },
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            135
+          ],
+          "shape": 3,
+          "slot_index": 2
+        }
+      ],
+      "title": "Load Loras From Prompt | id:multi_loras_positive_prompt",
+      "properties": {
+        "Node name for S&R": "LoadLorasFromPrompt"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 109,
+      "type": "CLIPSetLastLayer",
+      "pos": [
+        -845.5936890258794,
+        460.91404269409134
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 202
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            203,
+            204
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "title": "CLIP Set Last Layer | id:clip_skip",
+      "properties": {
+        "Node name for S&R": "CLIPSetLastLayer"
+      },
+      "widgets_values": [
+        -1
+      ]
+    },
+    {
+      "id": 87,
+      "type": "LoadImage",
+      "pos": [
+        -2310,
+        -2190
+      ],
+      "size": {
+        "0": 306.4342346191406,
+        "1": 314
+      },
+      "flags": {
+        "collapsed": false
+      },
+      "order": 8,
+      "mode": 2,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            201
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "title": "Load Image | id:controlnet_image_1",
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "ComfyUI_temp_cqoqp_00001_.png",
+        "image"
+      ]
+    },
+    {
+      "id": 94,
+      "type": "LoadImage",
+      "pos": [
+        -1920,
+        -1670
+      ],
+      "size": {
+        "0": 285.6000061035156,
+        "1": 314
+      },
+      "flags": {
+        "collapsed": false
+      },
+      "order": 9,
+      "mode": 2,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            166
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "title": "Load Image | id:controlnet_image_2",
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "AnimateDiff_00005_ (1) (2).gif",
+        "image"
+      ]
+    },
+    {
+      "id": 96,
+      "type": "LoadImage",
+      "pos": [
+        -2060,
+        -1240
+      ],
+      "size": {
+        "0": 285.6000061035156,
+        "1": 314
+      },
+      "flags": {},
+      "order": 10,
+      "mode": 2,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            168
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "title": "Load Image | id:controlnet_image_3",
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "AnimateDiff_00005_ (1) (2).gif",
+        "image"
       ]
     }
   ],
@@ -1757,14 +1803,6 @@
       "CLIP"
     ],
     [
-      132,
-      16,
-      1,
-      76,
-      1,
-      "CLIP"
-    ],
-    [
       133,
       76,
       0,
@@ -1802,14 +1840,6 @@
       1,
       7,
       0,
-      "CLIP"
-    ],
-    [
-      139,
-      16,
-      1,
-      78,
-      1,
       "CLIP"
     ],
     [
@@ -1882,14 +1912,6 @@
       2,
       90,
       0,
-      "IMAGE"
-    ],
-    [
-      164,
-      87,
-      0,
-      91,
-      2,
       "IMAGE"
     ],
     [
@@ -2035,6 +2057,38 @@
       63,
       0,
       "LATENT"
+    ],
+    [
+      201,
+      87,
+      0,
+      91,
+      2,
+      "IMAGE"
+    ],
+    [
+      202,
+      16,
+      1,
+      109,
+      0,
+      "CLIP"
+    ],
+    [
+      203,
+      109,
+      0,
+      76,
+      1,
+      "CLIP"
+    ],
+    [
+      204,
+      109,
+      0,
+      78,
+      1,
+      "CLIP"
     ]
   ],
   "groups": [
