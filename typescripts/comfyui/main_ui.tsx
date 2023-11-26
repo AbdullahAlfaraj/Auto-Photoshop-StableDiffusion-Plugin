@@ -324,8 +324,14 @@ async function addMissingControlnetSettings(
         }
 
         //set model and module to 'None' if no item has been selection, so comfyui won't through an error
-        unit['model'] = unit['model'] === '' ? 'None' : unit['model']
-        unit['module'] = unit['module'] === '' ? 'None' : unit['module']
+        unit['model'] =
+            unit['model'] === '' || unit['comfy_enabled'] === 'disable'
+                ? 'None'
+                : unit['model']
+        unit['module'] =
+            unit['module'] === '' || unit['comfy_enabled'] === 'disable'
+                ? 'None'
+                : unit['module']
     }
     return plugin_settings
 }
