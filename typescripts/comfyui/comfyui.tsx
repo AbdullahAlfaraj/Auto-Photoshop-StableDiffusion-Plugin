@@ -29,8 +29,10 @@ import util, {
     store,
 } from './util'
 
-import { copyJson, urlToCanvas } from '../util/ts/general'
+import { base64UrlToBase64, copyJson, urlToCanvas } from '../util/ts/general'
 import comfyapi from './comfyapi'
+import { getSelectionInfoExe } from '../../psapi'
+import { moveImageToLayer } from '../util/ts/io'
 
 interface Error {
     type: string
@@ -833,6 +835,30 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
                                 }
                             },
                             title: 'Copy Image to Canvas',
+                        },
+                        {
+                            ComponentType: MoveToCanvasSvg,
+                            callback: async (index: number) => {
+                                let format = util.extractFormat(
+                                    store.data.current_prompt2_output[node_id][
+                                        index
+                                    ]
+                                )
+
+                                if (format === 'png') {
+                                    const selectionInfo =
+                                        await getSelectionInfoExe()
+                                    const image_layer = await moveImageToLayer(
+                                        base64UrlToBase64(
+                                            store.data.current_prompt2_output[
+                                                node_id
+                                            ][index]
+                                        ),
+                                        selectionInfo
+                                    )
+                                }
+                            },
+                            title: 'Copy Image to Selection Area',
                         },
                     ]}
                 ></Grid>
