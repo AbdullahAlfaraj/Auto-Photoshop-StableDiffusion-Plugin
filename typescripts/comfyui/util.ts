@@ -87,6 +87,7 @@ export const store = new AStore({
     last_moved: undefined as string | undefined, // the last node that has been moved in the edit mode
 
     base64_to_uploaded_images_names: {} as Record<string, any>,
+    can_generate: true as boolean,
 })
 
 interface Workflow {}

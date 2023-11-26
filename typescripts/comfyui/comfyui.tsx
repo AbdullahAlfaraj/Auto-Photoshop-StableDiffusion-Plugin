@@ -1271,8 +1271,12 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                 })} */}
                     <button
                         className="btnSquare"
+                        style={{
+                            display: store.data.can_generate ? void 0 : 'none',
+                        }}
                         onClick={async () => {
                             // let interval
+                            store.data.can_generate = false
                             let interval: NodeJS.Timeout = setInterval(
                                 function () {
                                     store.data.progress_value++
@@ -1295,10 +1299,22 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                             } finally {
                                 clearInterval(interval as NodeJS.Timeout)
                                 store.data.progress_value = 0
+                                store.data.can_generate = true
                             }
                         }}
                     >
                         Generate
+                    </button>
+                    <button
+                        className="btnSquare"
+                        style={{
+                            display: !store.data.can_generate ? void 0 : 'none',
+                        }}
+                        onClick={async () => {
+                            await comfyapi.comfy_api.interrupt()
+                        }}
+                    >
+                        Interrupt
                     </button>
                     <button
                         className="btnSquare"
