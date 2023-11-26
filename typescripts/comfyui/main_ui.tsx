@@ -131,7 +131,7 @@ const txt2img_map: Record<string, any> = {
 
     seed: 'sampler.seed',
     steps: 'sampler.steps',
-    cfg: 'sampler.cfg',
+    cfg_scale: 'sampler.cfg',
     sampler_index: 'sampler.sampler_name',
     // scheduler: 'normal',
     // denoising_strength: 'sampler.denoise', // keep it at default value 1.0
@@ -176,7 +176,7 @@ const img2img_map: Record<string, any> = {
 
     seed: 'sampler.seed',
     steps: 'sampler.steps',
-    cfg: 'sampler.cfg',
+    cfg_scale: 'sampler.cfg',
     sampler_index: 'sampler.sampler_name',
     // scheduler: 'normal',
     denoising_strength: 'sampler.denoise',
@@ -211,7 +211,7 @@ const inpaint_map: Record<string, any> = {
 
     seed: 'first_pass_seed.seed',
     steps: 'sampler.steps',
-    cfg: 'sampler.cfg',
+    cfg_scale: 'sampler.cfg',
     sampler_index: 'sampler.sampler_name',
     // scheduler: 'normal',
     denoising_strength: 'sampler.denoise',
