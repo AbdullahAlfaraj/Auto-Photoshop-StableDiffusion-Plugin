@@ -1098,6 +1098,14 @@ interface WorkflowData {
     nodes_order: string[]
     nodes_label: Record<string, string>
 }
+
+function resetWorkflowData(workflow_name: string) {
+    delete storage.localStorage[workflow_name]
+    // const workflow_name = store.data.selected_workflow_name
+    const original_workflow = store.data.workflows2[workflow_name]
+    loadWorkflow2(original_workflow)
+    // resetNodeOrder()
+}
 function loadWorkflow2(workflow: any) {
     //1) get prompt
     store.data.current_prompt2 = copyJson(workflow)
@@ -1315,6 +1323,19 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                         }}
                     >
                         Interrupt
+                    </button>
+                    <button
+                        className="btnSquare"
+                        style={{
+                            display: store.data.can_edit_nodes
+                                ? void 0
+                                : 'none',
+                        }}
+                        onClick={async () => {
+                            resetWorkflowData(store.data.selected_workflow_name)
+                        }}
+                    >
+                        Reset Workflow
                     </button>
                     <button
                         className="btnSquare"
