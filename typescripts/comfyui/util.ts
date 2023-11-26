@@ -284,12 +284,13 @@ export async function mapComfyOutputToStoreOutput(
             (Object.values(comfy_output[key]).flat() as ComfyOutputImage[]).map(
                 async (output: ComfyOutputImage) => {
                     try {
-                        if (
-                            ['png', 'gif'].includes(
-                                extractFormat(output.filename)
-                            )
-                        ) {
+                        if (['png'].includes(extractFormat(output.filename))) {
                             return await base64UrlFromComfy(output)
+                        } else if (
+                            ['gif'].includes(extractFormat(output.filename))
+                        ) {
+                            const url = `${comfyapi.comfy_api.comfy_url}/view?subfolder=${output.subfolder}&type=${output.type}&filename=${output.filename}`
+                            return url
                         }
                     } catch (e) {
                         console.error(output, e)
