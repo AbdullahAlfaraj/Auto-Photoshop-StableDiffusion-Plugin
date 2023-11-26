@@ -133,7 +133,7 @@ export const store = new AStore({
     cfg: 7.0,
     b_width_height_link: true,
     denoising_strength: 0.7,
-    hr_denoising_strength: 0.7,
+    hr_denoising_strength: 0.5,
     inpaint_full_res: false,
     enable_hr: false,
     sampler_name: 'Euler a',
