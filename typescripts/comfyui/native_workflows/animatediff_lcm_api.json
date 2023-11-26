@@ -1,0 +1,182 @@
+{
+  "2": {
+    "inputs": {
+      "vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"
+    },
+    "class_type": "VAELoader"
+  },
+  "4": {
+    "inputs": {
+      "stop_at_clip_layer": -1,
+      "clip": [
+        "32",
+        1
+      ]
+    },
+    "class_type": "CLIPSetLastLayer"
+  },
+  "6": {
+    "inputs": {
+      "text": "embedding:BadDream, ",
+      "clip": [
+        "4",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "7": {
+    "inputs": {
+      "seed": 888888891,
+      "steps": 8,
+      "cfg": 1.5,
+      "sampler_name": "lcm",
+      "scheduler": "sgm_uniform",
+      "denoise": 1,
+      "model": [
+        "36",
+        0
+      ],
+      "positive": [
+        "38",
+        0
+      ],
+      "negative": [
+        "6",
+        0
+      ],
+      "latent_image": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "KSampler"
+  },
+  "9": {
+    "inputs": {
+      "width": 512,
+      "height": 512,
+      "batch_size": 110
+    },
+    "class_type": "EmptyLatentImage"
+  },
+  "10": {
+    "inputs": {
+      "samples": [
+        "7",
+        0
+      ],
+      "vae": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "32": {
+    "inputs": {
+      "ckpt_name": "dreamshaper_8.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple"
+  },
+  "33": {
+    "inputs": {
+      "context_length": 16,
+      "context_stride": 1,
+      "context_overlap": 4,
+      "context_schedule": "uniform",
+      "closed_loop": false
+    },
+    "class_type": "ADE_AnimateDiffUniformContextOptions"
+  },
+  "36": {
+    "inputs": {
+      "model_name": "mm_sd_v15_v2.ckpt",
+      "beta_schedule": "sqrt_linear (AnimateDiff)",
+      "motion_scale": 1,
+      "apply_v2_models_properly": false,
+      "model": [
+        "42",
+        0
+      ],
+      "context_options": [
+        "33",
+        0
+      ]
+    },
+    "class_type": "ADE_AnimateDiffLoaderWithContext"
+  },
+  "37": {
+    "inputs": {
+      "frame_rate": 8,
+      "loop_count": 0,
+      "filename_prefix": "aaa_readme",
+      "format": "image/gif",
+      "pingpong": false,
+      "save_image": true,
+      "crf": 20,
+      "save_metadata": true,
+      "videopreview": {
+        "hidden": false,
+        "paused": false,
+        "params": {
+          "filename": "aaa_readme_00024.gif",
+          "subfolder": "",
+          "type": "output",
+          "format": "image/gif"
+        }
+      },
+      "images": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine"
+  },
+  "38": {
+    "inputs": {
+      "text": "\"0\" : \"Spring, flowers, smile\",\n\"20\" : \"Spring, flowers, smile\",\n\"30\" : \"Summer, sun, happy, windy\",\n\"50\" : \"Summer, sun, happy, windy\",\n\"60\" : \"Autumn, yellow leaves, laugh\",\n\"80\" : \"Autumn, yellow leaves, laugh\",\n\"90\" : \"Winter, wind, snow, smile, seductive\",\n\"110\" : \"Winter, wind snow, smile, seductive\"",
+      "max_frames": 110,
+      "print_output": false,
+      "pre_text": "25 year old woman, t-shirt",
+      "app_text": "",
+      "start_frame": 0,
+      "pw_a": 0,
+      "pw_b": 0,
+      "pw_c": 0,
+      "pw_d": 0,
+      "clip": [
+        "4",
+        0
+      ]
+    },
+    "class_type": "BatchPromptSchedule"
+  },
+  "41": {
+    "inputs": {
+      "lora_name": "lcm_lora_sd15.safetensors",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "32",
+        0
+      ],
+      "clip": [
+        "32",
+        1
+      ]
+    },
+    "class_type": "LoraLoader"
+  },
+  "42": {
+    "inputs": {
+      "sampling": "lcm",
+      "zsnr": false,
+      "model": [
+        "41",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingDiscrete"
+  }
+}
