@@ -101,7 +101,8 @@ export const store = new AStore<AStoreData>({
     CLIP_stop_at_last_layers: 1,
     use_smart_object: true, // true to keep layer as smart objects, false to rasterize them
     // selected_backend: 'Automatic1111' as 'Automatic1111' | 'ComfyUI',
-    selected_backend: 'ComfyUI' as 'Automatic1111' | 'ComfyUI',
+    selected_backend: (storage.localStorage.getItem('selected_backend') ||
+        'ComfyUI') as 'Automatic1111' | 'ComfyUI',
     comfy_url:
         storage.localStorage.getItem('comfy_url') || 'http://127.0.0.1:8188',
 })
@@ -213,6 +214,10 @@ export class Settings extends React.Component<{}> {
                                     onClick={(evt: any) => {
                                         store.data.selected_backend =
                                             evt.target.value
+                                        storage.localStorage.setItem(
+                                            'selected_backend',
+                                            store.data.selected_backend
+                                        )
                                     }}
                                     checked={
                                         store.data.selected_backend === backend
