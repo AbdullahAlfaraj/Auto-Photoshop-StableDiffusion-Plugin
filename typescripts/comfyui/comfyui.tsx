@@ -535,7 +535,7 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
         const node_name = node.class_type
         node_html = (
             <div>
-                New load image component
+                {/* New load image component */}
                 <div>
                     <button
                         className="btnSquare "
@@ -666,7 +666,7 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
         const node_name = node.class_type
         node_html = (
             <div>
-                New load Video component
+                {/* New load Video component */}
                 <div>
                     <button
                         className="btnSquare"
@@ -1052,7 +1052,8 @@ function renderInput(
                 <sp-checkbox
                     disabled={store.data.can_edit_nodes ? true : void 0}
                     title={name}
-                    value={inputs[name]}
+                    // value={inputs[name]}
+                    checked={inputs[name] ? true : void 0}
                     onClick={(evt: any) => {
                         inputs[name] = evt.target.checked
                     }}
