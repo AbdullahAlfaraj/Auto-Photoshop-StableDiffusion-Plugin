@@ -311,8 +311,9 @@ export class Txt2ImgMode extends Mode {
                     response_json = await this.requestControlNetTxt2Img(
                         settings
                     )
+                } else {
+                    response_json = await this.requestTxt2Img(settings) //this is automatic1111 txt2img
                 }
-                response_json = await this.requestTxt2Img(settings) //this is automatic1111 txt2img
 
                 output_images = await this.processOutput(
                     response_json.images_info,
@@ -500,11 +501,11 @@ export class Img2ImgMode extends Mode {
                     )
                 } else {
                     response_json = await this.requestImg2Img(settings)
-                    output_images = await this.processOutput(
-                        response_json.images_info,
-                        settings
-                    )
                 }
+                output_images = await this.processOutput(
+                    response_json.images_info,
+                    settings
+                )
             } else if (settings_tab.store.data.selected_backend === 'ComfyUI') {
                 settings = await mapPluginSettingsToControlNet(settings)
                 if (settings?.mode === 'img2img') {
