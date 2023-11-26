@@ -1348,136 +1348,176 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                 )
 
                                 .map(([node_id, node], index) => {
-                                    const is_output =
-                                        store.data.object_info[node.class_type]
-                                            .output_node
-                                    return (
-                                        <div
-                                            key={`node_${node_id}_${index}`}
-                                            style={{
-                                                border: '2px solid #6d6c6c',
-                                                borderColor: getBorderColor(
-                                                    is_output,
-                                                    store.data.last_moved ===
-                                                        node_id
-                                                ),
-
-                                                padding: '3px',
-                                            }}
-                                        >
+                                    try {
+                                        const is_output =
+                                            store.data.object_info[
+                                                node.class_type
+                                            ].output_node
+                                        return (
                                             <div
+                                                key={`node_${node_id}_${index}`}
                                                 style={{
-                                                    display: store.data
-                                                        .can_edit_nodes
-                                                        ? 'flex'
-                                                        : 'none',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'flex-end',
+                                                    border: '2px solid #6d6c6c',
+                                                    borderColor: getBorderColor(
+                                                        is_output,
+                                                        store.data
+                                                            .last_moved ===
+                                                            node_id
+                                                    ),
+
+                                                    padding: '3px',
                                                 }}
                                             >
-                                                <div>
-                                                    <button
-                                                        id={`${node_id}_swap_up`}
-                                                        style={{
-                                                            width: '26px',
-                                                        }}
-                                                        className="btnSquare"
-                                                        onClick={(e: any) => {
-                                                            store.data.last_moved =
-                                                                node_id
-                                                            console.log(
-                                                                'node_id assign to the swap button: ',
-                                                                node_id
-                                                            )
-                                                            swap(
-                                                                index,
-                                                                index - 1
-                                                            )
-                                                        }}
-                                                    >
-                                                        {' '}
-                                                        {'▲'}{' '}
-                                                    </button>
-                                                </div>
-                                                <div>
-                                                    <button
-                                                        id={`${node_id}_swap_down`}
-                                                        style={{
-                                                            width: '26px',
-                                                        }}
-                                                        className="btnSquare"
-                                                        onClick={() => {
-                                                            store.data.last_moved =
-                                                                node_id
-                                                            swap(
-                                                                index,
-                                                                index + 1
-                                                            )
-                                                        }}
-                                                    >
-                                                        {' '}
-                                                        {'▼'}{' '}
-                                                    </button>
-                                                    {/* <span ></span> */}
-                                                </div>
-                                            </div>
-                                            <sp-label>
-                                                "{node_id}":{' '}
-                                                <span
+                                                <div
                                                     style={{
-                                                        color: store.data
+                                                        display: store.data
                                                             .can_edit_nodes
-                                                            ? 'white'
+                                                            ? 'flex'
+                                                            : 'none',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'flex-end',
+                                                    }}
+                                                >
+                                                    <div>
+                                                        <button
+                                                            id={`${node_id}_swap_up`}
+                                                            style={{
+                                                                width: '26px',
+                                                            }}
+                                                            className="btnSquare"
+                                                            onClick={(
+                                                                e: any
+                                                            ) => {
+                                                                store.data.last_moved =
+                                                                    node_id
+                                                                console.log(
+                                                                    'node_id assign to the swap button: ',
+                                                                    node_id
+                                                                )
+                                                                swap(
+                                                                    index,
+                                                                    index - 1
+                                                                )
+                                                            }}
+                                                        >
+                                                            {' '}
+                                                            {'▲'}{' '}
+                                                        </button>
+                                                    </div>
+                                                    <div>
+                                                        <button
+                                                            id={`${node_id}_swap_down`}
+                                                            style={{
+                                                                width: '26px',
+                                                            }}
+                                                            className="btnSquare"
+                                                            onClick={() => {
+                                                                store.data.last_moved =
+                                                                    node_id
+                                                                swap(
+                                                                    index,
+                                                                    index + 1
+                                                                )
+                                                            }}
+                                                        >
+                                                            {' '}
+                                                            {'▼'}{' '}
+                                                        </button>
+                                                        {/* <span ></span> */}
+                                                    </div>
+                                                </div>
+                                                <sp-label>
+                                                    "{node_id}":{' '}
+                                                    <span
+                                                        style={{
+                                                            color: store.data
+                                                                .can_edit_nodes
+                                                                ? 'white'
+                                                                : void 0,
+                                                        }}
+                                                    >
+                                                        {
+                                                            store.data
+                                                                .nodes_label[
+                                                                node_id
+                                                            ]
+                                                        }
+                                                    </span>{' '}
+                                                </sp-label>{' '}
+                                                <sp-label
+                                                    style={{
+                                                        display: store.data
+                                                            .can_edit_nodes
+                                                            ? void 0
+                                                            : 'none',
+                                                    }}
+                                                >
+                                                    {node.class_type}
+                                                </sp-label>
+                                                <div
+                                                    style={{
+                                                        display: !store.data
+                                                            .can_edit_nodes
+                                                            ? 'none'
                                                             : void 0,
                                                     }}
                                                 >
-                                                    {
-                                                        store.data.nodes_label[
-                                                            node_id
-                                                        ]
-                                                    }
-                                                </span>{' '}
-                                            </sp-label>{' '}
-                                            <sp-label
-                                                style={{
-                                                    display: store.data
-                                                        .can_edit_nodes
-                                                        ? void 0
-                                                        : 'none',
-                                                }}
-                                            >
-                                                {node.class_type}
-                                            </sp-label>
-                                            <div
-                                                style={{
-                                                    display: !store.data
-                                                        .can_edit_nodes
-                                                        ? 'none'
-                                                        : void 0,
-                                                }}
-                                            >
-                                                <sp-textfield
-                                                    type="text"
-                                                    placeholder="write a node label"
-                                                    value={
-                                                        store.data.nodes_label[
-                                                            node_id
-                                                        ]
-                                                    }
-                                                    onInput={(event: any) => {
-                                                        store.data.nodes_label[
-                                                            node_id
-                                                        ] = event.target.value
-                                                    }}
-                                                ></sp-textfield>
+                                                    <sp-textfield
+                                                        type="text"
+                                                        placeholder="write a node label"
+                                                        value={
+                                                            store.data
+                                                                .nodes_label[
+                                                                node_id
+                                                            ]
+                                                        }
+                                                        onInput={(
+                                                            event: any
+                                                        ) => {
+                                                            store.data.nodes_label[
+                                                                node_id
+                                                            ] =
+                                                                event.target.value
+                                                        }}
+                                                    ></sp-textfield>
+                                                </div>
+                                                {renderNode(
+                                                    node_id,
+                                                    node,
+                                                    is_output
+                                                )}
                                             </div>
-                                            {renderNode(
-                                                node_id,
-                                                node,
-                                                is_output
-                                            )}
-                                        </div>
-                                    )
+                                        )
+                                    } catch (e) {
+                                        console.error(
+                                            `node_id: ${node_id}`,
+                                            'node:',
+                                            toJS(node),
+                                            'node.class_type',
+                                            node.class_type,
+                                            'store.data.object_info[node.class_type]: ',
+                                            store.data.object_info[
+                                                node.class_type
+                                            ],
+                                            'error: ',
+                                            e
+                                        )
+                                        return (
+                                            <sp-label
+                                                id=""
+                                                style={{
+                                                    color: '#ff595e',
+                                                    whiteSpace: 'normal',
+                                                }}
+                                            >
+                                                {Locale(
+                                                    `Error: Node ${node.class_type} is
+                                                missing, please install it from
+                                                comfyui manager`
+                                                )}
+                                            </sp-label>
+                                        )
+                                    }
                                 })}
                         </div>
                     </>
