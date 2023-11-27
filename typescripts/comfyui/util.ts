@@ -221,6 +221,11 @@ export async function postPromptAndGetBase64JsonResult(
 }> {
     try {
         const res = await comfyapi.comfy_api.prompt(prompt)
+        if (!res) {
+            throw new Error(
+                `Unable to establish a connection to ComfyUI at the provided address: ${comfyapi.comfy_api.comfy_url}. Please ensure that ComfyUI is online and the URL is correct.`
+            )
+        }
         if (res.error) {
             const readable_error = comfyapi.comfy_api.getReadableError(res)
             throw new Error(readable_error)
