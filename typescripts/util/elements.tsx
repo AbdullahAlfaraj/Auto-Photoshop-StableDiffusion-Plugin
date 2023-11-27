@@ -165,8 +165,6 @@ export class SpSliderWithLabel extends React.Component<{
             <div>
                 <SpSlider
                     show-value="false"
-                    // id="slControlNetWeight_0"
-                    class="slControlNetWeight_"
                     disabled={this.props.disabled ? true : void 0}
                     min={this.in_min}
                     max={this.in_max}

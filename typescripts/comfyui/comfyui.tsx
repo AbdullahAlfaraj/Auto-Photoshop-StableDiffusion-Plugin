@@ -501,7 +501,8 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
     const node_type = util.getNodeType(node.class_type)
     let node_html
 
-    node_html = Object.entries(node.inputs).map(([name, value], index) => {
+    const inputs = toJS(node.inputs)
+    node_html = Object.entries(inputs).map(([name, value], index) => {
         // store.data.current_prompt2[node_id].inputs[name] = value
         try {
             const input = comfy_node_info.input.required[name]
@@ -526,6 +527,11 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
             return html_element
         } catch (e) {
             console.error(e)
+            return (
+                <div key={`${node_id}_${name}__${index}` ?? void 0}>
+                    {/* {name},{type}, {JSON.stringify(config)} */}
+                </div>
+            )
         }
     })
 

@@ -147,7 +147,7 @@ export function parseComfyInput(
     config: any
 } {
     let input_type: ComfyInputType = ComfyInputType.Skip
-    let input_config
+    let input_config = input_info?.[1] || void 0
     if (input_info === undefined) {
         return { type: input_type, config: input_config }
     }
@@ -155,13 +155,21 @@ export function parseComfyInput(
     try {
         const value = input_info[0]
 
-        if (name === 'seed' && !Array.isArray(prompt_value)) {
+        if (
+            (name === 'seed' || name === 'noise_seed') &&
+            !Array.isArray(prompt_value)
+        ) {
             input_type = ComfyInputType.Seed // similar to big number
             input_config = input_info[1]
         } else if (typeof value === 'string') {
             if (value === 'FLOAT' && !Array.isArray(prompt_value)) {
-                input_type = ComfyInputType.Slider
-                input_config = input_info[1]
+                if (Number.isSafeInteger(input_config?.max)) {
+                    input_type = ComfyInputType.Slider
+                    input_config = input_info[1]
+                } else {
+                    input_type = ComfyInputType.TextFieldNumber
+                    input_config = input_info[1]
+                }
             } else if (value === 'INT' && !Array.isArray(prompt_value)) {
                 if (input_info[1].max > Number.MAX_SAFE_INTEGER) {
                     input_type = ComfyInputType.BigNumber
