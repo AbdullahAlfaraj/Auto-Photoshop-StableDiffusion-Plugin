@@ -1130,6 +1130,11 @@ function loadWorkflow2(workflow: any) {
             }
         )
     )
+    store.data.is_random_seed = Object.fromEntries(
+        Object.keys(toJS(store.data.current_prompt2)).map((node_id: string) => {
+            return [node_id, false]
+        })
+    )
 
     // parse the output nodes
     // Note: we can't modify the node directly in the prompt like we do for input nodes.

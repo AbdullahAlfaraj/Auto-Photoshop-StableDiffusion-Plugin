@@ -467,9 +467,15 @@ function runRandomSeedScript() {
                     0n,
                     18446744073709552000n
                 )
-                store.data.current_prompt2[node_id].inputs['seed'] =
-                    random_seed.toString()
-                // Usage
+                Object.keys(store.data.current_prompt2[node_id].inputs).forEach(
+                    (name: string) => {
+                        if (['seed', 'noise_seed'].includes(name)) {
+                            store.data.current_prompt2[node_id].inputs[name] =
+                                random_seed.toString()
+                            // Usage
+                        }
+                    }
+                )
             }
         }
     )
