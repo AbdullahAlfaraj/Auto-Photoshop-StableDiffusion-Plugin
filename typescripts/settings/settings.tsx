@@ -255,7 +255,7 @@ export class Settings extends React.Component<{}> {
                 ></SpMenu>
 
                 <div style={{ width: '100%' }}>
-                    <sp-label>select language</sp-label>
+                    <sp-label>{Locale('select language:')}</sp-label>
                 </div>
                 <SpMenu
                     title="select language"
@@ -280,10 +280,7 @@ export class Settings extends React.Component<{}> {
                         onChange={onShouldLogToFileChange}
                         checked={store.data.should_log_to_file}
                     >
-                        {
-                            //@ts-ignore
-                            Locale('Log Errors To File')
-                        }
+                        {Locale('Log Errors To File')}
                     </SpCheckBox>
                 </div>
 
@@ -348,7 +345,7 @@ export class Settings extends React.Component<{}> {
                         }}
                         style={{ display: 'inline-flex' }}
                     >
-                        Image Cfg Scale Slider
+                        {Locale('Image Cfg Scale Slider')}
                     </sp-checkbox>
                 </div>
                 <div>
@@ -359,12 +356,14 @@ export class Settings extends React.Component<{}> {
                             store.data.use_sharp_mask = evt.target.checked
                         }}
                     >
-                        use sharp mask
+                        {Locale('use sharp mask')}
                     </sp-checkbox>
                 </div>
                 <div>
                     <sp-radio-group selected={store.data.extension_type}>
-                        <sp-label slot="label">Select Extension:</sp-label>
+                        <sp-label slot="label">
+                            {Locale('Select Extension:')}
+                        </sp-label>
                         {[
                             ExtensionTypeEnum.ProxyServer,
                             ExtensionTypeEnum.Auto1111Extension,
@@ -387,7 +386,7 @@ export class Settings extends React.Component<{}> {
                                             evt.target.value
                                     }}
                                 >
-                                    {config[extension_type].label}
+                                    {Locale(config[extension_type].label)}
                                 </sp-radio>
                             )
                         })}
@@ -410,7 +409,7 @@ export class Settings extends React.Component<{}> {
                             )
                         }}
                     >
-                        Turn Off Server Status Alert
+                        {Locale('Turn Off Server Status Alert')}
                     </sp-checkbox>
                 </div>
                 <div>
@@ -452,7 +451,7 @@ export class Settings extends React.Component<{}> {
                                 : false
                         }}
                     >
-                        Smart Object
+                        {Locale('Smart Object')}
                     </sp-checkbox>
                 </div>
             </div>

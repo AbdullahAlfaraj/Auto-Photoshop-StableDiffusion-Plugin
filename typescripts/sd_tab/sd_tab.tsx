@@ -403,7 +403,10 @@ class SDTab extends React.Component<{}> {
                             padding: '3px',
                         }}
                     >
-                        <Collapsible defaultIsOpen={true} label={'Prompts'}>
+                        <Collapsible
+                            defaultIsOpen={true}
+                            label={Locale('Prompts')}
+                        >
                             <MultiTextArea />
                         </Collapsible>
                     </div>
@@ -425,7 +428,7 @@ class SDTab extends React.Component<{}> {
                                             : void 0
                                     }
                                 >
-                                    {config.name}
+                                    {Locale(config.name)}
                                 </sp-radio>
                             )
                         })}
@@ -527,7 +530,7 @@ class SDTab extends React.Component<{}> {
                                     alignItems: 'flex-start',
                                 }}
                             >
-                                <sp-label>Batch Size:</sp-label>
+                                <sp-label>{Locale('Batch Size:')}</sp-label>
                                 <SpTextfield
                                     style={{ width: '100%' }}
                                     title="the number of images to generate at once.The larger the number more VRAM stable diffusion will use."
@@ -553,7 +556,7 @@ class SDTab extends React.Component<{}> {
                                     alignItems: 'flex-start',
                                 }}
                             >
-                                <sp-label>Batch Count:</sp-label>
+                                <sp-label>{Locale('Batch Count:')}</sp-label>
                                 <SpTextfield
                                     style={{ width: '100%' }}
                                     title="the number of images to generate in queue. The larger the number the longer will take."
@@ -577,7 +580,7 @@ class SDTab extends React.Component<{}> {
                                 }}
                             >
                                 <sp-label id="sdLabelSampleStep">
-                                    Sampling Steps
+                                    {Locale('Sampling Steps:')}
                                 </sp-label>
                                 <SpTextfield
                                     style={{ width: '100%' }}
@@ -597,7 +600,7 @@ class SDTab extends React.Component<{}> {
                     <div id="selectionMode">
                         <div>
                             <sp-label id="rbSelectionModeLabel" slot="label">
-                                Selection Mode:
+                                {Locale('Selection Mode:')}
                             </sp-label>
                         </div>
 
@@ -637,7 +640,7 @@ class SDTab extends React.Component<{}> {
                                                     }
                                                 }}
                                             >
-                                                {selection_mode.name}
+                                                {Locale(selection_mode.name)}
                                             </sp-radio>
                                         )
                                     }
@@ -767,7 +770,7 @@ class SDTab extends React.Component<{}> {
                                 }}
                             >
                                 <sp-label slot="label" class="title">
-                                    Width:
+                                    {Locale('Width:')}
                                 </sp-label>
                                 <sp-label
                                     class="labelNumber"
@@ -808,7 +811,7 @@ class SDTab extends React.Component<{}> {
                                 }}
                             >
                                 <sp-label slot="label" class="title">
-                                    Height:
+                                    {Locale('Height:')}
                                 </sp-label>
                                 <sp-label
                                     class="labelNumber"
@@ -851,7 +854,7 @@ class SDTab extends React.Component<{}> {
                                 }}
                             >
                                 <sp-label slot="label" class="title">
-                                    CFG Scale:
+                                    {Locale('CFG Scale:')}
                                 </sp-label>
                             </SpSlider>
 
@@ -876,7 +879,7 @@ class SDTab extends React.Component<{}> {
                                 }}
                             >
                                 <sp-label slot="label" class="title">
-                                    Denoising Strength:
+                                    {Locale('Denoising Strength:')}
                                 </sp-label>
                                 <sp-label slot="label" id="lDenoisingStrength">
                                     {store.data.denoising_strength.toFixed(2)}
@@ -995,7 +998,9 @@ class SDTab extends React.Component<{}> {
                                 }
                             }}
                         >
-                            <sp-label slot="label">Mask Expansion:</sp-label>
+                            <sp-label slot="label">
+                                {Locale('Mask Expansion:')}
+                            </sp-label>
                         </SpSlider>
 
                         <div style={{ display: 'flex' }}>
@@ -1080,7 +1085,7 @@ class SDTab extends React.Component<{}> {
                                                     mask_content.value
                                             }}
                                         >
-                                            {mask_content.name}
+                                            {Locale(`${mask_content.name}`)}
                                         </sp-radio>
                                     )
                                 })}
@@ -1116,7 +1121,7 @@ class SDTab extends React.Component<{}> {
                                         evt.target.checked
                                 }}
                             >
-                                Restore Faces
+                                {Locale('Restore Faces')}
                             </SpCheckBox>
                             <SpCheckBox
                                 class="checkbox"
@@ -1129,7 +1134,7 @@ class SDTab extends React.Component<{}> {
                                     store.data.enable_hr = evt.target.checked
                                 }}
                             >
-                                Hi Res Fix
+                                {Locale('Hi Res Fix')}
                             </SpCheckBox>
                             <SpCheckBox
                                 class="checkbox"
@@ -1139,7 +1144,7 @@ class SDTab extends React.Component<{}> {
                                     store.data.tiling = evt.target.checked
                                 }}
                             >
-                                tiling
+                                {Locale('Tiling')}
                             </SpCheckBox>
                         </div>
                         <div
@@ -1361,7 +1366,9 @@ class SDTab extends React.Component<{}> {
 
                     <div>
                         <div style={{ display: 'flex' }}>
-                            <sp-label id="sdLabelSeed">Seed:</sp-label>
+                            <sp-label id="sdLabelSeed">
+                                {Locale('Seed:')}
+                            </sp-label>
                             <sp-textfield
                                 id="tiSeed"
                                 placeholder="Seed"
@@ -1381,7 +1388,7 @@ class SDTab extends React.Component<{}> {
                                     store.data.seed = '-1'
                                 }}
                             >
-                                Random
+                                {Locale('Random')}
                             </button>
                             <button
                                 className="btnSquare"
@@ -1391,7 +1398,7 @@ class SDTab extends React.Component<{}> {
                                         session_store.data.last_seed
                                 }}
                             >
-                                Last
+                                {Locale('Last')}
                             </button>
                         </div>
                         <button
@@ -1415,7 +1422,9 @@ class SDTab extends React.Component<{}> {
                                     : 'none',
                             }}
                         >
-                            <sp-label slot="label">Select Sampler:</sp-label>
+                            <sp-label slot="label">
+                                {Locale('Select Sampler:')}
+                            </sp-label>
                             {(helper_store.data.sampler_list || []).map(
                                 (sampler: any, index: number) => {
                                     return (

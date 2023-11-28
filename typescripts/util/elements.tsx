@@ -496,8 +496,7 @@ export const ScriptInstallComponent = observer(
                     Automatic1111 webui
                 </sp-label>
                 <button
-                    className="btnSquare refreshButton"
-                    id="btnResetSettings"
+                    className="btnSquare refreshButton btnResetSettings"
                     title="Refresh the ADetailer Extension"
                     onClick={onRefreshHandler}
                 ></button>
@@ -626,7 +625,21 @@ export class SearchableMenu extends React.Component<{
                                 () => {
                                     console.log('onBlur:', evt.target.value)
 
-                                    this.setState({ openMenu: false })
+                                    const state_values: Record<string, any> = {}
+                                    if (
+                                        !this.props.allItems.includes(
+                                            this.state.searchQuery
+                                        )
+                                    ) {
+                                        state_values.searchQuery = ''
+
+                                        if (this.props.onSelectItemFailure) {
+                                            state_values.searchQuery =
+                                                this.props.onSelectItemFailure()
+                                        }
+                                    }
+                                    state_values.openMenu = false
+                                    this.setState(state_values)
 
                                     console.log(
                                         'this.state.searchQuery: ',
