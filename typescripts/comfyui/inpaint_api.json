@@ -193,29 +193,11 @@
     },
     "class_type": "LoadImage"
   },
-  "126": {
-    "inputs": {
-      "Value": 512
-    },
-    "class_type": "Integer"
-  },
-  "127": {
-    "inputs": {
-      "Value": 768
-    },
-    "class_type": "Integer"
-  },
   "135": {
     "inputs": {
       "content_mask": "original",
-      "width": [
-        "126",
-        0
-      ],
-      "height": [
-        "127",
-        0
-      ],
+      "width": 512,
+      "height": 768,
       "seed": [
         "141",
         0
@@ -296,7 +278,7 @@
       "start_percent_2": 0,
       "end_percent_2": 1,
       "resolution_2": 512,
-      "is_enabled_3": "disable",
+      "is_enabled_3": "enable",
       "preprocessor_name_3": "InpaintPreprocessor",
       "control_net_name_3": "control_lora_rank128_v11p_sd15_inpaint_fp16.safetensors",
       "strength_3": 1,
