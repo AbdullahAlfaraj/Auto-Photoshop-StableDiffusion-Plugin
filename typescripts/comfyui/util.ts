@@ -82,6 +82,7 @@ export const store = new AStore({
     nodes_label: {} as Record<string, string>,
 
     workflows2: workflows2 as Record<string, any>,
+    user_custom_workflow: {} as Record<string, any>,
     progress_value: 0,
     is_random_seed: {} as Record<string, boolean>,
     last_moved: undefined as string | undefined, // the last node that has been moved in the edit mode
@@ -241,6 +242,12 @@ export async function postPromptAndGetBase64JsonResult(
         const prompt_id = res.prompt_id
         const history = await getHistory(prompt_id)
         const promptInfo = history[prompt_id]
+        if (Object.keys(promptInfo.outputs).length === 0) {
+            throw new Error(
+                `No images were generated. Please check the ComfyUI console for potential errors.`
+            )
+        }
+
         const { outputs, separated_outputs } =
             await mapComfyOutputToStoreOutput(
                 promptInfo.outputs,

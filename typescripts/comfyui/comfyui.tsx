@@ -94,7 +94,8 @@ export async function workflowEntries() {
 
         let entries = await workflow_folder.getEntries()
         const workflow_entries = entries.filter(
-            (e: any) => e.isFile && e.name.toLowerCase().includes('.png') // must be a file and has the of the type .png
+            // (e: any) => e.isFile && e.name.toLowerCase().includes('.png') // must be a file and has the of the type .png
+            (e: any) => e.isFile && e.name.toLowerCase().includes('.json') // must be a file and has the of the type .json
         )
 
         console.log('workflow_entries: ', workflow_entries)
@@ -102,6 +103,8 @@ export async function workflowEntries() {
         return workflow_entries
     } catch (e) {
         console.error(e)
+        // throw e
+        return []
     }
 }
 export async function postPrompt(prompt: any) {
@@ -1113,99 +1116,114 @@ function resetWorkflowData(workflow_name: string) {
     // resetNodeOrder()
 }
 function loadWorkflow2(workflow: any) {
-    //1) get prompt
-    store.data.current_prompt2 = copyJson(workflow)
+    try {
+        //1) get prompt
+        store.data.current_prompt2 = copyJson(workflow)
 
-    //2)  get the original order
-    store.data.nodes_order = Object.keys(toJS(store.data.current_prompt2))
+        //2)  get the original order
+        store.data.nodes_order = Object.keys(toJS(store.data.current_prompt2))
 
-    //3) get labels for each nodes
-    store.data.nodes_label = Object.fromEntries(
-        Object.entries(toJS(store.data.current_prompt2)).map(
-            ([node_id, node]: [string, any]) => {
-                return [
-                    node_id,
-                    toJS(store.data.object_info[node.class_type]).display_name,
-                ]
-            }
+        //3) get labels for each nodes
+        store.data.nodes_label = Object.fromEntries(
+            Object.entries(toJS(store.data.current_prompt2)).map(
+                ([node_id, node]: [string, any]) => {
+                    if (!(node.class_type in store.data.object_info)) {
+                        throw new Error(
+                            `ComfyUI Node of type "${node.class_type}" is not found. Please ensure it is installed via the ComfyUI Manager.`
+                        )
+                    }
+
+                    return [
+                        node_id,
+                        toJS(store.data.object_info[node.class_type])
+                            .display_name,
+                    ]
+                }
+            )
         )
-    )
-    store.data.is_random_seed = Object.fromEntries(
-        Object.keys(toJS(store.data.current_prompt2)).map((node_id: string) => {
-            return [node_id, false]
-        })
-    )
+        store.data.is_random_seed = Object.fromEntries(
+            Object.keys(toJS(store.data.current_prompt2)).map(
+                (node_id: string) => {
+                    return [node_id, false]
+                }
+            )
+        )
 
-    // parse the output nodes
-    // Note: we can't modify the node directly in the prompt like we do for input nodes.
-    //.. since this data doesn't exist on the prompt. so we create separate container for the output images
-    store.data.current_prompt2_output = Object.entries(
-        store.data.current_prompt2
-    ).reduce(
-        (
-            output_entries: Record<string, any[]>,
-            [node_id, node]: [string, any]
-        ) => {
-            if (store.data.object_info[node.class_type].output_node) {
-                output_entries[node_id] = []
-            }
-            return output_entries
-        },
-        {}
-    )
+        // parse the output nodes
+        // Note: we can't modify the node directly in the prompt like we do for input nodes.
+        //.. since this data doesn't exist on the prompt. so we create separate container for the output images
+        store.data.current_prompt2_output = Object.entries(
+            store.data.current_prompt2
+        ).reduce(
+            (
+                output_entries: Record<string, any[]>,
+                [node_id, node]: [string, any]
+            ) => {
+                if (store.data.object_info[node.class_type].output_node) {
+                    output_entries[node_id] = []
+                }
+                return output_entries
+            },
+            {}
+        )
 
-    //slider variables for output nodes
-    //TODO: delete store.data.output_thumbnail_image_size before loading a new workflow
-    for (let key in toJS(store.data.current_prompt2_output)) {
-        store.data.output_thumbnail_image_size[key] = 200
-    }
-
-    const workflow_name = store.data.selected_workflow_name
-    if (workflow_name) {
-        // check if the workflow has a name
-
-        if (workflow_name in storage.localStorage) {
-            //load the workflow data from local storage
-            //1) load the last parameters used in generation
-            //2) load the order of the nodes
-            //3) load the labels of the nodes
-
-            const workflow_data: WorkflowData = loadWorkflowData(workflow_name)
-            if (
-                util.isSameStructure(
-                    workflow_data.prompt,
-                    toJS(store.data.current_prompt2)
-                )
-            ) {
-                //load 1)
-                store.data.current_prompt2 = workflow_data.prompt
-                //load 2)
-                store.data.nodes_order = workflow_data.nodes_order
-                //load 3)
-                store.data.nodes_label = workflow_data.nodes_label
-            } else {
-                // do not load. instead override the localStorage with the new values
-                workflow_data.prompt = toJS(store.data.current_prompt2)
-                workflow_data.nodes_order = toJS(store.data.nodes_order)
-                workflow_data.nodes_label = toJS(store.data.nodes_label)
-
-                saveWorkflowData(workflow_name, workflow_data)
-            }
-        } else {
-            // if workflow data is missing from local storage then save it for next time.
-            //1) save parameters values
-            //2) save nodes order
-            //3) save nodes label
-
-            const prompt = toJS(store.data.current_prompt2)
-            const nodes_order = toJS(store.data.nodes_order)
-            const nodes_label = toJS(store.data.nodes_label)
-            saveWorkflowData(workflow_name, {
-                prompt,
-                nodes_order,
-                nodes_label,
-            })
+        //slider variables for output nodes
+        //TODO: delete store.data.output_thumbnail_image_size before loading a new workflow
+        for (let key in toJS(store.data.current_prompt2_output)) {
+            store.data.output_thumbnail_image_size[key] = 200
         }
+
+        const workflow_name = store.data.selected_workflow_name
+        if (workflow_name) {
+            // check if the workflow has a name
+
+            if (workflow_name in storage.localStorage) {
+                //load the workflow data from local storage
+                //1) load the last parameters used in generation
+                //2) load the order of the nodes
+                //3) load the labels of the nodes
+
+                const workflow_data: WorkflowData =
+                    loadWorkflowData(workflow_name)
+                if (
+                    util.isSameStructure(
+                        workflow_data.prompt,
+                        toJS(store.data.current_prompt2)
+                    )
+                ) {
+                    //load 1)
+                    store.data.current_prompt2 = workflow_data.prompt
+                    //load 2)
+                    store.data.nodes_order = workflow_data.nodes_order
+                    //load 3)
+                    store.data.nodes_label = workflow_data.nodes_label
+                } else {
+                    // do not load. instead override the localStorage with the new values
+                    workflow_data.prompt = toJS(store.data.current_prompt2)
+                    workflow_data.nodes_order = toJS(store.data.nodes_order)
+                    workflow_data.nodes_label = toJS(store.data.nodes_label)
+
+                    saveWorkflowData(workflow_name, workflow_data)
+                }
+            } else {
+                // if workflow data is missing from local storage then save it for next time.
+                //1) save parameters values
+                //2) save nodes order
+                //3) save nodes label
+
+                const prompt = toJS(store.data.current_prompt2)
+                const nodes_order = toJS(store.data.nodes_order)
+                const nodes_label = toJS(store.data.nodes_label)
+                saveWorkflowData(workflow_name, {
+                    prompt,
+                    nodes_order,
+                    nodes_label,
+                })
+            }
+        }
+    } catch (e) {
+        console.error(e)
+        app.showAlert(`${e}`)
     }
 }
 
@@ -1395,13 +1413,50 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                         }}
                     ></SpMenu>{' '}
                     <button
-                        className="btnSquare refreshButton"
-                        id="btnResetSettings"
-                        title="Refresh the ADetailer Extension"
+                        className="btnSquare refreshButton btnResetSettings"
+                        title="reload the current workflow"
                         onClick={async () => {
-                            // await getConfig()
+                            loadWorkflow2(
+                                store.data.workflows2[
+                                    store.data.selected_workflow_name
+                                ]
+                            )
                         }}
                     ></button>
+                    <button
+                        className="btnSquare"
+                        style={{ marginLeft: '3px' }}
+                        onClick={async () => {
+                            try {
+                                const entries = await workflowEntries()
+
+                                if (entries.length > 0) {
+                                    store.data.user_custom_workflow = {}
+                                    for (const entry of entries) {
+                                        const json = JSON.parse(
+                                            await entry.read({
+                                                format: storage.formats.utf8,
+                                            })
+                                        )
+                                        const workflow_name =
+                                            entry.name.split('.json')[0]
+                                        store.data.user_custom_workflow[
+                                            workflow_name
+                                        ] = json
+                                    }
+
+                                    store.data.workflows2 = {
+                                        ...store.data.workflows2,
+                                        ...store.data.user_custom_workflow,
+                                    }
+                                }
+                            } catch (e) {
+                                console.error(e)
+                            }
+                        }}
+                    >
+                        Load
+                    </button>
                 </div>
 
                 {store.data.object_info ? (
