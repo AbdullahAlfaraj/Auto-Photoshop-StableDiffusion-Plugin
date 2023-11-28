@@ -817,7 +817,8 @@ export default class ControlNetUnit extends React.Component<
                                 selected_item={storeData.module}
                                 onSelectItemFailure={() => {
                                     const default_value =
-                                        storeData.module_list[0] || 'None'
+                                        // storeData.module_list[0] || 'None'
+                                        'None'
 
                                     storeData.module = default_value
                                     return default_value
@@ -841,11 +842,12 @@ export default class ControlNetUnit extends React.Component<
                                 /> */}
                                 <SearchableMenu
                                     allItems={storeData.model_list || ['none']}
-                                    placeholder={Locale('Select Module')}
+                                    placeholder={Locale('Selec Model')}
                                     selected_item={storeData.model}
                                     onSelectItemFailure={() => {
                                         const default_value =
-                                            storeData.model_list[0] || 'None'
+                                            // storeData.model_list[0] || 'None'
+                                            'None'
                                         storeData.model = default_value
                                         return default_value
                                     }}
