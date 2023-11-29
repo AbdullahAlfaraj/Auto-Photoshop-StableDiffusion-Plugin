@@ -28,7 +28,7 @@ class ComfyAPI {
     }
     async init() {
         try {
-            this.object_info = await this.getObjectInfo(this.comfy_url)
+            this.object_info = await this.initializeObjectInfo(this.comfy_url)
             this.status = true
             return this.object_info
         } catch (e) {
@@ -41,7 +41,7 @@ class ComfyAPI {
         this.comfy_url = comfy_url
     }
     async refresh() {
-        this.object_info = await this.getObjectInfo(this.comfy_url)
+        this.object_info = await this.initializeObjectInfo(this.comfy_url)
     }
     async queue() {
         const res = await requestGet(`${this.comfy_url}/queue`)
@@ -82,13 +82,21 @@ class ComfyAPI {
         return Buffer.from(ab).toString('base64')
     }
 
-    async getObjectInfo(comfy_url: string) {
+    async initializeObjectInfo(comfy_url: string) {
         try {
             const full_url = `${comfy_url}/object_info`
             const object_info = await requestGet(full_url)
             if (!object_info)
                 throw `can not request from comfyui url: ${comfy_url}`
             return object_info
+        } catch (e) {
+            console.error(e)
+            throw e
+        }
+    }
+    getObjectInfo() {
+        try {
+            return this.object_info
         } catch (e) {
             console.error(e)
             throw e

@@ -1416,6 +1416,8 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                         className="btnSquare refreshButton btnResetSettings"
                         title="reload the current workflow"
                         onClick={async () => {
+                            store.data.object_info =
+                             comfyapi.comfy_api.getObjectInfo()
                             loadWorkflow2(
                                 store.data.workflows2[
                                     store.data.selected_workflow_name
