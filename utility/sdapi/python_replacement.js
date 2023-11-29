@@ -397,7 +397,7 @@ async function loadPromptShortcut(file_name) {
         if (file.isFile) {
             await file.write('{}', {append: false});
             data = {};
-            return file;
+            return data
         }
         console.warn(e)
         return {}
