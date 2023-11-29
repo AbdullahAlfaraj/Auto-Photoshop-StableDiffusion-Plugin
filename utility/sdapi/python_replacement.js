@@ -393,6 +393,12 @@ async function loadPromptShortcut(file_name) {
             return json
         }
     } catch (e) {
+        const file = await folder.createFile('prompt_shortcut.json', {type: storage.types.file, overwrite: true});
+        if (file.isFile) {
+            await file.write('{}', {append: false});
+            data = {};
+            return data
+        }
         console.warn(e)
         return {}
     }
