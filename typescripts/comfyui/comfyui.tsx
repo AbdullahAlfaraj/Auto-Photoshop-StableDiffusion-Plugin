@@ -1417,7 +1417,7 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                         title="reload the current workflow"
                         onClick={async () => {
                             store.data.object_info =
-                             comfyapi.comfy_api.getObjectInfo()
+                                comfyapi.comfy_api.getObjectInfo()
                             loadWorkflow2(
                                 store.data.workflows2[
                                     store.data.selected_workflow_name
@@ -1666,7 +1666,7 @@ root.render(
     //<React.StrictMode>
     <ErrorBoundary>
         <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-            <Collapsible defaultIsOpen={true} label={Locale('ComfyUI')}>
+            <Collapsible defaultIsOpen={true} label={Locale('Custom ComfyUI Workflow')}>
                 {/* <ComfyNodeComponent></ComfyNodeComponent> */}
 
                 <ComfyWorkflowComponent />
