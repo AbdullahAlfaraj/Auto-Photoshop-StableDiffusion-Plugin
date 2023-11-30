@@ -2,7 +2,7 @@ import { storage } from 'uxp'
 
 declare let g_sd_url: string
 export async function requestGet(url: string) {
-    let json = null
+    let data = null
 
     const full_url = url
     try {
@@ -11,14 +11,31 @@ export async function requestGet(url: string) {
             return null
         }
 
-        json = await request.json()
+        const contentType = request.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+            data = await request.json()
+        } else if (
+            contentType &&
+            contentType.includes('application/octet-stream')
+        ) {
+            data = await request.arrayBuffer()
+        } else if (
+            contentType &&
+            (contentType.includes('image/jpeg') ||
+                contentType.includes('image/png'))
+        ) {
+            data = await request.arrayBuffer()
+        } else {
+            data = await request.text()
+        }
 
-        // console.log('json: ', json)
+        // console.log('data: ', data)
     } catch (e) {
         console.warn(`issues requesting from ${full_url}`, e)
     }
-    return json
+    return data
 }
+
 export async function requestPost(url: string, payload: any) {
     let json = null
 

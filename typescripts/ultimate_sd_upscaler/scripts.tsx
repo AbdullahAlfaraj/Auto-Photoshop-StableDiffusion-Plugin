@@ -8,6 +8,7 @@ import { SpMenu } from '../util/elements'
 import * as ultimate_sd_upscale_script from './ultimate_sd_upscaler'
 import { ScriptMode } from './ultimate_sd_upscaler'
 import { ErrorBoundary } from '../util/errorBoundary'
+import Locale from '../locale/locale'
 export function toJsFunc(store: any) {
     return toJS(store)
 }
@@ -118,7 +119,7 @@ class ScriptComponent extends React.Component<{}> {
                 <SpMenu
                     title="Scripts"
                     items={script_store.scripts_list}
-                    disabled={script_store.disabled}
+                    disabled_items={script_store.disabled}
                     // style="width: 199px; margin-right: 5px"
                     label_item="Select A Script"
                     id={'script_list'}
@@ -139,7 +140,7 @@ class ScriptComponent extends React.Component<{}> {
                         script_store.setIsActive(event.target.checked)
                     }}
                 >
-                    {'Activate'}
+                    {Locale('Activate')}
                 </sp-checkbox>
                 <>
                     {script_store.selected_script_name === 'None' && <></>}

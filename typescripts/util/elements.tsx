@@ -26,6 +26,8 @@ declare global {
             'sp-textfield': any
             'sp-action-button': any
             'sp-progressbar': any
+            'sp-popover': any
+            'sp-dialog': any
         }
     }
 }
@@ -61,6 +63,7 @@ export class SpSliderWithLabel extends React.Component<{
     output_value?: number // can be use to represent sd value
     // slider_value?: number // it's slider value can be from 1 to 100
     slider_type?: SliderType
+    disabled?: boolean
 }> {
     // const [sliderValue,setSliderValue] = useState<number>(0)
     state = { output_value: this.props.output_value || 0, slider_value: 0 }
@@ -162,8 +165,7 @@ export class SpSliderWithLabel extends React.Component<{
             <div>
                 <SpSlider
                     show-value="false"
-                    // id="slControlNetWeight_0"
-                    class="slControlNetWeight_"
+                    disabled={this.props.disabled ? true : void 0}
                     min={this.in_min}
                     max={this.in_max}
                     value={this.state.slider_value}
@@ -197,7 +199,8 @@ export class SpMenu extends React.Component<{
     title?: string
     style?: CSSProperties
     items?: string[]
-    disabled?: boolean[]
+    disabled?: boolean
+    disabled_items?: boolean[]
     label_item?: string
     onChange?: any
     selected_index?: number
@@ -238,6 +241,7 @@ export class SpMenu extends React.Component<{
                 title={this.props.title}
                 size={this.props.size || 'm'}
                 style={this.props.style}
+                disabled={this.props.disabled ? 'disabled' : undefined}
                 // style={{ width: '199px', marginRight: '5px' }}
             >
                 <sp-menu id={this.props.id} slot="options">
@@ -263,7 +267,7 @@ export class SpMenu extends React.Component<{
                                     : undefined
                             }
                             disabled={
-                                this.props.disabled?.[index]
+                                this.props.disabled_items?.[index]
                                     ? 'disabled'
                                     : undefined
                             }
@@ -492,8 +496,7 @@ export const ScriptInstallComponent = observer(
                     Automatic1111 webui
                 </sp-label>
                 <button
-                    className="btnSquare refreshButton"
-                    id="btnResetSettings"
+                    className="btnSquare refreshButton btnResetSettings"
                     title="Refresh the ADetailer Extension"
                     onClick={onRefreshHandler}
                 ></button>
@@ -501,3 +504,193 @@ export const ScriptInstallComponent = observer(
         )
     }
 )
+
+@observer
+export class SearchableMenu extends React.Component<{
+    allItems: string[]
+    placeholder: string
+    onChange?: any
+    selected_item?: string
+    onSelectItemFailure?: any
+    // default_value?: string
+    // searchQuery: string
+}> {
+    state = {
+        selectedItem: this.props.allItems ? this.props.allItems[0] : undefined,
+        searchItems: this.props.allItems,
+        // searchQuery: this.props.searchQuery,
+        searchQuery: '',
+        openMenu: false,
+    }
+    selectItem(selected_item: string) {
+        let final_value = this.props.allItems.includes(selected_item)
+            ? selected_item
+            : this.props.onSelectItemFailure && this.props.onSelectItemFailure()
+
+        this.setState({ searchQuery: final_value })
+    }
+    componentDidMount(): void {
+        if (this.props.selected_item) {
+            // console.log('selected_item has changed:', this.props.selected_item)
+            this.selectItem(this.props.selected_item)
+        }
+    }
+    componentDidUpdate(prevProps: any, prevState: { searchQuery: string }) {
+        if (prevState.searchQuery !== this.state.searchQuery) {
+            this.searchItem(this.state.searchQuery)
+        }
+        if (prevProps.selected_item !== this.props.selected_item) {
+            console.log('selected_item has changed:', this.props.selected_item)
+
+            if (this.props.selected_item !== undefined) {
+                this.selectItem(this.props.selected_item)
+            }
+        }
+    }
+
+    // searchItem = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    searchItem = (searchQuery: string) => {
+        console.log('onInput')
+
+        // const filter = event.currentTarget.value.toUpperCase()
+        const filter = searchQuery.toUpperCase()
+
+        const searchItems = this.props.allItems.filter((item) =>
+            item.toUpperCase().includes(filter)
+        )
+        this.setState({ searchItems: searchItems })
+
+        console.log(
+            'this.props.searchItems.length: ',
+            this.state.searchItems.length
+        )
+
+        this.setState({
+            openMenu: this.state.searchItems.length > 0 ? true : false,
+        })
+
+        console.log('this.state.openMenu: ', this.state.openMenu)
+    }
+    render() {
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    width: '100%',
+                    zIndex: 1000,
+                    // position: 'absolute',
+                }}
+            >
+                <div style={{ position: 'relative', flex: 1, width: '100%' }}>
+                    <SpTextfield
+                        type="text"
+                        title={this.state.searchQuery}
+                        style={{ width: '100%' }}
+                        value={this.state.searchQuery}
+                        placeholder={this.props.placeholder}
+                        onInput={(evt: any) => {
+                            this.setState({ searchQuery: evt.target.value })
+                            // this.searchItem(evt.taret)
+                            console.log('onInput:', evt.target.value)
+
+                            console.log(
+                                'this.state.searchQuery: ',
+                                this.state.searchQuery
+                            )
+                        }}
+                        onChange={(evt: any) => {
+                            this.setState({ searchQuery: evt.target.value })
+                            console.log('onChange:', evt.target.value)
+
+                            console.log(
+                                'this.state.searchQuery: ',
+                                this.state.searchQuery
+                            )
+                        }}
+                        onFocus={(evt: any) => {
+                            console.log('onFocus:', evt.target.value)
+                            if (evt.target.value === '') {
+                                this.setState({
+                                    searchItems: this.props.allItems,
+                                })
+                            }
+                            this.setState({ openMenu: true })
+                            console.log(
+                                'this.state.searchQuery: ',
+                                this.state.searchQuery
+                            )
+                        }}
+                        onBlur={(evt: any) => {
+                            setTimeout(
+                                () => {
+                                    console.log('onBlur:', evt.target.value)
+
+                                    const state_values: Record<string, any> = {}
+                                    if (
+                                        !this.props.allItems.includes(
+                                            this.state.searchQuery
+                                        )
+                                    ) {
+                                        state_values.searchQuery = ''
+
+                                        if (this.props.onSelectItemFailure) {
+                                            state_values.searchQuery =
+                                                this.props.onSelectItemFailure()
+                                        }
+                                    }
+                                    state_values.openMenu = false
+                                    this.setState(state_values)
+
+                                    console.log(
+                                        'this.state.searchQuery: ',
+                                        this.state.searchQuery
+                                    )
+                                },
+
+                                200
+                            )
+                        }}
+                    ></SpTextfield>
+
+                    <ul
+                        id="myMenu"
+                        style={{
+                            // position: 'absolute',
+                            width: '100%',
+                            display: this.state.openMenu ? void 0 : 'none',
+                            zIndex: 1000,
+                        }}
+                    >
+                        {this.state.searchItems.map((item: string, index) => (
+                            <li
+                                key={index}
+                                title={item}
+                                onClick={() => {
+                                    console.log('onClick:')
+
+                                    this.setState({
+                                        searchQuery: item,
+                                        openMenu: false,
+                                    })
+                                    console.log(
+                                        'this.state.searchQuery: ',
+                                        this.state.searchQuery
+                                    )
+                                    console.log('item: ', item)
+                                    if (this.props.onChange) {
+                                        this.props.onChange(item)
+                                    }
+                                }}
+                                style={{ zIndex: 1000 }}
+                            >
+                                <a href="#" style={{ fontSize: '12px' }}>
+                                    {item}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        )
+    }
+}

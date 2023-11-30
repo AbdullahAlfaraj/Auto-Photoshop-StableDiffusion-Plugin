@@ -26,7 +26,8 @@ import {
     updateViewerStoreImageAndThumbnail,
 } from '../viewer/viewer_util'
 import { sd_tab_store } from '../stores'
-
+import settings_tab from '../settings/settings'
+import comfyui_util from '../comfyui/util'
 declare let g_inpaint_mask_layer: any
 declare const g_image_not_found_url: string
 declare let g_current_batch_index: number
@@ -150,11 +151,19 @@ export async function getExpandedMask(
             //only if mask is available and sharp_mask is off
             // use blurry and expanded mask
             const iterations = expansion_value
-            expanded_mask = await python_replacement.maskExpansionRequest(
-                mask,
-                iterations,
-                blur
-            )
+            if (settings_tab.store.data.selected_backend === 'Automatic1111') {
+                expanded_mask = await python_replacement.maskExpansionRequest(
+                    mask,
+                    iterations,
+                    blur
+                )
+            } else if (settings_tab.store.data.selected_backend === 'ComfyUI') {
+                expanded_mask = await comfyui_util.maskExpansion(
+                    mask,
+                    iterations,
+                    blur
+                )
+            }
         }
 
         // return expanded_mask
@@ -182,6 +191,7 @@ export class Session {
             store.data.current_session_id = await incrementSessionID()
 
             store.data.mode = mode
+            store.data.rb_mode = sd_tab_store.data.rb_mode
 
             if (modeToClassMap.hasOwnProperty(store.data.mode)) {
                 const { selectionInfo, init_image, mask } =
@@ -296,6 +306,7 @@ export class Session {
                 selectionInfo,
                 init_image,
                 mask,
+                rb_mode: store.data.rb_mode, // set in initializeSession
             })
 
             //this should be part of initialization method or gettingSettings()
@@ -350,6 +361,7 @@ export class Session {
                 init_image: store.data.init_image,
                 mask: store.data.preprocessed_mask,
                 selectionInfo: store.data.selectionInfo,
+                rb_mode: store.data.rb_mode, // set in initializeSession
             }
             var ui_settings = await this.getSettings(session_data)
             if (
@@ -395,7 +407,11 @@ export class Session {
     }
     static async getProgress() {
         // Progress.startSudoProgress()
-        progress.Progress.startTimer(async () => {
+
+        const comfyProgress = async () => {
+            progress.store.data.progress_value += 1
+        }
+        const auto1111Progress = async () => {
             try {
                 let json = await progress.requestProgress()
                 const can_update = progress.store.data.can_update
@@ -422,7 +438,12 @@ export class Session {
             } catch (e) {
                 console.warn(e)
             }
-        }, 2000)
+        }
+        const [callback, timer] =
+            settings_tab.store.data.selected_backend === 'Automatic1111'
+                ? [auto1111Progress, 2000]
+                : [comfyProgress, 1000]
+        progress.Progress.startTimer(callback, timer)
     }
     static async endProgress() {
         await progress.Progress.endTimer(async () => {

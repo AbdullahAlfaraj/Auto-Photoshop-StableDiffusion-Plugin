@@ -22,6 +22,7 @@ import {
     mask_store as viewer_mask_store,
     // init_store as viewer_init_store,
 } from '../viewer/viewer_util'
+import { settings_tab_ts } from '../entry'
 
 declare let g_automatic_status: any
 declare let g_current_batch_index: number
@@ -44,7 +45,7 @@ export const GenerateButtons = observer(() => {
                     display: session_store.data.can_generate ? void 0 : 'none',
                 }}
             >
-                Generate {modeDisplayNames[sd_tab_store.data.mode]}
+                {Locale(`Generate ${modeDisplayNames[sd_tab_store.data.mode]}`)}
             </button>
             {session_store.data.can_generate ? (
                 <button
@@ -161,10 +162,13 @@ const canStartSession = async () => {
                 await psapi.reSelectMarqueeExe(session_store.data.selectionInfo)
             }
         }
-        //@ts-ignore
-        g_automatic_status = await checkAutoStatus()
-        //@ts-ignore
-        await displayNotification(g_automatic_status)
+
+        if (settings_tab_ts.store.data.selected_backend === 'Automatic1111') {   
+            //@ts-ignore
+            g_automatic_status = await checkAutoStatus()
+            //@ts-ignore
+            await displayNotification(g_automatic_status)
+        }
     } catch (e) {
         console.warn(e)
     }
@@ -226,6 +230,7 @@ const handleGenerate = async () => {
         console.error(e)
         console.warn('output_images: ', output_images)
         console.warn('response_json: ', response_json)
+        console.warn('ui_settings: ', ui_settings)
     }
 }
 

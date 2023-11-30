@@ -1,0 +1,167 @@
+{
+  "8": {
+    "inputs": {
+      "samples": [
+        "50",
+        0
+      ],
+      "vae": [
+        "32",
+        0
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "14": {
+    "inputs": {
+      "ckpt_name": "dreamshaper_8.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple"
+  },
+  "32": {
+    "inputs": {
+      "vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"
+    },
+    "class_type": "VAELoader"
+  },
+  "50": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": 538408362410054,
+      "steps": 30,
+      "cfg": 7,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "start_at_step": 0,
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "210",
+        0
+      ],
+      "positive": [
+        "211",
+        0
+      ],
+      "negative": [
+        "212",
+        0
+      ],
+      "latent_image": [
+        "95",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced"
+  },
+  "95": {
+    "inputs": {
+      "width": 512,
+      "height": 512,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage"
+  },
+  "192": {
+    "inputs": {
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "204": {
+    "inputs": {
+      "weight": 0.5,
+      "noise": 0.33,
+      "weight_type": "original",
+      "start_at": 0,
+      "end_at": 1,
+      "ipadapter": [
+        "205",
+        0
+      ],
+      "clip_vision": [
+        "206",
+        0
+      ],
+      "image": [
+        "207",
+        0
+      ],
+      "model": [
+        "14",
+        0
+      ]
+    },
+    "class_type": "IPAdapterApply"
+  },
+  "205": {
+    "inputs": {
+      "ipadapter_file": "ip-adapter-plus_sd15.bin"
+    },
+    "class_type": "IPAdapterModelLoader"
+  },
+  "206": {
+    "inputs": {
+      "clip_name": "model.safetensors"
+    },
+    "class_type": "CLIPVisionLoader"
+  },
+  "207": {
+    "inputs": {
+      "interpolation": "LANCZOS",
+      "crop_position": "top",
+      "sharpening": 0.15,
+      "image": [
+        "209",
+        0
+      ]
+    },
+    "class_type": "PrepImageForClipVision"
+  },
+  "209": {
+    "inputs": {
+      "image": "ComfyUI_temp_cqoqp_00001_ (1).png",
+      "choose file to upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "210": {
+    "inputs": {
+      "block_number": 3,
+      "downscale_factor": 1.5,
+      "start_percent": 0,
+      "end_percent": 0.45,
+      "downscale_after_skip": true,
+      "downscale_method": "bicubic",
+      "upscale_method": "bicubic",
+      "model": [
+        "204",
+        0
+      ]
+    },
+    "class_type": "PatchModelAddDownscale"
+  },
+  "211": {
+    "inputs": {
+      "text": "",
+      "clip": [
+        "14",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "212": {
+    "inputs": {
+      "text": "blurry, low quality",
+      "clip": [
+        "14",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  }
+}

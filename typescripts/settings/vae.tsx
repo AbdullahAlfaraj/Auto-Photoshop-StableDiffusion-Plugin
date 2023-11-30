@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { observer } from 'mobx-react'
-import { AStore } from './astore'
+import { AStore } from '../main/astore'
 import { SpMenu } from '../util/elements'
 
 import { api, python_replacement } from '../util/oldSystem'
@@ -10,27 +10,11 @@ import '../locale/locale-for-old-html'
 import { ErrorBoundary } from '../util/errorBoundary'
 
 declare let g_sd_url: string
-// class SDStore extends AStore {
-//     constructor(data: any) {
-//         super(data)
-//     }
-// }
 
-// const configValues = Object.entries(ui_config).reduce(
-//     (acc, [key, value]) => ({ ...acc, [key]: value.value }),
-//     {}
-// )
-// const default_values: any = {
-//     _: '',
-//     ...configValues,
-// }
-
-const default_values: any = {
-    vae_model_list: [],
-    current_vae: '',
-}
-
-export const store = new AStore(default_values)
+export const store = new AStore({
+    vae_model_list: [] as string[],
+    current_vae: '' as string,
+})
 
 @observer
 export class VAEComponent extends React.Component<{
@@ -54,7 +38,6 @@ export class VAEComponent extends React.Component<{
                 <SpMenu
                     title="vae models"
                     items={store.data.vae_model_list}
-                    // disabled={script_store.disabled}
                     // style="width: 199px; margin-right: 5px"
                     label_item="Select A VAE"
                     // id={'model_list'}
@@ -111,3 +94,8 @@ vaeRoot.render(
     </ErrorBoundary>
     //</React.StrictMode>
 )
+
+export default {
+    store,
+    populateVAE,
+}

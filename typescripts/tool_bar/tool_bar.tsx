@@ -137,8 +137,7 @@ class ToolBar extends React.Component<{}> {
                     }}
                 ></button>
                 <button
-                    className="btnSquare resetButton"
-                    id="btnResetSettings"
+                    className="btnSquare resetButton btnResetSettings"
                     title="reset the ui settings to their default values"
                     style={{ marginRight: '3px' }}
                     onClick={(evt: any) => {

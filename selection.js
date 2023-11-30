@@ -324,6 +324,24 @@ async function channelToSelectionExe(channel_name = 'mask') {
     }
 }
 
+function keepRatio(selectionInfo, offset) {
+    // Calculate the current width and height
+    let width = selectionInfo.right - selectionInfo.left
+    let height = selectionInfo.bottom - selectionInfo.top
+
+    // Calculate the new coordinates with the offset
+    selectionInfo.right += offset
+    selectionInfo.left -= offset
+    selectionInfo.bottom += offset
+    selectionInfo.top -= offset
+
+    // Update width and height
+    selectionInfo.width = width + 2 * offset
+    selectionInfo.height = height + 2 * offset
+
+    return selectionInfo
+}
+
 function makeSquare(selectionInfo, offset) {
     // Calculate the current width and height
     let width = selectionInfo.right - selectionInfo.left
@@ -349,12 +367,20 @@ function makeSquare(selectionInfo, offset) {
     return selectionInfo
 }
 
-async function inpaintLassoInitImageAndMask(channel_name = 'mask', offset = 0) {
+async function inpaintLassoInitImageAndMask(
+    channel_name = 'mask',
+    offset = 0,
+    make_square = true
+) {
     const selectionInfo = await psapi.getSelectionInfoExe()
     //convert the selection box into square box so that you have best output results
-    const squareSelection = makeSquare(selectionInfo, offset)
+
+    const newSelection = make_square
+        ? makeSquare(selectionInfo, offset)
+        : keepRatio(selectionInfo, offset)
+
     //correct width and height sliders, since this is lasso mode.
-    await calcWidthHeightFromSelection(squareSelection)
+    await calcWidthHeightFromSelection(newSelection)
 
     async function getImageFromCanvas() {
         const width = html_manip.getWidth()
@@ -363,7 +389,7 @@ async function inpaintLassoInitImageAndMask(channel_name = 'mask', offset = 0) {
         const base64 = await io.IO.getSelectionFromCanvasAsBase64Interface_New(
             width,
             height,
-            squareSelection,
+            newSelection,
             true
         )
         return base64
@@ -396,7 +422,7 @@ async function inpaintLassoInitImageAndMask(channel_name = 'mask', offset = 0) {
             synchronousExecution: true,
         })
         // const selection_info = await psapi.getSelectionInfoExe()
-        mask_base64 = await fillSelectionWhiteOutsideBlack(squareSelection)
+        mask_base64 = await fillSelectionWhiteOutsideBlack(newSelection)
     })
 
     //save laso selection to channel

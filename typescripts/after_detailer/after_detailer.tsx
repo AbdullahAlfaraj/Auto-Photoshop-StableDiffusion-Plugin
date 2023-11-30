@@ -21,6 +21,7 @@ import { ErrorBoundary } from '../util/errorBoundary'
 import { ScriptMode } from '../util/ts/enum'
 
 import './style/after_detailer.css'
+import Locale from '../locale/locale'
 
 declare let g_sd_url: string
 
@@ -133,8 +134,7 @@ export class AfterDetailerComponent extends React.Component<{
                         Automatic1111 webui
                     </sp-label>
                     <button
-                        className="btnSquare refreshButton"
-                        id="btnResetSettings"
+                        className="btnSquare refreshButton btnResetSettings"
                         title="Refresh the ADetailer Extension"
                         onClick={this.handleRefresh}
                     ></button>
@@ -150,12 +150,11 @@ export class AfterDetailerComponent extends React.Component<{
                         store.updateProperty('is_enabled', event.target.checked)
                     }}
                 >
-                    {'Activate'}
+                    {Locale('Activate')}
                 </sp-checkbox>
                 <SpMenu
                     title="model"
                     items={store.data.model_list}
-                    // disabled={script_store.disabled}
                     // style="width: 199px; margin-right: 5px"
                     label_item="Select a ADetailer Model"
                     // id={'model_list'}
@@ -219,7 +218,6 @@ export class AfterDetailerComponent extends React.Component<{
                 <SpMenu
                     title="controlnet inpaint model"
                     items={store.data.controlnet_models}
-                    // disabled={script_store.disabled}
                     // style="width: 199px; margin-right: 5px"
                     label_item="Select a ControlNet Model"
                     // id={'model_list'}

@@ -183,7 +183,7 @@ async function getSettings(session_data) {
 
     try {
         const extension_type = settings_tab_ts.store.data.extension_type // get the extension type
-        payload['selection_info'] = session_data.selectionInfo
+        payload['selection_info'] = session_data?.selectionInfo
         const numberOfBatchSize = parseInt(sd_tab_store.data.batch_size)
 
         const prompt = multiPrompts.getPrompt().positive
@@ -195,11 +195,14 @@ async function getSettings(session_data) {
 
         function calculateSeed(init_seed, batch_index, batch_size) {
             if (init_seed === -1) return -1
-            const seed = init_seed + batch_index * batch_size
+            // const seed = init_seed + batch_index * batch_size
+            const seed = init_seed + BigInt(batch_index) * BigInt(batch_size)
             return seed
         }
 
-        const init_seed = parseInt(sd_tab_store.data.seed)
+        // const init_seed = parseInt(sd_tab_store.data.seed)
+        const init_seed = BigInt(sd_tab_store.data.seed)
+
         const seed = calculateSeed(
             init_seed,
             g_current_batch_index,
@@ -247,7 +250,8 @@ async function getSettings(session_data) {
 
         const sampler_name = sd_tab_store.data.sampler_name
 
-        const mode = sd_tab_store.data.rb_mode
+        const mode = session_data?.rb_mode || sd_tab_store.data.rb_mode // Use the 'rb_mode' from the session, if not available, fallback to the 'rb_mode' from the interface.
+
         const b_restore_faces = sd_tab_store.data.restore_faces
 
         let denoising_strength = h_denoising_strength
@@ -412,6 +416,8 @@ async function getSettings(session_data) {
             payload['original_negative_prompt'] = negative_prompt
         }
 
+        payload['clip_skip'] =
+            settings_tab_ts.store.data.CLIP_stop_at_last_layers
         payload = {
             ...payload,
             // prompt: prompt,
@@ -424,8 +430,8 @@ async function getSettings(session_data) {
             denoising_strength: denoising_strength,
             batch_size: numberOfBatchSize,
             cfg_scale: cfg_scale,
-            seed: seed,
-            // mask_blur: mask_blur, // don't use auto1111 blur, instead use Auto-Photoshop-SD blur
+            seed: seed.toString(),
+            mask_blur: 4, //mask_blur, // don't use auto1111 blur, instead use Auto-Photoshop-SD blur
             use_sharp_mask: use_sharp_mask,
             use_prompt_shortcut: bUsePromptShortcut,
             prompt_shortcut_ui_dict: prompt_shortcut_ui_dict,

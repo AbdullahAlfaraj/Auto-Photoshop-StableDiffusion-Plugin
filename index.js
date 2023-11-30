@@ -70,6 +70,7 @@ const {
     logger,
     toJS,
     viewer,
+    viewer_util,
     preview,
     // session_ts,
     session_store,
@@ -93,6 +94,11 @@ const {
     stores,
     lexica,
     api_ts,
+    comfyui,
+    comfyui_util,
+    comfyui_main_ui,
+
+    comfyapi,
 } = require('./typescripts/dist/bundle')
 
 const io = require('./utility/io')
@@ -531,8 +537,6 @@ let g_inpaint_mask_layer_history_id //store the history state id when creating a
 let g_selection = {}
 let g_b_use_smart_object = true // true to keep layer as smart objects, false to rasterize them
 let g_sd_options_obj = new sd_options.SdOptions()
-
-g_sd_options_obj.getOptions()
 
 let g_controlnet_max_models
 
@@ -1795,9 +1799,13 @@ async function openFileFromUrl(url, format = 'gif') {
 
         // Save the image to a temporary file
         const tempFolder = await storage.localFileSystem.getTemporaryFolder()
-        const tempFile = await tempFolder.createFile(`temp.${format}`, {
-            overwrite: true,
-        })
+        const randomNumber = Math.floor(Math.random() * 1000000000) // generates a random number between 0 and 999999999
+        const tempFile = await tempFolder.createFile(
+            `temp_${randomNumber}.${format}`,
+            {
+                overwrite: true,
+            }
+        )
         await tempFile.write(arrayBuffer)
 
         // Open the file in Photoshop

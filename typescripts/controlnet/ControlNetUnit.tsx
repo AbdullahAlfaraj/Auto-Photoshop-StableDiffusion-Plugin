@@ -11,6 +11,7 @@ import {
     PreviewSvg,
     SpSliderWithLabel,
     SliderType,
+    SearchableMenu,
 } from '../util/elements'
 import ControlNetStore, { ControlnetMode, controlnetModes } from './store'
 import { mapRange, versionCompare } from './util'
@@ -135,18 +136,12 @@ export default class ControlNetUnit extends React.Component<
             storeData.model = filters.default_model
         }
     }
-    onPreprocsesorChange(
-        event: any,
-        { index, item }: { index: number; item: string }
-    ) {
+    onPreprocsesorChange(item: string) {
         const storeData =
             this.props.appState.controlNetUnitData[this.props.index]
         storeData.module = item
     }
-    onModelChange(
-        event: any,
-        { index, item }: { index: number; item: string }
-    ) {
+    onModelChange(item: string) {
         const storeData =
             this.props.appState.controlNetUnitData[this.props.index]
         storeData.model = item
@@ -806,7 +801,7 @@ export default class ControlNetUnit extends React.Component<
                         style={{ display: 'flex' }}
                     >
                         <div style={{ width: '50%', display: 'flex' }}>
-                            <SpMenu
+                            {/* <SpMenu
                                 onChange={this.onPreprocsesorChange.bind(this)}
                                 id={`mModulesMenuControlNet_${this.props.index}`}
                                 items={storeData.module_list || ['none']}
@@ -815,11 +810,27 @@ export default class ControlNetUnit extends React.Component<
                                     storeData.module
                                 )}
                                 style={{ width: '100%' }}
+                            /> */}
+                            <SearchableMenu
+                                allItems={storeData.module_list || ['none']}
+                                placeholder={Locale('Select Module')}
+                                selected_item={storeData.module}
+                                onSelectItemFailure={() => {
+                                    const default_value =
+                                        // storeData.module_list[0] || 'None'
+                                        'None'
+
+                                    storeData.module = default_value
+                                    return default_value
+                                }}
+                                onChange={(item: any) => {
+                                    this.onPreprocsesorChange(item)
+                                }}
                             />
                         </div>
                         {!pd.model_free && (
                             <div style={{ width: '50%', display: 'flex' }}>
-                                <SpMenu
+                                {/* <SpMenu
                                     onChange={this.onModelChange.bind(this)}
                                     id={`mModelsMenuControlNet_${this.props.index}`}
                                     items={storeData.model_list || []}
@@ -828,6 +839,21 @@ export default class ControlNetUnit extends React.Component<
                                         storeData.model
                                     )}
                                     style={{ width: '100%' }}
+                                /> */}
+                                <SearchableMenu
+                                    allItems={storeData.model_list || ['none']}
+                                    placeholder={Locale('Selec Model')}
+                                    selected_item={storeData.model}
+                                    onSelectItemFailure={() => {
+                                        const default_value =
+                                            // storeData.model_list[0] || 'None'
+                                            'None'
+                                        storeData.model = default_value
+                                        return default_value
+                                    }}
+                                    onChange={(item: any) => {
+                                        this.onModelChange(item)
+                                    }}
                                 />
                             </div>
                         )}

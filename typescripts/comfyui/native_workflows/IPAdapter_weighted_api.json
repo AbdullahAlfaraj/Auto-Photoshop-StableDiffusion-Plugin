@@ -1,0 +1,180 @@
+{
+  "1": {
+    "inputs": {
+      "ckpt_name": "dreamshaper_8.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple"
+  },
+  "2": {
+    "inputs": {
+      "vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"
+    },
+    "class_type": "VAELoader"
+  },
+  "3": {
+    "inputs": {
+      "ipadapter_file": "ip-adapter-plus_sd15.bin"
+    },
+    "class_type": "IPAdapterModelLoader"
+  },
+  "4": {
+    "inputs": {
+      "clip_name": "model.safetensors"
+    },
+    "class_type": "CLIPVisionLoader"
+  },
+  "6": {
+    "inputs": {
+      "image": "ComfyUI_temp_cqoqp_00001_ (1).png",
+      "choose file to upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "7": {
+    "inputs": {
+      "text": "beautiful renaissance girl, detailed",
+      "clip": [
+        "1",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "8": {
+    "inputs": {
+      "text": "blurry, horror",
+      "clip": [
+        "1",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "9": {
+    "inputs": {
+      "seed": 857545940756658,
+      "steps": 35,
+      "cfg": 5,
+      "sampler_name": "ddim",
+      "scheduler": "ddim_uniform",
+      "denoise": 1,
+      "model": [
+        "13",
+        0
+      ],
+      "positive": [
+        "7",
+        0
+      ],
+      "negative": [
+        "8",
+        0
+      ],
+      "latent_image": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "KSampler"
+  },
+  "10": {
+    "inputs": {
+      "width": 512,
+      "height": 512,
+      "batch_size": 4
+    },
+    "class_type": "EmptyLatentImage"
+  },
+  "11": {
+    "inputs": {
+      "samples": [
+        "9",
+        0
+      ],
+      "vae": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "12": {
+    "inputs": {
+      "filename_prefix": "IPAdapter",
+      "images": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "SaveImage"
+  },
+  "13": {
+    "inputs": {
+      "weight": 1,
+      "weight_type": "original",
+      "start_at": 0,
+      "end_at": 1,
+      "ipadapter": [
+        "3",
+        0
+      ],
+      "embeds": [
+        "14",
+        0
+      ],
+      "model": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "IPAdapterApplyEncoded"
+  },
+  "14": {
+    "inputs": {
+      "ipadapter_plus": true,
+      "noise": 0.31,
+      "weight_1": [
+        "16",
+        0
+      ],
+      "weight_2": [
+        "17",
+        0
+      ],
+      "weight_3": 1,
+      "weight_4": 1,
+      "clip_vision": [
+        "4",
+        0
+      ],
+      "image_1": [
+        "15",
+        0
+      ],
+      "image_2": [
+        "6",
+        0
+      ]
+    },
+    "class_type": "IPAdapterEncoder"
+  },
+  "15": {
+    "inputs": {
+      "image": "animation-deku-my-hero-academia.jpg",
+      "choose file to upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "16": {
+    "inputs": {
+      "Value": 1
+    },
+    "class_type": "Float"
+  },
+  "17": {
+    "inputs": {
+      "Value": 0.38
+    },
+    "class_type": "Float"
+  }
+}

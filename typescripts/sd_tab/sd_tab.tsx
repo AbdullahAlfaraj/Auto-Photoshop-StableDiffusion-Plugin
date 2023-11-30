@@ -5,7 +5,13 @@ import { observer } from 'mobx-react'
 
 import { GenerationModeEnum, ScriptMode } from '../util/ts/enum'
 import { reaction } from 'mobx'
-import { SpCheckBox, SpMenu, SpSlider, SpTextfield } from '../util/elements'
+import {
+    SearchableMenu,
+    SpCheckBox,
+    SpMenu,
+    SpSlider,
+    SpTextfield,
+} from '../util/elements'
 import { ErrorBoundary } from '../util/errorBoundary'
 import { Collapsible } from '../util/collapsible'
 
@@ -32,6 +38,8 @@ import {
     onHeightSliderInput,
     heightSliderOnChangeEventHandler,
     loadPresetSettings,
+    isHiResMode,
+    comfy_mask_content_config,
 } from './util'
 import { general } from '../util/oldSystem'
 import { requestSwapModel, setInpaintMaskWeight } from '../util/ts/sdapi'
@@ -44,6 +52,7 @@ import { getExpandedMask } from '../session/session'
 import { mapRange } from '../controlnet/util'
 
 import { store as preset_store } from '../preset/shared_ui_preset'
+import Locale from '../locale/locale'
 
 declare let g_version: string
 
@@ -95,6 +104,22 @@ const Modes = observer(() => {
                             // id={`chEnableControlNet_${this.props.index}`}
                         >
                             Lasso Mode
+                        </SpCheckBox>
+                        <SpCheckBox
+                            style={{
+                                marginLeft: '10px',
+                                display: store.data.is_lasso_mode
+                                    ? void 0
+                                    : 'none',
+                            }}
+                            onChange={() => {
+                                helper_store.data.make_square =
+                                    !helper_store.data.make_square
+                            }}
+                            checked={helper_store.data.make_square}
+                            // id={`chEnableControlNet_${this.props.index}`}
+                        >
+                            Make Square
                         </SpCheckBox>
 
                         <SpSlider
@@ -148,12 +173,9 @@ class SDTab extends React.Component<{}> {
     async componentDidMount() {
         try {
             await refreshUI()
-            await refreshModels()
             await initPlugin()
-            helper_store.data.loras = await requestLoraModels()
+
             initInitMaskElement()
-            helper_store.data.hr_upscaler_list =
-                await requestGetHiResUpscalers()
             const btnSquareClass = document.getElementsByClassName('btnSquare')
             //REFACTOR: move to events.js
             for (let btnSquareButton of btnSquareClass) {
@@ -199,66 +221,85 @@ class SDTab extends React.Component<{}> {
         }
         return (
             <div>
-                <div id="menu-bar-container" style={styles.menuBarContainer}>
-                    <SpMenu
+                <div
+                    id="menu-bar-container"
+                    style={{
+                        ...styles.menuBarContainer,
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    {/* <SpMenu
                         title="Stable Diffusion Models"
-                        items={helper_store.data.models.map((model) => {
-                            return model.model_name
-                        })}
+                        items={helper_store.data.models || []}
                         label_item="Select a Model"
                         style={{ ...styles.spMenu }}
-                        selected_index={helper_store.data.models
-                            .map((model) => {
-                                return model.title
-                            })
-                            .indexOf(store.data.selected_model)}
+                        selected_index={(
+                            helper_store.data.models || []
+                        ).indexOf(store.data.selected_model)}
                         onChange={(id: any, value: any) => {
                             // console.log('onChange value: ', value)
                             // store.updateProperty('subject', value.item)
                             console.log('value:', value)
                             store.data.selected_model = value.item
 
-                            //REFACTOR: move to events.js
-                            const model_index = value.index
-                            let model = helper_store.data.models[model_index]
-
-                            // g_model_name = `${model.model_name}.ckpt`
+                            requestSwapModel(store.data.selected_model)
+                        }}
+                    ></SpMenu> */}
+                    <SearchableMenu
+                        allItems={helper_store.data.models}
+                        placeholder={'Select a Model'}
+                        selected_item={store.data.selected_model}
+                        onSelectItemFailure={() => {
+                            const default_value =
+                                helper_store.data.models[0] || ''
+                            store.data.selected_model = default_value
+                            return default_value
+                        }}
+                        onChange={(item: any) => {
+                            store.data.selected_model = item
 
                             requestSwapModel(store.data.selected_model)
                         }}
-                    ></SpMenu>
+                    />
 
-                    <button
-                        title="Refresh the plugin, only fixes minor issues."
-                        id="btnRefreshModels"
-                        style={styles.button}
-                        onClick={async (e) => {
-                            await refreshUI()
+                    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                        <button
+                            style={{ padding: '3px' }}
+                            title="Refresh the plugin, only fixes minor issues."
+                            id="btnRefreshModels"
+                            // style={styles.button}
+                            onClick={async (e) => {
+                                await refreshUI()
 
-                            tempDisableElement(e.target, 3000)
-                        }}
-                    >
-                        Refresh
-                    </button>
-                    <button
-                        title="Update the plugin if you encounter bugs. Get the latest features"
-                        className="btnSquare"
-                        id="btnUpdate"
-                        style={styles.button}
-                        onClick={async () => {
-                            await updateClickEventHandler(g_version)
-                        }}
-                    >
-                        Update
-                    </button>
+                                tempDisableElement(e.target, 3000)
+                            }}
+                        >
+                            Refresh
+                        </button>
+                        <button
+                            style={{ padding: '3px' }}
+                            title="Update the plugin if you encounter bugs. Get the latest features"
+                            className="btnSquare"
+                            id="btnUpdate"
+                            // style={styles.button}
+                            onClick={async () => {
+                                await updateClickEventHandler(g_version)
+                            }}
+                        >
+                            Update
+                        </button>
+                    </div>
                 </div>
                 <div id="sdBtnContainer">
-                    <SpMenu
+                    {/* <SpMenu
                         title="use lora in your prompt"
                         style={{ ...styles.spMenu }}
-                        items={helper_store.data.loras.map((lora: any) => {
-                            return lora.name
-                        })}
+                        // items={helper_store.data.loras.map((lora: any) => {
+                        //     return lora.name
+                        // })}
+                        items={helper_store.data.loras}
                         label_item="Select Lora"
                         // selected_index={store.data.models
                         //     .map((model) => {
@@ -272,8 +313,19 @@ class SDTab extends React.Component<{}> {
                                 positive: `${prompt} ${lora_prompt}`,
                             })
                         }}
-                    ></SpMenu>
-                    <SpMenu
+                    ></SpMenu> */}
+                    <SearchableMenu
+                        allItems={helper_store.data.loras}
+                        placeholder={'Select Lora'}
+                        onChange={(item: any) => {
+                            const lora_prompt = getLoraModelPrompt(item)
+                            const prompt = multiPrompts.getPrompt().positive
+                            multiPrompts.setPrompt({
+                                positive: `${prompt} ${lora_prompt}`,
+                            })
+                        }}
+                    />
+                    {/* <SpMenu
                         title="use textual inversion in your prompt"
                         style={{ ...styles.spMenu }}
                         items={helper_store.data.embeddings}
@@ -284,7 +336,17 @@ class SDTab extends React.Component<{}> {
                                 positive: `${prompt} ${value.item}`,
                             })
                         }}
-                    ></SpMenu>
+                    ></SpMenu> */}
+                    <SearchableMenu
+                        allItems={helper_store.data.embeddings || []}
+                        placeholder={Locale('Select Textual Inversion')}
+                        onChange={(item: any) => {
+                            const prompt = multiPrompts.getPrompt().positive
+                            multiPrompts.setPrompt({
+                                positive: `${prompt} ${item}`,
+                            })
+                        }}
+                    />
 
                     <sp-checkbox
                         title="use {keyword} form the prompts library"
@@ -341,7 +403,10 @@ class SDTab extends React.Component<{}> {
                             padding: '3px',
                         }}
                     >
-                        <Collapsible defaultIsOpen={true} label={'Prompts'}>
+                        <Collapsible
+                            defaultIsOpen={true}
+                            label={Locale('Prompts')}
+                        >
                             <MultiTextArea />
                         </Collapsible>
                     </div>
@@ -363,7 +428,7 @@ class SDTab extends React.Component<{}> {
                                             : void 0
                                     }
                                 >
-                                    {config.name}
+                                    {Locale(config.name)}
                                 </sp-radio>
                             )
                         })}
@@ -465,7 +530,7 @@ class SDTab extends React.Component<{}> {
                                     alignItems: 'flex-start',
                                 }}
                             >
-                                <sp-label>Batch Size:</sp-label>
+                                <sp-label>{Locale('Batch Size:')}</sp-label>
                                 <SpTextfield
                                     style={{ width: '100%' }}
                                     title="the number of images to generate at once.The larger the number more VRAM stable diffusion will use."
@@ -491,7 +556,7 @@ class SDTab extends React.Component<{}> {
                                     alignItems: 'flex-start',
                                 }}
                             >
-                                <sp-label>Batch Count:</sp-label>
+                                <sp-label>{Locale('Batch Count:')}</sp-label>
                                 <SpTextfield
                                     style={{ width: '100%' }}
                                     title="the number of images to generate in queue. The larger the number the longer will take."
@@ -515,7 +580,7 @@ class SDTab extends React.Component<{}> {
                                 }}
                             >
                                 <sp-label id="sdLabelSampleStep">
-                                    Sampling Steps
+                                    {Locale('Sampling Steps:')}
                                 </sp-label>
                                 <SpTextfield
                                     style={{ width: '100%' }}
@@ -535,7 +600,7 @@ class SDTab extends React.Component<{}> {
                     <div id="selectionMode">
                         <div>
                             <sp-label id="rbSelectionModeLabel" slot="label">
-                                Selection Mode:
+                                {Locale('Selection Mode:')}
                             </sp-label>
                         </div>
 
@@ -575,7 +640,7 @@ class SDTab extends React.Component<{}> {
                                                     }
                                                 }}
                                             >
-                                                {selection_mode.name}
+                                                {Locale(selection_mode.name)}
                                             </sp-radio>
                                         )
                                     }
@@ -705,7 +770,7 @@ class SDTab extends React.Component<{}> {
                                 }}
                             >
                                 <sp-label slot="label" class="title">
-                                    Width:
+                                    {Locale('Width:')}
                                 </sp-label>
                                 <sp-label
                                     class="labelNumber"
@@ -746,7 +811,7 @@ class SDTab extends React.Component<{}> {
                                 }}
                             >
                                 <sp-label slot="label" class="title">
-                                    Height:
+                                    {Locale('Height:')}
                                 </sp-label>
                                 <sp-label
                                     class="labelNumber"
@@ -789,7 +854,7 @@ class SDTab extends React.Component<{}> {
                                 }}
                             >
                                 <sp-label slot="label" class="title">
-                                    CFG Scale:
+                                    {Locale('CFG Scale:')}
                                 </sp-label>
                             </SpSlider>
 
@@ -814,7 +879,7 @@ class SDTab extends React.Component<{}> {
                                 }}
                             >
                                 <sp-label slot="label" class="title">
-                                    Denoising Strength:
+                                    {Locale('Denoising Strength:')}
                                 </sp-label>
                                 <sp-label slot="label" id="lDenoisingStrength">
                                     {store.data.denoising_strength.toFixed(2)}
@@ -933,7 +998,9 @@ class SDTab extends React.Component<{}> {
                                 }
                             }}
                         >
-                            <sp-label slot="label">Mask Expansion:</sp-label>
+                            <sp-label slot="label">
+                                {Locale('Mask Expansion:')}
+                            </sp-label>
                         </SpSlider>
 
                         <div style={{ display: 'flex' }}>
@@ -997,30 +1064,31 @@ class SDTab extends React.Component<{}> {
                                 <sp-label class="title" slot="label">
                                     Mask Content:
                                 </sp-label>
-                                {mask_content_config.map(
-                                    (mask_content, index: number) => {
-                                        return (
-                                            <sp-radio
-                                                key={index}
-                                                class="rbMaskContent"
-                                                checked={
-                                                    store.data
-                                                        .inpainting_fill ===
+                                {(settings_tab_ts.store.data
+                                    .selected_backend === 'Automatic1111'
+                                    ? mask_content_config
+                                    : comfy_mask_content_config
+                                ).map((mask_content, index: number) => {
+                                    return (
+                                        <sp-radio
+                                            key={index}
+                                            class="rbMaskContent"
+                                            checked={
+                                                store.data.inpainting_fill ===
+                                                mask_content.value
+                                                    ? true
+                                                    : void 0
+                                            }
+                                            value={mask_content.value}
+                                            onClick={(evt: any) => {
+                                                store.data.inpainting_fill =
                                                     mask_content.value
-                                                        ? true
-                                                        : void 0
-                                                }
-                                                value={mask_content.value}
-                                                onClick={(evt: any) => {
-                                                    store.data.inpainting_fill =
-                                                        mask_content.value
-                                                }}
-                                            >
-                                                {mask_content.name}
-                                            </sp-radio>
-                                        )
-                                    }
-                                )}
+                                            }}
+                                        >
+                                            {Locale(`${mask_content.name}`)}
+                                        </sp-radio>
+                                    )
+                                })}
                             </sp-radio-group>
                         </div>
 
@@ -1053,24 +1121,20 @@ class SDTab extends React.Component<{}> {
                                         evt.target.checked
                                 }}
                             >
-                                Restore Faces
+                                {Locale('Restore Faces')}
                             </SpCheckBox>
                             <SpCheckBox
                                 class="checkbox"
                                 id="chHiResFixs"
                                 style={{
-                                    display: [ScriptMode.Txt2Img].includes(
-                                        store.data.rb_mode
-                                    )
-                                        ? 'flex'
-                                        : 'none',
+                                    display: isHiResMode() ? 'flex' : 'none',
                                 }}
                                 checked={store.data.enable_hr}
                                 onClick={(evt: any) => {
                                     store.data.enable_hr = evt.target.checked
                                 }}
                             >
-                                Hi Res Fix
+                                {Locale('Hi Res Fix')}
                             </SpCheckBox>
                             <SpCheckBox
                                 class="checkbox"
@@ -1080,16 +1144,14 @@ class SDTab extends React.Component<{}> {
                                     store.data.tiling = evt.target.checked
                                 }}
                             >
-                                tiling
+                                {Locale('Tiling')}
                             </SpCheckBox>
                         </div>
                         <div
                             id="HiResDiv"
                             style={{
                                 display:
-                                    [ScriptMode.Txt2Img].includes(
-                                        store.data.rb_mode
-                                    ) && store.data.enable_hr
+                                    isHiResMode() && store.data.enable_hr
                                         ? void 0
                                         : 'none',
                             }}
@@ -1304,7 +1366,9 @@ class SDTab extends React.Component<{}> {
 
                     <div>
                         <div style={{ display: 'flex' }}>
-                            <sp-label id="sdLabelSeed">Seed:</sp-label>
+                            <sp-label id="sdLabelSeed">
+                                {Locale('Seed:')}
+                            </sp-label>
                             <sp-textfield
                                 id="tiSeed"
                                 placeholder="Seed"
@@ -1324,7 +1388,7 @@ class SDTab extends React.Component<{}> {
                                     store.data.seed = '-1'
                                 }}
                             >
-                                Random
+                                {Locale('Random')}
                             </button>
                             <button
                                 className="btnSquare"
@@ -1334,7 +1398,7 @@ class SDTab extends React.Component<{}> {
                                         session_store.data.last_seed
                                 }}
                             >
-                                Last
+                                {Locale('Last')}
                             </button>
                         </div>
                         <button
@@ -1358,26 +1422,28 @@ class SDTab extends React.Component<{}> {
                                     : 'none',
                             }}
                         >
-                            <sp-label slot="label">Select Sampler:</sp-label>
-                            {helper_store.data.sampler_list.map(
+                            <sp-label slot="label">
+                                {Locale('Select Sampler:')}
+                            </sp-label>
+                            {(helper_store.data.sampler_list || []).map(
                                 (sampler: any, index: number) => {
                                     return (
                                         <sp-radio
                                             class="rbSampler"
                                             checked={
-                                                sampler.name ===
+                                                sampler ===
                                                 store.data.sampler_name
                                                     ? true
                                                     : void 0
                                             }
-                                            value={sampler.name}
+                                            value={sampler}
                                             key={index}
                                             onClick={(evt: any) => {
                                                 store.data.sampler_name =
-                                                    sampler.name
+                                                    sampler
                                             }}
                                         >
-                                            {sampler.name}
+                                            {sampler}
                                         </sp-radio>
                                     )
                                 }

@@ -1,0 +1,345 @@
+{
+  "3": {
+    "inputs": {
+      "seed": [
+        "141",
+        0
+      ],
+      "steps": 20,
+      "cfg": 7,
+      "sampler_name": "euler_ancestral",
+      "scheduler": "karras",
+      "denoise": 0.71,
+      "model": [
+        "76",
+        0
+      ],
+      "positive": [
+        "159",
+        3
+      ],
+      "negative": [
+        "159",
+        4
+      ],
+      "latent_image": [
+        "160",
+        0
+      ]
+    },
+    "class_type": "KSampler"
+  },
+  "6": {
+    "inputs": {
+      "text": [
+        "76",
+        2
+      ],
+      "clip": [
+        "76",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "7": {
+    "inputs": {
+      "text": [
+        "78",
+        2
+      ],
+      "clip": [
+        "78",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "8": {
+    "inputs": {
+      "samples": [
+        "3",
+        0
+      ],
+      "vae": [
+        "57",
+        0
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "9": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage"
+  },
+  "11": {
+    "inputs": {
+      "seed": 4820153955672,
+      "steps": 20,
+      "cfg": 8,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "simple",
+      "denoise": 0.4,
+      "model": [
+        "76",
+        0
+      ],
+      "positive": [
+        "159",
+        3
+      ],
+      "negative": [
+        "159",
+        4
+      ],
+      "latent_image": [
+        "55",
+        0
+      ]
+    },
+    "class_type": "KSampler"
+  },
+  "12": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "SaveImage"
+  },
+  "13": {
+    "inputs": {
+      "samples": [
+        "11",
+        0
+      ],
+      "vae": [
+        "57",
+        0
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "16": {
+    "inputs": {
+      "ckpt_name": "aniverse_v15Pruned.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple"
+  },
+  "55": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "scale_by": 2,
+      "samples": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "LatentUpscaleBy"
+  },
+  "57": {
+    "inputs": {
+      "vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"
+    },
+    "class_type": "VAELoader"
+  },
+  "58": {
+    "inputs": {
+      "image": "04b380cb676f37e52d5963a0982edd5e.jpg",
+      "choose file to upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "76": {
+    "inputs": {
+      "prompt": "young teen:1.2, (cute girl:1.2)",
+      "model": [
+        "78",
+        0
+      ],
+      "clip": [
+        "162",
+        0
+      ]
+    },
+    "class_type": "LoadLorasFromPrompt"
+  },
+  "78": {
+    "inputs": {
+      "prompt": "bad hands, text, watermark",
+      "model": [
+        "16",
+        0
+      ],
+      "clip": [
+        "162",
+        0
+      ]
+    },
+    "class_type": "LoadLorasFromPrompt"
+  },
+  "83": {
+    "inputs": {
+      "image": "pasted/image (4).png",
+      "choose file to upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "135": {
+    "inputs": {
+      "content_mask": "original",
+      "width": 512,
+      "height": 768,
+      "seed": [
+        "141",
+        0
+      ],
+      "init_image": [
+        "58",
+        0
+      ],
+      "mask": [
+        "83",
+        0
+      ],
+      "vae": [
+        "57",
+        0
+      ]
+    },
+    "class_type": "ContentMaskLatent"
+  },
+  "141": {
+    "inputs": {
+      "seed": 519416762507340
+    },
+    "class_type": "APS_Seed"
+  },
+  "155": {
+    "inputs": {
+      "width": 512,
+      "height": 768,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage"
+  },
+  "156": {
+    "inputs": {
+      "images": [
+        "159",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "157": {
+    "inputs": {
+      "images": [
+        "159",
+        1
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "158": {
+    "inputs": {
+      "images": [
+        "159",
+        2
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "159": {
+    "inputs": {
+      "is_enabled_1": "disable",
+      "preprocessor_name_1": "OpenposePreprocessor",
+      "control_net_name_1": "control_lora_rank128_v11p_sd15_openpose_fp16.safetensors",
+      "strength_1": 1,
+      "threshold_a_1": 100,
+      "threshold_b_1": 200,
+      "start_percent_1": 0,
+      "end_percent_1": 1,
+      "resolution_1": 512,
+      "is_enabled_2": "disable",
+      "preprocessor_name_2": "OpenposePreprocessor",
+      "control_net_name_2": "control_lora_rank128_v11p_sd15_openpose_fp16.safetensors",
+      "strength_2": 1,
+      "threshold_a_2": 0,
+      "threshold_b_2": 0,
+      "start_percent_2": 0,
+      "end_percent_2": 1,
+      "resolution_2": 512,
+      "is_enabled_3": "enable",
+      "preprocessor_name_3": "InpaintPreprocessor",
+      "control_net_name_3": "control_lora_rank128_v11p_sd15_inpaint_fp16.safetensors",
+      "strength_3": 1,
+      "threshold_a_3": 0,
+      "threshold_b_3": 0,
+      "start_percent_3": 0,
+      "end_percent_3": 1,
+      "resolution_3": 512,
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "7",
+        0
+      ],
+      "image_1": [
+        "58",
+        0
+      ],
+      "mask_1": [
+        "83",
+        0
+      ],
+      "image_2": [
+        "58",
+        0
+      ],
+      "mask_2": [
+        "83",
+        0
+      ],
+      "image_3": [
+        "58",
+        0
+      ],
+      "mask_3": [
+        "83",
+        0
+      ]
+    },
+    "class_type": "ControlNetScript"
+  },
+  "160": {
+    "inputs": {
+      "amount": 1,
+      "samples": [
+        "135",
+        0
+      ]
+    },
+    "class_type": "RepeatLatentBatch"
+  },
+  "162": {
+    "inputs": {
+      "stop_at_clip_layer": -1,
+      "clip": [
+        "16",
+        1
+      ]
+    },
+    "class_type": "CLIPSetLastLayer"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "43": {
+    "inputs": {
+      "seed": 927413224602369,
+      "steps": 4,
+      "cfg": 8,
+      "height": 512,
+      "width": 512,
+      "num_images": 4,
+      "use_fp16": true,
+      "positive_prompt": "cute cat"
+    },
+    "class_type": "LCM_Sampler"
+  },
+  "44": {
+    "inputs": {
+      "images": [
+        "43",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  }
+}

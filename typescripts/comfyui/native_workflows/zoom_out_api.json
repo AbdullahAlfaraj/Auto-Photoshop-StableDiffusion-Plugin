@@ -1,0 +1,333 @@
+{
+  "1": {
+    "inputs": {
+      "image": "000662ed61a84c86fc8a3fe69d38a6e2 (1).jpg",
+      "choose file to upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "2": {
+    "inputs": {
+      "left": 112,
+      "top": 112,
+      "right": 104,
+      "bottom": 208,
+      "feathering": 20,
+      "image": [
+        "50",
+        0
+      ]
+    },
+    "class_type": "ImagePadForOutpaint"
+  },
+  "3": {
+    "inputs": {
+      "images": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "5": {
+    "inputs": {
+      "width": [
+        "12",
+        2
+      ],
+      "height": [
+        "12",
+        1
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage"
+  },
+  "6": {
+    "inputs": {
+      "pixels": [
+        "2",
+        0
+      ],
+      "vae": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "VAEEncode"
+  },
+  "7": {
+    "inputs": {
+      "vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"
+    },
+    "class_type": "VAELoader"
+  },
+  "12": {
+    "inputs": {
+      "value": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "ImpactImageInfo"
+  },
+  "14": {
+    "inputs": {
+      "x": 0,
+      "y": 0,
+      "resize_source": true,
+      "destination": [
+        "6",
+        0
+      ],
+      "source": [
+        "5",
+        0
+      ],
+      "mask": [
+        "2",
+        1
+      ]
+    },
+    "class_type": "LatentCompositeMasked"
+  },
+  "15": {
+    "inputs": {
+      "samples": [
+        "14",
+        0
+      ],
+      "vae": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "19": {
+    "inputs": {
+      "images": [
+        "15",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "20": {
+    "inputs": {
+      "strength": 1,
+      "conditioning": [
+        "27",
+        4
+      ],
+      "control_net": [
+        "21",
+        0
+      ],
+      "image": [
+        "47",
+        0
+      ]
+    },
+    "class_type": "ControlNetApply"
+  },
+  "21": {
+    "inputs": {
+      "control_net_name": "control_v11p_sd15_inpaint_fp16.safetensors"
+    },
+    "class_type": "ControlNetLoader"
+  },
+  "22": {
+    "inputs": {
+      "ckpt_name": "aniverse_v15Pruned.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple"
+  },
+  "23": {
+    "inputs": {
+      "model": [
+        "22",
+        0
+      ],
+      "clip": [
+        "22",
+        1
+      ],
+      "vae": [
+        "22",
+        2
+      ],
+      "positive": [
+        "24",
+        0
+      ],
+      "negative": [
+        "25",
+        0
+      ]
+    },
+    "class_type": "ToBasicPipe"
+  },
+  "24": {
+    "inputs": {
+      "text": "",
+      "clip": [
+        "22",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "25": {
+    "inputs": {
+      "text": "nsfw",
+      "clip": [
+        "22",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "27": {
+    "inputs": {
+      "basic_pipe": [
+        "23",
+        0
+      ]
+    },
+    "class_type": "FromBasicPipe_v2"
+  },
+  "29": {
+    "inputs": {
+      "basic_pipe": [
+        "27",
+        0
+      ],
+      "positive": [
+        "20",
+        0
+      ]
+    },
+    "class_type": "EditBasicPipe"
+  },
+  "30": {
+    "inputs": {
+      "seed": 949895177872699,
+      "steps": 20,
+      "cfg": 8,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 1,
+      "basic_pipe": [
+        "29",
+        0
+      ],
+      "latent_image": [
+        "62",
+        0
+      ]
+    },
+    "class_type": "ImpactKSamplerBasicPipe"
+  },
+  "31": {
+    "inputs": {
+      "samples": [
+        "30",
+        1
+      ],
+      "vae": [
+        "30",
+        2
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "32": {
+    "inputs": {
+      "images": [
+        "31",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "33": {
+    "inputs": {
+      "samples": [
+        "14",
+        0
+      ],
+      "mask": [
+        "2",
+        1
+      ]
+    },
+    "class_type": "SetLatentNoiseMask"
+  },
+  "47": {
+    "inputs": {
+      "image": [
+        "2",
+        0
+      ],
+      "mask": [
+        "2",
+        1
+      ]
+    },
+    "class_type": "InpaintPreprocessor"
+  },
+  "50": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "scale_by": 0.3,
+      "image": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "ImageScaleBy"
+  },
+  "52": {
+    "inputs": {
+      "clip_vision": [
+        "53",
+        0
+      ],
+      "image": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "CLIPVisionEncode"
+  },
+  "53": {
+    "inputs": {
+      "clip_name": "SD1.5/pytorch_model.bin"
+    },
+    "class_type": "CLIPVisionLoader"
+  },
+  "56": {
+    "inputs": {
+      "pixels": [
+        "2",
+        0
+      ],
+      "vae": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "VAEEncode"
+  },
+  "62": {
+    "inputs": {
+      "amount": 2,
+      "samples": [
+        "33",
+        0
+      ]
+    },
+    "class_type": "RepeatLatentBatch"
+  }
+}
