@@ -46,6 +46,7 @@ const zipList = [
     './*.md',
     './*.png',
     './presets/**/*',
+    './typescripts/comfyui/**/*.json',
 ]
 
 const zipfile = new yazl.ZipFile()
