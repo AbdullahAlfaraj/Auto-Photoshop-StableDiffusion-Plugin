@@ -64,7 +64,7 @@ class ComfyAPI {
 
     async getHistory(prompt_id: string = '') {
         try {
-            const url = `http://127.0.0.1:8188/history/${prompt_id}`
+            const url = `${this.comfy_url}/history/${prompt_id}`
             const res = await requestGet(`${this.comfy_url}/history`)
             return res
         } catch (e) {

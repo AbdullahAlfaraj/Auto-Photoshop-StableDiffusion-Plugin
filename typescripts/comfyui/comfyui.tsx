@@ -109,7 +109,7 @@ export async function workflowEntries() {
 }
 export async function postPrompt(prompt: any) {
     try {
-        const url = 'http://127.0.0.1:8188/prompt'
+        const url = `${comfyapi.comfy_api.comfy_url}/prompt`
         const payload = {
             prompt: prompt,
         }
@@ -1666,7 +1666,10 @@ root.render(
     //<React.StrictMode>
     <ErrorBoundary>
         <div style={{ border: '2px solid #6d6c6c', padding: '3px' }}>
-            <Collapsible defaultIsOpen={true} label={Locale('Custom ComfyUI Workflow')}>
+            <Collapsible
+                defaultIsOpen={true}
+                label={Locale('Custom ComfyUI Workflow')}
+            >
                 {/* <ComfyNodeComponent></ComfyNodeComponent> */}
 
                 <ComfyWorkflowComponent />
