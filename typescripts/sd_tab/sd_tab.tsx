@@ -752,17 +752,17 @@ class SDTab extends React.Component<{}> {
                                 show-value="false"
                                 id="slWidth"
                                 min="1"
-                                max="32"
-                                value={store.data.width / 64}
+                                max="256"
+                                value={store.data.width / 8}
                                 // data-old_value="512"
                                 onInput={(evt: any) => {
-                                    onWidthSliderInput(evt.target.value * 64)
+                                    onWidthSliderInput(evt.target.value * 8)
                                 }}
                                 onChange={(evt: any) => {
                                     store.data.width
                                     widthSliderOnChangeEventHandler(
-                                        evt.target.value * 64,
-                                        64,
+                                        evt.target.value * 8,
+                                        8,
                                         2048
                                     )
                                     helper_store.data.previous_width =
@@ -797,15 +797,15 @@ class SDTab extends React.Component<{}> {
                                 show-value="false"
                                 id="slHeight"
                                 min="1"
-                                max="32"
-                                value={store.data.height / 64}
+                                max="256"
+                                value={store.data.height / 8}
                                 onInput={async (evt: any) => {
-                                    onHeightSliderInput(evt.target.value * 64)
+                                    onHeightSliderInput(evt.target.value * 8)
                                 }}
                                 onChange={(evt: any) => {
                                     heightSliderOnChangeEventHandler(
-                                        evt.target.value * 64,
-                                        64,
+                                        evt.target.value * 8,
+                                        8,
                                         2048
                                     )
                                 }}
@@ -1283,12 +1283,12 @@ class SDTab extends React.Component<{}> {
                                     show-value="false"
                                     id="hrWidth"
                                     min="1"
-                                    max="32"
-                                    value={store.data.hr_resize_x / 64}
+                                    max="256"
+                                    value={store.data.hr_resize_x / 8}
                                     style={{ display: 'none' }}
                                     onInput={(evt: any) => {
                                         store.data.hr_resize_x = Math.floor(
-                                            evt.target.value * 64
+                                            evt.target.value * 8
                                         )
                                     }}
                                 >
@@ -1308,12 +1308,12 @@ class SDTab extends React.Component<{}> {
                                     show-value="false"
                                     id="hrHeight"
                                     min="1"
-                                    max="32"
-                                    value={store.data.hr_resize_y / 64}
+                                    max="256"
+                                    value={store.data.hr_resize_y / 8}
                                     style={{ display: 'none' }}
                                     onInput={(evt: any) => {
                                         store.data.hr_resize_y = Math.floor(
-                                            evt.target.value * 64
+                                            evt.target.value * 8
                                         )
                                     }}
                                 >

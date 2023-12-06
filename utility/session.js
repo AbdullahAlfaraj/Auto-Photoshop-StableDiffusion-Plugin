@@ -238,8 +238,8 @@ async function getSettings(session_data) {
         const original_width = sd_tab_store.data.width
         const original_height = sd_tab_store.data.height
 
-        const width = general.nearestMultiple(original_width, 64)
-        const height = general.nearestMultiple(original_height, 64)
+        const width = general.nearestMultiple(original_width, 8)
+        const height = general.nearestMultiple(original_height, 8)
 
         //const hScale = html_manip.getSliderSdValue_Old('hrScale',1)
 
