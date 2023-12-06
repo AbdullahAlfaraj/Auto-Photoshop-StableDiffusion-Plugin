@@ -782,31 +782,51 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
             <div>
                 {node_html}
                 {store.data.current_prompt2_output[node_id]?.length > 0 ? (
-                    <SpSlider
-                        disabled={store.data.can_edit_nodes ? true : void 0}
-                        style={{ display: 'block' }}
-                        show-value="false"
-                        id="slUpscaleSize"
-                        min="25"
-                        max="300"
-                        value={store.data.output_thumbnail_image_size[node_id]}
-                        title=""
-                        onInput={(evt: any) => {
-                            store.data.output_thumbnail_image_size[node_id] =
-                                evt.target.value
-                        }}
-                    >
-                        <sp-label slot="label" class="title">
-                            Thumbnail Size:
-                        </sp-label>
-                        <sp-label class="labelNumber" slot="label">
-                            {parseInt(
+                    <>
+                        <SpSlider
+                            disabled={store.data.can_edit_nodes ? true : void 0}
+                            style={{ display: 'block' }}
+                            show-value="false"
+                            id="slUpscaleSize"
+                            min="25"
+                            max="300"
+                            value={
+                                store.data.output_thumbnail_image_size[node_id]
+                            }
+                            title=""
+                            onInput={(evt: any) => {
                                 store.data.output_thumbnail_image_size[
                                     node_id
-                                ] as any
-                            )}
-                        </sp-label>
-                    </SpSlider>
+                                ] = evt.target.value
+                            }}
+                        >
+                            <sp-label slot="label" class="title">
+                                Thumbnail Size:
+                            </sp-label>
+                            <sp-label class="labelNumber" slot="label">
+                                {parseInt(
+                                    store.data.output_thumbnail_image_size[
+                                        node_id
+                                    ] as any
+                                )}
+                            </sp-label>
+                        </SpSlider>
+                        <sp-checkbox
+                            checked={
+                                store.data.output_node_fixed_height[node_id]
+                                    ? true
+                                    : void 0
+                            }
+                            onClick={(evt: any) => {
+                                // store.data.use_sharp_mask = evt.target.checked
+
+                                store.data.output_node_fixed_height[node_id] =
+                                    evt.target.checked
+                            }}
+                        >
+                            {Locale('Fixed Height:')}
+                        </sp-checkbox>
+                    </>
                 ) : (
                     void 0
                 )}
@@ -816,6 +836,7 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
                     thumbnails={store.data.current_prompt2_output[node_id]}
                     width={store.data.output_thumbnail_image_size[node_id]}
                     height={200}
+                    fixedHeight={store.data.output_node_fixed_height[node_id]}
                     action_buttons={[
                         {
                             ComponentType: MoveToCanvasSvg,

@@ -12,14 +12,36 @@ export class Grid extends React.Component<{
     clicked_index?: number
     permanent_indices?: number[]
     thumbnails_styles?: string[]
+    fixedHeight?: boolean
 }> {
     static defaultProps = {
         width: 100,
         height: 100,
         thumbnails: [],
         thumbnails_styles: [],
+        fixedHeight: false,
     }
 
+    containerRef: React.RefObject<HTMLDivElement> = React.createRef()
+
+    componentDidMount() {
+        if (this.props.fixedHeight && this.containerRef.current) {
+            this.containerRef.current.style.height = `${this.containerRef.current.scrollHeight}px`
+        }
+    }
+
+    componentDidUpdate(prevProps: any) {
+        if (
+            this.props.fixedHeight !== prevProps.fixedHeight &&
+            this.containerRef.current
+        ) {
+            if (this.props.fixedHeight) {
+                this.containerRef.current.style.height = `${this.containerRef.current.scrollHeight}px`
+            } else {
+                this.containerRef.current.style.height = 'auto'
+            }
+        }
+    }
     render() {
         const img_style = {
             width: `${this.props.width}px`,
@@ -27,7 +49,7 @@ export class Grid extends React.Component<{
             height: 'auto',
         }
         return (
-            <div className="viewer-container">
+            <div className="viewer-container" ref={this.containerRef}>
                 {this.props?.thumbnails?.map((thumbnail, index: number) => {
                     // const thumbnail = this.props?.thumbnails
                     // thumbnail
