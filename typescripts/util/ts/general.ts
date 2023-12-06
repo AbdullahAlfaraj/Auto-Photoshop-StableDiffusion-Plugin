@@ -1,3 +1,4 @@
+import { core } from 'photoshop'
 import { io } from '../oldSystem'
 
 export function autoResize(textarea: any, text_content: string, delay = 300) {
@@ -57,8 +58,8 @@ export function base64ToBase64Url(base64_image: string) {
     return 'data:image/png;base64,' + base64_image
 }
 export function base64UrlToBase64(base64_url: string) {
-    const base64_image = base64_url.replace('data:image/png;base64,', '')
-    return base64_image
+    const base64 = base64_url.replace(/data:image\/.*;base64,/, '')
+    return base64
 }
 
 export function newOutputImageName(format = 'png') {

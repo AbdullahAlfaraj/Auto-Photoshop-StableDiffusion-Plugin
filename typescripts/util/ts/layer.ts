@@ -132,3 +132,21 @@ export async function transformCurrentLayerTo(
 
     await psapi.reSelectMarqueeExe(selection_info)
 }
+
+export async function SetLayerColor() {
+    let result
+
+    let command = [
+        {
+            _obj: 'set',
+            _target: [
+                { _enum: 'ordinal', _ref: 'layer', _value: 'targetEnum' },
+            ],
+            to: { _obj: 'layer', color: { _enum: 'color', _value: 'red' } },
+        },
+    ]
+    result = await batchPlay(command, {
+        synchronousExecution: true,
+        modalBehavior: 'execute',
+    })
+}

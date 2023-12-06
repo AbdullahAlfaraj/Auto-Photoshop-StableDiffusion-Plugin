@@ -33,6 +33,8 @@ import { base64UrlToBase64, copyJson, urlToCanvas } from '../util/ts/general'
 import comfyapi from './comfyapi'
 import { getSelectionInfoExe } from '../../psapi'
 import { moveImageToLayer } from '../util/ts/io'
+import { reuseOrUploadComfyImage } from './main_ui'
+import { SetLayerColor } from '../util/ts/layer'
 
 interface Error {
     type: string
@@ -554,55 +556,141 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
             <div>
                 {/* New load image component */}
                 <div>
-                    <button
-                        className="btnSquare "
-                        onClick={async () => {
-                            const image = await io.getImageFromCanvas(false)
-                            const new_loaded_image = await util.uploadImage(
-                                false,
-                                image
-                            )
-                            console.log('new_loaded_image: ', new_loaded_image)
-                            if (new_loaded_image) {
-                                store.data.uploaded_images_list = [
-                                    ...store.data.uploaded_images_list,
-                                    new_loaded_image.name,
-                                ]
+                    <div>
+                        <sp-radio-group
+                            style={{ display: 'flex' }}
+                            // selected={ }
+                            onClick={(event: any) => {
+                                store.data.loadImage_loading_method[
+                                    node_id
+                                ].method = event.target.value
+                            }}
+                        >
+                            <sp-label slot="label">
+                                {Locale('Image Loading Method:')}
+                            </sp-label>
+                            {[
+                                'Manual',
+                                'Sync From Whole Canvas',
+                                'Sync From a Layer',
+                            ].map((loading_method: string, index: number) => {
+                                return (
+                                    <sp-radio
+                                        key={`${loading_method}-loading_method-${index}`}
+                                        checked={
+                                            store.data.loadImage_loading_method[
+                                                node_id
+                                            ].method === loading_method
+                                                ? true
+                                                : void 0
+                                        }
+                                        value={loading_method}
+                                    >
+                                        {Locale(loading_method)}
+                                    </sp-radio>
+                                )
+                            })}
+                        </sp-radio-group>
+                    </div>
+                    <div
+                        style={{
+                            display:
+                                store.data.loadImage_loading_method[node_id]
+                                    .method === 'Manual'
+                                    ? void 0
+                                    : 'none',
+                        }}
+                    >
+                        <button
+                            className="btnSquare "
+                            onClick={async () => {
+                                const image_base64 =
+                                    await io.getImageFromCanvas(false)
 
-                                await onChangeLoadImage(
-                                    node_id,
-                                    new_loaded_image.name
+                                const image_name =
+                                    await reuseOrUploadComfyImage(
+                                        image_base64,
+                                        store.data
+                                            .base64_to_uploaded_images_names,
+                                        'input'
+                                    )
+                                // const new_loaded_image = await util.uploadImage(
+                                //     false,
+                                //     image_base64,
+                                //     'temp'
+                                // )
+                                // console.log('new_loaded_image: ', new_loaded_image)
+                                if (image_name) {
+                                    // store.data.uploaded_images_list = [
+                                    //     ...store.data.uploaded_images_list,
+                                    //     image_name,
+                                    // ]
+
+                                    await onChangeLoadImage(
+                                        node_id,
+                                        image_name,
+                                        'input'
+                                    )
+                                }
+                            }}
+                        >
+                            Load Image From Canvas
+                        </button>
+                        <button
+                            className="btnSquare"
+                            onClick={async () => {
+                                const new_uploaded_image =
+                                    await util.uploadImage(true, '', 'input')
+                                console.log(
+                                    'new_loaded_image: ',
+                                    new_uploaded_image
                                 )
-                            }
+                                if (new_uploaded_image) {
+                                    store.data.uploaded_images_list = [
+                                        ...store.data.uploaded_images_list,
+                                        new_uploaded_image.name,
+                                    ]
+                                    await onChangeLoadImage(
+                                        node_id,
+                                        new_uploaded_image.name,
+                                        'input'
+                                    )
+                                }
+                            }}
+                        >
+                            Load Image From Folder
+                        </button>
+                    </div>
+                    <div
+                        style={{
+                            display:
+                                store.data.loadImage_loading_method[node_id]
+                                    .method === 'Sync From a Layer'
+                                    ? void 0
+                                    : 'none',
                         }}
                     >
-                        Load Image From Canvas
-                    </button>
-                    <button
-                        className="btnSquare"
-                        onClick={async () => {
-                            const new_uploaded_image = await util.uploadImage(
-                                true,
-                                ''
-                            )
-                            console.log(
-                                'new_loaded_image: ',
-                                new_uploaded_image
-                            )
-                            if (new_uploaded_image) {
-                                store.data.uploaded_images_list = [
-                                    ...store.data.uploaded_images_list,
-                                    new_uploaded_image.name,
-                                ]
-                                await onChangeLoadImage(
-                                    node_id,
-                                    new_uploaded_image.name
-                                )
-                            }
-                        }}
-                    >
-                        Load Image From Folder
-                    </button>
+                        <button
+                            className="btnSquare"
+                            onClick={async () => {
+                                const current_layer =
+                                    app.activeDocument.activeLayers[0]
+                                if (current_layer && current_layer.id) {
+                                    store.data.loadImage_loading_method[
+                                        node_id
+                                    ].data = { layer_id: current_layer.id }
+                                    await core.executeAsModal(
+                                        async () => {
+                                            await SetLayerColor()
+                                        },
+                                        { commandName: 'Color Code layer' }
+                                    )
+                                }
+                            }}
+                        >
+                            Sync Current Layer
+                        </button>
+                    </div>
                 </div>
                 <sp-label class="title" style={{ display: 'inline-block' }}>
                     {node_name}
@@ -625,7 +713,7 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
                             //load image store for each LoadImage Node
                             //use node_id to store these
 
-                            onChangeLoadImage(node_id, item)
+                            onChangeLoadImage(node_id, item, 'input')
                         }}
                     ></SpMenu>
                 </div>
@@ -639,7 +727,7 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
                             const length = uploaded_images.length
                             index = ((index % length) + length) % length
                             inputs.image = uploaded_images[index]
-                            onChangeLoadImage(node_id, inputs.image)
+                            onChangeLoadImage(node_id, inputs.image, 'input')
                         }}
                     >
                         {' '}
@@ -655,7 +743,7 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
                             const length = uploaded_images.length
                             index = ((index % length) + length) % length
                             inputs.image = uploaded_images[index]
-                            onChangeLoadImage(node_id, inputs.image)
+                            onChangeLoadImage(node_id, inputs.image, 'input')
                         }}
                     >
                         {' '}
@@ -671,7 +759,7 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
                             store.data.current_uploaded_image[node_id]
                         )
 
-                        onChangeLoadImage(node_id, inputs.image)
+                        onChangeLoadImage(node_id, inputs.image, 'input')
                     }}
                 />
             </div>
@@ -690,7 +778,8 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
                         onClick={async () => {
                             const new_uploaded_video = await util.uploadImage(
                                 true,
-                                ''
+                                '',
+                                'input'
                             )
                             console.log(
                                 'new_uploaded_video: ',
@@ -703,7 +792,8 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
                                 ]
                                 await onChangeLoadVideo(
                                     node_id,
-                                    new_uploaded_video.name
+                                    new_uploaded_video.name,
+                                    'input'
                                 )
                             }
                         }}
@@ -1148,6 +1238,9 @@ function loadWorkflow2(workflow: any) {
     try {
         //1) get prompt
         store.data.current_prompt2 = copyJson(workflow)
+        store.data.current_uploaded_image = {}
+        // store.data.sync_from_canvas = {}
+        store.data.loadImage_loading_method = {}
 
         //2)  get the original order
         store.data.nodes_order = Object.keys(toJS(store.data.current_prompt2))
@@ -1177,6 +1270,17 @@ function loadWorkflow2(workflow: any) {
                 }
             )
         )
+
+        for (const node_id in store.data.current_prompt2) {
+            if (
+                store.data.current_prompt2[node_id].class_type === 'LoadImage'
+            ) {
+                // store.data.sync_from_canvas[node_id] = true
+                store.data.loadImage_loading_method[node_id] = {
+                    method: 'Manual',
+                }
+            }
+        }
 
         // parse the output nodes
         // Note: we can't modify the node directly in the prompt like we do for input nodes.
@@ -1374,10 +1478,173 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                     <button
                         className="btnSquare"
                         style={{
+                            display: store.data.can_generate ? void 0 : 'none',
+                        }}
+                        onClick={async () => {
+                            store.data.infinite_loop = true
+
+                            async function infiniteCanvasImageScript() {
+                                try {
+                                    let numOfImagesToSync = 0
+                                    // for (const node_id in store.data
+                                    //     .sync_from_canvas) {
+                                    for (const node_id in store.data
+                                        .loadImage_loading_method) {
+                                        if (
+                                            // store.data.sync_from_canvas[node_id]
+                                            store.data.loadImage_loading_method[
+                                                node_id
+                                            ].method ===
+                                            'Sync From Whole Canvas'
+                                        ) {
+                                            numOfImagesToSync += 1
+                                        }
+                                    }
+
+                                    if (numOfImagesToSync === 0) {
+                                        // return undefined
+                                        //
+                                    } else {
+                                        //debounce if the function executed recently
+                                        const now = Date.now()
+                                        if (now - store.data.lastCall < 2000) {
+                                            console.log(
+                                                'getImageFromCanvas debounced'
+                                            )
+                                            // return undefined
+                                        } else {
+                                            store.data.lastCall = now
+
+                                            const image_data_url =
+                                                //@ts-ignore
+                                                await getImageFromCanvas()
+                                            const image_base64 =
+                                                base64UrlToBase64(
+                                                    image_data_url
+                                                )
+
+                                            const image_name =
+                                                await reuseOrUploadComfyImage(
+                                                    image_base64,
+                                                    store.data
+                                                        .base64_to_uploaded_images_names,
+                                                    'input'
+                                                )
+                                            if (image_name) {
+                                                for (const node_id of Object.keys(
+                                                    // store.data.sync_from_canvas
+                                                    store.data
+                                                        .loadImage_loading_method
+                                                )) {
+                                                    if (
+                                                        store.data
+                                                            .loadImage_loading_method[
+                                                            node_id
+                                                        ].method ===
+                                                        'Sync From Whole Canvas'
+                                                    ) {
+                                                        await onChangeLoadImage(
+                                                            node_id,
+                                                            image_name,
+                                                            'input'
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // sync from layer
+
+                                    for (const node_id in store.data
+                                        .loadImage_loading_method) {
+                                        try {
+                                            if (
+                                                store.data
+                                                    .loadImage_loading_method[
+                                                    node_id
+                                                ].method === 'Sync From a Layer'
+                                            ) {
+                                                const layer_id =
+                                                    store.data
+                                                        .loadImage_loading_method[
+                                                        node_id
+                                                    ].data?.layer_id
+                                                const layer_data_url =
+                                                    //@ts-ignore
+                                                    await getImageFromCanvas(
+                                                        layer_id
+                                                    )
+                                                const layer_image_base64 =
+                                                    base64UrlToBase64(
+                                                        layer_data_url
+                                                    )
+
+                                                const image_name =
+                                                    await reuseOrUploadComfyImage(
+                                                        layer_image_base64,
+                                                        store.data
+                                                            .base64_to_uploaded_images_names,
+                                                        'input'
+                                                    )
+                                                if (image_name) {
+                                                    await onChangeLoadImage(
+                                                        node_id,
+                                                        image_name,
+                                                        'input'
+                                                    )
+                                                }
+                                            }
+                                        } catch (e) {
+                                            console.error(e)
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.error(e)
+                                }
+                            }
+                            while (store.data.infinite_loop) {
+                                store.data.can_generate = false
+                                let interval: NodeJS.Timeout = setInterval(
+                                    function () {
+                                        store.data.progress_value++
+                                        console.log(store.data.progress_value)
+                                    },
+                                    1000
+                                ) // 1000 milliseconds = 1 second
+
+                                try {
+                                    // Start the progress update
+
+                                    util.runRandomSeedScript()
+                                    await infiniteCanvasImageScript()
+
+                                    let { outputs, separated_outputs } =
+                                        await util.postPromptAndGetBase64JsonResult(
+                                            toJS(store.data.current_prompt2)
+                                        )
+                                    store.data.current_prompt2_output =
+                                        outputs ?? {}
+                                } catch (e) {
+                                    console.error(e)
+                                } finally {
+                                    clearInterval(interval as NodeJS.Timeout)
+                                    store.data.progress_value = 0
+                                    store.data.can_generate = true
+                                }
+                            }
+                        }}
+                    >
+                        Generate RealTime
+                    </button>
+                    <button
+                        className="btnSquare"
+                        style={{
                             display: !store.data.can_generate ? void 0 : 'none',
                         }}
                         onClick={async () => {
                             await comfyapi.comfy_api.interrupt()
+                            store.data.infinite_loop = false
                         }}
                     >
                         Interrupt

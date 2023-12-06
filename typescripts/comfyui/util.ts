@@ -89,8 +89,17 @@ export const store = new AStore({
 
     base64_to_uploaded_images_names: {} as Record<string, any>,
     can_generate: true as boolean,
+    infinite_loop: false as boolean,
+    output_node_fixed_height: {} as Record<string, boolean>,
+    lastCall: 0 as number,
+    // sync_from_canvas: {} as Record<string, boolean>,
+    loadImage_loading_method: {} as Record<string, ImageLoadingMethod>,
 })
 
+interface ImageLoadingMethod {
+    method: 'Manual' | 'Sync From Whole Canvas' | 'Sync From a Layer'
+    data?: { layer_id?: number }
+}
 interface Workflow {}
 export function getNodes(workflow: Workflow) {
     // Object.values(workflow).forEach((node) => {
@@ -392,13 +401,15 @@ function extractFormat(input: string) {
 async function uploadImagePost(
     buffer: any,
     file_name: string,
-    subfolder: string = 'auto-photoshop-plugin'
+    type: string = 'input',
+    subfolder: string = 'Auto-Photoshop-SD'
 ) {
     try {
         const full_url = comfyapi.comfy_api.comfy_url + '/upload/image'
         var formData = new FormData()
 
         formData.append('image', buffer, file_name)
+        formData.append('type', type)
         formData.append('subfolder', subfolder)
         var requestOptions = {
             method: 'POST',
@@ -425,7 +436,11 @@ async function uploadImagePost(
         console.error(e)
     }
 }
-async function uploadImage(b_from_disk = false, imgBase64: string) {
+async function uploadImage(
+    b_from_disk = false,
+    imgBase64: string,
+    type = 'input'
+) {
     try {
         let content, name
         if (b_from_disk) {
@@ -443,7 +458,12 @@ async function uploadImage(b_from_disk = false, imgBase64: string) {
         // console.log('content: ', content)
         // console.log('name: ', name)
 
-        const uploaded_image = await uploadImagePost(content, name, '')
+        const uploaded_image = await uploadImagePost(
+            content,
+            name,
+            type,
+            'Auto-Photoshop-SD'
+        )
         return uploaded_image
     } catch (e) {
         console.error(e)
