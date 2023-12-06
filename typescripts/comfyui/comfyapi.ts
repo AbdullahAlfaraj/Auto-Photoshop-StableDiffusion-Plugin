@@ -65,7 +65,9 @@ class ComfyAPI {
     async getHistory(prompt_id: string = '') {
         try {
             const url = `${this.comfy_url}/history/${prompt_id}`
-            const res = await requestGet(`${this.comfy_url}/history`)
+
+            const res = await requestGet(url)
+
             return res
         } catch (e) {
             console.error(e)
