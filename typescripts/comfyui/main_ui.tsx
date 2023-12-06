@@ -227,26 +227,30 @@ const inpaint_map: Record<string, any> = {
     // hr_scheduler: 'normal',
     hr_denoising_strength: 'hires_sampler.denoise',
 }
-async function reuseOrUploadComfyImage(
+
+export async function reuseOrUploadComfyImage(
     base64: string,
-    all_uploaded_images: Record<string, any>
+    all_uploaded_images: Record<string, any>,
+    type = 'input'
 ) {
-    let image_name: string = ''
+    let image_path: string = ''
     if (all_uploaded_images[base64]) {
-        image_name = all_uploaded_images[base64]
+        image_path = all_uploaded_images[base64]
     } else {
-        const new_loaded_image = await util.uploadImage(false, base64)
+        const new_loaded_image = await util.uploadImage(false, base64, type)
         console.log('new_loaded_image: ', new_loaded_image)
         if (new_loaded_image) {
+            const { subfolder, name, type } = new_loaded_image
+            image_path = subfolder !== '' ? `${subfolder}/${name}` : `${name}`
             store.data.uploaded_images_list = [
                 ...store.data.uploaded_images_list,
-                new_loaded_image.name,
+                image_path,
             ]
-            image_name = new_loaded_image.name
-            all_uploaded_images[base64] = new_loaded_image.name
+
+            all_uploaded_images[base64] = image_path
         }
     }
-    return image_name
+    return image_path
 }
 async function addMissingSettings(plugin_settings: Record<string, any>) {
     plugin_settings['vae'] = vae_settings.store.data.current_vae
@@ -260,7 +264,8 @@ async function addMissingSettings(plugin_settings: Record<string, any>) {
 
         plugin_settings['init_image'] = await reuseOrUploadComfyImage(
             base64,
-            store.data.base64_to_uploaded_images_names
+            store.data.base64_to_uploaded_images_names,
+            'input'
         )
     }
     if ('mask' in plugin_settings) {
@@ -268,7 +273,8 @@ async function addMissingSettings(plugin_settings: Record<string, any>) {
 
         plugin_settings['comfy_mask'] = await reuseOrUploadComfyImage(
             base64,
-            store.data.base64_to_uploaded_images_names
+            store.data.base64_to_uploaded_images_names,
+            'input'
         )
     }
 
@@ -306,7 +312,8 @@ async function addMissingControlnetSettings(
             const base64 = unit['input_image']
             unit['comfy_input_image'] = await reuseOrUploadComfyImage(
                 base64,
-                store.data.base64_to_uploaded_images_names
+                store.data.base64_to_uploaded_images_names,
+                'input'
             )
         }
         if ('mask' in unit && unit['mask'] !== '') {
@@ -315,7 +322,8 @@ async function addMissingControlnetSettings(
 
             unit['comfy_mask'] = await reuseOrUploadComfyImage(
                 base64,
-                store.data.base64_to_uploaded_images_names
+                store.data.base64_to_uploaded_images_names,
+                'input'
             )
         } else if ('comfy_mask' in plugin_settings) {
             // use the mask from the main ui (inpaint and outpaint mode)

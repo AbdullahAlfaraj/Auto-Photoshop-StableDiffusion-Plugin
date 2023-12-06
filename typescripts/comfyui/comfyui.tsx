@@ -17,7 +17,7 @@ import Locale from '../locale/locale'
 
 import { Grid } from '../util/grid'
 import { io } from '../util/oldSystem'
-import { app } from 'photoshop'
+import { app, core } from 'photoshop'
 import { reaction, toJS } from 'mobx'
 import { storage } from 'uxp'
 
@@ -471,26 +471,34 @@ function setSliderValue(store: any, node_id: string, name: string, value: any) {
         store.data.current_prompt2[node_id].inputs[name] = value
     })
 }
-async function onChangeLoadImage(node_id: string, filename: string) {
+async function onChangeLoadImage(
+    node_id: string,
+    filename: string,
+    type = 'input'
+) {
     try {
         store.data.current_uploaded_image[node_id] =
             await util.base64UrlFromComfy({
                 filename: encodeURIComponent(filename),
-                type: 'input',
-                subfolder: '',
+                type: type,
+                subfolder: 'Auto-Photoshop-SD',
             })
-        store.data.current_prompt2[node_id].inputs.image = filename
+        store.data.current_prompt2[node_id].inputs.image = `${filename}`
     } catch (e) {
         console.warn(e)
     }
 }
-async function onChangeLoadVideo(node_id: string, filename: string) {
+async function onChangeLoadVideo(
+    node_id: string,
+    filename: string,
+    type = 'input'
+) {
     try {
         store.data.current_uploaded_video[node_id] =
             await util.base64UrlFromComfy({
                 filename: encodeURIComponent(filename),
-                type: 'input',
-                subfolder: '',
+                type: type,
+                subfolder: 'Auto-Photoshop-SD',
             })
         store.data.current_prompt2[node_id].inputs.video = filename
     } catch (e) {
@@ -1264,7 +1272,7 @@ async function getUploadedImages(images_list: string[]) {
                 return await util.base64UrlFromComfy({
                     filename: encodeURIComponent(filename),
                     type: 'input',
-                    subfolder: '',
+                    subfolder: 'Auto-Photoshop-SD',
                 })
             } catch (e) {
                 console.warn(e)
