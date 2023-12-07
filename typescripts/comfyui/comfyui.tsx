@@ -887,7 +887,7 @@ function renderNode(node_id: string, node: any, is_output: boolean) {
                             show-value="false"
                             id="slUpscaleSize"
                             min="25"
-                            max="300"
+                            max="600"
                             value={
                                 store.data.output_thumbnail_image_size[node_id]
                             }
