@@ -19,7 +19,7 @@ import { Grid } from '../util/grid'
 import { io } from '../util/oldSystem'
 import { app, core } from 'photoshop'
 import { reaction, toJS } from 'mobx'
-import { storage } from 'uxp'
+import { host, storage } from 'uxp'
 
 import util, {
     ComfyInputType,
@@ -29,7 +29,14 @@ import util, {
     store,
 } from './util'
 
-import { base64UrlToBase64, copyJson, urlToCanvas } from '../util/ts/general'
+import {
+    base64UrlToBase64,
+    copyJson,
+    deleteKeys,
+    getImageFromCanvas_new,
+    isValidVersion,
+    urlToCanvas,
+} from '../util/ts/general'
 import comfyapi from './comfyapi'
 import { getSelectionInfoExe } from '../../psapi'
 import { moveImageToLayer } from '../util/ts/io'
@@ -1516,11 +1523,11 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                             store.data.lastCall = now
 
                                             const image_data_url =
-                                                //@ts-ignore
-                                                await getImageFromCanvas()
+                                                await getImageFromCanvas_new()
+
                                             const image_base64 =
                                                 base64UrlToBase64(
-                                                    image_data_url
+                                                    image_data_url!
                                                 )
 
                                             const image_name =
@@ -1571,13 +1578,12 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                                         node_id
                                                     ].data?.layer_id
                                                 const layer_data_url =
-                                                    //@ts-ignore
-                                                    await getImageFromCanvas(
-                                                        layer_id
+                                                    await getImageFromCanvas_new(
+                                                        layer_id!
                                                     )
                                                 const layer_image_base64 =
                                                     base64UrlToBase64(
-                                                        layer_data_url
+                                                        layer_data_url!
                                                     )
 
                                                 const image_name =
@@ -1597,10 +1603,21 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                             }
                                         } catch (e) {
                                             console.error(e)
+                                            if (!isValidVersion(25)) {
+                                                // const errorMessage = `Real-time img2img Require Adobe Photoshop version 25 or higher. Your current version is ${host.version}. Please update Adobe Photoshop to use this feature. You can still use realtime txt2img.`
+                                                // app.showAlert(errorMessage)
+                                                throw e
+                                            }
                                         }
                                     }
                                 } catch (e) {
                                     console.error(e)
+                                    if (!isValidVersion(25)) {
+                                        const errorMessage = `Real-time img2img Require Adobe Photoshop version 25 or higher. Your current version is ${host.version}. Please update Adobe Photoshop to use this feature. You can still use realtime txt2img.`
+                                        app.showAlert(errorMessage)
+                                        throw errorMessage
+                                    }
+                                    throw e
                                 }
                             }
                             while (store.data.infinite_loop) {
