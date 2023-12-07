@@ -467,12 +467,16 @@ async function generateComfyMode(
         //     }
         // }
         console.log('final_prompt: ', final_prompt)
-        const { outputs, separated_outputs } =
-            await comfyui_util.postPromptAndGetBase64JsonResult(
-                final_prompt,
-                separated_output_node_ids
-            )
-
+        try {
+            var { outputs, separated_outputs } =
+                await comfyui_util.postPromptAndGetBase64JsonResult(
+                    final_prompt,
+                    separated_output_node_ids
+                )
+        } catch (e) {
+            outputs = undefined
+            separated_outputs = undefined
+        }
         if (outputs) {
             image_url_list = Object.values(outputs).flat()
             image_base64_list = image_url_list.map((image_url) => {

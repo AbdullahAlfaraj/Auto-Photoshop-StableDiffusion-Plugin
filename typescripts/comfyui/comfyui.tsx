@@ -1627,6 +1627,7 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                         outputs ?? {}
                                 } catch (e) {
                                     console.error(e)
+                                    break
                                 } finally {
                                     clearInterval(interval as NodeJS.Timeout)
                                     store.data.progress_value = 0

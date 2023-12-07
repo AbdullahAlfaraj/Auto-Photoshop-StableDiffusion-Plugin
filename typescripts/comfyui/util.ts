@@ -274,7 +274,7 @@ export async function postPromptAndGetBase64JsonResult(
     } catch (e) {
         console.error(e)
         app.showAlert(`${e}`)
-        return { outputs: undefined, separated_outputs: undefined }
+        throw e
     }
 }
 export const getFileFormat = (fileName: string): string =>
@@ -529,7 +529,7 @@ async function maskExpansion(
         },
     }
     try {
-        const { outputs, separated_outputs } =
+        var { outputs, separated_outputs } =
             await postPromptAndGetBase64JsonResult(prompt)
         if (outputs) {
             const expanded_mask = outputs['6'][0]
@@ -538,6 +538,8 @@ async function maskExpansion(
         // html_manip.setInitImageMaskSrc(expanded_mask)
     } catch (e) {
         console.error(e)
+        outputs = undefined
+        separated_outputs = undefined
     }
     return base64_mask
 }
