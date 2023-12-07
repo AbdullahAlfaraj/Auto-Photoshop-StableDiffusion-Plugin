@@ -26,15 +26,17 @@ class ComfyAPI {
     constructor(comfy_url: string) {
         this.comfy_url = comfy_url
     }
-    async init() {
+    async init(display_error = false) {
         try {
             this.object_info = await this.initializeObjectInfo(this.comfy_url)
             this.status = true
             return this.object_info
         } catch (e) {
             console.error(e)
-            app.showAlert(`${e}`)
             this.status = false
+            if (display_error) {
+                app.showAlert(`${e}`)
+            }
         }
     }
     setUrl(comfy_url: string) {

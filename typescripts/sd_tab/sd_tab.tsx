@@ -271,7 +271,7 @@ class SDTab extends React.Component<{}> {
                             id="btnRefreshModels"
                             // style={styles.button}
                             onClick={async (e) => {
-                                await refreshUI()
+                                await refreshUI(true)
 
                                 tempDisableElement(e.target, 3000)
                             }}

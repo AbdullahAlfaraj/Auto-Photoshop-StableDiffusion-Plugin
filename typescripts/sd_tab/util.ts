@@ -358,7 +358,7 @@ export function loadNativePreset() {
     console.log(json_container)
     return json_container
 }
-export async function refreshUI() {
+export async function refreshUI(display_error = false) {
     try {
         const b_proxy_server_status = await updateVersionUI()
         if (b_proxy_server_status) {
@@ -410,7 +410,7 @@ export async function refreshUI() {
         }
 
         if (settings_tab_ts.store.data.selected_backend === 'ComfyUI') {
-            await comfyapi.comfy_api.init()
+            await comfyapi.comfy_api.init(display_error)
 
             helper_store.data.models = comfyapi.comfy_api.getModels()
             store.data.selected_model = helper_store.data.models?.[0]
