@@ -1235,11 +1235,18 @@ interface WorkflowData {
 }
 
 function resetWorkflowData(workflow_name: string) {
-    delete storage.localStorage[workflow_name]
-    // const workflow_name = store.data.selected_workflow_name
+    let workflow_data = JSON.parse(storage.localStorage[workflow_name])
     const original_workflow = store.data.workflows2[workflow_name]
-    loadWorkflow2(original_workflow)
-    // resetNodeOrder()
+    const prompt = toJS(original_workflow)
+    workflow_data['prompt'] = prompt
+
+    store.data.current_prompt2 = {}
+
+    storage.localStorage.setItem(workflow_name, JSON.stringify(workflow_data))
+
+    setTimeout(() => {
+        loadWorkflow2(toJS(store.data.workflows2[workflow_name]))
+    }, 250)
 }
 function loadWorkflow2(workflow: any) {
     try {
@@ -1731,12 +1738,19 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                         title="reload the current workflow"
                         onClick={async () => {
                             store.data.object_info =
-                                comfyapi.comfy_api.getObjectInfo()
-                            loadWorkflow2(
-                                store.data.workflows2[
-                                    store.data.selected_workflow_name
-                                ]
-                            )
+                                await comfyapi.comfy_api.init(true)
+
+                            store.data.current_prompt2 = {}
+
+                            setTimeout(() => {
+                                loadWorkflow2(
+                                    toJS(
+                                        store.data.workflows2[
+                                            store.data.selected_workflow_name
+                                        ]
+                                    )
+                                )
+                            }, 250)
                         }}
                     ></button>
                     <button
