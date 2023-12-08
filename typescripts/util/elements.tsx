@@ -609,11 +609,10 @@ export class SearchableMenu extends React.Component<{
                         }}
                         onFocus={(evt: any) => {
                             console.log('onFocus:', evt.target.value)
-                            if (evt.target.value === '') {
-                                this.setState({
-                                    searchItems: this.props.allItems,
-                                })
-                            }
+
+                            this.setState({
+                                searchItems: this.props.allItems,
+                            })
                             this.setState({ openMenu: true })
                             console.log(
                                 'this.state.searchQuery: ',
