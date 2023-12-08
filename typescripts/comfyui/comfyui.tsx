@@ -1213,6 +1213,27 @@ export function swap(index1: number, index2: number) {
     }
 }
 
+export function moveToTop(index: number) {
+    const { length } = store.data.nodes_order
+    if (index >= 0 && index < length) {
+        const node = store.data.nodes_order[index]
+        // Remove the node from its current position
+        store.data.nodes_order.splice(index, 1)
+        // Add the node to the topmost position
+        store.data.nodes_order.unshift(node)
+    }
+}
+export function moveToBottom(index: number) {
+    const { length } = store.data.nodes_order
+    if (index >= 0 && index < length) {
+        const node = store.data.nodes_order[index]
+        // Remove the node from its current position
+        store.data.nodes_order.splice(index, 1)
+        // Add the node to the bottommost position
+        store.data.nodes_order.push(node)
+    }
+}
+
 export function saveWorkflowData(
     workflow_name: string,
     { prompt, nodes_order, nodes_label }: WorkflowData
@@ -1834,11 +1855,70 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                                             .can_edit_nodes
                                                             ? 'flex'
                                                             : 'none',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'flex-end',
+                                                        flexDirection: 'row',
+                                                        justifyContent:
+                                                            'space-between',
                                                     }}
                                                 >
-                                                    <div>
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection:
+                                                                'column',
+                                                            alignItems:
+                                                                'flex-start',
+                                                        }}
+                                                    >
+                                                        <button
+                                                            id={`${node_id}_new_button_1`}
+                                                            style={{
+                                                                width: '26px',
+                                                            }}
+                                                            title={
+                                                                'move node to the first position'
+                                                            }
+                                                            className="btnSquare"
+                                                            onClick={(
+                                                                e: any
+                                                            ) => {
+                                                                store.data.last_moved =
+                                                                    node_id
+                                                                moveToTop(index)
+                                                            }}
+                                                        >
+                                                            {' '}
+                                                            {'▲▲'}{' '}
+                                                        </button>
+                                                        <button
+                                                            id={`${node_id}_new_button_2`}
+                                                            style={{
+                                                                width: '26px',
+                                                            }}
+                                                            title={
+                                                                'move node to the last position'
+                                                            }
+                                                            className="btnSquare"
+                                                            onClick={() => {
+                                                                store.data.last_moved =
+                                                                    node_id
+                                                                moveToBottom(
+                                                                    index
+                                                                )
+                                                            }}
+                                                        >
+                                                            {' '}
+                                                            {'▼▼'}{' '}
+                                                        </button>
+                                                    </div>
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection:
+                                                                'column',
+                                                            alignItems:
+                                                                'flex-end',
+                                                        }}
+                                                    >
                                                         <button
                                                             id={`${node_id}_swap_up`}
                                                             style={{
@@ -1863,8 +1943,6 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                                             {' '}
                                                             {'▲'}{' '}
                                                         </button>
-                                                    </div>
-                                                    <div>
                                                         <button
                                                             id={`${node_id}_swap_down`}
                                                             style={{
@@ -1883,7 +1961,6 @@ class ComfyWorkflowComponent extends React.Component<{}, { value?: number }> {
                                                             {' '}
                                                             {'▼'}{' '}
                                                         </button>
-                                                        {/* <span ></span> */}
                                                     </div>
                                                 </div>
                                                 <sp-label>
