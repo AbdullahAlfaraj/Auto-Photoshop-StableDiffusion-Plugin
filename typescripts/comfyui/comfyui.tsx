@@ -1035,6 +1035,32 @@ function renderInput(
                         console.log(`${name}: ${event.target.value}`)
                     }}
                 ></sp-textfield>
+                <button
+                    style={{
+                        width: '26px',
+                    }}
+                    className="btnSquare"
+                    onClick={() => {
+                        inputs[name] = (
+                            BigInt(inputs[name]) - BigInt(1)
+                        ).toString()
+                    }}
+                >
+                    {'<'}
+                </button>
+                <button
+                    style={{
+                        width: '26px',
+                    }}
+                    className="btnSquare"
+                    onClick={() => {
+                        inputs[name] = (
+                            BigInt(inputs[name]) + BigInt(1)
+                        ).toString()
+                    }}
+                >
+                    {'>'}
+                </button>
                 <sp-checkbox
                     title="randomize seed before generation"
                     value={store.data.is_random_seed[node_id]}
