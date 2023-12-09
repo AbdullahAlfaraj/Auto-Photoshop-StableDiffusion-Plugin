@@ -1,0 +1,263 @@
+{
+  "6": {
+    "inputs": {
+      "text": "",
+      "clip": [
+        "38",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "20": {
+    "inputs": {
+      "ckpt_name": "aniverse_v15Pruned.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple"
+  },
+  "30": {
+    "inputs": {
+      "seed": [
+        "70",
+        0
+      ],
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "lcm",
+      "scheduler": "sgm_uniform",
+      "denoise": 1,
+      "model": [
+        "38",
+        0
+      ],
+      "positive": [
+        "74",
+        1
+      ],
+      "negative": [
+        "74",
+        2
+      ],
+      "latent_image": [
+        "46",
+        0
+      ]
+    },
+    "class_type": "KSampler"
+  },
+  "31": {
+    "inputs": {
+      "samples": [
+        "30",
+        0
+      ],
+      "vae": [
+        "20",
+        2
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "32": {
+    "inputs": {
+      "images": [
+        "31",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "36": {
+    "inputs": {
+      "text": "(nsfw:1.2), (nude:1.2)",
+      "clip": [
+        "20",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "38": {
+    "inputs": {
+      "lora_name": "lcm_lora_sd15.safetensors",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "20",
+        0
+      ],
+      "clip": [
+        "20",
+        1
+      ]
+    },
+    "class_type": "Load Lora"
+  },
+  "46": {
+    "inputs": {
+      "width": [
+        "51",
+        0
+      ],
+      "height": [
+        "51",
+        1
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage"
+  },
+  "47": {
+    "inputs": {
+      "image": "pasted/image (14).png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "51": {
+    "inputs": {
+      "image": [
+        "53",
+        0
+      ]
+    },
+    "class_type": "Get image size"
+  },
+  "53": {
+    "inputs": {
+      "side_length": [
+        "57",
+        0
+      ],
+      "side": "Longest",
+      "upscale_method": "nearest-exact",
+      "crop": "disabled",
+      "image": [
+        "73",
+        0
+      ]
+    },
+    "class_type": "Image scale to side"
+  },
+  "57": {
+    "inputs": {
+      "Value": 512
+    },
+    "class_type": "Integer"
+  },
+  "59": {
+    "inputs": {
+      "seed": [
+        "70",
+        0
+      ],
+      "steps": 8,
+      "cfg": 1,
+      "sampler_name": "lcm",
+      "scheduler": "sgm_uniform",
+      "denoise": 0.5,
+      "model": [
+        "38",
+        0
+      ],
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "36",
+        0
+      ],
+      "latent_image": [
+        "65",
+        0
+      ]
+    },
+    "class_type": "KSampler"
+  },
+  "63": {
+    "inputs": {
+      "samples": [
+        "59",
+        0
+      ],
+      "vae": [
+        "20",
+        2
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "64": {
+    "inputs": {
+      "images": [
+        "63",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  },
+  "65": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "scale_by": 1.5,
+      "samples": [
+        "30",
+        0
+      ]
+    },
+    "class_type": "LatentUpscaleBy"
+  },
+  "70": {
+    "inputs": {
+      "seed": 412914567948332
+    },
+    "class_type": "APS_Seed"
+  },
+  "73": {
+    "inputs": {
+      "image": [
+        "47",
+        0
+      ]
+    },
+    "class_type": "ImageInvert"
+  },
+  "74": {
+    "inputs": {
+      "preprocessor_name": "ScribblePreprocessor",
+      "control_net_name": "control_lora_rank128_v11p_sd15_scribble_fp16.safetensors",
+      "strength": 1,
+      "start_percent": 0,
+      "end_percent": 1,
+      "resolution": [
+        "57",
+        0
+      ],
+      "threshold_a": 0,
+      "threshold_b": 0,
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "36",
+        0
+      ],
+      "image": [
+        "53",
+        0
+      ]
+    },
+    "class_type": "ControlnetUnit"
+  },
+  "75": {
+    "inputs": {
+      "images": [
+        "74",
+        0
+      ]
+    },
+    "class_type": "PreviewImage"
+  }
+}
