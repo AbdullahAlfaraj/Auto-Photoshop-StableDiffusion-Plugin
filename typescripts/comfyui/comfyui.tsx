@@ -1276,7 +1276,7 @@ function loadWorkflow2(workflow: any) {
         store.data.current_uploaded_image = {}
         // store.data.sync_from_canvas = {}
         store.data.loadImage_loading_method = {}
-
+        store.data.output_node_fixed_height = {}
         //2)  get the original order
         store.data.nodes_order = Object.keys(toJS(store.data.current_prompt2))
 
