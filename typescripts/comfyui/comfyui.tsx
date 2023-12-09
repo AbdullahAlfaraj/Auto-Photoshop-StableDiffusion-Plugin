@@ -1121,7 +1121,7 @@ function renderInput(
                 <SpMenu
                     disabled={store.data.can_edit_nodes ? true : void 0}
                     size="m"
-                    title={name}
+                    title={inputs[name]}
                     items={config}
                     label_item={`Select a ${name}`}
                     // id={'model_list'}
