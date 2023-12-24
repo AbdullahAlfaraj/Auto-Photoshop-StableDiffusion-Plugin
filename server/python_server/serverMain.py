@@ -214,9 +214,7 @@ async def sdapi(request: Request, response: Response):
 @app.get("/sdapi/v1/{path:path}")
 async def sdapi(path: str, request: Request, response: Response):
     try:
-        resp = httpx.get(
-            url=f"{sd_url}/sdapi/v1/{path}", params=request.query_params
-        )
+        resp = httpx.get(url=f"{sd_url}/sdapi/v1/{path}", params=request.query_params)
         response.status_code = resp.status_code
         response.body = resp.content
     except:

@@ -1,4 +1,4 @@
-#code copied from controlnet repo global_state.py  
+# code copied from controlnet repo global_state.py
 
 
 preprocessor_filters = {
@@ -20,7 +20,8 @@ preprocessor_filters = {
     "T2IA": "none",
 }
 
-cn_preprocessor_modules = ["none",
+cn_preprocessor_modules = [
+    "none",
     "canny",
     "depth",
     "depth_leres",
@@ -87,16 +88,19 @@ preprocessor_aliases = {
     "inpaint": "inpaint_global_harmonious",
 }
 
-def filter_selected_helper(k,preprocessor_list,model_list):
-    if 'None' not in model_list:
-        model_list = ['None'] + model_list
-    ui_preprocessor_keys = ['none', preprocessor_aliases['invert']]
 
-  
-    ui_preprocessor_keys += sorted([preprocessor_aliases.get(k, k)
-                                    for k in preprocessor_list
-                                    if preprocessor_aliases.get(k, k) not in ui_preprocessor_keys])
-    
+def filter_selected_helper(k, preprocessor_list, model_list):
+    if "None" not in model_list:
+        model_list = ["None"] + model_list
+    ui_preprocessor_keys = ["none", preprocessor_aliases["invert"]]
+
+    ui_preprocessor_keys += sorted(
+        [
+            preprocessor_aliases.get(k, k)
+            for k in preprocessor_list
+            if preprocessor_aliases.get(k, k) not in ui_preprocessor_keys
+        ]
+    )
 
     preprocessor_list = ui_preprocessor_keys
     # print("preprocessor_list sorted: ",preprocessor_list)
@@ -104,7 +108,6 @@ def filter_selected_helper(k,preprocessor_list,model_list):
     # print("list(model_list): ",model_list)
 
     # print("k:",k,k.lower())
-    
 
     default_option = preprocessor_filters[k]
     pattern = k.lower()
@@ -113,13 +116,11 @@ def filter_selected_helper(k,preprocessor_list,model_list):
         return [
             preprocessor_list,
             model_list,
-            'none', #default option
-            "None"  #default model 
-            ] 
+            "none",  # default option
+            "None",  # default model
+        ]
     filtered_preprocessor_list = [
-        x
-        for x in preprocessor_list
-        if pattern in x.lower() or x.lower() == "none"
+        x for x in preprocessor_list if pattern in x.lower() or x.lower() == "none"
     ]
     if pattern in ["canny", "lineart", "scribble", "mlsd"]:
         filtered_preprocessor_list += [
@@ -135,7 +136,7 @@ def filter_selected_helper(k,preprocessor_list,model_list):
     #     else:
     #         print("pattern:",pattern, "not in model.lower():",model.lower())
     ##Debug end
-    
+
     filtered_model_list = [
         x for x in model_list if pattern in x.lower() or x.lower() == "none"
     ]
@@ -150,5 +151,10 @@ def filter_selected_helper(k,preprocessor_list,model_list):
             if "11" in x.split("[")[0]:
                 default_model = x
                 break
-    
-    return [filtered_preprocessor_list,filtered_model_list, default_option,default_model]
+
+    return [
+        filtered_preprocessor_list,
+        filtered_model_list,
+        default_option,
+        default_model,
+    ]
