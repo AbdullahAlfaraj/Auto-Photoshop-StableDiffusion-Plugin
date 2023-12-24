@@ -9,7 +9,6 @@ from typing import List
 
 import httpx
 import img2imgapi
-import requests
 from fastapi import Body, FastAPI, Request, Response
 from PIL import Image, PngImagePlugin
 
@@ -203,7 +202,7 @@ async def getInitImageHandle(request: Request):
 @app.get("/config")
 async def sdapi(request: Request, response: Response):
     try:
-        resp = requests.get(url=f"{sd_url}/config", params=request.query_params)
+        resp = httpx.get(url=f"{sd_url}/config", params=request.query_params)
         response.status_code = resp.status_code
         response.body = resp.content
     except:
@@ -215,7 +214,7 @@ async def sdapi(request: Request, response: Response):
 @app.get("/sdapi/v1/{path:path}")
 async def sdapi(path: str, request: Request, response: Response):
     try:
-        resp = requests.get(
+        resp = httpx.get(
             url=f"{sd_url}/sdapi/v1/{path}", params=request.query_params
         )
         response.status_code = resp.status_code
@@ -235,11 +234,11 @@ async def sdapi(path: str, request: Request, response: Response):
 
     try:
         # if(path =="interrupt"):
-        #     resp = requests.post(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params)
+        #     resp = httpx.post(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params)
 
         # else:
-        #     resp = requests.post(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params, json=await request.json())
-        resp = requests.post(
+        #     resp = httpx.post(url=f'{sd_url}/sdapi/v1/{path}', params=request.query_params, json=await request.json())
+        resp = httpx.post(
             url=f"{sd_url}/sdapi/v1/{path}", params=request.query_params, json=json
         )
 
@@ -436,7 +435,7 @@ async def swapModel(request: Request):
         # "sd_model_checkpoint": "Anything-V3.0-pruned.ckpt [2700c435]"
         "sd_model_checkpoint": model_title
     }
-    response = requests.post(url=f"{sd_url}/sdapi/v1/options", json=option_payload)
+    response = httpx.post(url=f"{sd_url}/sdapi/v1/options", json=option_payload)
 
 
 @app.post("/open/url/")
