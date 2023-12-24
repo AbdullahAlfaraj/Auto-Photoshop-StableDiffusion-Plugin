@@ -38,23 +38,19 @@ text = "a beautiful girl{    }, {char1}, {painterly_style} holding a cute cat { 
 
 def replaceShortcut(text, prompt_shortcut_dict):
     raw_keywords = find_words_inside_braces(text)
-    strip_keywords = list(map(lambda s: s.strip(), raw_keywords))
-
-    original_substrings = list(map(lambda s: "{" + s + "}", raw_keywords))
+    strip_keywords = [s.strip() for s in raw_keywords]
+    original_substrings = ["{" + s + "}" for s in raw_keywords]
 
     print("raw_keywords: ", raw_keywords)
     print("strip_keywords: ", strip_keywords)
     print("original_substrings: ", original_substrings)
-    # print ("text:",text)
 
     for i, word in enumerate(strip_keywords):
-        # word = word.strip()
         print("word: ", word)
-        if len(word) > 0 and word in prompt_shortcut_dict:
+        if word and word in prompt_shortcut_dict:
             prompt = prompt_shortcut_dict[word]
             print("prompt: ", prompt)
             text = text.replace(original_substrings[i], prompt)
-        # else:
-        # text = text.replace(word,word.strip())
+
     print("final text: ", text)
     return text
