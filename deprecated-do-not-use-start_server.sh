@@ -10,17 +10,15 @@ if ! hash python; then
 fi
 
 # Check the default python version
-orig_ver=$(python -V 2>&1)
+orig_ver=$(python --version 2>&1)
 major_version=$(echo "$orig_ver" | sed 's/[^0-9]*\([0-9]*\)\..*/\1/')
 minor_subversion=$(echo "$orig_ver" | sed -E 's/^[^.]*\.([^.]*).*$/\1/')
-if [[ "$major_version" -ge "3" ]] && [[ "$minor_subversion" -ge "7" ]] # Because of uvicorn==0.20.0 in requirements
-then
-    echo "You have valid version of $orig_ver"
+if [ "$major_version" -ge "3" ] && [ "$minor_subversion" -ge "7" ]; then
+  echo "You have a valid version of $orig_ver"
 else
-    echo "Your version $orig_ver not valid, should be >=3.7"
-    exit 1
+  echo "Your version $orig_ver is not valid, should be >=3.7"
+  exit 1
 fi
-
 
 # Check if the desired environment exists
 if [ ! -d "server_env" ]; then
