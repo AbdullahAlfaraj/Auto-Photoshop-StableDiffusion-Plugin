@@ -16,7 +16,6 @@ def readJson(file_name):
     try:
         with open(file_name) as f_obj:
             data_dict = json.load(f_obj)
-
             print("readJson: data_dict: ", data_dict)
     except IOError:
         print(f"{file_name} is not found")
@@ -25,9 +24,7 @@ def readJson(file_name):
 
 def createFolder(fullpath):
     print("fullpath:", fullpath)
-
-    if not os.path.exists(fullpath):
-        os.mkdir(fullpath)
+    os.makedirs(fullpath, exist_ok=True)
 
 
 # create string dir path name based on the current time
