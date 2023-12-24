@@ -1,7 +1,6 @@
 import base64
 import io
 import time
-from io import BytesIO
 
 # from serverMain import sd_url
 import httpx
@@ -15,7 +14,7 @@ import prompt_shortcut
 
 # Convert Image to Base64
 def img_2_b64(image):
-    buff = BytesIO()
+    buff = io.BytesIO()
     image.save(buff, format="PNG")
     img_byte = base64.b64encode(buff.getvalue())
     img_str = img_byte.decode("utf-8")
@@ -105,7 +104,7 @@ async def img2ImgRequest(sd_url, payload):
     if len(init_img_mask_name) > 0:
         init_img_mask = Image.open(f"{init_img_dir}/{init_img_mask_name}")
 
-        if payload["use_sharp_mask"] == False:  # use blurry mask
+        if payload["use_sharp_mask"] is False:  # use blurry mask
             iteration = payload["mask_expansion"]
             init_img_mask = applyDilation(init_img_mask, iteration)
 
