@@ -26,13 +26,8 @@ def load():
 
 
 def find_words_inside_braces(string):
-    result = ""
-    pattern = "\{(.*?)\}"
-    keywords = []
-    for match in re.findall(pattern, string):
-        keywords.append(match)
-        result += match
-    return keywords
+    pattern = r"\{(.*?)\}"
+    return re.findall(pattern, string)
 
 
 # text = "a beautiful girl holding a cute cat {style_1} on sunny day"
